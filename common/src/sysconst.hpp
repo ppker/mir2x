@@ -141,6 +141,8 @@ constexpr char SYS_EPQST[] = "_RSVD_NAME_EVENT_PATH_QST_6329204623";
 
 constexpr char SYS_COOP[] = "_RSVD_NAME_COOP_293173013";
 
+constexpr char SYS_QSTFSM[] = "_RSVD_NAME_QST_FSM_4194347313";
+
 constexpr inline size_t SYS_SUMEXP(uint32_t level)
 {
     const size_t a =  100;

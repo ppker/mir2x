@@ -173,6 +173,7 @@ LuaModule::LuaModule()
     execString("SYS_ON_END      = %d", SYS_ON_END);
 
     execString("SYS_COOP        = \'%s\'", SYS_COOP);
+    execString("SYS_QSTFSM      = \'%s\'", SYS_QSTFSM);
     execString("SYS_CHECKACTIVE = \'%s\'", SYS_CHECKACTIVE);
     execString("SYS_ALLOWREDNAME = \'%s\'", SYS_ALLOWREDNAME);
 
