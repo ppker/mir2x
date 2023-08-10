@@ -287,9 +287,10 @@ void Quest::onActivate()
         });
     });
 
-    m_luaRunner->bindFunction("_RSVD_NAME_switchUIDQuestState", [this](uint64_t uid, sol::object state, sol::object args, sol::function func, uint64_t threadKey, uint64_t threadSeqID)
+    m_luaRunner->bindFunction("_RSVD_NAME_switchUIDQuestState", [this](const char *fsmName, uint64_t uid, sol::object state, sol::object args, sol::function func, uint64_t threadKey, uint64_t threadSeqID)
     {
-        if(const auto p = m_uidStateRunner.find(uid); p != m_uidStateRunner.end()){
+        auto &fsmStateRunner = m_uidStateRunner[fsmName];
+        if(const auto p = fsmStateRunner.find(uid); p != fsmStateRunner.end()){
             if(p->second != threadKey){
                 // there is already a thread running quest state function for this uid
                 // and it's not current thread, i.e.
@@ -320,7 +321,7 @@ void Quest::onActivate()
                 // shall be good enough since quest luaRunner has unique threadKey
                 m_luaRunner->close(p->second);
             }
-            m_uidStateRunner.erase(p);
+            fsmStateRunner.erase(p);
         }
         else{
             // first time setup state
@@ -363,9 +364,9 @@ void Quest::onActivate()
             const auto stateStr = state.as<std::string>();
             const auto stateLuaStr = luaf::quotedLuaString(stateStr);
             const auto sdbArgsLuaStr = (args == sol::nil) ? std::string("nil") : luaf::quotedLuaString(cerealf::base64_serialize(luaf::buildLuaVar(args)).c_str());
-            m_luaRunner->spawn(m_uidStateRunner[uid] = m_threadKey++, str_printf("_RSVD_NAME_enterUIDQuestState(%llu, %s, %s)", to_llu(uid), stateLuaStr.c_str(), sdbArgsLuaStr.c_str()), {}, [uid, func, stateStr, this](const sol::protected_function_result &pfr)
+            m_luaRunner->spawn(fsmStateRunner[uid] = m_threadKey++, str_printf("_RSVD_NAME_enterUIDQuestState(%llu, %s, %s)", to_llu(uid), stateLuaStr.c_str(), sdbArgsLuaStr.c_str()), {}, [&fsmStateRunner, uid, func, stateStr, this](const sol::protected_function_result &pfr)
             {
-                m_uidStateRunner.erase(uid);
+                fsmStateRunner.erase(uid);
                 std::vector<std::string> error;
 
                 if(m_luaRunner->pfrCheck(pfr, [&error](const std::string &s){ error.push_back(s); })){

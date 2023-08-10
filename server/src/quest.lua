@@ -130,18 +130,52 @@ function getUIDQuestTeam(uid)
 end
 
 local _RSVD_NAME_questFSMTable = nil
-function setQuestFSMTable(fsm)
-    assertType(fsm, 'table')
-    assertType(fsm[SYS_ENTER], 'function')
+function setQuestFSMTable(arg1, arg2)
+    local fsmName  = nil
+    local fsmTable = nil
+
+    if type(arg1) == 'string' and type(arg2) == 'table' then
+        fsmName  = arg1
+        fsmTable = arg2
+
+    elseif type(arg1) == 'table' and arg2 == nil then
+        fsmName  = SYS_QSTFSM
+        fsmTable = arg1
+
+    else
+        fatalPrintf('Invalid arguments')
+    end
+
+    assertType(fsmTable[SYS_ENTER], 'function')
+
     if getTLSTable().threadKey ~= getMainScriptThreadKey() then
         fatalPrintf('Can not modify quest FSM table other than in main script thread')
     end
-    _RSVD_NAME_questFSMTable = fsm
+
+    if _RSVD_NAME_questFSMTable == nil then
+        _RSVD_NAME_questFSMTable = {}
+    end
+    _RSVD_NAME_questFSMTable[fsmName] = fsmTable
 end
 
-function hasQuestState(state)
-    if not _RSVD_NAME_questFSMTable        then return false end
-    if not _RSVD_NAME_questFSMTable[state] then return false end
+function hasQuestState(arg1, arg2)
+    assertType(arg1, 'string')
+    assertType(arg2, 'string', 'nil')
+
+    local fsmName = nil
+    local state   = nil
+
+    if arg2 == nil then
+        fsmName = SYS_QSTFSM
+        state   = arg1
+    else
+        fsmName = arg1
+        state   = arg2
+    end
+
+    if not _RSVD_NAME_questFSMTable                 then return false end
+    if not _RSVD_NAME_questFSMTable[fsmName]        then return false end
+    if not _RSVD_NAME_questFSMTable[fsmName][state] then return false end
     return true
 end
 
@@ -172,9 +206,9 @@ function setUIDQuestState(uid, state, args, func)
     end
 
     if hasQuestState(state) then
-        _RSVD_NAME_switchUIDQuestState(uid, state, args, func, getTLSTable().threadKey, getTLSTable().threadSeqID)
+        _RSVD_NAME_switchUIDQuestState(SYS_QSTFSM, uid, state, args, func, getTLSTable().threadKey, getTLSTable().threadSeqID)
     else
-        _RSVD_NAME_switchUIDQuestState(uid,   nil,  nil,  nil, getTLSTable().threadKey, getTLSTable().threadSeqID)
+        _RSVD_NAME_switchUIDQuestState(SYS_QSTFSM, uid,   nil,  nil,  nil, getTLSTable().threadKey, getTLSTable().threadSeqID)
     end
 
     -- drop current thread in C layer
@@ -306,9 +340,9 @@ function _RSVD_NAME_enterUIDQuestState(uid, state, base64Args)
     end
 
     if base64Args then
-        _RSVD_NAME_questFSMTable[state](uid, base64Decode(base64Args))
+        _RSVD_NAME_questFSMTable[SYS_QSTFSM][state](uid, base64Decode(base64Args))
     else
-        _RSVD_NAME_questFSMTable[state](uid, nil)
+        _RSVD_NAME_questFSMTable[SYS_QSTFSM][state](uid, nil)
     end
 end
 
