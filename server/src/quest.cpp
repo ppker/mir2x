@@ -287,9 +287,9 @@ void Quest::onActivate()
         });
     });
 
-    m_luaRunner->bindFunction("_RSVD_NAME_switchUIDQuestState", [this](const char *fsmName, uint64_t uid, sol::object state, sol::object args, sol::function func, uint64_t threadKey, uint64_t threadSeqID)
+    m_luaRunner->bindFunction("_RSVD_NAME_switchUIDQuestState", [this](uint64_t uid, const char *fsm, sol::object state, sol::object args, sol::function func, uint64_t threadKey, uint64_t threadSeqID)
     {
-        auto &fsmStateRunner = m_uidStateRunner[fsmName];
+        auto &fsmStateRunner = m_uidStateRunner[fsm];
         if(const auto p = fsmStateRunner.find(uid); p != fsmStateRunner.end()){
             if(p->second != threadKey){
                 // there is already a thread running quest state function for this uid
@@ -362,9 +362,20 @@ void Quest::onActivate()
         if(state != sol::nil){
             fflassert(state.is<std::string>());
             const auto stateStr = state.as<std::string>();
+            const auto fsmLuaStr   = luaf::quotedLuaString(fsm);
             const auto stateLuaStr = luaf::quotedLuaString(stateStr);
             const auto sdbArgsLuaStr = (args == sol::nil) ? std::string("nil") : luaf::quotedLuaString(cerealf::base64_serialize(luaf::buildLuaVar(args)).c_str());
-            m_luaRunner->spawn(fsmStateRunner[uid] = m_threadKey++, str_printf("_RSVD_NAME_enterUIDQuestState(%llu, %s, %s)", to_llu(uid), stateLuaStr.c_str(), sdbArgsLuaStr.c_str()), {}, [&fsmStateRunner, uid, func, stateStr, this](const sol::protected_function_result &pfr)
+            m_luaRunner->spawn(fsmStateRunner[uid] = m_threadKey++, str_printf(
+
+            R"###( _RSVD_NAME_currFSMName = %s                      )###"
+            R"###( _RSVD_NAME_enterUIDQuestState(%llu, %s, %s, ...) )###",
+
+            fsmNameStr.c_str(),
+            to_llu(uid), fsmNameStr.c_str(), stateLuaStr.c_str(), sdbArgsLuaStr.c_str()),
+
+            args,
+
+            [&fsmStateRunner, uid, func, stateStr, this](const sol::protected_function_result &pfr)
             {
                 fsmStateRunner.erase(uid);
                 std::vector<std::string> error;

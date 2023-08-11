@@ -158,6 +158,13 @@ function setQuestFSMTable(arg1, arg2)
     _RSVD_NAME_questFSMTable[fsmName] = fsmTable
 end
 
+function hasQuestFSM(fsm)
+    assertType(fsm, 'string')
+    if not _RSVD_NAME_questFSMTable          then return false end
+    if not _RSVD_NAME_questFSMTable[fsmName] then return false end
+    return true
+end
+
 function hasQuestState(arg1, arg2)
     assertType(arg1, 'string')
     assertType(arg2, 'string', 'nil')
@@ -179,56 +186,69 @@ function hasQuestState(arg1, arg2)
     return true
 end
 
-function setUIDQuestState(uid, state, args, func)
-    assertType(uid, 'integer')
-    assertType(state, 'string')
+function setUIDQuestState(args)
+    assertType(args, 'table')
+    assertType(args.uid, 'integer')
+    assertType(args.fsm, 'string', 'nil')
+    assertType(args.state, 'string')
+    assertType(args.exitfunc, 'function', 'nil')
 
-    assert(canSerialize(args))
-    assertType(func, 'function', 'nil')
-
-    if (not hasQuestState(state)) and (state ~= SYS_DONE) then
-        fatalPrintf('Invalid quest state: %s', state)
+    if (not hasQuestState(args.fsm, args.state)) and (args.state ~= SYS_DONE) then
+        fatalPrintf('Invalid quest fsm: %s, state: %s', args.fsm, args.state)
     end
 
     -- don't save team member list here
     -- a player can be in a team but still start a single-role quest alone
 
-    if state == SYS_DONE then
-        local npcBehaviors = dbGetUIDQuestField(uid, 'fld_npcbehaviors')
+    if (args.fsm == nil or args.fsm == SYS_QSTFSM) and (args.state == SYS_DONE) then
+        local npcBehaviors = dbGetUIDQuestField(args.uid, 'fld_npcbehaviors')
         if npcBehaviors then
             for _, v in pairs(npcBehaviors) do
-                clearNPCQuestBehavior(v[1], v[2], uid)
+                clearNPCQuestBehavior(v[1], v[2], args.uid)
             end
         end
-        _RSVD_NAME_dbSetUIDQuestStateDone(uid)
+        _RSVD_NAME_dbSetUIDQuestStateDone(args.uid)
     else
-        dbSetUIDQuestState(uid, state, args)
+        dbSetUIDQuestState(args.fsm, args.uid, args.state, args.args)
     end
 
-    if hasQuestState(state) then
-        _RSVD_NAME_switchUIDQuestState(SYS_QSTFSM, uid, state, args, func, getTLSTable().threadKey, getTLSTable().threadSeqID)
+    local currFSMName = _RSVD_NAME_currFSMName
+
+    if hasQuestState(args.fsm, args.state) then
+        _RSVD_NAME_switchUIDQuestState(args.uid, args.fsm or SYS_QSTFSM, args.state, args.args, args.exitfunc, getTLSTable().threadKey, getTLSTable().threadSeqID)
     else
-        _RSVD_NAME_switchUIDQuestState(SYS_QSTFSM, uid,   nil,  nil,  nil, getTLSTable().threadKey, getTLSTable().threadSeqID)
+        _RSVD_NAME_switchUIDQuestState(args.uid, args.fsm or SYS_QSTFSM,        nil,       nil,           nil, getTLSTable().threadKey, getTLSTable().threadSeqID)
     end
 
     -- drop current thread in C layer
     -- next state will be executed in a new thread
 
-    while true do
-        coroutine.yield()
+    if currFSMName == args.fsm then
+        while true do
+            coroutine.yield()
+        end
     end
 end
 
-function setUIDQuestDesp(uid, format, ...)
-    assertType(uid, 'integer')
-    if type(format) == 'string' then
-        _RSVD_NAME_setUIDQuestDesp(uid, string.format(format, ...))
-    elseif type(format) == 'nil' then
-        assert(select('#', ...) == 0)
-        _RSVD_NAME_setUIDQuestDesp(uid, nil)
-    else
-        fatalPrintf('Invalid quest description format: %s', tostring(format))
+function setUIDQuestDesp(args)
+    assertType(args, 'table')
+    assertType(args.uid, 'integer')
+    assertType(args.fsm, 'string', 'nil')
+
+    local uid = args.uid
+    local fsm = args.fsm or SYS_QSTFSM
+
+    if args.format == nil and #args == 0 then
+        return _RSVD_NAME_setUIDQuestDesp(uid, fsm or SYS_QSTFSM, nil)
     end
+
+    if args.format ~= nil then
+        assertType(args.format, 'string')
+        return _RSVD_NAME_setUIDQuestDesp(uid, fsm or SYS_QSTFSM, string.format(args.format, table.unpack(args, 1, #args)))
+    end
+
+    assertType(args[1], 'string')
+    return _RSVD_NAME_setUIDQuestDesp(uid, fsm or SYS_QSTFSM, string.format(table.unpack(args, 1, #args)))
 end
 
 -- setup NPC chat logics
@@ -321,7 +341,7 @@ function runNPCEventHandler(npcUID, playerUID, eventPath, event, value)
     ]])
 end
 
-function _RSVD_NAME_enterUIDQuestState(uid, state, base64Args)
+function _RSVD_NAME_enterUIDQuestState(uid, fsm, state, ...)
     assertType(uid, 'integer')
     assertType(state, 'string')
     assertType(base64Args, 'string', 'nil')
@@ -339,11 +359,7 @@ function _RSVD_NAME_enterUIDQuestState(uid, state, base64Args)
         end
     end
 
-    if base64Args then
-        _RSVD_NAME_questFSMTable[SYS_QSTFSM][state](uid, base64Decode(base64Args))
-    else
-        _RSVD_NAME_questFSMTable[SYS_QSTFSM][state](uid, nil)
-    end
+    _RSVD_NAME_questFSMTable[SYS_QSTFSM][state](uid, ...)
 end
 
 local _RSVD_NAME_triggers = {}
