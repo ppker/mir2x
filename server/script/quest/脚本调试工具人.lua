@@ -57,7 +57,7 @@ function main()
                         uidRemoteCall(questUID, uid,
                         [=[
                             local playerUID = ...
-                            setUIDQuestDesp(playerUID, '请选择是否要进行脚本测试。')
+                            setUIDQuestDesp{uid=playerUID, '请选择是否要进行脚本测试。'}
                         ]=])
                     end,
 
