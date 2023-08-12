@@ -69,7 +69,7 @@ function assertType(var, ...)
             i = i + 1
         end
 
-        table.insert(errStrs, ' %s or %s, get %s', typestrs[typestrs.n - 1], typestrs[typestrs.n], type(var))
+        table.insert(errStrs, string.format(' %s or %s, get %s', typestrs[typestrs.n - 1], typestrs[typestrs.n], type(var)))
         fatalPrintf(table.concat(errStrs))
     end
 end
