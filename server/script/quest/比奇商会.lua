@@ -171,9 +171,9 @@ end
 setQuestFSMTable(
 {
     [SYS_ENTER] = function(uid, value)
-        uidRemoteCall(getNPCharUID('比奇县_0', '王大人_1'), uid, value, getUID(),
+        uidRemoteCall(getNPCharUID('比奇县_0', '王大人_1'), uid, value,
         [[
-            local playerUID, accepted, questUID = ...
+            local playerUID, accepted = ...
             if accepted then
                 uidPostXML(playerUID,
                 [=[
@@ -185,11 +185,6 @@ setQuestFSMTable(
                     </layout>
                 ]=], SYS_EXIT)
 
-                uidRemoteCall(questUID, playerUID,
-                [=[
-                    local playerUID = ...
-                    setUIDQuestState{uid=playerUID, state='quest_accept_quest'}
-                ]=])
             else
                 uidPostXML(playerUID,
                 [=[
@@ -200,26 +195,18 @@ setQuestFSMTable(
                         <par><event id="%s">结束</event></par>
                     </layout>
                 ]=], SYS_EXIT)
-
-                uidRemoteCall(questUID, playerUID,
-                [=[
-                    local playerUID = ...
-                    setUIDQuestState{uid=playerUID, state='quest_refuse_quest'}
-                ]=])
             end
         ]])
+
+        if value then
+            setUIDQuestState{uid=uid, state='quest_accept_quest'}
+        else
+            setUIDQuestState{uid=uid, state='quest_refuse_quest'}
+        end
     end,
 
     quest_accept_quest = function(uid, value)
-        uidRemoteCall(getNPCharUID('比奇县_0', '王大人_1'), uid, getUID(),
-        [[
-            local playerUID, questUID = ...
-            uidRemoteCall(questUID, playerUID,
-            [=[
-                local playerUID = ...
-                setUIDQuestState{uid=playerUID, state='quest_persuade_pharmacist_and_librarian'}
-            ]=])
-        ]])
+        setUIDQuestState{uid=uid, state='quest_persuade_pharmacist_and_librarian'}
     end,
 
     quest_refuse_quest = function(uid, value)
