@@ -188,7 +188,7 @@ setQuestFSMTable(
                 uidRemoteCall(questUID, playerUID,
                 [=[
                     local playerUID = ...
-                    setUIDQuestState(uid=playerUID, state='quest_accept_quest')
+                    setUIDQuestState{uid=playerUID, state='quest_accept_quest'}
                 ]=])
             else
                 uidPostXML(playerUID,
@@ -204,7 +204,7 @@ setQuestFSMTable(
                 uidRemoteCall(questUID, playerUID,
                 [=[
                     local playerUID = ...
-                    setUIDQuestState(uid=playerUID, state='quest_refuse_quest')
+                    setUIDQuestState{uid=playerUID, state='quest_refuse_quest'}
                 ]=])
             end
         ]])
