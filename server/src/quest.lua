@@ -191,13 +191,12 @@ function hasQuestState(arg1, arg2)
     return true
 end
 
-function _RSVD_NAME_setUIDQuestState(fargs, restore)
+function setUIDQuestState(fargs)
     assertType(fargs, 'table')
     assertType(fargs.uid, 'integer')
     assertType(fargs.fsm, 'string', 'nil')
     assertType(fargs.state, 'string')
     assertType(fargs.exitfunc, 'function', 'nil')
-    assertType(restore, 'boolean', 'nil')
 
     local uid   = fargs.uid
     local fsm   = fargs.fsm or SYS_QSTFSM
@@ -229,7 +228,7 @@ function _RSVD_NAME_setUIDQuestState(fargs, restore)
     if hasQuestState(fsm, state) then
         runQuestThread(function()
             _RSVD_NAME_currFSMName = fsm
-            _RSVD_NAME_enterUIDQuestState(uid, fsm, state, fargs.args, restore or false)
+            _RSVD_NAME_enterUIDQuestState(uid, fsm, state, fargs.args, false)
             if args.exitfunc then
                 runQuestThread(args.exitfunc)
             end
@@ -244,10 +243,6 @@ function _RSVD_NAME_setUIDQuestState(fargs, restore)
             coroutine.yield()
         end
     end
-end
-
-function setUIDQuestState(fargs)
-    _RSVD_NAME_setUIDQuestState(fargs, false)
 end
 
 function setUIDQuestDesp(args)
