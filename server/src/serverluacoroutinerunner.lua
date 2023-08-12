@@ -21,7 +21,7 @@ function pause(msec)
     assert(msec >= 0)
 
     local oldTime = getTime()
-    _RSVD_NAME_pauseYielding(msec, getTLSTable().threadKey, getTLSTable().threadSeqID)
+    _RSVD_NAME_pauseYielding(msec)
     return getTime() - oldTime
 end
 
@@ -117,10 +117,6 @@ function waitNotify(timeout)
     --
     -- the tailing nil is also forwarded to waitNotify()
     return
-end
-
-function clearNotify()
-    _RSVD_NAME_clearNotify(getTLSTable().threadKey, getTLSTable().threadSeqID)
 end
 
 function _RSVD_NAME_callFuncCoop(funcName, ...)

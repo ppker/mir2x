@@ -389,21 +389,15 @@ ServerLuaCoroutineRunner::ServerLuaCoroutineRunner(ActorPod *podPtr)
         return sol::make_object(sol::state_view(s), sol::nil);
     });
 
-    bindFunction("_RSVD_NAME_clearNotify", [this](uint64_t threadKey, uint64_t threadSeqID)
+    bindFunction("clearNotify", [this]()
     {
-        fflassert(threadKey);
-        fflassert(threadSeqID);
-
-        auto runnerPtr = hasKey(threadKey, threadSeqID);
-        fflassert(runnerPtr, threadKey, threadSeqID);
-
-        runnerPtr->notifyList.clear();
+        m_currRunner->notifyList.clear();
     });
 
-    bindYielding("_RSVD_NAME_pauseYielding", [this](uint64_t msec, uint64_t threadKey, uint64_t threadSeqID)
+    bindYielding("_RSVD_NAME_pauseYielding", [this](uint64_t msec)
     {
-        fflassert(threadKey > 0, threadKey);
-        fflassert(threadSeqID > 0, threadSeqID);
+        const auto threadKey   = m_currRunner->key;
+        const auto threadSeqID = m_currRunner->seqID;
 
         const auto delayKey = m_actorPod->getSO()->addDelay(msec, [threadKey, threadSeqID, this]()
         {
@@ -416,7 +410,7 @@ ServerLuaCoroutineRunner::ServerLuaCoroutineRunner(ActorPod *podPtr)
             }
         });
 
-        pushOnClose(threadKey, threadSeqID, [delayKey, this]()
+        m_currRunner->onClose.push([delayKey, this]()
         {
             m_actorPod->getSO()->removeDelay(delayKey);
         });

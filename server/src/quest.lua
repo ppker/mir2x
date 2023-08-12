@@ -158,7 +158,7 @@ function setQuestFSMTable(arg1, arg2)
 
     assertType(fsmTable[SYS_ENTER], 'function')
 
-    if getTLSTable().threadKey ~= getMainScriptThreadKey() then
+    if getThreadKey() ~= getMainScriptThreadKey() then
         fatalPrintf('Can not modify quest FSM table other than in main script thread')
     end
 
@@ -353,9 +353,6 @@ function clearNPCQuestBehavior(mapName, npcName, uid)
 end
 
 function runNPCEventHandler(npcUID, playerUID, eventPath, event, value)
-    getTLSTable().threadKey = getThreadKey()
-    getTLSTable().threadSeqID = getThreadSeqID()
-
     uidRemoteCall(npcUID, playerUID, eventPath, event, value,
     [[
         local playerUID, eventPath, event, value = ...
