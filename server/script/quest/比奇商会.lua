@@ -92,7 +92,7 @@ function _G.set_pharmacist_quest_handler()
         return setQuestHandler(questName,
         {
             [SYS_CHECKACTIVE] = function(uid)
-                return uidRemoteCall(uid, [=[ return getQuestState('比奇商会') ]=]) == 'quest_persuade_pharmacist_and_librarian'
+                return SYS_DEBUG or uidRemoteCall(uid, [=[ return getQuestState('比奇商会') ]=]) == 'quest_persuade_pharmacist_and_librarian'
             end,
 
             [SYS_ENTER] = function(uid, value)
@@ -1343,7 +1343,7 @@ uidRemoteCall(getNPCharUID('比奇县_0', '王大人_1'), getUID(), getQuestName
     return setQuestHandler(questName,
     {
         [SYS_CHECKACTIVE] = function(uid)
-            return uidRemoteCall(uid, [=[ return getQuestState('初出江湖') ]=]) == SYS_DONE
+            return SYS_DEBUG or uidRemoteCall(uid, [=[ return getQuestState('初出江湖') ]=]) == SYS_DONE
         end,
 
         [SYS_ENTER] = function(uid, value)
