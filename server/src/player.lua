@@ -100,10 +100,15 @@ function _RSVD_NAME_setupQuests()
             assertType(states, 'table', 'nil')
 
             if states then
-                for k, v in pairs(states) do
-                    runQuestThread(function()
-                        _RSVD_NAME_enterUIDQuestState(playerUID, k, v[1], v[2])
-                    end)
+                assertType(states[SYS_QSTFSM], 'array')
+                assertType(states[SYS_QSTFSM][1], 'string')
+
+                if states[SYS_QSTFSM][1] ~= SYS_DONE then
+                    for k, v in pairs(states) do
+                        runQuestThread(function()
+                            _RSVD_NAME_enterUIDQuestState(playerUID, k, v[1], v[2])
+                        end)
+                    end
                 end
             end
         ]])
