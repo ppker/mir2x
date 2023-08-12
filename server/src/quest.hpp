@@ -7,6 +7,22 @@
 class Quest final: public ServerObject
 {
     private:
+        class QuestThreadRunner final: public ServerLuaCoroutineRunner
+        {
+            private:
+                using LuaThreadHandle = ServerLuaCoroutineRunner::LuaThreadHandle;
+
+            private:
+                Quest *m_quest;
+
+            protected:
+                QuestThreadRunner(Quest *);
+
+            protected:
+                void closeUIDQuestState(uint64_t, const char *, const void *);
+        };
+
+    private:
         const std::string m_scriptName;
 
     private:

@@ -135,10 +135,9 @@ class LuaCoopVargs final
 };
 
 class ActorPod;
-class LuaThreadHandle;
 class ServerLuaCoroutineRunner: public ServerLuaModule
 {
-    private:
+    protected:
         struct LuaThreadHandle
         {
             // for this class
@@ -257,7 +256,7 @@ class ServerLuaCoroutineRunner: public ServerLuaModule
     private:
         ActorPod * const m_actorPod;
 
-    private:
+    protected:
         LuaThreadHandle *m_currRunner = nullptr;
 
     private:
@@ -295,8 +294,10 @@ class ServerLuaCoroutineRunner: public ServerLuaModule
         std::vector<uint64_t> getSeqID(uint64_t, std::vector<uint64_t> * = nullptr) const;
 
     public:
-        void close(uint64_t, uint64_t = 0);
+        void close (uint64_t, uint64_t = 0);
         void resume(uint64_t, uint64_t = 0);
+
+    public:
         LuaThreadHandle *hasKey(uint64_t, uint64_t = 0);
 
     public:

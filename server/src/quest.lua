@@ -186,53 +186,59 @@ function hasQuestState(arg1, arg2)
     return true
 end
 
-function _RSVD_NAME_setUIDQuestState(args, restore)
-    assertType(args, 'table')
-    assertType(args.uid, 'integer')
-    assertType(args.fsm, 'string', 'nil')
-    assertType(args.state, 'string')
-    assertType(args.exitfunc, 'function', 'nil')
+function _RSVD_NAME_setUIDQuestState(fargs, restore)
+    assertType(fargs, 'table')
+    assertType(fargs.uid, 'integer')
+    assertType(fargs.fsm, 'string', 'nil')
+    assertType(fargs.state, 'string')
+    assertType(fargs.exitfunc, 'function', 'nil')
     assertType(restore, 'boolean', 'nil')
 
-    if (not hasQuestState(args.fsm, args.state)) and (args.state ~= SYS_DONE) then
-        fatalPrintf('Invalid quest fsm: %s, state: %s', args.fsm, args.state)
+    local uid   = fargs.uid
+    local fsm   = fargs.fsm or SYS_QSTFSM
+    local state = fargs.state
+
+    if (not hasQuestState(fsm, state)) and (state ~= SYS_DONE) then
+        fatalPrintf('Invalid arguments: fsm %s, state %s', fsm, state)
     end
 
     -- don't save team member list here
     -- a player can be in a team but still start a single-role quest alone
 
-    if (args.fsm == nil or args.fsm == SYS_QSTFSM) and (args.state == SYS_DONE) then
-        local npcBehaviors = dbGetUIDQuestField(args.uid, 'fld_npcbehaviors')
+    if (fsm == SYS_QSTFSM) and (state == SYS_DONE) then
+        local npcBehaviors = dbGetUIDQuestField(uid, 'fld_npcbehaviors')
         if npcBehaviors then
             for _, v in pairs(npcBehaviors) do
-                clearNPCQuestBehavior(v[1], v[2], args.uid)
+                clearNPCQuestBehavior(v[1], v[2], uid)
             end
         end
-        _RSVD_NAME_dbSetUIDQuestStateDone(args.uid)
+        _RSVD_NAME_dbSetUIDQuestStateDone(uid)
     else
-        dbSetUIDQuestState(args.fsm, args.uid, args.state, args.args)
+        dbSetUIDQuestState(fsm, uid, state, fargs.args)
     end
 
     local currFSMName = _RSVD_NAME_currFSMName
+    assertType(currFSMName, 'string')
 
-    if hasQuestState(args.fsm, args.state) then
-        _RSVD_NAME_switchUIDQuestState(args.uid, args.fsm or SYS_QSTFSM, args.state, args.args, restore or false, args.exitfunc, getTLSTable().threadKey, getTLSTable().threadSeqID)
+    if hasQuestState(fsm, state) then
+        _RSVD_NAME_switchUIDQuestState(uid, fsm, state, fargs.args, restore or false, args.exitfunc)
     else
-        _RSVD_NAME_switchUIDQuestState(args.uid, args.fsm or SYS_QSTFSM,        nil,       nil, restore or false,           nil, getTLSTable().threadKey, getTLSTable().threadSeqID)
+        assert(state == SYS_DONE)
+        _RSVD_NAME_closeUIDQuestState(uid, fsm)
     end
 
     -- drop current thread in C layer
     -- next state will be executed in a new thread
 
-    if currFSMName == args.fsm then
+    if currFSMName == fsm then
         while true do
             coroutine.yield()
         end
     end
 end
 
-function setUIDQuestState(args)
-    _RSVD_NAME_setUIDQuestState(args, false)
+function setUIDQuestState(fargs)
+    _RSVD_NAME_setUIDQuestState(fargs, false)
 end
 
 function setUIDQuestDesp(args)
