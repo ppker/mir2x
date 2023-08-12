@@ -63,13 +63,19 @@ function getTeamMemberList()
     return _RSVD_NAME_callFuncCoop('getTeamMemberList')
 end
 
-function getQuestState(questName)
+function getQuestState(questName, fsmName)
     assertType(questName, 'string')
+    assertType(fsmName,  'string', 'nil')
+
     local questUID = _RSVD_NAME_callFuncCoop('queryQuestUID', questName)
 
     assertType(questUID, 'integer')
     if questUID ~= 0 then
-        return uidExecute(questUID, [[ return dbGetUIDQuestState(%d) ]], getUID())
+        return uidRemoteCall(questUID, getUID(), fsmName or SYS_QSTFSM,
+        [[
+            local playerUID, fsmName = ...
+            return dbGetUIDQuestState(playerUID, fsmName)
+        ]])
     end
 end
 
@@ -94,9 +100,9 @@ function _RSVD_NAME_setupQuests()
             assertType(states, 'table', 'nil')
 
             if states then
-                for _, v in ipairs(states) do
+                for k, v in pairs(states) do
                     runQuestThread(function()
-                        _RSVD_NAME_enterUIDQuestState(playerUID, v.fsm, v.state, v.args)
+                        _RSVD_NAME_enterUIDQuestState(playerUID, k, v[1], v[2])
                     end)
                 end
             end

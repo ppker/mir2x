@@ -597,7 +597,7 @@ std::pair<uint64_t, uint64_t> ServerLuaCoroutineRunner::spawn(uint64_t key, cons
         R"###(     end                                                     )###""\n"
         R"###( end                                                         )###""\n", to_llu(key), to_llu(currSeqID), code.c_str()), std::move(args)));
 
-    return currSeqID; // don't use p resumeRunner() can invalidate p
+    return {key, currSeqID}; // don't use p resumeRunner() can invalidate p
 }
 
 std::pair<uint64_t, uint64_t> ServerLuaCoroutineRunner::spawn(uint64_t key, const sol::function &func, std::function<void(const sol::protected_function_result &)> onDone, std::function<void()> onClose)
@@ -608,7 +608,7 @@ std::pair<uint64_t, uint64_t> ServerLuaCoroutineRunner::spawn(uint64_t key, cons
     const auto p = m_runnerList.emplace(std::piecewise_construct, std::forward_as_tuple(key), std::forward_as_tuple(*this, key, currSeqID, func, std::move(onDone), std::move(onClose)));
 
     resumeRunner(std::addressof(p->second));
-    return currSeqID; // don't use p resumeRunner() can invalidate p
+    return {key, currSeqID}; // don't use p resumeRunner() can invalidate p
 }
 
 void ServerLuaCoroutineRunner::resumeRunner(LuaThreadHandle *runnerPtr, std::optional<std::pair<std::string, luaf::luaVar>> codeOpt)

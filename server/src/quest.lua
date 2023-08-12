@@ -39,15 +39,20 @@ function dbSetUIDQuestVar(uid, key, value)
     _RSVD_NAME_dbUpdateUIDQuestFieldTable(uid, 'fld_vars', key, value)
 end
 
-function dbGetUIDQuestState(uid)
+function dbGetUIDQuestState(uid, fsm)
     assertType(uid, 'integer')
-    return table.unpack(dbGetUIDQuestField(uid, 'fld_state') or {}, 1, 2)
-end
+    assertType(fsm, 'string', 'nil')
 
-function dbSetUIDQuestState(uid, state, args)
-    assertType(uid, 'integer')
-    assertType(state, 'string')
-    dbSetUIDQuestField(uid, 'fld_state', {state, args})
+    local states = dbGetUIDQuestField(uid, 'fld_states')
+    if fsm == nil then
+        return states
+    end
+
+    for k, v in pairs(states or {}) do
+        if k == fsm then
+            return v[1], v[2]
+        end
+    end
 end
 
 function hasUIDQuestFlag(uid, flagName)
@@ -218,7 +223,7 @@ function setUIDQuestState(fargs)
         end
         _RSVD_NAME_dbSetUIDQuestStateDone(uid)
     else
-        dbSetUIDQuestState(fsm, uid, state, fargs.args)
+        _RSVD_NAME_dbUpdateUIDQuestFieldTable(uid, 'fld_states', fsm, {state=state, args=fargs.args})
     end
 
     local currFSMName = _RSVD_NAME_currFSMName

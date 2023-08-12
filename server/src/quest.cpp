@@ -25,13 +25,13 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
 
     bindFunction("rollKey", [this]() -> uint64_t
     {
-        return m_threadKey++;
+        return m_quest->m_threadKey++;
     });
 
     bindFunction("dbGetUIDQuestDesp", [this](uint64_t uid, sol::this_state s) -> sol::object
     {
         sol::state_view sv(s);
-        const auto dbName = getQuestDBName();
+        const auto dbName = m_quest->getQuestDBName();
         const auto dbid = uidf::getPlayerDBID(uid);
 
         auto queryStatement = g_dbPod->createQuery(u8R"###(select fld_desp from %s where fld_dbid=%llu and fld_desp is not null)###", dbName.c_str(), to_llu(dbid));
@@ -43,13 +43,13 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
 
     bindFunction("_RSVD_NAME_setUIDQuestDesp", [this](uint64_t uid, sol::object obj)
     {
-        const auto dbName = getQuestDBName();
+        const auto dbName = m_quest->getQuestDBName();
         const auto dbid = uidf::getPlayerDBID(uid);
         const auto timestamp = hres_tstamp().to_nsec();
 
         SDQuestDesp sdQD
         {
-            .name = getQuestName(),
+            .name = m_quest->getQuestName(),
         };
 
         if(obj == sol::nil){
@@ -96,16 +96,16 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
             sdQD.desp = obj.as<std::string>();
         }
         else{
-            throw fflerror("invalid type: %s", to_cstr(sol::type_name(obj.lua_state(), obj.get_type())));
+            throw fflerror("invalid type: %s", to_cstr(luaf::luaObjTypeString(obj)));
         }
 
-        forwardNetPackage(uid, SM_QUESTDESP, cerealf::serialize(sdQD));
+        m_quest->forwardNetPackage(uid, SM_QUESTDESP, cerealf::serialize(sdQD));
     });
 
     bindFunction("dbGetUIDQuestField", [this](uint64_t uid, std::string fieldName, sol::this_state s) -> sol::object
     {
         sol::state_view sv(s);
-        const auto dbName = getQuestDBName();
+        const auto dbName = m_quest->getQuestDBName();
         const auto dbid = uidf::getPlayerDBID(uid);
 
         fflassert(str_haschar(fieldName));
@@ -120,7 +120,7 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
 
     bindFunction("dbSetUIDQuestField", [this](uint64_t uid, std::string fieldName, sol::object obj)
     {
-        const auto dbName = getQuestDBName();
+        const auto dbName = m_quest->getQuestDBName();
         const auto dbid = uidf::getPlayerDBID(uid);
         const auto timestamp = hres_tstamp().to_nsec();
 
@@ -178,23 +178,26 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
     bindFunction("_RSVD_NAME_dbSetUIDQuestStateDone", [this](uint64_t uid)
     {
         // finialize quest
-        // all quest vars get removed except fld_state
+        // all quest vars get removed except fld_states
 
-        const auto dbName = getQuestDBName();
+        const auto dbName = m_quest->getQuestDBName();
         const auto dbid = uidf::getPlayerDBID(uid);
         const auto timestamp = hres_tstamp().to_nsec();
 
         auto query = g_dbPod->createQuery(
-            u8R"###( replace into %s(fld_dbid, fld_timestamp, fld_state) )###"
-            u8R"###( values                                              )###"
-            u8R"###(     (%llu, %llu, ?)                                 )###",
+            u8R"###( replace into %s(fld_dbid, fld_timestamp, fld_states) )###"
+            u8R"###( values                                               )###"
+            u8R"###(     (%llu, %llu, ?)                                  )###",
 
             dbName.c_str(),
 
             to_llu(dbid),
             to_llu(timestamp));
 
-        query.bind(1, cerealf::serialize(luaf::buildLuaVar(std::vector<std::string>{SYS_DONE})));
+        query.bind(1, cerealf::serialize(luaf::buildLuaVar(std::unordered_map<std::string, std::vector<std::string>>
+        {
+            {SYS_QSTFSM, {SYS_DONE}},
+        })));
         query.exec();
     });
 
@@ -294,7 +297,7 @@ void Quest::QuestThreadRunner::closeUIDQuestState(uint64_t uid, const char *fsm,
     fflassert(uidf::isPlayer(uid));
     fflassert(str_haschar(fsm));
 
-    auto &fsmStateRunner = m_uidStateRunner[fsm];
+    auto &fsmStateRunner = m_quest->m_uidStateRunner[fsm];
     auto p = fsmStateRunner.find(uid);
 
     if(p == fsmStateRunner.end()){
@@ -316,9 +319,9 @@ void Quest::QuestThreadRunner::closeUIDQuestState(uint64_t uid, const char *fsm,
         //
         // this prevents any possibility of resuming the thread after this function call
 
-        m_actorPod->addDelay(0, [threadKey = p->second, this]()
+        m_quest->addDelay(0, [threadKey = p->second, this]()
         {
-            close(threadKey, threadSeqID);
+            close(threadKey);
         });
     }
     else{
@@ -337,7 +340,7 @@ Quest::Quest(const SDInitQuest &initQuest)
             u8R"###( create table %s(                                          )###"
             u8R"###(     fld_dbid         int unsigned not null,               )###"
             u8R"###(     fld_timestamp    int unsigned not null,               )###"
-            u8R"###(     fld_state        blob             null,               )###"
+            u8R"###(     fld_states       blob             null,               )###"
             u8R"###(     fld_flags        blob             null,               )###"
             u8R"###(     fld_team         blob             null,               )###"
             u8R"###(     fld_vars         blob             null,               )###"

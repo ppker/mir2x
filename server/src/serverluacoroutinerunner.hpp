@@ -253,7 +253,7 @@ class ServerLuaCoroutineRunner: public ServerLuaModule
             }
         };
 
-    private:
+    protected:
         ActorPod * const m_actorPod;
 
     protected:
