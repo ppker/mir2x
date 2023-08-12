@@ -8,7 +8,9 @@
 #include <unordered_map>
 #include <set>
 #include <unordered_set>
+#include <array>
 #include <vector>
+#include <deque>
 #include <list>
 #include <type_traits>
 #include <sol/sol.hpp>
@@ -162,7 +164,10 @@ namespace luaf
 {
     std::string quotedLuaString(const std::string &);
     std::string luaObjTypeString(const sol::object &);
+}
 
+namespace luaf
+{
     // sol is overly flexible to create sol::object
     // don't use generic template
     //
@@ -178,6 +183,22 @@ namespace luaf
     sol::object buildLuaObj(sol::state_view sv, double);
     sol::object buildLuaObj(sol::state_view sv, bool);
     sol::object buildLuaObj(sol::state_view sv, std::string);
+}
+
+namespace luaf
+{
+    template<typename T> luaVar buildLuaVar(T);
+
+    luaVar buildLuaVar(luaVarWrapper);
+    luaVar buildLuaVar(const sol::object &);
+
+    template<typename K, typename V, typename... Args> luaVar buildLuaVar(std::unordered_map<K, V, Args...>);
+    template<typename K, typename V, typename... Args> luaVar buildLuaVar(std::          map<K, V, Args...>);
+
+    template<typename T, typename... Args> luaVar buildLuaVar(std::         list<T, Args...>);
+    template<typename T, typename... Args> luaVar buildLuaVar(std::       vector<T, Args...>);
+    template<typename T, typename... Args> luaVar buildLuaVar(std::          set<T, Args...>);
+    template<typename T, typename... Args> luaVar buildLuaVar(std::unordered_set<T, Args...>);
 
     template<typename C> luaArray buildLuaArray(C varList)
     {
@@ -199,22 +220,26 @@ namespace luaf
         return table;
     }
 
-    template<typename K, typename V, typename... Args> luaVar buildLuaVar(std::unordered_map<K, V, Args...> varTable) { return buildLuaTable(varTable); }
-    template<typename K, typename V, typename... Args> luaVar buildLuaVar(std::          map<K, V, Args...> varTable) { return buildLuaTable(varTable); }
-
-    template<typename T, typename... Args> luaVar buildLuaVar(std::         list<T, Args...> varList) { return buildLuaArray(varList); }
-    template<typename T, typename... Args> luaVar buildLuaVar(std::       vector<T, Args...> varList) { return buildLuaArray(varList); }
-    template<typename T, typename... Args> luaVar buildLuaVar(std::          set<T, Args...> varList) { return buildLuaArray(varList); }
-    template<typename T, typename... Args> luaVar buildLuaVar(std::unordered_set<T, Args...> varList) { return buildLuaArray(varList); }
-
-    luaVar buildLuaVar(luaVarWrapper);
-    luaVar buildLuaVar(const sol::object &);
-
     template<typename T> luaVar buildLuaVar(T t)
     {
         return luaVar(std::move(t));
     }
 
+    template<typename K, typename V, typename... Args> luaVar buildLuaVar(std::unordered_map<K, V, Args...> varTable) { return buildLuaTable(varTable); }
+    template<typename K, typename V, typename... Args> luaVar buildLuaVar(std::          map<K, V, Args...> varTable) { return buildLuaTable(varTable); }
+
+    template<typename T, typename... Args> luaVar buildLuaVar(std::         list<T, Args...> varList) { return buildLuaArray(varList); }
+    template<typename T, typename... Args> luaVar buildLuaVar(std::       vector<T, Args...> varList) { return buildLuaArray(varList); }
+    template<typename T, typename... Args> luaVar buildLuaVar(std::        deque<T, Args...> varList) { return buildLuaArray(varList); }
+    template<typename T, typename... Args> luaVar buildLuaVar(std::          set<T, Args...> varList) { return buildLuaArray(varList); }
+    template<typename T, typename... Args> luaVar buildLuaVar(std::unordered_set<T, Args...> varList) { return buildLuaArray(varList); }
+
+    template<typename T, size_t N> luaVar buildLuaVar(std::array<T, N> varList) { return buildLuaArray(varList); }
+    template<typename T, size_t N> luaVar buildLuaVar(T (&varList)[N])          { return buildLuaArray(varList); }
+}
+
+namespace luaf
+{
     std::vector<luaVar> vargBuildLuaVarList(const sol::variadic_args             &, size_t = 0, std::optional<size_t> = std::nullopt);
     std::vector<luaVar>  pfrBuildLuaVarList(const sol::protected_function_result &, size_t = 0, std::optional<size_t> = std::nullopt);
 }
