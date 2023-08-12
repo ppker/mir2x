@@ -186,12 +186,13 @@ function hasQuestState(arg1, arg2)
     return true
 end
 
-function setUIDQuestState(args)
+function _RSVD_NAME_setUIDQuestState(args, restore)
     assertType(args, 'table')
     assertType(args.uid, 'integer')
     assertType(args.fsm, 'string', 'nil')
     assertType(args.state, 'string')
     assertType(args.exitfunc, 'function', 'nil')
+    assertType(restore, 'boolean', 'nil')
 
     if (not hasQuestState(args.fsm, args.state)) and (args.state ~= SYS_DONE) then
         fatalPrintf('Invalid quest fsm: %s, state: %s', args.fsm, args.state)
@@ -215,9 +216,9 @@ function setUIDQuestState(args)
     local currFSMName = _RSVD_NAME_currFSMName
 
     if hasQuestState(args.fsm, args.state) then
-        _RSVD_NAME_switchUIDQuestState(args.uid, args.fsm or SYS_QSTFSM, args.state, args.args, false, args.exitfunc, getTLSTable().threadKey, getTLSTable().threadSeqID)
+        _RSVD_NAME_switchUIDQuestState(args.uid, args.fsm or SYS_QSTFSM, args.state, args.args, restore or false, args.exitfunc, getTLSTable().threadKey, getTLSTable().threadSeqID)
     else
-        _RSVD_NAME_switchUIDQuestState(args.uid, args.fsm or SYS_QSTFSM,        nil,       nil, false,           nil, getTLSTable().threadKey, getTLSTable().threadSeqID)
+        _RSVD_NAME_switchUIDQuestState(args.uid, args.fsm or SYS_QSTFSM,        nil,       nil, restore or false,           nil, getTLSTable().threadKey, getTLSTable().threadSeqID)
     end
 
     -- drop current thread in C layer
@@ -228,6 +229,10 @@ function setUIDQuestState(args)
             coroutine.yield()
         end
     end
+end
+
+function setUIDQuestState(args)
+    _RSVD_NAME_setUIDQuestState(args, false)
 end
 
 function setUIDQuestDesp(args)

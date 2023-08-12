@@ -555,7 +555,7 @@ void Player::onActivate()
     R"###(         assertType(state, 'string', 'nil')                                                 )###""\n"
     R"###(                                                                                            )###""\n"
     R"###(         if (state ~= nil) and (state ~= SYS_DONE) then                                     )###""\n"
-    R"###(             setUIDQuestState(playerUID, state, args)                                       )###""\n"
+    R"###(             _RSVD_NAME_setUIDQuestState({uid=playerUID, state=state, args=args}, true)     )###""\n"
     R"###(         end                                                                                )###""\n"
     R"###(     ]])                                                                                    )###""\n"
     R"###(                                                                                            )###""\n"
