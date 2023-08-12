@@ -200,6 +200,12 @@ namespace luaf
     template<typename T, typename... Args> luaVar buildLuaVar(std::          set<T, Args...>);
     template<typename T, typename... Args> luaVar buildLuaVar(std::unordered_set<T, Args...>);
 
+    template<typename T, size_t N> luaVar buildLuaVar(T (&)[N]);
+    template<typename T, size_t N> luaVar buildLuaVar(std::array<T, N>);
+    template<typename T          > luaVar buildLuaVar(std::initializer_list<T>);
+
+    template<typename T> luaVar buildLuaVar(std::optional<T>);
+
     template<typename C> luaArray buildLuaArray(C varList)
     {
         luaArray array;
@@ -234,8 +240,19 @@ namespace luaf
     template<typename T, typename... Args> luaVar buildLuaVar(std::          set<T, Args...> varList) { return buildLuaArray(varList); }
     template<typename T, typename... Args> luaVar buildLuaVar(std::unordered_set<T, Args...> varList) { return buildLuaArray(varList); }
 
-    template<typename T, size_t N> luaVar buildLuaVar(std::array<T, N> varList) { return buildLuaArray(varList); }
-    template<typename T, size_t N> luaVar buildLuaVar(T (&varList)[N])          { return buildLuaArray(varList); }
+    template<typename T, size_t N> luaVar buildLuaVar(T (&varList)[N])                  { return buildLuaArray(varList); }
+    template<typename T, size_t N> luaVar buildLuaVar(std::array<T, N> varList)         { return buildLuaArray(varList); }
+    template<typename T          > luaVar buildLuaVar(std::initializer_list<T> varList) { return buildLuaArray(varList); }
+
+    template<typename T> luaVar buildLuaVar(std::optional<T> varOpt)
+    {
+        if(varOpt.has_value()){
+            return buildLuaVar(std::move(varOpt.value()));
+        }
+        else{
+            return luaNil{};
+        }
+    }
 }
 
 namespace luaf
