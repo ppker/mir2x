@@ -223,7 +223,7 @@ function setUIDQuestState(fargs)
         end
         _RSVD_NAME_dbSetUIDQuestStateDone(uid)
     else
-        _RSVD_NAME_dbUpdateUIDQuestFieldTable(uid, 'fld_states', fsm, {state=state, args=fargs.args})
+        _RSVD_NAME_dbUpdateUIDQuestFieldTable(uid, 'fld_states', fsm, {state, fargs.args})
     end
 
     -- if not called from another FSM state op
