@@ -232,7 +232,6 @@ function setUIDQuestState(fargs)
     _RSVD_NAME_closeUIDQuestState(uid, fsm)
     if hasQuestState(fsm, state) then
         runQuestThread(function()
-            _RSVD_NAME_currFSMName = fsm
             _RSVD_NAME_enterUIDQuestState(uid, fsm, state, fargs.args)
             if args.exitfunc then
                 runQuestThread(args.exitfunc)
@@ -370,6 +369,7 @@ function _RSVD_NAME_enterUIDQuestState(uid, fsm, state, args)
         fatalPrintf('Invalid quest: fsm %s, state %s', fsm, state)
     end
 
+    _RSVD_NAME_currFSMName = fsm
     _RSVD_NAME_questFSMTable[fsm][state](uid, args)
 end
 
