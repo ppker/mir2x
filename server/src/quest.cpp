@@ -270,8 +270,6 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
         fflassert(str_haschar(fsm));
         fflassert(str_haschar(state));
 
-        closeUIDQuestState(uid, fsm, m_currRunner);
-
         const auto fsmLuaStr   = luaf::quotedLuaString(fsm);
         const auto stateLuaStr = luaf::quotedLuaString(state);
         const auto base64ArgsLuaStr = [&args]() -> std::string
@@ -378,7 +376,7 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
     });
 }
 
-Quest::QuestThreadRunner::closeUIDQuestState(uint64_t uid, const char *fsm, const void *handle)
+void Quest::QuestThreadRunner::closeUIDQuestState(uint64_t uid, const char *fsm, const void *handle)
 {
     fflassert(uidf::isPlayer(uid));
     fflassert(str_haschar(fsm));

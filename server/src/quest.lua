@@ -220,11 +220,9 @@ function _RSVD_NAME_setUIDQuestState(fargs, restore)
     local currFSMName = _RSVD_NAME_currFSMName
     assertType(currFSMName, 'string')
 
+    _RSVD_NAME_closeUIDQuestState(uid, fsm)
     if hasQuestState(fsm, state) then
         _RSVD_NAME_switchUIDQuestState(uid, fsm, state, fargs.args, restore or false, args.exitfunc)
-    else
-        assert(state == SYS_DONE)
-        _RSVD_NAME_closeUIDQuestState(uid, fsm)
     end
 
     -- drop current thread in C layer
