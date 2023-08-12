@@ -233,7 +233,7 @@ function setUIDQuestState(fargs)
     if hasQuestState(fsm, state) then
         runQuestThread(function()
             _RSVD_NAME_currFSMName = fsm
-            _RSVD_NAME_enterUIDQuestState(uid, fsm, state, fargs.args, false)
+            _RSVD_NAME_enterUIDQuestState(uid, fsm, state, fargs.args)
             if args.exitfunc then
                 runQuestThread(args.exitfunc)
             end
