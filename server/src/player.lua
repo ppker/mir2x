@@ -111,7 +111,7 @@ function _RSVD_NAME_setupQuests()
         local questName, questState, questDesp = uidRemoteCall(questUID, getUID(),
         [[
             local playerUID = ...
-            return getQuestName(), dbGetUIDQuestState(playerUID), dbGetUIDQuestDesp(playerUID)
+            return getQuestName(), dbGetUIDQuestState(playerUID, SYS_QSTFSM), dbGetUIDQuestDesp(playerUID)
         ]])
 
         assertType(questName,  'string')
