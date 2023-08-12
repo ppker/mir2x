@@ -49,26 +49,20 @@ class LuaCoopResumer final
         ServerLuaCoroutineRunner * const m_luaRunner;
 
     private:
+        void * const m_currRunner;
+
+    private:
         sol::function m_callback;
 
     private:
         const LuaCoopCallDoneFlag m_doneFlag;
 
     public:
-        LuaCoopResumer(ServerLuaCoroutineRunner *luaRunner, sol::function callback, const LuaCoopCallDoneFlag &doneFlag)
-            : m_luaRunner(luaRunner)
-            , m_callback(std::move(callback))
-            , m_doneFlag(doneFlag)
-        {}
+        LuaCoopResumer(ServerLuaCoroutineRunner *, sol::function, const LuaCoopCallDoneFlag &);
 
     public:
-        LuaCoopResumer(const LuaCoopResumer & resumer)
-            : LuaCoopResumer(resumer.m_luaRunner, resumer.m_callback, resumer.m_doneFlag)
-        {}
-
-        LuaCoopResumer(LuaCoopResumer && resumer)
-            : LuaCoopResumer(resumer.m_luaRunner, std::move(resumer.m_callback), resumer.m_doneFlag /* always copy doneFlag */)
-        {}
+        LuaCoopResumer(const LuaCoopResumer & );
+        LuaCoopResumer(      LuaCoopResumer &&);
 
     public:
         ~LuaCoopResumer() = default;
@@ -82,7 +76,7 @@ class LuaCoopResumer final
         {
             m_callback(std::forward<Args>(args)...);
             if(m_doneFlag){
-                resumeRunner(m_luaRunner);
+                resumeRunner(m_luaRunner, m_currRunner);
             }
         }
 
@@ -91,7 +85,7 @@ class LuaCoopResumer final
         void  popOnClose()                      const;
 
     private:
-        static void resumeRunner(ServerLuaCoroutineRunner *, uint64_t, uint64_t); // resolve dependency
+        static void resumeRunner(ServerLuaCoroutineRunner *, void *); // resolve dependency
 };
 
 class LuaCoopState final
@@ -131,6 +125,9 @@ class LuaCoopVargs final
 class ActorPod;
 class ServerLuaCoroutineRunner: public ServerLuaModule
 {
+    protected:
+        friend class LuaCoopResumer;
+
     protected:
         struct LuaThreadHandle
         {
@@ -293,10 +290,6 @@ class ServerLuaCoroutineRunner: public ServerLuaModule
 
     public:
         LuaThreadHandle *hasKey(uint64_t, uint64_t = 0);
-
-    public:
-        void pushOnClose(uint64_t, uint64_t, std::function<void()>);
-        void  popOnClose(uint64_t, uint64_t);
 
     private:
         void resumeRunner(LuaThreadHandle *, std::optional<std::pair<std::string, luaf::luaVar>> = {});

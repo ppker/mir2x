@@ -12,19 +12,34 @@
 
 extern MonoServer *g_monoServer;
 
+LuaCoopResumer::LuaCoopResumer(ServerLuaCoroutineRunner *luaRunner, sol::function callback, const LuaCoopCallDoneFlag &doneFlag)
+    : m_luaRunner(luaRunner)
+    , m_currRunner(luaRunner->m_currRunner)
+    , m_callback(std::move(callback))
+    , m_doneFlag(doneFlag)
+{}
+
+LuaCoopResumer::LuaCoopResumer(const LuaCoopResumer & resumer)
+    : LuaCoopResumer(resumer.m_luaRunner, resumer.m_callback, resumer.m_doneFlag)
+{}
+
+LuaCoopResumer::LuaCoopResumer(LuaCoopResumer && resumer)
+    : LuaCoopResumer(resumer.m_luaRunner, std::move(resumer.m_callback), resumer.m_doneFlag /* always copy doneFlag */)
+{}
+
 void LuaCoopResumer::pushOnClose(std::function<void()> fnOnClose) const
 {
-    m_luaRunner->pushOnClose(m_threadKey, m_threadSeqID, std::move(fnOnClose));
+    static_cast<ServerLuaCoroutineRunner::LuaThreadHandle *>(m_currRunner)->onClose.push(std::move(fnOnClose));
 }
 
 void LuaCoopResumer::popOnClose() const
 {
-    m_luaRunner->popOnClose(m_threadKey, m_threadSeqID);
+    static_cast<ServerLuaCoroutineRunner::LuaThreadHandle *>(m_currRunner)->onClose.pop();
 }
 
-void LuaCoopResumer::resumeRunner(ServerLuaCoroutineRunner *luaRunner, uint64_t threadKey, uint64_t threadSeqID)
+void LuaCoopResumer::resumeRunner(ServerLuaCoroutineRunner *luaRunner, void *currRunner)
 {
-    luaRunner->resume(threadKey, threadSeqID);
+    luaRunner->resumeRunner(m_currRunner, static_cast<ServerLuaCoroutineRunner::LuaThreadHandle *>(currRunner));
 }
 
 ServerLuaCoroutineRunner::ServerLuaCoroutineRunner(ActorPod *podPtr)
@@ -458,24 +473,6 @@ ServerLuaCoroutineRunner::LuaThreadHandle *ServerLuaCoroutineRunner::hasKey(uint
         }
     }
     return nullptr;
-}
-
-void ServerLuaCoroutineRunner::pushOnClose(uint64_t key, uint64_t seqID, std::function<void()> onClose)
-{
-    fflassert(onClose);
-    auto p = hasKey(key, seqID);
-
-    fflassert(p, key, seqID);
-    p->onClose.push(std::move(onClose));
-}
-
-void ServerLuaCoroutineRunner::popOnClose(uint64_t key, uint64_t seqID)
-{
-    auto p = hasKey(key, seqID);
-
-    fflassert(p, key, seqID);
-    fflassert(!p->onClose.empty());
-    p->onClose.pop();
 }
 
 void ServerLuaCoroutineRunner::close(uint64_t key, uint64_t seqID)

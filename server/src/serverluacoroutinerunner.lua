@@ -174,10 +174,8 @@ function _RSVD_NAME_callFuncCoop(funcName, ...)
     local args = table.pack(...)
 
     args[args.n + 1] = onDone
-    args[args.n + 2] = getTLSTable().threadKey
-    args[args.n + 3] = getTLSTable().threadSeqID
 
-    _G[string.format('_RSVD_NAME_%s%s', funcName, SYS_COOP)](table.unpack(args, 1, args.n + 3))
+    _G[string.format('_RSVD_NAME_%s%s', funcName, SYS_COOP)](table.unpack(args, 1, args.n + 1))
 
     -- onDone can get ran immedately in _RSVD_NAME_funcCoop
     -- in this situation we shall not yield
