@@ -179,6 +179,11 @@ namespace luaf
         return luaVar(std::move(t));
     }
 
+    inline luaVar buildLuaVar(std::string s)
+    {
+        return luaVar(std::move(s));
+    }
+
     template<template<typename> typename C, typename T, typename... Args> luaVar buildLuaVar(C<T, Args...> varList)
     {
         luaArray array;
