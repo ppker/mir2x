@@ -197,7 +197,7 @@ function hasQuestState(arg1, arg2)
 end
 
 function setUIDQuestState(fargs)
-    local ins = require 'script.3rdparty.inspect'
+    local ins = require '3rdparty.inspect'
 
     print(ins.inspect(fargs))
 
