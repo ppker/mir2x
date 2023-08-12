@@ -341,25 +341,33 @@ function runNPCEventHandler(npcUID, playerUID, eventPath, event, value)
     ]])
 end
 
-function _RSVD_NAME_enterUIDQuestState(uid, fsm, state, ...)
+function _RSVD_NAME_enterUIDQuestState(uid, fsm, state, base64Args, restore)
     assertType(uid, 'integer')
+    assertType(fsm, 'string')
     assertType(state, 'string')
     assertType(base64Args, 'string', 'nil')
+    assertType(restore, 'boolean', 'nil')
 
-    if not hasQuestState(state) then
-        fatalPrintf('Invalid quest state: %s', state)
+    if not hasQuestState(fsm, state) then
+        fatalPrintf('Invalid quest: fsm %s, state %s', fsm, state)
     end
 
-    local npcBehaviors = dbGetUIDQuestField(uid, 'fld_npcbehaviors')
-    assertType(npcBehaviors, 'nil', 'table')
+    if restore then
+        local npcBehaviors = dbGetUIDQuestField(uid, 'fld_npcbehaviors')
+        assertType(npcBehaviors, 'nil', 'table')
 
-    if npcBehaviors then
-        for _, v in pairs(npcBehaviors) do
-            setupNPCQuestBehavior(v[1], v[2], uid, v[4], v[3])
+        if npcBehaviors then
+            for _, v in pairs(npcBehaviors) do
+                setupNPCQuestBehavior(v[1], v[2], uid, v[4], v[3])
+            end
         end
     end
 
-    _RSVD_NAME_questFSMTable[SYS_QSTFSM][state](uid, ...)
+    if base64Args then
+        _RSVD_NAME_questFSMTable[fsm][state](uid, base64Decode(base64Args))
+    else
+        _RSVD_NAME_questFSMTable[fsm][state](uid, nil)
+    end
 end
 
 local _RSVD_NAME_triggers = {}
