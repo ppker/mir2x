@@ -227,7 +227,13 @@ function _RSVD_NAME_setUIDQuestState(fargs, restore)
 
     _RSVD_NAME_closeUIDQuestState(uid, fsm)
     if hasQuestState(fsm, state) then
-        _RSVD_NAME_switchUIDQuestState(uid, fsm, state, fargs.args, restore or false, args.exitfunc)
+        runQuestThread(function()
+            _RSVD_NAME_currFSMName = fsm
+            _RSVD_NAME_enterUIDQuestState(uid, fsm, state, fargs.args, restore or false)
+            if args.exitfunc then
+                runQuestThread(args.exitfunc)
+            end
+        end)
     end
 
     -- drop current thread in C layer
@@ -355,12 +361,11 @@ function runNPCEventHandler(npcUID, playerUID, eventPath, event, value)
     ]])
 end
 
-function _RSVD_NAME_enterUIDQuestState(uid, fsm, state, base64Args, restore)
+function _RSVD_NAME_enterUIDQuestState(uid, fsm, state, args, restore)
     assertType(uid, 'integer')
     assertType(fsm, 'string')
     assertType(state, 'string')
-    assertType(base64Args, 'string', 'nil')
-    assertType(restore, 'boolean', 'nil')
+    assertType(restore, 'boolean')
 
     if not hasQuestState(fsm, state) then
         fatalPrintf('Invalid quest: fsm %s, state %s', fsm, state)
@@ -377,11 +382,7 @@ function _RSVD_NAME_enterUIDQuestState(uid, fsm, state, base64Args, restore)
         end
     end
 
-    if base64Args then
-        _RSVD_NAME_questFSMTable[fsm][state](uid, base64Decode(base64Args))
-    else
-        _RSVD_NAME_questFSMTable[fsm][state](uid, nil)
-    end
+    _RSVD_NAME_questFSMTable[fsm][state](uid, args)
 end
 
 local _RSVD_NAME_triggers = {}
