@@ -24,8 +24,6 @@ function main()
                 [=[
                     local playerUID, questName = ...
                     setUIDQuestState{uid=playerUID, state=SYS_ENTER, exitfunc=function()
-                        getTLSTable().threadKey = getThreadKey()
-                        getTLSTable().threadSeqID = getThreadSeqID()
                         runNPCEventHandler(getNPCharUID('道馆_1', '物品展示商人'), playerUID, {SYS_EPUID, questName}, SYS_ENTER)
                     end}
                 ]=])
