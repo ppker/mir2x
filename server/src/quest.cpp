@@ -287,7 +287,7 @@ void Quest::onActivate()
         });
     });
 
-    m_luaRunner->bindFunction("_RSVD_NAME_switchUIDQuestState", [this](uint64_t uid, const char *fsm, sol::object state, sol::object args, sol::function func, uint64_t threadKey, uint64_t threadSeqID)
+    m_luaRunner->bindFunction("_RSVD_NAME_switchUIDQuestState", [this](uint64_t uid, const char *fsm, sol::object state, sol::object args, bool restore, sol::function func, uint64_t threadKey, uint64_t threadSeqID)
     {
         auto &fsmStateRunner = m_uidStateRunner[fsm];
         if(const auto p = fsmStateRunner.find(uid); p != fsmStateRunner.end()){
@@ -367,13 +367,13 @@ void Quest::onActivate()
             const auto sdbArgsLuaStr = (args == sol::nil) ? std::string("nil") : luaf::quotedLuaString(cerealf::base64_serialize(luaf::buildLuaVar(args)).c_str());
             m_luaRunner->spawn(fsmStateRunner[uid] = m_threadKey++, str_printf(
 
-            R"###( _RSVD_NAME_currFSMName = %s                      )###"
-            R"###( _RSVD_NAME_enterUIDQuestState(%llu, %s, %s, ...) )###",
+            R"###( _RSVD_NAME_currFSMName = %s                         )###"
+            R"###( _RSVD_NAME_enterUIDQuestState(%llu, %s, %s, %s, %s) )###",
 
-            fsmNameStr.c_str(),
-            to_llu(uid), fsmNameStr.c_str(), stateLuaStr.c_str(), sdbArgsLuaStr.c_str()),
+            fsmLuaStr.c_str(),
+            to_llu(uid), fsmLuaStr.c_str(), stateLuaStr.c_str(), sdbArgsLuaStr.c_str(), to_boolcstr(restore)),
 
-            args,
+            {},
 
             [&fsmStateRunner, uid, func, stateStr, this](const sol::protected_function_result &pfr)
             {
