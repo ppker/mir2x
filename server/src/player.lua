@@ -73,6 +73,56 @@ function getQuestState(questName)
     end
 end
 
+function _RSVD_NAME_setupQuests()
+    local questDespList = {}
+    for _, questUID in ipairs(_RSVD_NAME_callFuncCoop('queryQuestUIDList'))
+    do
+        uidRemoteCall(questUID, getUID(),
+        [[
+            local playerUID = ...
+
+            local npcBehaviors = dbGetUIDQuestField(uid, 'fld_npcbehaviors')
+            assertType(npcBehaviors, 'table', 'nil')
+
+            if npcBehaviors then
+                for _, v in pairs(npcBehaviors) do
+                    setupNPCQuestBehavior(v[1], v[2], uid, v[4], v[3])
+                end
+            end
+
+            local states = dbGetUIDQuestState(playerUID)
+            assertType(states, 'table', 'nil')
+
+            if states then
+                for _, v in ipairs(states) do
+                    runQuestThread(function()
+                        _RSVD_NAME_enterUIDQuestState(playerUID, v.fsm, v.state, v.args)
+                    end)
+                end
+            end
+        ]])
+
+        local questName, questState, questDesp = uidRemoteCall(questUID, getUID(),
+        [[
+            local playerUID = ...
+            return getQuestName(), dbGetUIDQuestState(playerUID), dbGetUIDQuestDesp(playerUID)
+        ]])
+
+        assertType(questName,  'string')
+        assertType(questState, 'string', 'nil')
+        assertType(questDesp,  'string', 'nil')
+
+        if questState == SYS_DONE then
+            questDespList[questName] = '任务已完成'
+
+        elseif questState then
+            questDespList[questName] = questDesp or false
+        end
+    end
+
+    _RSVD_NAME_reportQuestDespList(questDespList)
+end
+
 function _RSVD_NAME_coth_runner(code)
     assertType(code, 'string')
     return (load(code))()

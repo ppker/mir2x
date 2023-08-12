@@ -543,45 +543,7 @@ void Player::onActivate()
 #include "player.lua"
     END_LUAINC()));
 
-    m_luaRunner->spawn(m_threadKey++, str_printf(
-    R"###(                                                                                            )###""\n"
-    R"###( local questDespList = {}                                                                   )###""\n"
-    R"###( for _, questUID in ipairs(_RSVD_NAME_callFuncCoop('queryQuestUIDList'))                    )###""\n"
-    R"###( do                                                                                         )###""\n"
-    R"###(     uidRemoteCall(questUID, getUID(),                                                      )###""\n"
-    R"###(     [[                                                                                     )###""\n"
-    R"###(         local playerUID = ...                                                              )###""\n"
-    R"###(         local states = dbGetUIDQuestState(playerUID)                                       )###""\n"
-    R"###(         assertType(states, 'table', 'nil')                                                 )###""\n"
-    R"###(                                                                                            )###""\n"
-    R"###(         if states then                                                                     )###""\n"
-    R"###(             for _, v in ipairs(states) do                                                  )###""\n"
-    R"###(                 runQuestThread(function()                                                  )###""\n"
-    R"###(                     _RSVD_NAME_enterUIDQuestState(playerUID, v.fsm, v.state, v.args)       )###""\n"
-    R"###(                 end)                                                                       )###""\n"
-    R"###(             end                                                                            )###""\n"
-    R"###(         end                                                                                )###""\n"
-    R"###(     ]])                                                                                    )###""\n"
-    R"###(                                                                                            )###""\n"
-    R"###(     local questName, questState, questDesp = uidRemoteCall(questUID, getUID(),             )###""\n"
-    R"###(     [[                                                                                     )###""\n"
-    R"###(         local playerUID = ...                                                              )###""\n"
-    R"###(         return getQuestName(), dbGetUIDQuestState(playerUID), dbGetUIDQuestDesp(playerUID) )###""\n"
-    R"###(     ]])                                                                                    )###""\n"
-    R"###(                                                                                            )###""\n"
-    R"###(     assertType(questName,  'string')                                                       )###""\n"
-    R"###(     assertType(questState, 'string', 'nil')                                                )###""\n"
-    R"###(     assertType(questDesp,  'string', 'nil')                                                )###""\n"
-    R"###(                                                                                            )###""\n"
-    R"###(     if questState == SYS_DONE then                                                         )###""\n"
-    R"###(         questDespList[questName] = '任务已完成'                                            )###""\n"
-    R"###(                                                                                            )###""\n"
-    R"###(     elseif questState then                                                                 )###""\n"
-    R"###(         questDespList[questName] = questDesp or false                                      )###""\n"
-    R"###(     end                                                                                    )###""\n"
-    R"###( end                                                                                        )###""\n"
-    R"###(                                                                                            )###""\n"
-    R"###( _RSVD_NAME_reportQuestDespList(questDespList)                                              )###""\n"));
+    m_luaRunner->spawn(m_threadKey++, "_RSVD_NAME_setupQuests()");
 }
 
 void Player::operateAM(const ActorMsgPack &rstMPK)
