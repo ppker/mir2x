@@ -174,26 +174,18 @@ namespace luaf
     sol::object buildLuaObj(sol::state_view sv, bool);
     sol::object buildLuaObj(sol::state_view sv, std::string);
 
-    template<typename T> luaVar buildLuaVar(T t)
-    {
-        return luaVar(std::move(t));
-    }
-
-    inline luaVar buildLuaVar(std::string s)
-    {
-        return luaVar(std::move(s));
-    }
-
-    template<template<typename> typename C, typename T, typename... Args> luaVar buildLuaVar(C<T, Args...> varList)
+    template<typename C> luaArray buildLuaArray(C varList)
     {
         luaArray array;
+        array.reserve(std::size(varList));
+
         for(auto &v: varList){
-            array.push_back(std::move(v));
+            array.emplace_back(luaVarWrapper(buildLuaVar(std::move(v))));
         }
         return array;
     }
 
-    template<typename K, typename V, typename... Args> luaVar buildLuaVar(std::unordered_map<K, V, Args...> varTable)
+    template<typename C> luaTable buildLuaTable(C varTable)
     {
         luaTable table;
         for(auto &[k, v]: varTable){
@@ -202,8 +194,21 @@ namespace luaf
         return table;
     }
 
+    template<typename K, typename V, typename... Args> luaVar buildLuaVar(std::unordered_map<K, V, Args...> varTable) { return buildLuaTable(varTable); }
+    template<typename K, typename V, typename... Args> luaVar buildLuaVar(std::          map<K, V, Args...> varTable) { return buildLuaTable(varTable); }
+
+    template<typename T, typename... Args> luaVar buildLuaVar(std::         list<T, Args...> varList) { return buildLuaArray(varList); }
+    template<typename T, typename... Args> luaVar buildLuaVar(std::       vector<T, Args...> varList) { return buildLuaArray(varList); }
+    template<typename T, typename... Args> luaVar buildLuaVar(std::          set<T, Args...> varList) { return buildLuaArray(varList); }
+    template<typename T, typename... Args> luaVar buildLuaVar(std::unordered_set<T, Args...> varList) { return buildLuaArray(varList); }
+
     luaVar buildLuaVar(luaVarWrapper);
     luaVar buildLuaVar(const sol::object &);
+
+    template<typename T> luaVar buildLuaVar(T t)
+    {
+        return luaVar(std::move(t));
+    }
 
     std::vector<luaVar> vargBuildLuaVarList(const sol::variadic_args             &, size_t = 0, std::optional<size_t> = std::nullopt);
     std::vector<luaVar>  pfrBuildLuaVarList(const sol::protected_function_result &, size_t = 0, std::optional<size_t> = std::nullopt);
