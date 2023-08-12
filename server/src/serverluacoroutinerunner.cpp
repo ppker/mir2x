@@ -39,7 +39,7 @@ void LuaCoopResumer::popOnClose() const
 
 void LuaCoopResumer::resumeRunner(ServerLuaCoroutineRunner *luaRunner, void *currRunner)
 {
-    luaRunner->resumeRunner(m_currRunner, static_cast<ServerLuaCoroutineRunner::LuaThreadHandle *>(currRunner));
+    luaRunner->resumeRunner(static_cast<ServerLuaCoroutineRunner::LuaThreadHandle *>(currRunner));
 }
 
 ServerLuaCoroutineRunner::ServerLuaCoroutineRunner(ActorPod *podPtr)
@@ -253,7 +253,7 @@ ServerLuaCoroutineRunner::ServerLuaCoroutineRunner(ActorPod *podPtr)
         }
     });
 
-    bindFunction("postNotify", [this](uint64_t uid, uint64_t threadKey, uint64_t threadSeqID, sol::variadic_args args)
+    bindFunction("postNotify", [this](uint64_t uid, uint64_t dstThreadKey, uint64_t dstThreadSeqID, sol::variadic_args args)
     {
         std::vector<luaf::luaVar> argList;
         argList.reserve(args.size());
@@ -264,8 +264,8 @@ ServerLuaCoroutineRunner::ServerLuaCoroutineRunner(ActorPod *podPtr)
 
         m_actorPod->forward(uid, {AM_SENDNOTIFY, cerealf::serialize(SDSendNotify
         {
-            .key = threadKey,
-            .seqID = threadSeqID,
+            .key = dstThreadKey,
+            .seqID = dstThreadSeqID,
             .varList = std::move(argList),
             .waitConsume = false,
         })});
@@ -275,22 +275,17 @@ ServerLuaCoroutineRunner::ServerLuaCoroutineRunner(ActorPod *podPtr)
     {
         fflassert(uidf::isQuest(questUID), uidf::getUIDString(questUID));
         fflassert(dstThreadKey > 0);
-        fflassert(args.size() >= 3, args.size());
+        fflassert(args.size() >= 1, args.size());
+        fflassert(args.begin()[args.size() - 1].is<sol::function>());
 
-        fflassert(args.begin()[args.size() - 3].is<sol::function>());
-        fflassert(args.begin()[args.size() - 2].is<lua_Integer>());
-        fflassert(args.begin()[args.size() - 1].is<lua_Integer>());
-
-        const auto onDone      = args.begin()[args.size() - 3].as<sol::function>();
-        const auto threadKey   = args.begin()[args.size() - 2].as<uint64_t>();
-        const auto threadSeqID = args.begin()[args.size() - 1].as<uint64_t>();
+        const auto threadKey = m_currRunner->key;
+        const auto threadSeqID = m_currRunner->seqID;
+        const auto onDone = args.begin()[args.size() - 1].as<sol::function>();
 
         fflassert(onDone);
-        fflassert(threadKey > 0);
-        fflassert(threadSeqID > 0);
 
         auto closed = std::make_shared<bool>(false);
-        pushOnClose(threadKey, threadSeqID, [closed]()
+        m_currRunner->onClose.push([closed]()
         {
             *closed = true;
         });
@@ -300,7 +295,7 @@ ServerLuaCoroutineRunner::ServerLuaCoroutineRunner(ActorPod *podPtr)
         {
             .key = dstThreadKey,
             .seqID = dstThreadSeqID,
-            .varList = luaf::vargBuildLuaVarList(args, 0, args.size() - 3),
+            .varList = luaf::vargBuildLuaVarList(args, 0, args.size() - 1),
             .waitConsume = false,
         })},
 
@@ -309,8 +304,8 @@ ServerLuaCoroutineRunner::ServerLuaCoroutineRunner(ActorPod *podPtr)
             if(*closed){
                 return;
             }
-            else{
-                popOnClose(threadKey, threadSeqID);
+            else if(const auto runnerPtr = hasKey(threadKey, threadSeqID)){
+                runnerPtr->onClose.pop();
             }
 
             switch(mpk.type()){
@@ -332,56 +327,46 @@ ServerLuaCoroutineRunner::ServerLuaCoroutineRunner(ActorPod *podPtr)
         });
     });
 
-    bindFunction("_RSVD_NAME_pickNotify", [this](uint64_t maxCount, uint64_t threadKey, uint64_t threadSeqID, sol::this_state s)
+    bindFunction("_RSVD_NAME_pickNotify", [this](uint64_t maxCount, sol::this_state s)
     {
-        fflassert(threadKey);
-        fflassert(threadSeqID);
-
-        auto runnerPtr = hasKey(threadKey, threadSeqID);
-        fflassert(runnerPtr, threadKey, threadSeqID);
-
         if(maxCount == 0 || maxCount >= runnerPtr->notifyList.size()){
             return luaf::buildLuaObj(sol::state_view(s), luaf::buildLuaVar(std::move(runnerPtr->notifyList)));
         }
         else{
-            auto begin = runnerPtr->notifyList.begin();
-            auto end   = runnerPtr->notifyList.begin() + maxCount;
+            auto begin = m_currRunner->notifyList.begin();
+            auto end   = m_currRunner->notifyList.begin() + maxCount;
 
             std::deque<luaf::luaVar> vers(std::make_move_iterator(begin), std::make_move_iterator(end));
-            runnerPtr->notifyList.erase(begin, end);
+            m_currRunner->notifyList.erase(begin, end);
 
             return luaf::buildLuaObj(sol::state_view(s), luaf::buildLuaVar(std::move(vers)));
         }
     });
 
-    bindFunction("_RSVD_NAME_waitNotify", [this](uint64_t timeout, uint64_t threadKey, uint64_t threadSeqID, sol::this_state s) -> sol::object
+    bindFunction("_RSVD_NAME_waitNotify", [this](uint64_t timeout, sol::this_state s) -> sol::object
     {
-        fflassert(threadKey);
-        fflassert(threadSeqID);
+        if(!m_currRunner->notifyList.empty()){
+            auto firstVar = std::move(m_currRunner->notifyList.front());
+            m_currRunner->notifyList.pop_front();
 
-        auto runnerPtr = hasKey(threadKey, threadSeqID);
-        fflassert(runnerPtr, threadKey, threadSeqID);
-
-        if(!runnerPtr->notifyList.empty()){
-            auto firstVar = std::move(runnerPtr->notifyList.front());
-            runnerPtr->notifyList.pop_front();
-
-            runnerPtr->needNotify = false;
+            m_currRunner->needNotify = false;
             return luaf::buildLuaObj(sol::state_view(s), std::move(firstVar));
         }
 
-        runnerPtr->needNotify = true;
+        m_currRunner->needNotify = true;
         if(timeout > 0){
+            const auto threadKey = m_currRunner->key;
+            const auto threadSeqID = m_currRunner->seqID;
             const auto delayKey = m_actorPod->getSO()->addDelay(timeout, [threadKey, threadSeqID, this]()
             {
-                if(auto runnerPtr = hasKey(threadKey, threadSeqID)){
-                    runnerPtr->onClose.pop();
-                    runnerPtr->needNotify = false;
-                    resumeRunner(runnerPtr);
+                if(auto runner = hasKey(threadKey, threadSeqID)){
+                    runner->onClose.pop();
+                    runner->needNotify = false;
+                    resumeRunner(runner);
                 }
             });
 
-            runnerPtr->onClose.push([delayKey, this]()
+            m_currRunner->onClose.push([delayKey, this]()
             {
                 m_actorPod->getSO()->removeDelay(delayKey);
             });
@@ -578,10 +563,7 @@ std::pair<uint64_t, uint64_t> ServerLuaCoroutineRunner::spawn(uint64_t key, cons
 
     resumeRunner(std::addressof(p->second), std::make_pair(str_printf(
         R"###( do                                                          )###""\n"
-        R"###(     getTLSTable().threadKey   = %llu                        )###""\n"
-        R"###(     getTLSTable().threadSeqID = %llu                        )###""\n"
-        R"###(     getTLSTable().startTime   = getNanoTstamp()             )###""\n"
-        R"###(                                                             )###""\n"
+        R"###(     _RSVD_NAME_startTime = getNanoTstamp()                  )###""\n"
         R"###(     local _RSVD_NAME_autoClear<close> = autoClearTLSTable() )###""\n"
         R"###(     do                                                      )###""\n"
         R"###(        %s                                                   )###""\n"
