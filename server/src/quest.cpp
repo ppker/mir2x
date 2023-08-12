@@ -367,15 +367,7 @@ void Quest::onActivate()
 #include "quest.lua"
     END_LUAINC()));
 
-    // define all functions needed for the quest
-    // but don't execute them here since they may require coroutine environment
-    m_luaRunner->pfrCheck(m_luaRunner->execFile(m_scriptName.c_str()));
-
-    m_luaRunner->spawn(m_mainScriptThreadKey, str_printf(
-        R"#( do                           )#""\n"
-        R"#(     getTLSTable().uid = %llu )#""\n"
-        R"#(     return main()            )#""\n"
-        R"#( end                          )#""\n", to_llu(UID())));
+    m_luaRunner->spawn(m_mainScriptThreadKey, filesys::readFile(m_scriptName.c_str()));
 }
 
 void Quest::operateAM(const ActorMsgPack &mpk)

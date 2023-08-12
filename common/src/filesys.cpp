@@ -69,6 +69,14 @@ void filesys::copyFile(const char *dstFileName, const char *srcFileName)
     }
 }
 
+std::string filesys::readFile(const char *path)
+{
+    auto fptr = make_fileptr(path, "rb");
+    auto size = size_fileptr(fptr);
+
+    return read_fileptr<std::string>(fptr, size);
+}
+
 std::vector<std::string> filesys::getFileList(const char *dir, bool fullPath, const char *reg)
 {
     fflassert(str_haschar(dir));
