@@ -1,35 +1,3 @@
-uidRemoteCall(getNPCharUID('道馆_1', '物品展示商人'), getUID(), getQuestName(),
-[[
-    local questUID, questName = ...
-    local questPath = {SYS_EPQST, questName}
-
-    setQuestHandler(questName,
-    {
-        [SYS_ENTER] = function(uid, value)
-            uidPostXML(uid, questPath,
-            [=[
-                <layout>
-                    <par>你好？</par>
-                    <par>我可以帮你测试脚本功能。</par>
-                    <par></par>
-                    <par><event id="npc_test_script">测试脚本</event></par>
-                    <par><event id="%s">退出</event></par>
-                </layout>
-            ]=], SYS_EXIT)
-        end,
-
-        npc_test_script = function(uid, value)
-            uidRemoteCall(questUID, uid, questName,
-            [=[
-                local playerUID, questName = ...
-                setUIDQuestState{uid=playerUID, state=SYS_ENTER, exitfunc=function()
-                    runNPCEventHandler(getNPCharUID('道馆_1', '物品展示商人'), playerUID, {SYS_EPUID, questName}, SYS_ENTER)
-                end}
-            ]=])
-        end
-    })
-]])
-
 setQuestFSMTable(
 {
     [SYS_ENTER] = function(uid, value)
@@ -71,3 +39,35 @@ setQuestFSMTable(
         ]])
     end,
 })
+
+uidRemoteCall(getNPCharUID('道馆_1', '物品展示商人'), getUID(), getQuestName(),
+[[
+    local questUID, questName = ...
+    local questPath = {SYS_EPQST, questName}
+
+    setQuestHandler(questName,
+    {
+        [SYS_ENTER] = function(uid, value)
+            uidPostXML(uid, questPath,
+            [=[
+                <layout>
+                    <par>你好？</par>
+                    <par>我可以帮你测试脚本功能。</par>
+                    <par></par>
+                    <par><event id="npc_test_script">测试脚本</event></par>
+                    <par><event id="%s">退出</event></par>
+                </layout>
+            ]=], SYS_EXIT)
+        end,
+
+        npc_test_script = function(uid, value)
+            uidRemoteCall(questUID, uid, questName,
+            [=[
+                local playerUID, questName = ...
+                setUIDQuestState{uid=playerUID, state=SYS_ENTER, exitfunc=function()
+                    runNPCEventHandler(getNPCharUID('道馆_1', '物品展示商人'), playerUID, {SYS_EPUID, questName}, SYS_ENTER)
+                end}
+            ]=])
+        end
+    })
+]])
