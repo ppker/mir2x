@@ -197,10 +197,6 @@ function hasQuestState(arg1, arg2)
 end
 
 function setUIDQuestState(fargs)
-    local ins = require '3rdparty.inspect'
-
-    print(ins.inspect(fargs))
-
     assertType(fargs, 'table')
     assertType(fargs.uid, 'integer')
     assertType(fargs.fsm, 'string', 'nil')
