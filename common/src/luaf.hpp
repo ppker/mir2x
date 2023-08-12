@@ -4,7 +4,12 @@
 #include <ostream>
 #include <cstddef>
 #include <variant>
+#include <map>
 #include <unordered_map>
+#include <set>
+#include <unordered_set>
+#include <vector>
+#include <list>
 #include <type_traits>
 #include <sol/sol.hpp>
 
