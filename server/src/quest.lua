@@ -1,6 +1,11 @@
 --, u8R"###(
 --
 
+function runQuestThread(func)
+    assertType(func, 'function')
+    return runThread(rollKey(), func)
+end
+
 local function _RSVD_NAME_dbUpdateUIDQuestFieldTable(uid, field, key, value)
     assertType(uid, 'integer')
     assertType(field, 'string')

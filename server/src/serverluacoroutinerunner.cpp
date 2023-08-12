@@ -96,7 +96,7 @@ ServerLuaCoroutineRunner::ServerLuaCoroutineRunner(ActorPod *podPtr)
 
     bindFunction("runThread", [this](uint64_t key, sol::function func)
     {
-        spawn(key, func, [key, this](const sol::protected_function_result &pfr)
+        return spawn(key, func, [key, this](const sol::protected_function_result &pfr)
         {
             std::vector<std::string> error;
             if(pfrCheck(pfr, [&error](const std::string &s){ error.push_back(s); })){
@@ -496,7 +496,7 @@ void ServerLuaCoroutineRunner::close(uint64_t key, uint64_t seqID)
     }
 }
 
-uint64_t ServerLuaCoroutineRunner::spawn(uint64_t key, std::pair<uint64_t, uint64_t> reqAddr, const std::string &code, luaf::luaVar args)
+std::pair<uint64_t, uint64_t> ServerLuaCoroutineRunner::spawn(uint64_t key, std::pair<uint64_t, uint64_t> reqAddr, const std::string &code, luaf::luaVar args)
 {
     fflassert(key);
     fflassert(str_haschar(code));
@@ -577,7 +577,7 @@ uint64_t ServerLuaCoroutineRunner::spawn(uint64_t key, std::pair<uint64_t, uint6
     });
 }
 
-uint64_t ServerLuaCoroutineRunner::spawn(uint64_t key, const std::string &code, luaf::luaVar args, std::function<void(const sol::protected_function_result &)> onDone, std::function<void()> onClose)
+std::pair<uint64_t, uint64_t> ServerLuaCoroutineRunner::spawn(uint64_t key, const std::string &code, luaf::luaVar args, std::function<void(const sol::protected_function_result &)> onDone, std::function<void()> onClose)
 {
     fflassert(key);
     fflassert(str_haschar(code));
@@ -600,7 +600,7 @@ uint64_t ServerLuaCoroutineRunner::spawn(uint64_t key, const std::string &code, 
     return currSeqID; // don't use p resumeRunner() can invalidate p
 }
 
-uint64_t ServerLuaCoroutineRunner::spawn(uint64_t key, const sol::function &func, std::function<void(const sol::protected_function_result &)> onDone, std::function<void()> onClose)
+std::pair<uint64_t, uint64_t> ServerLuaCoroutineRunner::spawn(uint64_t key, const sol::function &func, std::function<void(const sol::protected_function_result &)> onDone, std::function<void()> onClose)
 {
     fflassert(key);
 

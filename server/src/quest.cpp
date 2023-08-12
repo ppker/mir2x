@@ -23,6 +23,11 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
         return m_quest->m_mainScriptThreadKey;
     });
 
+    bindFunction("rollKey", [this]() -> uint64_t
+    {
+        return m_threadKey++;
+    });
+
     bindFunction("dbGetUIDQuestDesp", [this](uint64_t uid, sol::this_state s) -> sol::object
     {
         sol::state_view sv(s);
@@ -233,28 +238,6 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
                         onDone();
                         break;
                     }
-            }
-        });
-    });
-
-    bindFunction("runQuestThread", [this](sol::function func)
-    {
-        spawn(m_threadKey++, func, [this](const sol::protected_function_result &pfr)
-        {
-            std::vector<std::string> error;
-            if(pfrCheck(pfr, [&error](const std::string &s){ error.push_back(s); })){
-                if(pfr.return_count() > 0){
-                    // drop quest state function result
-                }
-            }
-            else{
-                if(error.empty()){
-                    error.push_back(str_printf("unknown error for runThread"));
-                }
-
-                for(const auto &line: error){
-                    g_monoServer->addLog(LOGTYPE_WARNING, "%s", to_cstr(line));
-                }
             }
         });
     });
