@@ -329,8 +329,8 @@ ServerLuaCoroutineRunner::ServerLuaCoroutineRunner(ActorPod *podPtr)
 
     bindFunction("_RSVD_NAME_pickNotify", [this](uint64_t maxCount, sol::this_state s)
     {
-        if(maxCount == 0 || maxCount >= runnerPtr->notifyList.size()){
-            return luaf::buildLuaObj(sol::state_view(s), luaf::buildLuaVar(std::move(runnerPtr->notifyList)));
+        if(maxCount == 0 || maxCount >= m_currRunner->notifyList.size()){
+            return luaf::buildLuaObj(sol::state_view(s), luaf::buildLuaVar(std::move(m_currRunner->notifyList)));
         }
         else{
             auto begin = m_currRunner->notifyList.begin();
