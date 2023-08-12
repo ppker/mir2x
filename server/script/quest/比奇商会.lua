@@ -72,7 +72,12 @@ function _G.set_libraian_quest_handler()
                         <par><event id="%s">好的！</event></par>
                     </layout>
                 ]=], SYS_EXIT)
-                uidRemoteCall(questUID, uid, [=[ setUIDQuestState(..., SYS_ENTER) ]=])
+
+                uidRemoteCall(questUID, uid,
+                [=[
+                    local playerUID = ...
+                    setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_librarian, state=SYS_ENTER}
+                ]=])
             end,
         })
     ]])
@@ -143,7 +148,7 @@ function _G.set_pharmacist_quest_handler()
                 uidRemoteCall(questUID, uid,
                 [=[
                     local playerUID = ...
-                    setUIDQuestState(playerUID, SYS_ENTER)
+                    setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_pharmacist, state=SYS_ENTER}
                 ]=])
             end,
 
@@ -241,7 +246,7 @@ setQuestFSMTable(
                     uidRemoteCall(questUID, uid,
                     [=[
                         local playerUID = ...
-                        setUIDQuestState(playerUID, 'quest_accept_quest')
+                        setUIDQuestState{uid=playerUID, state='quest_accept_quest'}
                     ]=])
                 end,
 
@@ -344,7 +349,7 @@ setQuestFSMTable(
                     uidRemoteCall(questUID, uid,
                     [=[
                         local playerUID = ...
-                        setUIDQuestState(playerUID, SYS_DONE)
+                        setUIDQuestState{uid=playerUID, state=SYS_DONE}
                     ]=])
                 end,
             })
@@ -406,7 +411,11 @@ setQuestFSMTable(fsmName_persuade_librarian,
                 end,
 
                 npc_guard_1_wait_soju = function(uid, value)
-                    uidRemoteCall(questUID, uid, [=[ setUIDQuestState(..., 'quest_give_guard_1_soju') ]=])
+                    uidRemoteCall(questUID, uid,
+                    [=[
+                        local playerUID = ...
+                        setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_librarian, state='quest_give_guard_1_soju'}
+                    ]=])
                 end,
             }
         ]])
@@ -471,8 +480,8 @@ setQuestFSMTable(fsmName_persuade_librarian,
                     uidRemoteCall(questUID, uid,
                     [=[
                         local playerUID = ...
-                        addUIDQuestFlag (playerUID, 'flag_done_query_guard_2')
-                        setUIDQuestState(playerUID, 'quest_wait_guard_1_and_guard_2_done')
+                        addUIDQuestFlag(playerUID, 'flag_done_query_guard_2')
+                        setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_librarian, state='quest_wait_guard_1_and_guard_2_done'}
                     ]=])
                 end,
             }
@@ -612,8 +621,8 @@ setQuestFSMTable(fsmName_persuade_librarian,
                     uidRemoteCall(questUID, uid,
                     [=[
                         local playerUID = ...
-                        addUIDQuestFlag (playerUID, 'flag_done_query_guard_1')
-                        setUIDQuestState(playerUID, 'quest_wait_guard_1_and_guard_2_done')
+                        addUIDQuestFlag(playerUID, 'flag_done_query_guard_1')
+                        setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_librarian, state='quest_wait_guard_1_and_guard_2_done'}
                     ]=])
                 end,
             }
@@ -674,7 +683,11 @@ setQuestFSMTable(fsmName_persuade_librarian,
                 end,
 
                 npc_give_guard_3_gold = function(uid, value)
-                    uidRemoteCall(questUID, uid, string.format('quest_give_guard_3_%s_gold', value), [=[ setUIDQuestState(...) ]=])
+                    uidRemoteCall(questUID, uid, value,
+                    [=[
+                        local playerUID, giveGold = ...
+                        setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_librarian, state=string.format('quest_give_guard_3_%s_gold', giveGold)}
+                    ]=])
                 end,
             }
         ]])
@@ -709,7 +722,7 @@ setQuestFSMTable(fsmName_persuade_librarian,
                     },
                     [=[
                         local playerUID, texts = ...
-                        setUIDQuestState(playerUID, 'quest_guard_3_give_info', texts)
+                        setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_librarian, state='quest_guard_3_give_info', args=texts}
                     ]=])
                 end,
             }
@@ -773,7 +786,11 @@ setQuestFSMTable(fsmName_persuade_librarian,
                 end,
 
                 npc_guard_3_angry_4 = function(uid, value)
-                    uidRemoteCall(questUID, uid, [=[ setUIDQuestState(..., 'quest_give_guard_3_soju') ]=])
+                    uidRemoteCall(questUID, uid,
+                    [=[
+                        local playerUID = ...
+                        setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_librarian, state='quest_give_guard_3_soju'}
+                    ]=])
                 end,
             }
         ]])
@@ -836,7 +853,7 @@ setQuestFSMTable(fsmName_persuade_librarian,
                     },
                     [=[
                         local playerUID, texts = ...
-                        setUIDQuestState(playerUID, 'quest_guard_3_give_info', texts)
+                        setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_librarian, state='quest_guard_3_give_info', args=texts}
                     ]=])
                 end,
             }
@@ -865,7 +882,7 @@ setQuestFSMTable(fsmName_persuade_librarian,
             ]=], text1, text2, SYS_EXIT)
         ]])
 
-        setUIDQuestState(uid, 'quest_answer_librarian_questions')
+        setUIDQuestState{uid=uid, fsm=fsmName_persuade_librarian, state='quest_answer_librarian_questions'}
     end,
 
     quest_answer_librarian_questions = function(uid, value)
@@ -970,7 +987,11 @@ setQuestFSMTable(fsmName_persuade_librarian,
                                 <par>真是太谢谢了！</par>
                             </layout>
                         ]=])
-                        uidRemoteCall(questUID, uid, [=[ setUIDQuestState(..., SYS_DONE) ]=])
+                        uidRemoteCall(questUID, uid,
+                        [=[
+                            local playerUID = ...
+                            setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_librarian, state=SYS_DONE}
+                        ]=])
                     else
                         runEventHandler(uid, questPath, 'npc_wrong_answer')
                     end
@@ -1082,7 +1103,7 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                     uidRemoteCall(questUID, uid,
                     [=[
                         local playerUID = ...
-                        setUIDQuestState(playerUID, 'quest_purchased_tooth')
+                        setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_pharmacist, state='quest_purchased_tooth'}
                     ]=])
                 end,
 
@@ -1102,7 +1123,7 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                     uidRemoteCall(questUID, uid,
                     [=[
                         local playerUID = ...
-                        setUIDQuestState(playerUID, 'quest_purchase_with_agreed_price', 100)
+                        setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_pharmacist, state='quest_purchase_with_agreed_price', args=100}
                     ]=])
                 end,
             })
@@ -1142,7 +1163,7 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                 uidRemoteCall(questUID, playerUID,
                 [=[
                     local playerUID = ...
-                    setUIDQuestState(playerUID, 'quest_purchased_tooth')
+                    setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_pharmacist, state='quest_purchased_tooth'}
                 ]=])
 
             else
@@ -1169,7 +1190,7 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                     uidRemoteCall(questUID, playerUID, askedGold,
                     [=[
                         local playerUID, askedGold = ...
-                        setUIDQuestState(playerUID, 'quest_wait_purchase', askedGold)
+                        setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_pharmacist, state='quest_wait_purchase', args=askedGold}
                     ]=])
 
                 else
@@ -1186,7 +1207,7 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                     uidRemoteCall(questUID, playerUID, newAskedGold,
                     [=[
                         local playerUID, newAskedGold = ...
-                        setUIDQuestState(playerUID, 'quest_wait_purchase', newAskedGold)
+                        setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_pharmacist, state='quest_wait_purchase', args=newAskedGold}
                     ]=])
                 end
             end
@@ -1217,7 +1238,7 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                     uidRemoteCall(questUID, uid, askedGold,
                     [=[
                         local playerUID, askedGold = ...
-                        setUIDQuestState(playeUID, 'quest_purchase_with_agreed_price', askedGold)
+                        setUIDQuestState{uid=playeUID, fsm=fsmName_persuade_pharmacist, state='quest_purchase_with_agreed_price', args=askedGold}
                     ]=])
                 end,
             })
@@ -1256,7 +1277,7 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                     uidRemoteCall(questUID, uid,
                     [=[
                         local playerUID = ...
-                        setUIDQuestState(playerUID, 'quest_purchased_tooth')
+                        setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_pharmacist, state='quest_purchased_tooth'}
                     ]=])
                 end,
             })
@@ -1306,7 +1327,7 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                     uidRemoteCall(questUID, uid,
                     [=[
                         local playerUID = ...
-                        setUIDQuestState(playerUID, SYS_DONE)
+                        setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_pharmacist, state=SYS_DONE}
                     ]=])
                 end,
             })
