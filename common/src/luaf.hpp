@@ -188,6 +188,15 @@ namespace luaf
         return array;
     }
 
+    template<typename K, typename V, typename... Args> luaVar buildLuaVar(std::unordered_map<K, V, Args...> varTable)
+    {
+        luaTable table;
+        for(auto &[k, v]: varTable){
+            table.emplace(luaVarWrapper(buildLuaVar(std::move(k))), luaVarWrapper(buildLuaVar(std::move(v))));
+        }
+        return table;
+    }
+
     luaVar buildLuaVar(luaVarWrapper);
     luaVar buildLuaVar(const sol::object &);
 
