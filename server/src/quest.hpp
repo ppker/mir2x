@@ -15,7 +15,7 @@ class Quest final: public ServerObject
             private:
                 Quest *m_quest; // equivalent to dynamic_cast<Quest *>(m_actorPod->getSO())
 
-            protected:
+            public:
                 QuestThreadRunner(Quest *);
 
             protected:
@@ -35,7 +35,7 @@ class Quest final: public ServerObject
         std::unordered_map<std::string, std::unordered_map<uint64_t, uint64_t>> m_uidStateRunner;
 
     private:
-        std::unique_ptr<ServerLuaCoroutineRunner> m_luaRunner;
+        std::unique_ptr<QuestThreadRunner> m_luaRunner;
 
     public:
         Quest(const SDInitQuest &);

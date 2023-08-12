@@ -361,7 +361,7 @@ void Quest::onActivate()
         .name = getQuestName(),
     })});
 
-    m_luaRunner = std::make_unique<ServerLuaCoroutineRunner>(this);
+    m_luaRunner = std::make_unique<QuestThreadRunner>(this);
 
     m_luaRunner->pfrCheck(m_luaRunner->execRawString(BEGIN_LUAINC(char)
 #include "quest.lua"
