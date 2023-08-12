@@ -226,8 +226,11 @@ function setUIDQuestState(fargs)
         _RSVD_NAME_dbUpdateUIDQuestFieldTable(uid, 'fld_states', fsm, {state=state, args=fargs.args})
     end
 
+    -- if not called from another FSM state op
+    -- fsm name is nil
+
     local currFSMName = _RSVD_NAME_currFSMName
-    assertType(currFSMName, 'string')
+    assertType(currFSMName, 'string', 'nil')
 
     _RSVD_NAME_closeUIDQuestState(uid, fsm)
     if hasQuestState(fsm, state) then
