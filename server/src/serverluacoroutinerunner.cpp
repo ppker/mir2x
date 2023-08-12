@@ -568,7 +568,7 @@ std::pair<uint64_t, uint64_t> ServerLuaCoroutineRunner::spawn(uint64_t key, cons
         R"###(     do                                                      )###""\n"
         R"###(        %s                                                   )###""\n"
         R"###(     end                                                     )###""\n"
-        R"###( end                                                         )###""\n", to_llu(key), to_llu(currSeqID), code.c_str()), std::move(args)));
+        R"###( end                                                         )###""\n", code.c_str()), std::move(args)));
 
     return {key, currSeqID}; // don't use p resumeRunner() can invalidate p
 }
