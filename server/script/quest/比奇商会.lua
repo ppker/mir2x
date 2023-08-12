@@ -79,16 +79,15 @@ function _G.set_libraian_quest_handler()
 end
 
 function _G.set_pharmacist_quest_handler()
-    uidExecute(getNPCharUID('比奇县_0', '药剂师_1'),
+    uidRemoteCall(getNPCharUID('比奇县_0', '药剂师_1'), getUID(), getQuestName(),
     [[
-        local questUID  = %d
-        local questName = %s
+        local questUID, qusetName = ...
         local questPath = {SYS_EPQST, questName}
 
         return setQuestHandler(questName,
         {
             [SYS_CHECKACTIVE] = function(uid)
-                return uidExecute(uid, [=[ return getQuestState('比奇商会') ]=]) == 'quest_persuade_pharmacist_and_librarian'
+                return uidRemoteCall(uid, [=[ return getQuestState('比奇商会') ]=]) == 'quest_persuade_pharmacist_and_librarian'
             end,
 
             [SYS_ENTER] = function(uid, value)
@@ -140,7 +139,12 @@ function _G.set_pharmacist_quest_handler()
                         <par><event id="%%s">好的</event></par>
                     </layout>
                 ]=], SYS_EXIT)
-                uidExecute(questUID, [=[ setUIDQuestState(%%d, SYS_ENTER) ]=], uid)
+
+                uidRemoteCall(questUID, uid,
+                [=[
+                    local playerUID = ...
+                    setUIDQuestState(playerUID, SYS_ENTER)
+                ]=])
             end,
 
             npc_refuse = function(uid, value)
@@ -156,7 +160,7 @@ function _G.set_pharmacist_quest_handler()
                 ]=], SYS_EXIT)
             end,
         })
-    ]], getUID(), asInitString(getQuestName()))
+    ]])
 end
 
 setQuestFSMTable(
@@ -202,7 +206,7 @@ setQuestFSMTable(
     end,
 
     quest_accept_quest = function(uid, value)
-        uidExecute(getNPCharUID('比奇县_0', '王大人_1'), uid, getUID(),
+        uidRemoteCall(getNPCharUID('比奇县_0', '王大人_1'), uid, getUID(),
         [[
             local playerUID, questUID = ...
             uidRemoteCall(questUID, playerUID,
@@ -214,7 +218,7 @@ setQuestFSMTable(
     end,
 
     quest_refuse_quest = function(uid, value)
-        uidExecute(getNPCharUID('比奇县_0', '王大人_1'), uid, getUID(), getQuestName(),
+        uidRemoteCall(getNPCharUID('比奇县_0', '王大人_1'), uid, getUID(), getQuestName(),
         [[
             local playerUID, questUID, questName = ...
             local questPath = {SYS_EPUID, questName}
@@ -234,7 +238,11 @@ setQuestFSMTable(
                 end,
 
                 npc_accept = function(uid, value)
-                    uidExecute(questUID, [=[ setUIDQuestState(%%d, 'quest_accept_quest') ]=], uid)
+                    uidRemoteCall(questUID, uid,
+                    [=[
+                        local playerUID = ...
+                        setUIDQuestState(playerUID, 'quest_accept_quest')
+                    ]=])
                 end,
 
                 npc_deny = function(uid, value)
@@ -333,7 +341,11 @@ setQuestFSMTable(
                         </layout>
                     ]=], SYS_EXIT)
 
-                    uidExecute(questUID, [=[ setUIDQuestState(%%d, SYS_DONE) ]=], uid)
+                    uidRemoteCall(questUID, uid,
+                    [=[
+                        local playerUID = ...
+                        setUIDQuestState(playerUID, SYS_DONE)
+                    ]=])
                 end,
             })
         ]])
@@ -983,10 +995,9 @@ setQuestFSMTable(fsmName_persuade_librarian,
 setQuestFSMTable(fsmName_persuade_pharmacist,
 {
     [SYS_ENTER] = function(uid, value)
-        uidExecute(getNPCharUID('比奇县_0', '药剂师_1'),
+        uidRemoteCall(getNPCharUID('比奇县_0', '药剂师_1'), uid, getQuestName(),
         [[
-            local playerUID = %d
-            local questName = %s
+            local playerUID, questName = ...
             local questPath = {SYS_EPUID, questName}
 
             setUIDQuestHandler(playerUID, questName,
@@ -997,7 +1008,7 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                         <layout>
                             <par>患者越来越多，快去<event id="npc_path_details">毒蛇山谷</event>买<t color="red">毒蛇牙齿</t>吧！</par>
                             <par></par>
-                            <par><event id="%%s">好的</event></par>
+                            <par><event id="%s">好的</event></par>
                         </layout>
                     ]=], SYS_EXIT)
                 end,
@@ -1008,18 +1019,16 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                         <layout>
                             <par>从这儿向东北部去就能到达毒蛇山谷，去(643,15)附近就能够找得到。穿过毒蛇山谷一直向东走就会达到那个村庄，在那儿找药商<t color="red">金中医</t>(334,224)向他购买<t color="red">毒蛇牙齿</t>。</par>
                             <par></par>
-                            <par><event id="%%s">好的</event></par>
+                            <par><event id="%s">好的</event></par>
                         </layout>
                     ]=], SYS_EXIT)
                 end,
             })
         ]], uid, asInitString(getQuestName()))
 
-        uidExecute(getNPCharUID('毒蛇山谷_2', '金中医_1'),
+        uidRemoteCall(getNPCharUID('毒蛇山谷_2', '金中医_1'), uid, getUID(), getQuestName(),
         [[
-            local playerUID = %d
-            local questUID  = %d
-            local questName = %s
+            local playerUID, questUID, questName = ...
             local questPath = {SYS_EPUID, questName}
 
             setUIDQuestHandler(playerUID, questName,
@@ -1069,7 +1078,12 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                             <par><event id="%%s">好的</event></par>
                         </layout>
                     ]=], SYS_EXIT)
-                    uidExecute(questUID, [=[ setUIDQuestState(%%d, 'quest_purchased_tooth') ]=], uid)
+
+                    uidRemoteCall(questUID, uid,
+                    [=[
+                        local playerUID = ...
+                        setUIDQuestState(playerUID, 'quest_purchased_tooth')
+                    ]=])
                 end,
 
                 npc_ask_for_discount = function(uid, value)
@@ -1085,7 +1099,11 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                 end,
 
                 npc_setup_purchase_quest = function(uid, value)
-                    uidExecute(questUID, [=[ setUIDQuestState(%%d, 'quest_purchase_with_agreed_price', 100) ]=], uid)
+                    uidRemoteCall(questUID, uid,
+                    [=[
+                        local playerUID = ...
+                        setUIDQuestState(playerUID, 'quest_purchase_with_agreed_price', 100)
+                    ]=])
                 end,
             })
         ]], uid, getUID(), asInitString(getQuestName()))
@@ -1099,15 +1117,11 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
         assertType(value, 'integer')
         assert(value > 0)
 
-        uidExecute(getNPCharUID('毒蛇山谷_2', '金中医_1'),
+        uidRemoteCall(getNPCharUID('毒蛇山谷_2', '金中医_1'), uid, value, getUID(), getQuestName(),
         [[
-            local playerUID = %d
-            local askedGold = %d
-            local questUID  = %d
-            local questName = %s
-
+            local playerUID, askedGold, questUID, questName = ...
             local questPath = {SYS_EPUID, questName}
-            local currGold  = uidExecute(playerUID, [=[ return getGold() ]=])
+            local currGold = uidRemoteCall(playerUID, [=[ return getGold() ]=])
 
             if currGold >= askedGold then
                 uidPostXML(playerUID,
@@ -1118,23 +1132,29 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                     </layout>
                 ]=], SYS_EXIT)
 
-                uidExecute(playerUID,
+                uidRemoteCall(playerUID, askedGold,
                 [=[
-                    removeItem(getItemID(SYS_GOLDNAME), 0, %%d)
+                    local askedGold = ...
+                    removeItem(getItemID(SYS_GOLDNAME), 0, askedGold)
                     addItem(getItemID('毒蛇牙齿'), 10)
-                ]=], askedGold)
+                ]=])
 
-                uidExecute(questUID, [=[ setUIDQuestState(%%d, 'quest_purchased_tooth') ]=], playerUID)
+                uidRemoteCall(questUID, playerUID,
+                [=[
+                    local playerUID = ...
+                    setUIDQuestState(playerUID, 'quest_purchased_tooth')
+                ]=])
 
             else
                 local rand = math.random(0, 100)
                 if rand <= 0 then
-                    uidExecute(questUID, [=[ setUIDQuestState(%%d, 'quest_purchase_with_free_price') ]=], playerUID)
-                    -- TODO interesting part here
-                    -- needs to wait for quest state change which reset the handler
-                    -- otherwise next runEventHandler() triggers old handlr
-                    pause(500)
-                    uidExecute(getUID(), [=[ runEventHandler(%%d, %%s, SYS_ENTER) ]=], playerUID, asInitString(questPath))
+                    uidRemoteCall(questUID, playerUID, questPath,
+                    [=[
+                        local playerUID, questPath = ...
+                        setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_pharmacist, state='quest_purchase_with_free_price', exitfunc=function()
+                            runEventHandler(playerUID, questPath, SYS_ENTER)
+                        end}
+                    ]=])
 
                 elseif rand <= 50 then
                     uidPostXML(playerUID,
@@ -1145,7 +1165,12 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                             <par><event id="%%s">退出</event></par>
                         </layout>
                     ]=], askedGold, askedGold, SYS_EXIT)
-                    uidExecute(questUID, [=[ setUIDQuestState(%%d, 'quest_wait_purchase', %%d) ]=], playerUID, askedGold)
+
+                    uidRemoteCall(questUID, playerUID, askedGold,
+                    [=[
+                        local playerUID, askedGold = ...
+                        setUIDQuestState(playerUID, 'quest_wait_purchase', askedGold)
+                    ]=])
 
                 else
                     local newAskedGold = math.ceil(askedGold * 1.5)
@@ -1157,19 +1182,21 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                             <par><event id="%%s">退出</event></par>
                         </layout>
                     ]=], askedGold, newAskedGold, SYS_EXIT)
-                    uidExecute(questUID, [=[ setUIDQuestState(%%d, 'quest_wait_purchase', %%d) ]=], playerUID, newAskedGold)
+
+                    uidRemoteCall(questUID, playerUID, newAskedGold,
+                    [=[
+                        local playerUID, newAskedGold = ...
+                        setUIDQuestState(playerUID, 'quest_wait_purchase', newAskedGold)
+                    ]=])
                 end
             end
-        ]], uid, value, getUID(), asInitString(getQuestName()))
+        ]])
     end,
 
     quest_wait_purchase = function(uid, value)
-        uidExecute(getNPCharUID('毒蛇山谷_2', '金中医_1'),
+        uidRemoteCall(getNPCharUID('毒蛇山谷_2', '金中医_1'), uid, value, getUID(), getQuestName(),
         [[
-            local playerUID = %d
-            local askedGold = %d
-            local questUID  = %d
-            local questName = %s
+            local playerUID, askedGold, questUID, questName = ...
             local questPath = {SYS_EPUID, questName}
 
             setUIDQuestHandler(playerUID, questName,
@@ -1187,18 +1214,20 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                 end,
 
                 npc_purchase = function(uid, value)
-                    uidExecute(questUID, [=[ setUIDQuestState(%%d, 'quest_purchase_with_agreed_price', %%d) ]=], uid, askedGold)
+                    uidRemoteCall(questUID, uid, askedGold,
+                    [=[
+                        local playerUID, askedGold = ...
+                        setUIDQuestState(playeUID, 'quest_purchase_with_agreed_price', askedGold)
+                    ]=])
                 end,
             })
-        ]], uid, value, getUID(), asInitString(getQuestName()))
+        ]])
     end,
 
     quest_purchase_with_free_price = function(uid, value)
-        uidExecute(getNPCharUID('毒蛇山谷_2', '金中医_1'),
+        uidRemoteCall(getNPCharUID('毒蛇山谷_2', '金中医_1'), uid, getUID(), getQuestName(),
         [[
-            local playerUID = %d
-            local questUID  = %d
-            local questName = %s
+            local playerUID, questUID, questName = ...
             local questPath = {SYS_EPUID, questName}
 
             setUIDQuestHandler(playerUID, questName,
@@ -1223,18 +1252,21 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                         </layout>
                     ]=], SYS_EXIT)
 
-                    uidExecute(uid, [=[ addItem(getItemID('毒蛇牙齿'), 10) ]=])
-                    uidExecute(questUID, [=[ setUIDQuestState(%%d, 'quest_purchased_tooth') ]=], uid)
+                    uidRemoteCall(uid, [=[ addItem(getItemID('毒蛇牙齿'), 10) ]=])
+                    uidRemoteCall(questUID, uid,
+                    [=[
+                        local playerUID = ...
+                        setUIDQuestState(playerUID, 'quest_purchased_tooth')
+                    ]=])
                 end,
             })
         ]], uid, getUID(), asInitString(getQuestName()))
     end,
 
     quest_purchased_tooth = function(uid, value)
-        uidExecute(getNPCharUID('毒蛇山谷_2', '金中医_1'),
+        uidRemoteCall(getNPCharUID('毒蛇山谷_2', '金中医_1'), uid, getQuestName(),
         [[
-            local playerUID = %d
-            local questName = %s
+            local playerUID, questName = ...
             local questPath = {SYS_EPUID, questName}
 
             setUIDQuestHandler(playerUID, questName,
@@ -1245,18 +1277,16 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                         <layout>
                             <par>干嘛呢？还不快把药材带给<t color="yellow">比奇省</t><t color="red">药剂师</t>。</par>
                             <par></par>
-                            <par><event id="%%s">退出</event></par>
+                            <par><event id="%s">退出</event></par>
                         </layout>
                     ]=], SYS_EXIT)
                 end,
             })
-        ]], uid, asInitString(getQuestName()))
+        ]])
 
-        uidExecute(getNPCharUID('比奇县_0', '药剂师_1'),
+        uidRemoteCall(getNPCharUID('比奇县_0', '药剂师_1'), uid, getUID(), getQuestName(),
         [[
-            local playerUID = %d
-            local questUID  = %d
-            local questName = %s
+            local playerUID, questUID, questName = ...
             local questPath = {SYS_EPQST, questName}
 
             return setUIDQuestHandler(playerUID, questName,
@@ -1272,8 +1302,12 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                         </layout>
                     ]=], SYS_EXIT)
 
-                    uidExecute(uid, [=[ addItem(getItemID('金创药（特）'), 8) ]=])
-                    uidExecute(questUID, [=[ setUIDQuestState(%%d, SYS_DONE) ]=], uid)
+                    uidRemoteCall(uid, [=[ addItem(getItemID('金创药（特）'), 8) ]=])
+                    uidRemoteCall(questUID, uid,
+                    [=[
+                        local playerUID = ...
+                        setUIDQuestState(playerUID, SYS_DONE)
+                    ]=])
                 end,
             })
         ]], uid, getUID(), asInitString(getQuestName()))
