@@ -215,9 +215,9 @@ function setUIDQuestState(args)
     local currFSMName = _RSVD_NAME_currFSMName
 
     if hasQuestState(args.fsm, args.state) then
-        _RSVD_NAME_switchUIDQuestState(args.uid, args.fsm or SYS_QSTFSM, args.state, args.args, args.exitfunc, getTLSTable().threadKey, getTLSTable().threadSeqID)
+        _RSVD_NAME_switchUIDQuestState(args.uid, args.fsm or SYS_QSTFSM, args.state, args.args, false, args.exitfunc, getTLSTable().threadKey, getTLSTable().threadSeqID)
     else
-        _RSVD_NAME_switchUIDQuestState(args.uid, args.fsm or SYS_QSTFSM,        nil,       nil,           nil, getTLSTable().threadKey, getTLSTable().threadSeqID)
+        _RSVD_NAME_switchUIDQuestState(args.uid, args.fsm or SYS_QSTFSM,        nil,       nil, false,           nil, getTLSTable().threadKey, getTLSTable().threadSeqID)
     end
 
     -- drop current thread in C layer
