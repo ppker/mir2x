@@ -169,7 +169,7 @@ setQuestFSMTable(
                         setUIDQuestState{uid=playerUID, state=SYS_DONE}
                     ]=])
                 end,
-            })
+            }
         ]])
     end,
 })
