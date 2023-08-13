@@ -114,7 +114,7 @@ setQuestFSMTable(
                                 <par>我期待着你能带来好消息！</par>
                                 <par>只要<t color="red">图书管理人</t>和<t color="red">药剂师</t>加入我们这一方的话就是一次值得的斗争！</par>
                                 <par></par>
-                                <par><event id="%%s">好的</event></par>
+                                <par><event id="%s">好的</event></par>
                             </layout>
                         ]=], SYS_EXIT)
 
@@ -125,7 +125,7 @@ setQuestFSMTable(
                                 <par>还没能拉拢<t color="red">图书管理人</t>啊？再加把劲儿！</par>
                                 <par>只要<t color="red">图书管理人</t>和<t color="red">药剂师</t>加入我们这一方的话就是一次值得的斗争！</par>
                                 <par></par>
-                                <par><event id="%%s">好的</event></par>
+                                <par><event id="%s">好的</event></par>
                             </layout>
                         ]=], SYS_EXIT)
 
@@ -136,7 +136,7 @@ setQuestFSMTable(
                                 <par>还没能拉拢<t color="red">药剂师</t>啊？再加把劲儿！</par>
                                 <par>只要<t color="red">图书管理人</t>和<t color="red">药剂师</t>加入我们这一方的话就是一次值得的斗争！</par>
                                 <par></par>
-                                <par><event id="%%s">好的</event></par>
+                                <par><event id="%s">好的</event></par>
                             </layout>
                         ]=], SYS_EXIT)
 
@@ -159,7 +159,7 @@ setQuestFSMTable(
                         <layout>
                             <par>真没想到啊！不知不觉中就把传奇商会的商家拉拢到我们这一方啦！真是手腕精明啊！由于你的活动终于使我们比奇商会统一了比奇地区商权。这是为了报答你的功劳准备的一点小小礼物，请不要谦让务必收下。</par>
                             <par></par>
-                            <par><event id="%%s">退出</event></par>
+                            <par><event id="%s">退出</event></par>
                         </layout>
                     ]=], SYS_EXIT)
 
@@ -913,7 +913,7 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                             <par>很着急的样子啊！</par>
                             <par>给你，快去比奇省看看吧！</par>
                             <par></par>
-                            <par><event id="%%s">好的</event></par>
+                            <par><event id="%s">好的</event></par>
                         </layout>
                     ]=], SYS_EXIT)
 
@@ -966,7 +966,7 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                 [=[
                     <layout>
                         <par>东西都在这儿快快拿去，赶紧返回<t color="red">比奇省</t>吧！</par>
-                        <par><event id="%%s">好的</event></par>
+                        <par><event id="%s">好的</event></par>
                     </layout>
                 ]=], SYS_EXIT)
 
@@ -998,9 +998,9 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                     uidPostXML(playerUID,
                     [=[
                         <layout>
-                            <par>你是在开玩笑吗？你没有<t color="red">%%d</t>金币啊？！</par>
-                            <par>你这个不老实的家伙，不要再浪费我的时间了！先凑够<t color="red">%%d</t>金币再来找我吧！</par>
-                            <par><event id="%%s">退出</event></par>
+                            <par>你是在开玩笑吗？你没有<t color="red">%d</t>金币啊？！</par>
+                            <par>你这个不老实的家伙，不要再浪费我的时间了！先凑够<t color="red">%d</t>金币再来找我吧！</par>
+                            <par><event id="%s">退出</event></par>
                         </layout>
                     ]=], askedGold, askedGold, SYS_EXIT)
 
@@ -1015,9 +1015,9 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                     uidPostXML(playerUID,
                     [=[
                         <layout>
-                            <par>你是在开玩笑吗？你没有<t color="red">%%d</t>金币啊？！</par>
-                            <par>你这个家伙实在浪费我的一片好心，不要再说了！我决定涨价<t color="red">50%%%%</t>，先凑够<t color="red">%%d</t>金币再来找我吧！</par>
-                            <par><event id="%%s">退出</event></par>
+                            <par>你是在开玩笑吗？你没有<t color="red">%d</t>金币啊？！</par>
+                            <par>你这个家伙实在浪费我的一片好心，不要再说了！我决定涨价<t color="red">50%%</t>，先凑够<t color="red">%d</t>金币再来找我吧！</par>
+                            <par><event id="%s">退出</event></par>
                         </layout>
                     ]=], askedGold, newAskedGold, SYS_EXIT)
 
@@ -1043,10 +1043,10 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                     uidPostXML(uid, questPath,
                     [=[
                         <layout>
-                            <par>你带来<t color="red">%%d</t>金币了吗？</par>
+                            <par>你带来<t color="red">%d</t>金币了吗？</par>
                             <par></par>
                             <par><event id="npc_purchase">带来了！</event></par>
-                            <par><event id="%%s">我还没凑齐！</event></par>
+                            <par><event id="%s">我还没凑齐！</event></par>
                         </layout>
                     ]=], askedGold, SYS_EXIT)
                 end,
@@ -1086,7 +1086,7 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                     [=[
                         <layout>
                             <par>我是看药剂师的面子才免费的！东西都在这儿快快拿去，赶紧返回<t color="red">比奇省</t>吧！</par>
-                            <par><event id="%%s">好的</event></par>
+                            <par><event id="%s">好的</event></par>
                         </layout>
                     ]=], SYS_EXIT)
 
@@ -1136,7 +1136,7 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                             <par>您为病人们做了一件大好事！所以我会听从你的劝说加入王大人的比奇商会的，只好对不起崔大夫了！</par>
                             <par>啊！对了，这是金创药，收下这个吧！急匆匆地走了这么远的路累坏了吧！喝了这个可以补充一下元气。</par>
                             <par></par>
-                            <par><event id="%%s">谢谢！</event></par>
+                            <par><event id="%s">谢谢！</event></par>
                         </layout>
                     ]=], SYS_EXIT)
 
@@ -1280,7 +1280,7 @@ uidRemoteCall(getNPCharUID('比奇县_0', '图书管理员_1'), getUID(), getQue
 
 uidRemoteCall(getNPCharUID('比奇县_0', '药剂师_1'), getUID(), getQuestName(),
 [[
-    local questUID, qusetName = ...
+    local questUID, questName = ...
     local questPath = {SYS_EPQST, questName}
 
     setQuestHandler(questName,
@@ -1335,7 +1335,7 @@ uidRemoteCall(getNPCharUID('比奇县_0', '药剂师_1'), getUID(), getQuestName
                     <par>穿过毒蛇山谷一直向东走就会达到那个村庄。在那儿找药商<t color="red">金中医</t>(334,224)向他购买<t color="red">毒蛇牙齿</t>。</par>
                     <par>现在患者数量仍然呈增加的趋势，所以还不能推测出以后具体需要多少药材。不管怎么样你都要快去快回。</par>
                     <par></par>
-                    <par><event id="%%s">好的</event></par>
+                    <par><event id="%s">好的</event></par>
                 </layout>
             ]=], SYS_EXIT)
 
@@ -1354,7 +1354,7 @@ uidRemoteCall(getNPCharUID('比奇县_0', '药剂师_1'), getUID(), getQuestName
                     <par>千万不要太拖延而忘了一切啊！人命关天啊！</par>
                     <par>我们所有人啊！</par>
                     <par></par>
-                    <par><event id="%%s">退出</event></par>
+                    <par><event id="%s">退出</event></par>
                 </layout>
             ]=], SYS_EXIT)
         end,
