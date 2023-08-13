@@ -85,10 +85,11 @@ function getNPCharUID(mapName, npcName)
         return 0
     end
 
-    local npcUID = uidExecute(mapUID,
+    local npcUID = uidRemoteCall(mapUID, npcName,
     [[
-        return getNPCharUID('%s')
-    ]], npcName)
+        local npcName = ...
+        return getNPCharUID(npcName)
+    ]])
 
     assertType(npcUID, 'integer')
     return npcUID
@@ -100,7 +101,7 @@ function setUIDQuestTeam(args)
     assertType(args.randRole, 'boolean', 'nil')
     assertType(args.propagate, 'boolean', 'nil')
 
-    local team = uidExecute(args.uid,
+    local team = uidRemoteCall(args.uid,
     [[
         return {
             [SYS_QUESTFIELD.TEAM.LEADER] = getTeamLeader(),

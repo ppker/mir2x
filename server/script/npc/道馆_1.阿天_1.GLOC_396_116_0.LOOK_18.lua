@@ -85,7 +85,15 @@ setEventHandler(
     end,
 
     ["npc_goto_get_set_password_1"] = function(uid, value)
-        uidExecute(uid, [[ _G.RSVD_NAME_%s_firstPasswordInput = '%s' ]], hexString(getNPCFullName()), value)
+        uidRemoteCall(uid, getNPCFullName(), value,
+        [[
+            local npcName, password = ...
+            if not _G.RSVD_NAME_firstPasswordInput then
+                _G.RSVD_NAME_firstPasswordInput = {}
+            end
+            _G.RSVD_NAME_firstPasswordInput[npcName] = password
+        ]])
+
         uidPostXML(uid,
         [[
             <layout>
@@ -99,7 +107,13 @@ setEventHandler(
     end,
 
     ["npc_goto_get_set_password_2"] = function(uid, value)
-        if uidExecute(uid, [[ return _G.RSVD_NAME_%s_firstPasswordInput ]], hexString(getNPCFullName())) == value then
+        local firstInput = uidRemoteCall(uid, getNPCFullName(),
+        [[
+            local npcName = ...
+            return _G.RSVD_NAME_firstPasswordInput[npcName]
+        ]])
+
+        if firstInput == value then
             uidPostXML(uid,
             [[
                 <layout>
@@ -117,13 +131,17 @@ setEventHandler(
                     <par>两次密码输入不一致，设置密码失败。</par>
                     <par></par>
 
-                    <par><event id="%s">设置密码</event></par>
+                    <par><event id="npc_goto_set_password">设置密码</event></par>
                     <par><event id="%s">关闭</event></par>
                 </layout>
-            ]], "npc_goto_set_password", SYS_EXIT)
+            ]], SYS_EXIT)
         end
 
-        uidExecute(uid, [[ _G.RSVD_NAME_%s_firstPasswordInput = nil ]], hexString(getNPCFullName()))
+        uidRemoteCall(uid, getNPCFullName(),
+        [[
+            local npcName = ...
+            _G.RSVD_NAME_firstPasswordInput[npcName] = nil
+        ]])
     end,
 
     ["npc_goto_daily_quest"] = function(uid, value)

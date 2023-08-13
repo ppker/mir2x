@@ -133,11 +133,16 @@ function uidSpaceMove(uid, map, x, y)
 
     assertType(x, 'integer')
     assertType(y, 'integer')
-    return uidExecute(uid, [[ return spaceMove(%d, %d, %d) ]], mapID, x, y)
+
+    return uidRemoteCall(uid, mapID, x, y,
+    [[
+        local mapID, x, y = ...
+        return spaceMove(mapID, x, y)
+    ]])
 end
 
 function uidQueryName(uid)
-    return uidExecute(uid, [[ return getName() ]])
+    return uidRemoteCall(uid, [[ return getName() ]])
 end
 
 function uidQueryRedName(uid)
@@ -145,11 +150,11 @@ function uidQueryRedName(uid)
 end
 
 function uidQueryLevel(uid)
-    return uidExecute(uid, [[ return getLevel() ]])
+    return uidRemoteCall(uid, [[ return getLevel() ]])
 end
 
 function uidQueryGold(uid)
-    return uidExecute(uid, [[ return getGold() ]])
+    return uidRemoteCall(uid, [[ return getGold() ]])
 end
 
 function uidRemove(uid, item, count)
@@ -157,7 +162,12 @@ function uidRemove(uid, item, count)
     if itemID == 0 then
         fatalPrintf('invalid item: %s', tostring(item))
     end
-    return uidExecute(uid, [[ return removeItem(%d, %d, %d) ]], itemID, seqID, argDefault(count, 1))
+
+    return uidRemoteCall(uid, itemID, seqID, argDefault(count, 1),
+    [[
+        local itemID, seqID, count = ...
+        return removeItem(itemID, seqID, count)
+    ]])
 end
 
 function uidRemoveGold(uid, count)
@@ -165,11 +175,15 @@ function uidRemoveGold(uid, count)
 end
 
 function uidSecureItem(uid, itemID, seqID)
-    uidExecute(uid, [[ secureItem(%d, %d) ]], itemID, seqID)
+    uidRemoteCall(uid, itemID, seqID,
+    [[
+        local itemID, seqID = ...
+        secureItem(itemID, seqID)
+    ]])
 end
 
 function uidShowSecuredItemList(uid)
-    uidExecute(uid, [[ reportSecuredItemList() ]])
+    uidRemoteCall(uid, [[ reportSecuredItemList() ]])
 end
 
 function uidGrant(uid, item, count)
@@ -177,7 +191,12 @@ function uidGrant(uid, item, count)
     if itemID == 0 then
         fatalPrintf('invalid item: %s', tostring(item))
     end
-    uidExecute(uid, [[ addItem(%d, %d) ]], itemID, argDefault(count, 1))
+
+    uidRemoteCall(uid, itemID, argDefault(count, 1),
+    [[
+        local itemID, count = ...
+        addItem(itemID, count)
+    ]])
 end
 
 function uidGrantGold(uid, count)
