@@ -1,5 +1,8 @@
 #pragma once
 #include <cstdint>
+#include <utility>
+#include <optional>
+#include "fflerror.hpp"
 #include "argparser.hpp"
 
 struct ClientArgParser
@@ -32,6 +35,8 @@ struct ClientArgParser
     const std::string serverIP;         // "--server-ip"
     const std::string serverPort;       // "--server-port"
 
+    const std::optional<std::pair<std::string, std::string>> autoLogin; // "--auto-login"
+
     bool traceMove;
 
     ClientArgParser(const arg_parser &cmdParser)
@@ -61,6 +66,19 @@ struct ClientArgParser
         , drawFPS(cmdParser["draw-fps"])
         , serverIP(cmdParser("server-ip").str())
         , serverPort(cmdParser("server-port").str())
+        , autoLogin([&cmdParser]() -> std::optional<std::pair<std::string, std::string>>
+          {
+              if(const auto autoLoginStr = cmdParser("auto-login").str(); !autoLoginStr.empty()){
+                  const auto pos = autoLoginStr.find(':');
+
+                  fflassert(pos != std::string::npos);
+                  fflassert(pos != 0);
+                  fflassert(pos != autoLoginStr.size() - 1);
+
+                  return std::make_pair(autoLoginStr.substr(0, pos), autoLoginStr.substr(pos + 1));
+              }
+              return std::nullopt;
+          }())
         , traceMove(cmdParser["trace-move"])
     {}
 };
