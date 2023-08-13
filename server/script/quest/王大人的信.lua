@@ -1,4 +1,4 @@
-uidExecute(getNPCharUID('比奇县_0', '王大人_1'), getQuestName(),
+uidRemoteCall(getNPCharUID('比奇县_0', '王大人_1'), getQuestName(),
 [[
     local questName = ...
     local questPath = {SYS_EPQST, questName}
