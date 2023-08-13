@@ -196,6 +196,10 @@ function uidRemoteCall(uid, ...)
     assert(args.n >= 1)
     assertType(args[args.n], 'string')
 
+    if uid == getUID() then
+        fatalPrintf("Sending remote call to self is not allowed")
+    end
+
     local resList = table.pack(_RSVD_NAME_callFuncCoop('remoteCall', uid, args[args.n], table.pack(table.unpack(args, 1, args.n - 1))))
     local resType = resList[1]
 
