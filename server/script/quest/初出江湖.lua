@@ -42,7 +42,11 @@ setQuestFSMTable(
                 end,
 
                 npc_fly_to_loc = function(uid, value)
-                    uidExecute(uid, [=[ spaceMove(%s) ]=], value)
+                    uidRemoteCall(uid, value,
+                    [=[
+                        local dstStr = ...
+                        spaceMove(load('return ' .. dstStr)())
+                    ]=])
                 end,
             }
         ]])
@@ -71,7 +75,11 @@ setQuestFSMTable(
                 end,
 
                 npc_fly_to_loc = function(uid, value)
-                    uidExecute(uid, [=[ spaceMove(%s) ]=], value)
+                    uidRemoteCall(uid, value,
+                    [=[
+                        local dstStr = ...
+                        spaceMove(load('return ' .. dstStr)())
+                    ]=])
                 end,
             })
         ]])
@@ -126,7 +134,11 @@ setQuestFSMTable(
                 end,
 
                 npc_fly_to_loc = function(uid, value)
-                    uidExecute(uid, [=[ spaceMove(%s) ]=], value)
+                    uidRemoteCall(uid, value,
+                    [=[
+                        local dstStr = ...
+                        spaceMove(load('return ' .. dstStr)())
+                    ]=])
                 end,
             })
         ]], uid, getQuestName())
@@ -162,7 +174,11 @@ setQuestFSMTable(
             addTrigger(SYS_ON_GAINITEM, function(itemID, seqID)
                 if hasItem(getItemID('鸡血'), 0, 2) then
                     postString('已经收集到2瓶鸡血了，快回去找大老板吧！')
-                    uidExecute(questUID, [=[ setUIDQuestState(%d, 'quest_done_chicken_blood') ]=], playerUID)
+                    uidRemoteCall(questUID, playerUID,
+                    [=[
+                        local playerUID = ...
+                        setUIDQuestState{uid=playerUID, state='quest_done_chicken_blood'}
+                    ]=])
                     return true
                 end
             end)
@@ -496,7 +512,11 @@ uidRemoteCall(getNPCharUID('道馆_1', '士官_1'), getUID(), getQuestName(),
         end,
 
         npc_fly_to_loc = function(uid, value)
-            uidExecute(uid, [=[ spaceMove(%s) ]=], value)
+            uidRemoteCall(uid, value,
+            [=[
+                local dstStr = ...
+                spaceMove(load('return ' .. dstStr)())
+            ]=])
         end,
 
         npc_accept_quest = function(uid, value)
