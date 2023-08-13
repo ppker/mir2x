@@ -2,9 +2,12 @@
 #include "dbcomid.hpp"
 #include "client.hpp"
 #include "fflerror.hpp"
+#include "clientargparser.hpp"
 #include "processselectchar.hpp"
 
 extern Client *g_client;
+extern ClientArgParser *g_clientArgParser;
+
 void ProcessSelectChar::net_QUERYCHAROK(const uint8_t *buf, size_t)
 {
     m_smChar = ServerMsg::conv<SMQueryCharOK>(buf);
@@ -14,6 +17,10 @@ void ProcessSelectChar::net_QUERYCHAROK(const uint8_t *buf, size_t)
     if(m_smChar.value().name.empty()){
         m_notifyBoard.addLog(u8"请先创建游戏角色");
     }
+    else if(g_clientArgParser->autoLogin){
+        onStart();
+    }
+
     updateGUIActive();
 }
 

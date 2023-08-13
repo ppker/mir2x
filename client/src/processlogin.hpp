@@ -51,6 +51,9 @@ class ProcessLogin: public Process
         void doCreateAccount();
         void doChangePassword();
 
+    private:
+        void sendLogin(const std::string &, const std::string &);
+
     public:
         void net_LOGINOK   (const uint8_t *, size_t);
         void net_LOGINERROR(const uint8_t *, size_t);

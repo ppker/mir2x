@@ -71,9 +71,9 @@ struct ClientArgParser
               if(const auto autoLoginStr = cmdParser("auto-login").str(); !autoLoginStr.empty()){
                   const auto pos = autoLoginStr.find(':');
 
-                  fflassert(pos != std::string::npos);
-                  fflassert(pos != 0);
-                  fflassert(pos != autoLoginStr.size() - 1);
+                  if(pos == std::string::npos ||
+                     pos == 0                 ||
+                     pos == autoLoginStr.size() - 1) throw fflerror("usage: --auto-login=id:password");
 
                   return std::make_pair(autoLoginStr.substr(0, pos), autoLoginStr.substr(pos + 1));
               }

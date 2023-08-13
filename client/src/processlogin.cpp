@@ -11,12 +11,14 @@
 #include "buildconfig.hpp"
 #include "notifyboard.hpp"
 #include "processlogin.hpp"
+#include "clientargparser.hpp"
 
 extern Log *g_log;
 extern Client *g_client;
 extern PNGTexDB *g_progUseDB;
 extern SDLDevice *g_sdlDevice;
 extern BGMusicDB *g_bgmDB;
+extern ClientArgParser *g_clientArgParser;
 
 ProcessLogin::ProcessLogin()
 	: Process()
@@ -108,6 +110,10 @@ ProcessLogin::ProcessLogin()
 {
     m_buildSignature.setText(u8"编译版本号:%s", getBuildSignature());
     g_sdlDevice->playBGM(g_bgmDB->retrieve(0X00040007));
+
+    if(g_clientArgParser->autoLogin.has_value()){
+        sendLogin(g_clientArgParser->autoLogin.value().first, g_clientArgParser->autoLogin.value().second);
+    }
 }
 
 void ProcessLogin::update(double fUpdateTime)
@@ -197,12 +203,7 @@ void ProcessLogin::doLogin()
         // this allows some test account like: (test, 123456)
         // but when creating account, changing password we need to be extremely careful
 
-        CMLogin cmL;
-        std::memset(&cmL, 0, sizeof(cmL));
-
-        cmL.id.assign(idStr);
-        cmL.password.assign(pwdStr);
-        g_client->send(CM_LOGIN, cmL);
+        sendLogin(idStr, pwdStr);
     }
 }
 
@@ -219,4 +220,14 @@ void ProcessLogin::doChangePassword()
 void ProcessLogin::doExit()
 {
     std::exit(0);
+}
+
+void ProcessLogin::sendLogin(const std::string &id, const std::string &password)
+{
+    CMLogin cmL;
+    std::memset(&cmL, 0, sizeof(cmL));
+
+    cmL.id.assign(id);
+    cmL.password.assign(password);
+    g_client->send(CM_LOGIN, cmL);
 }
