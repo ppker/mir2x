@@ -1,7 +1,4 @@
 _G.minQuestLevel = 7
-_G.uidGetLevel = function(uid)
-    return uidRemoteCall(uid, [=[ return getLevel() ]=])
-end
 
 addQuestTrigger(SYS_ON_LEVELUP, function(playerUID, oldLevel, newLevel)
     if oldLevel < minQuestLevel and newLevel >= minQuestLevel then
@@ -124,7 +121,7 @@ uidRemoteCall(getNPCharUID('道馆_1', '万事通_1'), getUID(), getQuestName(),
                 return true
             end
 
-            if uidGetLevel(uid) < minQuestLevel then
+            if uidRemoteCall(uid, [=[ return getLevel() ]=]) < minQuestLevel then
                 return false
             end
 
@@ -149,7 +146,7 @@ uidRemoteCall(getNPCharUID('道馆_1', '万事通_1'), getUID(), getQuestName(),
                     <par><event id="npc_accept_quest">同意</event></par>
                     <par><event id="%s"              >退出</event></par>
                 </layout>
-            ]=], uidGetLevel(uid), SYS_EXIT)
+            ]=], uidRemoteCall(uid, [=[ return getLevel() ]=]), SYS_EXIT)
         end,
 
         ['npc_accept_quest'] = function(uid, value)
