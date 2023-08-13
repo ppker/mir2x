@@ -1,173 +1,6 @@
 _G.fsmName_persuade_librarian  = '劝说图书管理人加入比奇商会'
 _G.fsmName_persuade_pharmacist = '劝说药剂师加入比奇商会'
 
-function _G.set_libraian_quest_handler()
-    uidRemoteCall(getNPCharUID('比奇县_0', '图书管理员_1'), getUID(), getQuestName(),
-    [[
-        local questUID, questName = ...
-        local questPath = {SYS_EPQST, questName}
-
-        return setQuestHandler(questName,
-        {
-            [SYS_CHECKACTIVE] = function(uid)
-                return SYS_DEBUG or uidRemoteCall(uid, [=[ return getQuestState('比奇商会') ]=]) == 'quest_persuade_pharmacist_and_librarian'
-            end,
-
-            [SYS_ENTER] = function(uid, value)
-                uidPostXML(uid, questPath,
-                [=[
-                    <layout>
-                        <par>早以前这里就是武林人士聚集的地方，呵呵。</par>
-                        <par>你看起来也像个习武之人，来这里有什么事情吗？</par>
-                        <par></par>
-                        <par><event id="npc_discuss_1">我为了劝您加入比奇商会而来此的！</event></par>
-                    </layout>
-                ]=])
-            end,
-
-            npc_discuss_1 = function(uid, value)
-                uidPostXML(uid, questPath,
-                [=[
-                    <layout>
-                        <par>比奇商会？</par>
-                        <par>啊！啊！知道了！是那个叫做王大人的创办的商人联合会吧！可是我已经加入了崔大夫创办的传奇商会，还是去别的地方试试吧！</par>
-                        <par></par>
-                        <par><event id="npc_discuss_2">也就是说无论如何都不行吗？</event></par>
-                    </layout>
-                ]=], SYS_EXIT)
-            end,
-
-            npc_discuss_2 = function(uid, value)
-                uidPostXML(uid, questPath,
-                [=[
-                    <layout>
-                        <par>无论如何？那倒也不是。</par>
-                        <par>如果你能为我办点事情的话，我也不是不能考虑加入比奇商会的。</par>
-                        <par></par>
-                        <par><event id="npc_discuss_3">要我帮你做什么事儿才行呢？</event></par>
-                    </layout>
-                ]=])
-            end,
-
-            npc_discuss_3 = function(uid, value)
-                uidPostXML(uid, questPath,
-                [=[
-                    <layout>
-                        <par>其实最近我正在编撰记录比奇省地理和历史的书籍。如果想要写好这本书的话必然要从各种各样的人那里收集关于比奇省的资料和信息，可是唯独比奇省的卫士们那里不与我合作啊！</par>
-                        <par>不管怎么样你也是武林人士，可能和他们能够有通融的地方，所以这就是我要拜托你的事情！值班卫士反正也不能和别人说话，所以希望你能替我去那儿找那些休班卫士从他们那里收集关于比奇省历史的故事。如果你能做到的话，我会听你的劝告加入比奇商会的。</par>
-                        <par></par>
-                        <par><event id="npc_accept">也许我可以去试试？</event></par>
-                        <par><event id="%s">我和他们也不熟啊！</event></par>
-                    </layout>
-                ]=], SYS_EXIT)
-            end,
-
-            npc_accept = function(uid, value)
-                uidPostXML(uid, questPath,
-                [=[
-                    <layout>
-                        <par>哦？你答应我的请求了？</par>
-                        <par>那太好了，我等着你的好消息！</par>
-                        <par></par>
-                        <par><event id="%s">好的！</event></par>
-                    </layout>
-                ]=], SYS_EXIT)
-
-                uidRemoteCall(questUID, uid,
-                [=[
-                    local playerUID = ...
-                    setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_librarian, state=SYS_ENTER}
-                ]=])
-            end,
-        })
-    ]])
-end
-
-function _G.set_pharmacist_quest_handler()
-    uidRemoteCall(getNPCharUID('比奇县_0', '药剂师_1'), getUID(), getQuestName(),
-    [[
-        local questUID, qusetName = ...
-        local questPath = {SYS_EPQST, questName}
-
-        return setQuestHandler(questName,
-        {
-            [SYS_CHECKACTIVE] = function(uid)
-                return SYS_DEBUG or uidRemoteCall(uid, [=[ return getQuestState('比奇商会') ]=]) == 'quest_persuade_pharmacist_and_librarian'
-            end,
-
-            [SYS_ENTER] = function(uid, value)
-                uidPostXML(uid, questPath,
-                [=[
-                    <layout>
-                        <par>我现在特别忙，你有什么事儿吗？</par>
-                        <par></par>
-                        <par><event id="npc_discuss_1">我来劝说你加入比奇商会！</event></par>
-                    </layout>
-                ]=])
-            end,
-
-            npc_discuss_1 = function(uid, value)
-                uidPostXML(uid, questPath,
-                [=[
-                    <layout>
-                        <par>让我加入王大人的比奇商会？</par>
-                        <par>你不知道我已经加入传奇商会了吗？呵呵，不过听说王大人那个人也不错，而且比起传奇商会来说条件也要更好。</par>
-                        <par>但是不管怎么说都要讲点道义啊，怎么能像手心手背那样说翻就翻呢？</par>
-                        <par></par>
-                        <par><event id="npc_discuss_2">那就没有别的办法了吗？</event></par>
-                    </layout>
-                ]=], SYS_EXIT)
-            end,
-
-            npc_discuss_2 = function(uid, value)
-                uidPostXML(uid, questPath,
-                [=[
-                    <layout>
-                        <par>嗯！？既然你都这么说了，我倒是有一个建议。</par>
-                        <par>最近比奇省里流行传染病，配制治疗这种病的药所需的原料毒蛇牙齿非常的紧缺。这种毒蛇牙齿在毒蛇山谷村就有卖的，但是我现在马上要给源源不断而来的病人治病，没有去买药材的时间。</par>
-                        <par>传奇商会那帮人唯利是图，人命关天的事却无人愿意搭把手帮助我。如果你能够买来足够我们所需的毒蛇牙齿，我就会抛开商人的身份来以医生的角度听从您的劝说。</par>
-                        <par></par>
-                        <par><event id="npc_accept">没问题！</event></par>
-                        <par><event id="npc_refuse">请给我点儿考虑的时间。</event></par>
-                    </layout>
-                ]=])
-            end,
-
-            npc_accept = function(uid, value)
-                uidPostXML(uid,
-                [=[
-                    <layout>
-                        <par>从这儿向东北部去就能到达毒蛇山谷，可能去(643,15)附近就能够找得到。</par>
-                        <par>穿过毒蛇山谷一直向东走就会达到那个村庄。在那儿找药商<t color="red">金中医</t>(334,224)向他购买<t color="red">毒蛇牙齿</t>。</par>
-                        <par>现在患者数量仍然呈增加的趋势，所以还不能推测出以后具体需要多少药材。不管怎么样你都要快去快回。</par>
-                        <par></par>
-                        <par><event id="%%s">好的</event></par>
-                    </layout>
-                ]=], SYS_EXIT)
-
-                uidRemoteCall(questUID, uid,
-                [=[
-                    local playerUID = ...
-                    setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_pharmacist, state=SYS_ENTER}
-                ]=])
-            end,
-
-            npc_refuse = function(uid, value)
-                uidPostXML(uid, questPath,
-                [=[
-                    <layout>
-                        <par>明白吗，年轻人？！</par>
-                        <par>千万不要太拖延而忘了一切啊！人命关天啊！</par>
-                        <par>我们所有人啊！</par>
-                        <par></par>
-                        <par><event id="%%s">退出</event></par>
-                    </layout>
-                ]=], SYS_EXIT)
-            end,
-        })
-    ]])
-end
-
 setQuestFSMTable(
 {
     [SYS_ENTER] = function(uid, value)
@@ -212,50 +45,47 @@ setQuestFSMTable(
     quest_refuse_quest = function(uid, value)
         uidRemoteCall(getNPCharUID('比奇县_0', '王大人_1'), uid, getUID(), getQuestName(),
         [[
-            local playerUID, questUID, questName = ...
-            local questPath = {SYS_EPUID, questName}
+        local playerUID, questUID, questName = ...
+        local questPath = {SYS_EPUID, questName}
 
-            setUIDQuestHandler(playerUID, questName,
-            {
-                [SYS_ENTER] = function(uid, value)
-                    uidPostXML(uid, questPath,
-                    [=[
-                        <layout>
-                            <par>那么现在可以帮助我了吗？情况紧急啊！</par>
-                            <par></par>
-                            <par><event id="npc_accept" close="1">好的</event></par>
-                            <par><event id="npc_deny">我没有多余的精力</event></par>
-                        </layout>
-                    ]=])
-                end,
+        setUIDQuestHandler(playerUID, questName,
+        {
+            [SYS_ENTER] = function(uid, value)
+                uidPostXML(uid, questPath,
+                [=[
+                <layout>
+                <par>那么现在可以帮助我了吗？情况紧急啊！</par>
+                <par></par>
+                <par><event id="npc_accept" close="1">好的</event></par>
+                <par><event id="npc_deny">我没有多余的精力</event></par>
+                </layout>
+                ]=])
+            end,
 
-                npc_accept = function(uid, value)
-                    uidRemoteCall(questUID, uid,
-                    [=[
-                        local playerUID = ...
-                        setUIDQuestState{uid=playerUID, state='quest_accept_quest'}
-                    ]=])
-                end,
+            npc_accept = function(uid, value)
+                uidRemoteCall(questUID, uid,
+                [=[
+                local playerUID = ...
+                setUIDQuestState{uid=playerUID, state='quest_accept_quest'}
+                ]=])
+            end,
 
-                npc_deny = function(uid, value)
-                    uidPostXML(uid, questPath,
-                    [=[
-                        <layout>
-                            <par>唉！</par>
-                            <par>老天爷啊！真的丢下我不管了吗！？</par>
-                            <par></par>
-                            <par><event id="%s">结束</event></par>
-                        </layout>
-                    ]=], SYS_EXIT)
-                end,
-            })
+            npc_deny = function(uid, value)
+                uidPostXML(uid, questPath,
+                [=[
+                <layout>
+                <par>唉！</par>
+                <par>老天爷啊！真的丢下我不管了吗！？</par>
+                <par></par>
+                <par><event id="%s">结束</event></par>
+                </layout>
+                ]=], SYS_EXIT)
+            end,
+        })
         ]])
     end,
 
     quest_persuade_pharmacist_and_librarian = function(uid, value)
-        set_libraian_quest_handler()
-        set_pharmacist_quest_handler()
-
         setupNPCQuestBehavior('比奇县_0', '王大人_1', uid,
         [[
             return getUID(), getQuestName()
@@ -1327,7 +1157,7 @@ uidRemoteCall(getNPCharUID('比奇县_0', '王大人_1'), getUID(), getQuestName
     local questUID, questName = ...
     local questPath = {SYS_EPQST, questName}
 
-    return setQuestHandler(questName,
+    setQuestHandler(questName,
     {
         [SYS_CHECKACTIVE] = function(uid)
             return SYS_DEBUG or uidRemoteCall(uid, [=[ return getQuestState('初出江湖') ]=]) == SYS_DONE
@@ -1364,6 +1194,169 @@ uidRemoteCall(getNPCharUID('比奇县_0', '王大人_1'), getUID(), getQuestName
                 local playerUID, accepted = ...
                 setUIDQuestState{uid=playerUID, state=SYS_ENTER, args=accepted}
             ]=])
+        end,
+    })
+]])
+
+uidRemoteCall(getNPCharUID('比奇县_0', '图书管理员_1'), getUID(), getQuestName(),
+[[
+    local questUID, questName = ...
+    local questPath = {SYS_EPQST, questName}
+
+    setQuestHandler(questName,
+    {
+        [SYS_CHECKACTIVE] = function(uid)
+            return SYS_DEBUG or uidRemoteCall(uid, [=[ return getQuestState('比奇商会') ]=]) == 'quest_persuade_pharmacist_and_librarian'
+        end,
+
+        [SYS_ENTER] = function(uid, value)
+            uidPostXML(uid, questPath,
+            [=[
+                <layout>
+                    <par>早以前这里就是武林人士聚集的地方，呵呵。</par>
+                    <par>你看起来也像个习武之人，来这里有什么事情吗？</par>
+                    <par></par>
+                    <par><event id="npc_discuss_1">我为了劝您加入比奇商会而来此的！</event></par>
+                </layout>
+            ]=])
+        end,
+
+        npc_discuss_1 = function(uid, value)
+            uidPostXML(uid, questPath,
+            [=[
+                <layout>
+                    <par>比奇商会？</par>
+                    <par>啊！啊！知道了！是那个叫做王大人的创办的商人联合会吧！可是我已经加入了崔大夫创办的传奇商会，还是去别的地方试试吧！</par>
+                    <par></par>
+                    <par><event id="npc_discuss_2">也就是说无论如何都不行吗？</event></par>
+                </layout>
+            ]=], SYS_EXIT)
+        end,
+
+        npc_discuss_2 = function(uid, value)
+            uidPostXML(uid, questPath,
+            [=[
+                <layout>
+                    <par>无论如何？那倒也不是。</par>
+                    <par>如果你能为我办点事情的话，我也不是不能考虑加入比奇商会的。</par>
+                    <par></par>
+                    <par><event id="npc_discuss_3">要我帮你做什么事儿才行呢？</event></par>
+                </layout>
+            ]=])
+        end,
+
+        npc_discuss_3 = function(uid, value)
+            uidPostXML(uid, questPath,
+            [=[
+                <layout>
+                    <par>其实最近我正在编撰记录比奇省地理和历史的书籍。如果想要写好这本书的话必然要从各种各样的人那里收集关于比奇省的资料和信息，可是唯独比奇省的卫士们那里不与我合作啊！</par>
+                    <par>不管怎么样你也是武林人士，可能和他们能够有通融的地方，所以这就是我要拜托你的事情！值班卫士反正也不能和别人说话，所以希望你能替我去那儿找那些休班卫士从他们那里收集关于比奇省历史的故事。如果你能做到的话，我会听你的劝告加入比奇商会的。</par>
+                    <par></par>
+                    <par><event id="npc_accept">也许我可以去试试？</event></par>
+                    <par><event id="%s">我和他们也不熟啊！</event></par>
+                </layout>
+            ]=], SYS_EXIT)
+        end,
+
+        npc_accept = function(uid, value)
+            uidPostXML(uid, questPath,
+            [=[
+                <layout>
+                    <par>哦？你答应我的请求了？</par>
+                    <par>那太好了，我等着你的好消息！</par>
+                    <par></par>
+                    <par><event id="%s">好的！</event></par>
+                </layout>
+            ]=], SYS_EXIT)
+
+            uidRemoteCall(questUID, uid,
+            [=[
+                local playerUID = ...
+                setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_librarian, state=SYS_ENTER}
+            ]=])
+        end,
+    })
+]])
+
+uidRemoteCall(getNPCharUID('比奇县_0', '药剂师_1'), getUID(), getQuestName(),
+[[
+    local questUID, qusetName = ...
+    local questPath = {SYS_EPQST, questName}
+
+    setQuestHandler(questName,
+    {
+        [SYS_CHECKACTIVE] = function(uid)
+            return SYS_DEBUG or uidRemoteCall(uid, [=[ return getQuestState('比奇商会') ]=]) == 'quest_persuade_pharmacist_and_librarian'
+        end,
+
+        [SYS_ENTER] = function(uid, value)
+            uidPostXML(uid, questPath,
+            [=[
+                <layout>
+                    <par>我现在特别忙，你有什么事儿吗？</par>
+                    <par></par>
+                    <par><event id="npc_discuss_1">我来劝说你加入比奇商会！</event></par>
+                </layout>
+            ]=])
+        end,
+
+        npc_discuss_1 = function(uid, value)
+            uidPostXML(uid, questPath,
+            [=[
+                <layout>
+                    <par>让我加入王大人的比奇商会？</par>
+                    <par>你不知道我已经加入传奇商会了吗？呵呵，不过听说王大人那个人也不错，而且比起传奇商会来说条件也要更好。</par>
+                    <par>但是不管怎么说都要讲点道义啊，怎么能像手心手背那样说翻就翻呢？</par>
+                    <par></par>
+                    <par><event id="npc_discuss_2">那就没有别的办法了吗？</event></par>
+                </layout>
+            ]=], SYS_EXIT)
+        end,
+
+        npc_discuss_2 = function(uid, value)
+            uidPostXML(uid, questPath,
+            [=[
+                <layout>
+                    <par>嗯！？既然你都这么说了，我倒是有一个建议。</par>
+                    <par>最近比奇省里流行传染病，配制治疗这种病的药所需的原料毒蛇牙齿非常的紧缺。这种毒蛇牙齿在毒蛇山谷村就有卖的，但是我现在马上要给源源不断而来的病人治病，没有去买药材的时间。</par>
+                    <par>传奇商会那帮人唯利是图，人命关天的事却无人愿意搭把手帮助我。如果你能够买来足够我们所需的毒蛇牙齿，我就会抛开商人的身份来以医生的角度听从您的劝说。</par>
+                    <par></par>
+                    <par><event id="npc_accept">没问题！</event></par>
+                    <par><event id="npc_refuse">请给我点儿考虑的时间。</event></par>
+                </layout>
+            ]=])
+        end,
+
+        npc_accept = function(uid, value)
+            uidPostXML(uid,
+            [=[
+                <layout>
+                    <par>从这儿向东北部去就能到达毒蛇山谷，可能去(643,15)附近就能够找得到。</par>
+                    <par>穿过毒蛇山谷一直向东走就会达到那个村庄。在那儿找药商<t color="red">金中医</t>(334,224)向他购买<t color="red">毒蛇牙齿</t>。</par>
+                    <par>现在患者数量仍然呈增加的趋势，所以还不能推测出以后具体需要多少药材。不管怎么样你都要快去快回。</par>
+                    <par></par>
+                    <par><event id="%%s">好的</event></par>
+                </layout>
+            ]=], SYS_EXIT)
+
+            uidRemoteCall(questUID, uid,
+            [=[
+                local playerUID = ...
+                setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_pharmacist, state=SYS_ENTER}
+            ]=])
+        end,
+
+        npc_refuse = function(uid, value)
+            uidPostXML(uid, questPath,
+            [=[
+                <layout>
+                    <par>明白吗，年轻人？！</par>
+                    <par>千万不要太拖延而忘了一切啊！人命关天啊！</par>
+                    <par>我们所有人啊！</par>
+                    <par></par>
+                    <par><event id="%%s">退出</event></par>
+                </layout>
+            ]=], SYS_EXIT)
         end,
     })
 ]])
