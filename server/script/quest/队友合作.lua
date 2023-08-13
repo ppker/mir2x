@@ -146,7 +146,7 @@ uidRemoteCall(getNPCharUID('道馆_1', '士官_1'), getUID(), getQuestName(),
             ]=])
 
             for _, teamRole in ipairs(teamRoleList) do
-                uidExecute(questUID, teamRole,
+                uidRemoteCall(questUID, teamRole,
                 [=[
                     local teamRole = ...
                     setUIDQuestState{uid=teamRole, state=SYS_ENTER}
