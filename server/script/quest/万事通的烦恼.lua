@@ -5,7 +5,7 @@ addQuestTrigger(SYS_ON_LEVELUP, function(playerUID, oldLevel, newLevel)
         uidRemoteCall(playerUID, newLevel,
         [[
             local newLevel = ...
-            postString([=[恭喜你升到%d级，快去找万拍子看看，他好像正需要人帮忙。]=], newLevel)
+            postString([=[恭喜你升到%d级，快去找道馆的万拍子看看，他好像正需要人帮忙。]=], newLevel)
         ]])
     end
 end)
@@ -114,13 +114,9 @@ uidRemoteCall(getNPCharUID('道馆_1', '万事通_1'), getUID(), getQuestName(),
     local questUID, questName, minQuestLevel = ...
     local questPath = {SYS_EPQST, questName}
 
-    return setQuestHandler(questName,
+    setQuestHandler(questName,
     {
         [SYS_CHECKACTIVE] = function(uid)
-            if SYS_DEBUG then
-                return true
-            end
-
             if uidRemoteCall(uid, [=[ return getLevel() ]=]) < minQuestLevel then
                 return false
             end
@@ -158,4 +154,3 @@ uidRemoteCall(getNPCharUID('道馆_1', '万事通_1'), getUID(), getQuestName(),
         end,
     })
 ]])
-
