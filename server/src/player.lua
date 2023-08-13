@@ -65,7 +65,7 @@ end
 
 function getQuestState(questName, fsmName)
     assertType(questName, 'string')
-    assertType(fsmName,  'string', 'nil')
+    assertType(fsmName, 'string', 'nil')
 
     local questUID = _RSVD_NAME_callFuncCoop('queryQuestUID', questName)
 

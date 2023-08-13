@@ -45,43 +45,43 @@ setQuestFSMTable(
     quest_refuse_quest = function(uid, value)
         uidRemoteCall(getNPCharUID('比奇县_0', '王大人_1'), uid, getUID(), getQuestName(),
         [[
-        local playerUID, questUID, questName = ...
-        local questPath = {SYS_EPUID, questName}
+            local playerUID, questUID, questName = ...
+            local questPath = {SYS_EPUID, questName}
 
-        setUIDQuestHandler(playerUID, questName,
-        {
-            [SYS_ENTER] = function(uid, value)
-                uidPostXML(uid, questPath,
-                [=[
-                <layout>
-                <par>那么现在可以帮助我了吗？情况紧急啊！</par>
-                <par></par>
-                <par><event id="npc_accept" close="1">好的</event></par>
-                <par><event id="npc_deny">我没有多余的精力</event></par>
-                </layout>
-                ]=])
-            end,
+            setUIDQuestHandler(playerUID, questName,
+            {
+                [SYS_ENTER] = function(uid, value)
+                    uidPostXML(uid, questPath,
+                    [=[
+                        <layout>
+                            <par>那么现在可以帮助我了吗？情况紧急啊！</par>
+                            <par></par>
+                            <par><event id="npc_accept" close="1">好的</event></par>
+                            <par><event id="npc_deny">我没有多余的精力</event></par>
+                        </layout>
+                    ]=])
+                end,
 
-            npc_accept = function(uid, value)
-                uidRemoteCall(questUID, uid,
-                [=[
-                local playerUID = ...
-                setUIDQuestState{uid=playerUID, state='quest_accept_quest'}
-                ]=])
-            end,
+                npc_accept = function(uid, value)
+                    uidRemoteCall(questUID, uid,
+                    [=[
+                        local playerUID = ...
+                        setUIDQuestState{uid=playerUID, state='quest_accept_quest'}
+                    ]=])
+                end,
 
-            npc_deny = function(uid, value)
-                uidPostXML(uid, questPath,
-                [=[
-                <layout>
-                <par>唉！</par>
-                <par>老天爷啊！真的丢下我不管了吗！？</par>
-                <par></par>
-                <par><event id="%s">结束</event></par>
-                </layout>
-                ]=], SYS_EXIT)
-            end,
-        })
+                npc_deny = function(uid, value)
+                    uidPostXML(uid, questPath,
+                    [=[
+                        <layout>
+                            <par>唉！</par>
+                            <par>老天爷啊！真的丢下我不管了吗！？</par>
+                            <par></par>
+                            <par><event id="%s">结束</event></par>
+                        </layout>
+                    ]=], SYS_EXIT)
+                end,
+            })
         ]])
     end,
 
@@ -862,7 +862,7 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                     ]=], SYS_EXIT)
                 end,
             })
-        ]], uid, asInitString(getQuestName()))
+        ]])
 
         uidRemoteCall(getNPCharUID('毒蛇山谷_2', '金中医_1'), uid, getUID(), getQuestName(),
         [[
@@ -944,7 +944,7 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                     ]=])
                 end,
             })
-        ]], uid, getUID(), asInitString(getQuestName()))
+        ]])
     end,
 
     quest_purchase_with_agreed_price = function(uid, value)
@@ -1098,7 +1098,7 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                     ]=])
                 end,
             })
-        ]], uid, getUID(), asInitString(getQuestName()))
+        ]])
     end,
 
     quest_purchased_tooth = function(uid, value)
@@ -1148,7 +1148,7 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                     ]=])
                 end,
             })
-        ]], uid, getUID(), asInitString(getQuestName()))
+        ]])
     end,
 })
 
