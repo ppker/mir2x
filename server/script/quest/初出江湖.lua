@@ -45,7 +45,7 @@ setQuestFSMTable(
                     uidRemoteCall(uid, value,
                     [=[
                         local dstStr = ...
-                        spaceMove(load('return ' .. dstStr)())
+                        spaceMove(load('return' .. dstStr)())
                     ]=])
                 end,
             }
@@ -81,7 +81,7 @@ setQuestFSMTable(
                     uidRemoteCall(uid, value,
                     [=[
                         local dstStr = ...
-                        spaceMove(load('return ' .. dstStr)())
+                        spaceMove(load('return' .. dstStr)())
                     ]=])
                 end,
             }
@@ -146,7 +146,7 @@ setQuestFSMTable(
                     uidRemoteCall(uid, value,
                     [=[
                         local dstStr = ...
-                        spaceMove(load('return ' .. dstStr)())
+                        spaceMove(load('return' .. dstStr)())
                     ]=])
                 end,
             }
@@ -545,7 +545,7 @@ uidRemoteCall(getNPCharUID('道馆_1', '士官_1'), getUID(), getQuestName(),
             uidRemoteCall(uid, value,
             [=[
                 local dstStr = ...
-                spaceMove(load('return ' .. dstStr)())
+                spaceMove(load('return' .. dstStr)())
             ]=])
         end,
 

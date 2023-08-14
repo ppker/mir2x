@@ -55,6 +55,7 @@ uidRemoteCall(getNPCharUID('道馆_1', '物品展示商人'), getUID(), getQuest
                     <par>我可以帮你测试脚本功能。</par>
                     <par></par>
                     <par><event id="npc_test_script">测试脚本</event></par>
+                    <par><event id="npc_test_switch_map" args="{'比奇县_0',390,400}" close="1">测试地图切换</event></par>
                     <par><event id="%s">退出</event></par>
                 </layout>
             ]=], SYS_EXIT)
@@ -68,6 +69,14 @@ uidRemoteCall(getNPCharUID('道馆_1', '物品展示商人'), getUID(), getQuest
                     runNPCEventHandler(getNPCharUID('道馆_1', '物品展示商人'), playerUID, {SYS_EPUID, questName}, SYS_ENTER)
                 end}
             ]=])
-        end
+        end,
+
+        npc_test_switch_map = function(uid, value)
+            uidRemoteCall(uid, value,
+            [=[
+                local dstStr = ...
+                spaceMove(load('return' .. dstStr)())
+            ]=])
+        end,
     })
 ]])
