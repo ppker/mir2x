@@ -225,7 +225,7 @@ function setUIDQuestState(fargs)
         _RSVD_NAME_dbSetUIDQuestStateDone(uid)
     else
         if (state ~= SYS_DONE) and (not dbGetUIDQuestState(uid, fsm)) then
-            setUIDQuestDesp{uid=uid, ''}
+            setUIDQuestDesp{uid=uid, fsm=fsm, ''}
         end
         _RSVD_NAME_dbUpdateUIDQuestFieldTable(uid, 'fld_states', fsm, {state, fargs.args})
     end
