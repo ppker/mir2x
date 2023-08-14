@@ -250,7 +250,7 @@ class ProcessRun: public Process
         void net_SHOWSECUREDITEMLIST(const uint8_t *, size_t);
         void net_TEAMCANDIDATE(const uint8_t *, size_t);
         void net_TEAMMEMBERLIST(const uint8_t *, size_t);
-        void net_QUESTDESP(const uint8_t *, size_t);
+        void net_QUESTDESPUPDATE(const uint8_t *, size_t);
         void net_QUESTDESPLIST(const uint8_t *, size_t);
 
     public:

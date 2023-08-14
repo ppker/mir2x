@@ -1057,23 +1057,17 @@ struct SDTeamMemberList
     }
 };
 
-struct SDQuestDesp
+struct SDQuestDespUpdate
 {
     std::string name {};
+    std::string  fsm {};
+
     std::optional<std::string> desp {};
 
     template<typename Archive> void serialize(Archive & ar)
     {
-        ar(name, desp);
+        ar(name, fsm, desp);
     }
 };
 
-struct SDQuestDespList
-{
-    std::vector<SDQuestDesp> list {};
-
-    template<typename Archive> void serialize(Archive & ar)
-    {
-        ar(list);
-    }
-};
+using SDQuestDespList = std::unordered_map<std::string, std::unordered_map<std::string, std::string>>; // sdQDL[quest][fsm] = desp

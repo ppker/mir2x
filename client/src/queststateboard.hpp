@@ -11,7 +11,7 @@ class QuestStateBoard: public Widget
         struct QuestDespState
         {
             bool folded = true;
-            std::optional<std::string> desp {};
+            std::map<std::string, std::string> desp {}; // fsm desp
         };
 
     private:
@@ -38,7 +38,7 @@ class QuestStateBoard: public Widget
         ProcessRun *m_processRun;
 
     private:
-        std::unordered_map<std::string, QuestDespState> m_questDesp;
+        std::map<std::string, QuestDespState> m_questDesp;
 
     public:
         QuestStateBoard(int, int, ProcessRun *, Widget * = nullptr, bool = false);
@@ -53,8 +53,8 @@ class QuestStateBoard: public Widget
         bool processEvent(const SDL_Event &, bool) override;
 
     public:
-        void updateQuestDesp(SDQuestDesp);
-        void    setQuestDesp(SDQuestDespList);
+        void updateQuestDesp(SDQuestDespUpdate);
+        void setQuestDesp(SDQuestDespList);
 
     private:
         void loadQuestDesp();

@@ -253,6 +253,11 @@ function setUIDQuestState(fargs)
     end
 end
 
+function dbGetUIDQuestDesp(uid)
+    assertType(uid, 'integer')
+    return dbGetUIDQuestField(uid, 'fld_desp')
+end
+
 function setUIDQuestDesp(args)
     assertType(args, 'table')
     assertType(args.uid, 'integer')
@@ -261,17 +266,38 @@ function setUIDQuestDesp(args)
     local uid = args.uid
     local fsm = args.fsm or SYS_QSTFSM
 
-    if args.format == nil and #args == 0 then
-        return _RSVD_NAME_setUIDQuestDesp(uid, fsm or SYS_QSTFSM, nil)
-    end
+    assert(hasQuestFSM(fsm))
 
-    if args.format ~= nil then
-        assertType(args.format, 'string')
-        return _RSVD_NAME_setUIDQuestDesp(uid, fsm or SYS_QSTFSM, string.format(args.format, table.unpack(args, 1, #args)))
-    end
+    local desp = (function()
+        if args.format == nil and #args == 0 then
+            return nil
 
-    assertType(args[1], 'string')
-    return _RSVD_NAME_setUIDQuestDesp(uid, fsm or SYS_QSTFSM, string.format(table.unpack(args, 1, #args)))
+        elseif args.format ~= nil then
+            assertType(args.format, 'string')
+            return string.format(args.format, table.unpack(args, 1, #args))
+
+        else
+            assertType(args[1], 'string')
+            return string.format(table.unpack(args, 1, #args))
+        end
+    end)()
+
+    local newDespTable = (function()
+        if fsm == SYS_QSTFSM and desp == nil then
+            return nil
+        end
+
+        local despTable = dbGetUIDQuestField(uid, 'fld_desp') or {}
+        despTable[fsm] = desp
+
+        if tableEmpty(despTable) then
+            return nil
+        else
+            return despTable
+        end
+    end)()
+
+    _RSVD_NAME_setUIDQuestDesp(uid, newDespTable, fsm, desp)
 end
 
 -- setup NPC chat logics

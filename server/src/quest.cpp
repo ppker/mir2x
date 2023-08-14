@@ -28,31 +28,16 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
         return m_quest->m_threadKey++;
     });
 
-    bindFunction("dbGetUIDQuestDesp", [this](uint64_t uid, sol::this_state s) -> sol::object
+    bindFunction("_RSVD_NAME_setUIDQuestDesp", [this](uint64_t uid, sol::object despTable, std::string fsm, sol::object desp)
     {
-        sol::state_view sv(s);
-        const auto dbName = m_quest->getQuestDBName();
-        const auto dbid = uidf::getPlayerDBID(uid);
+        fflassert(str_haschar(fsm));
+        fflassert(desp.is<std::string>() || (desp == sol::nil), luaf::luaObjTypeString(desp));
 
-        auto queryStatement = g_dbPod->createQuery(u8R"###(select fld_desp from %s where fld_dbid=%llu and fld_desp is not null)###", dbName.c_str(), to_llu(dbid));
-        if(!queryStatement.executeStep()){
-            return sol::make_object(sv, sol::nil);
-        }
-        return luaf::buildLuaObj(sol::state_view(s), std::move(cerealf::deserialize<luaf::luaVar>(queryStatement.getColumn(0))));
-    });
-
-    bindFunction("_RSVD_NAME_setUIDQuestDesp", [this](uint64_t uid, sol::object obj)
-    {
         const auto dbName = m_quest->getQuestDBName();
         const auto dbid = uidf::getPlayerDBID(uid);
         const auto timestamp = hres_tstamp().to_nsec();
 
-        SDQuestDesp sdQD
-        {
-            .name = m_quest->getQuestName(),
-        };
-
-        if(obj == sol::nil){
+        if(despTable == sol::nil){
             g_dbPod->exec(
                 u8R"###( insert into %s(fld_dbid, fld_timestamp, fld_desp) )###"
                 u8R"###( values                                            )###"
@@ -69,10 +54,8 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
                 to_llu(dbid),
                 to_llu(timestamp),
                 to_llu(timestamp));
-
-            sdQD.desp.reset();
         }
-        else if(obj.is<std::string>()){
+        else if(despTable.is<sol::table>()){
             auto query = g_dbPod->createQuery(
                 u8R"###( insert into %s(fld_dbid, fld_timestamp, fld_desp) )###"
                 u8R"###( values                                            )###"
@@ -90,16 +73,21 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
                 to_llu(timestamp),
                 to_llu(timestamp));
 
-            query.bind(1, cerealf::serialize(luaf::buildLuaVar(obj)));
+            query.bind(1, cerealf::serialize(luaf::buildLuaVar(despTable)));
             query.exec();
-
-            sdQD.desp = obj.as<std::string>();
         }
         else{
-            throw fflerror("invalid type: %s", to_cstr(luaf::luaObjTypeString(obj)));
+            throw fflerror("invalid type: %s", to_cstr(luaf::luaObjTypeString(despTable)));
         }
 
-        m_quest->forwardNetPackage(uid, SM_QUESTDESP, cerealf::serialize(sdQD));
+        SDQuestDespUpdate sdQDU
+        {
+            .name = m_quest->getQuestName(),
+            .fsm  = fsm,
+            .desp = desp.is<std::string>() ? std::make_optional<std::string>(desp.as<std::string>()) : std::nullopt,
+        };
+
+        m_quest->forwardNetPackage(uid, SM_QUESTDESPUPDATE, cerealf::serialize(sdQDU));
     });
 
     bindFunction("dbGetUIDQuestField", [this](uint64_t uid, std::string fieldName, sol::this_state s) -> sol::object

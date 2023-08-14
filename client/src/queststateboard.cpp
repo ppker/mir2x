@@ -241,13 +241,16 @@ bool QuestStateBoard::processEvent(const SDL_Event &event, bool valid)
     }
 }
 
-void QuestStateBoard::updateQuestDesp(SDQuestDesp sdQD)
+void QuestStateBoard::updateQuestDesp(SDQuestDespUpdate sdQDU)
 {
-    if(sdQD.desp.has_value()){
-        m_questDesp[sdQD.name].desp = sdQD.desp.value();
+    if(sdQDU.desp.has_value()){
+        m_questDesp[sdQDU.name].desp[sdQDU.fsm] = sdQDU.desp.value();
+    }
+    else if(sdQDU.fsm == SYS_QSTFSM){
+        m_questDesp.erase(sdQDU.name);
     }
     else{
-        m_questDesp.erase(sdQD.name);
+        m_questDesp[sdQDU.name].desp.erase(sdQDU.fsm);
     }
 
     if(!show()){
@@ -260,8 +263,10 @@ void QuestStateBoard::updateQuestDesp(SDQuestDesp sdQD)
 void QuestStateBoard::setQuestDesp(SDQuestDespList sdQDL)
 {
     m_questDesp.clear();
-    for(const auto &sdQD: sdQDL.list){
-        m_questDesp[sdQD.name].desp = sdQD.desp;
+    for(const auto &[quest, desps]: sdQDL){
+        for(const auto &[fsm, desp]: desps){
+            m_questDesp[quest].desp[fsm] = desp;
+        }
     }
 
     loadQuestDesp();
@@ -272,10 +277,14 @@ void QuestStateBoard::loadQuestDesp()
     std::vector<std::string> xmlStrs;
     xmlStrs.push_back("<layout>");
 
-    for(const auto &[questName, despState]: m_questDesp){
-        xmlStrs.push_back(str_printf(R"###(<par><event id="%s">%s</event></par>)###", questName.c_str(), questName.c_str()));
-        if(!despState.folded){
-            xmlStrs.push_back(str_printf("<par>    %s</par>", despState.desp.value_or("").empty() ? "暂无任务描述" : despState.desp.value().c_str()));
+    for(const auto &[quest, state]: m_questDesp){
+        xmlStrs.push_back(str_printf(R"###(<par><event id="%s">%s</event></par>)###", quest.c_str(), quest.c_str()));
+        if(!state.folded){
+            xmlStrs.push_back(str_printf("<par>    %s</par>", (state.desp.count(SYS_QSTFSM) && str_haschar(state.desp.at(SYS_QSTFSM))) ? state.desp.at(SYS_QSTFSM).c_str() : "暂无任务描述"));
+            for(const auto &[fsm, desp]: state.desp){
+                xmlStrs.push_back(str_printf("<par>    * %s</par>", fsm.c_str()));
+                xmlStrs.push_back(str_printf("<par>      %s</par>", str_haschar(desp) ? desp.c_str() : "暂无任务描述"));
+            }
         }
     }
 

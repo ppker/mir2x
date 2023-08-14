@@ -622,10 +622,10 @@ void Client::onServerMessage(uint8_t headCode, const uint8_t *buf, size_t bufSiz
                 }
                 break;
             }
-        case SM_QUESTDESP:
+        case SM_QUESTDESPUPDATE:
             {
                 if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_QUESTDESP(buf, bufSize);
+                    proc->net_QUESTDESPUPDATE(buf, bufSize);
                 }
                 break;
             }

@@ -288,18 +288,18 @@ void Player::onActivate()
 
     m_luaRunner->bindFunction("_RSVD_NAME_reportQuestDespList", [this](sol::object obj)
     {
-        fflassert(obj.is<sol::table>());
-        SDQuestDespList sdQDL;
+        fflassert(obj.is<sol::table>(), luaf::luaObjTypeString(obj));
+        SDQuestDespList sdQDL {};
 
-        for(const auto &[k, v]: obj.as<sol::table>()){
-            fflassert(k.is<std::string>());
-            fflassert(v.is<std::string>() || v.is<bool>());
+        for(const auto &[quest, table]: obj.as<sol::table>()){
+            fflassert(quest.is<std::string>(), luaf::luaObjTypeString(quest));
+            fflassert(table.is<sol::table >(), luaf::luaObjTypeString(table));
 
-            sdQDL.list.push_back(SDQuestDesp
-            {
-                .name = k.as<std::string>(),
-                .desp = v.is<std::string>() ? std::make_optional<std::string>(v.as<std::string>()) : std::nullopt,
-            });
+            for(const auto &[fsm, desp]: table.as<sol::table>()){
+                fflassert(fsm .is<std::string>(), luaf::luaObjTypeString(fsm ));
+                fflassert(desp.is<std::string>(), luaf::luaObjTypeString(desp));
+                sdQDL[quest.as<std::string>()][fsm.as<std::string>()] = desp.as<std::string>();
+            }
         }
 
         postNetMessage(SM_QUESTDESPLIST, cerealf::serialize(sdQDL));
