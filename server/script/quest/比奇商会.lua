@@ -335,6 +335,14 @@ setQuestFSMTable(
                 end,
             }
         ]])
+
+        setUIDQuestState{uid=uid, state='quest_wait_done'}
+    end,
+
+    quest_wait_done = function(uid, value)
+        -- if not use this empty state
+        -- then fsm stops in quest_persuade_pharmacist_and_librarian, and which setups npc behaviors
+        -- but npc behavior is also been set in other fsm, it may overwrite
     end,
 })
 
