@@ -12,14 +12,17 @@ class Quest final: public ServerObject
             private:
                 using LuaThreadHandle = ServerLuaCoroutineRunner::LuaThreadHandle;
 
-            private:
-                Quest *m_quest; // equivalent to dynamic_cast<Quest *>(m_actorPod->getSO())
-
             public:
                 QuestThreadRunner(Quest *);
 
             protected:
                 void closeUIDQuestState(uint64_t, const char *, const void *);
+
+            public:
+                Quest *getQuest() const
+                {
+                    return static_cast<Quest *>(m_actorPod->getSO());
+                }
         };
 
     private:

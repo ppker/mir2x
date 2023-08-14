@@ -11,21 +11,23 @@ extern MonoServer *g_monoServer;
 
 Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
     : ServerLuaCoroutineRunner(quest->m_actorPod)
-    , m_quest(quest)
 {
+    fflassert(dynamic_cast<Quest *>(m_actorPod->getSO()));
+    fflassert(dynamic_cast<Quest *>(m_actorPod->getSO()) == quest);
+
     bindFunction("getQuestName", [this]() -> std::string
     {
-        return m_quest->getQuestName();
+        return getQuest()->getQuestName();
     });
 
     bindFunction("getMainScriptThreadKey", [this]() -> uint64_t
     {
-        return m_quest->m_mainScriptThreadKey;
+        return getQuest()->m_mainScriptThreadKey;
     });
 
     bindFunction("rollKey", [this]() -> uint64_t
     {
-        return m_quest->m_threadKey++;
+        return getQuest()->m_threadKey++;
     });
 
     bindFunction("_RSVD_NAME_setUIDQuestDesp", [this](uint64_t uid, sol::object despTable, std::string fsm, sol::object desp)
@@ -33,7 +35,7 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
         fflassert(str_haschar(fsm));
         fflassert(desp.is<std::string>() || (desp == sol::nil), luaf::luaObjTypeString(desp));
 
-        const auto dbName = m_quest->getQuestDBName();
+        const auto dbName = getQuest()->getQuestDBName();
         const auto dbid = uidf::getPlayerDBID(uid);
         const auto timestamp = hres_tstamp().to_nsec();
 
@@ -82,18 +84,18 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
 
         SDQuestDespUpdate sdQDU
         {
-            .name = m_quest->getQuestName(),
+            .name = getQuest()->getQuestName(),
             .fsm  = fsm,
             .desp = desp.is<std::string>() ? std::make_optional<std::string>(desp.as<std::string>()) : std::nullopt,
         };
 
-        m_quest->forwardNetPackage(uid, SM_QUESTDESPUPDATE, cerealf::serialize(sdQDU));
+        getQuest()->forwardNetPackage(uid, SM_QUESTDESPUPDATE, cerealf::serialize(sdQDU));
     });
 
     bindFunction("dbGetUIDQuestField", [this](uint64_t uid, std::string fieldName, sol::this_state s) -> sol::object
     {
         sol::state_view sv(s);
-        const auto dbName = m_quest->getQuestDBName();
+        const auto dbName = getQuest()->getQuestDBName();
         const auto dbid = uidf::getPlayerDBID(uid);
 
         fflassert(str_haschar(fieldName));
@@ -108,7 +110,7 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
 
     bindFunction("dbSetUIDQuestField", [this](uint64_t uid, std::string fieldName, sol::object obj)
     {
-        const auto dbName = m_quest->getQuestDBName();
+        const auto dbName = getQuest()->getQuestDBName();
         const auto dbid = uidf::getPlayerDBID(uid);
         const auto timestamp = hres_tstamp().to_nsec();
 
@@ -168,7 +170,7 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
         // finialize quest
         // all quest vars get removed except fld_states
 
-        const auto dbName = m_quest->getQuestDBName();
+        const auto dbName = getQuest()->getQuestDBName();
         const auto dbid = uidf::getPlayerDBID(uid);
         const auto timestamp = hres_tstamp().to_nsec();
 
@@ -285,7 +287,7 @@ void Quest::QuestThreadRunner::closeUIDQuestState(uint64_t uid, const char *fsm,
     fflassert(uidf::isPlayer(uid));
     fflassert(str_haschar(fsm));
 
-    auto &fsmStateRunner = m_quest->m_uidStateRunner[fsm];
+    auto &fsmStateRunner = getQuest()->m_uidStateRunner[fsm];
     auto p = fsmStateRunner.find(uid);
 
     if(p == fsmStateRunner.end()){
@@ -307,7 +309,7 @@ void Quest::QuestThreadRunner::closeUIDQuestState(uint64_t uid, const char *fsm,
         //
         // this prevents any possibility of resuming the thread after this function call
 
-        m_quest->addDelay(0, [threadKey = p->second, this]()
+        getQuest()->addDelay(0, [threadKey = p->second, this]()
         {
             close(threadKey);
         });
