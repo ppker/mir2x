@@ -980,6 +980,7 @@ setQuestFSMTable(fsmName_persuade_librarian,
                                 <par>真是太谢谢了！</par>
                             </layout>
                         ]=])
+
                         uidRemoteCall(questUID, uid,
                         [=[
                             local playerUID = ...
