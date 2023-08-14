@@ -500,10 +500,14 @@ setQuestFSMTable(fsmName_persuade_librarian,
                 end,
 
                 npc_give_guard_3_gold = function(uid, value)
-                    uidRemoteCall(questUID, uid, value,
+                    uidRemoteCall(questUID, uid, value, questName,
                     [=[
-                        local playerUID, giveGold = ...
-                        setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_librarian, state=string.format('quest_give_guard_3_%s_gold', giveGold)}
+                        local playerUID, giveGold, questName = ...
+                        local nextState = string.format('quest_give_guard_3_%s_gold', giveGold)
+
+                        setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_librarian, state=nextState, exitfunc=function()
+                            runNPCEventHandler(getNPCharUID('比奇县_0', '休班卫士_3'), playerUID, {SYS_EPUID, questName}, SYS_ENTER)
+                        end}
                     ]=])
                 end,
             }
