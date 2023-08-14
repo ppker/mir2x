@@ -56,12 +56,15 @@ setQuestFSMTable(
         -- has accepted the quest to apan
         -- change 大老板's dialog
 
-        uidRemoteCall(getNPCharUID('仓库_1_007', '大老板_1'), uid, getUID(), getQuestName(),
+        setupNPCQuestBehavior('仓库_1_007', '大老板_1', uid,
         [[
-            local playerUID, questUID, questName = ...
+            return getQuestName()
+        ]],
+        [[
+            local questName = ...
             local questPath = {SYS_EPUID, questName}
 
-            setUIDQuestHandler(playerUID, questName,
+            return
             {
                 [SYS_ENTER] = function(uid, value)
                     uidPostXML(uid, questPath,
@@ -81,15 +84,18 @@ setQuestFSMTable(
                         spaceMove(load('return ' .. dstStr)())
                     ]=])
                 end,
-            })
+            }
         ]])
 
-        uidRemoteCall(getNPCharUID('武器仓库_1_001', '阿潘_1'), uid, getUID(), getQuestName(),
+        setupNPCQuestBehavior('武器仓库_1_001', '阿潘_1', uid,
         [[
-            local playerUID, questUID, questName = ...
+            return getUID(), getQuestName()
+        ]],
+        [[
+            local questUID, questName = ...
             local questPath = {SYS_EPUID, questName}
 
-            setUIDQuestHandler(playerUID, questName,
+            return
             {
                 [SYS_ENTER] = function(uid, value)
                     uidPostXML(uid, questPath,
@@ -110,17 +116,20 @@ setQuestFSMTable(
                         setUIDQuestState{uid=playerUID, state='quest_done_apan'}
                     ]=])
                 end,
-            })
+            }
         ]])
     end,
 
     quest_done_apan = function(uid, value)
-        uidRemoteCall(getNPCharUID('武器仓库_1_001', '阿潘_1'), uid, getQuestName(),
+        setupNPCQuestBehavior('武器仓库_1_001', '阿潘_1', uid,
         [[
-            local playerUID, questName = ...
+            return getQuestName()
+        ]],
+        [[
+            local questName = ...
             local questPath = {SYS_EPUID, questName}
 
-            setUIDQuestHandler(playerUID, questName,
+            return
             {
                 [SYS_ENTER] = function(uid, value)
                     uidPostXML(uid, questPath,
@@ -140,8 +149,8 @@ setQuestFSMTable(
                         spaceMove(load('return ' .. dstStr)())
                     ]=])
                 end,
-            })
-        ]], uid, getQuestName())
+            }
+        ]])
 
         uidRemoteCall(getNPCharUID('仓库_1_007', '大老板_1'), uid, getUID(), getQuestName(),
         [[
@@ -384,12 +393,15 @@ setQuestFSMTable(
     end,
 
     quest_done_wang_book = function(uid, value)
-        uidRemoteCall(getNPCharUID('比奇县_0', '王大人_1'), uid, getQuestName(),
+        setupNPCQuestBehavior('比奇县_0', '王大人_1', uid,
         [[
-            local playerUID, questName = ...
+            return getQuestName()
+        ]],
+        [[
+            local questName = ...
             local questPath = {SYS_EPUID, questName}
 
-            setUIDQuestHandler(playerUID, questName,
+            return
             {
                 [SYS_ENTER] = function(uid, value)
                     uidPostXML(uid, questPath,
@@ -401,7 +413,7 @@ setQuestFSMTable(
                         </layout>
                     ]=], SYS_EXIT)
                 end,
-            })
+            }
         ]])
         setUIDQuestState{uid=uid, state=SYS_DONE}
     end,
