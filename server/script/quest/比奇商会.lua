@@ -43,12 +43,15 @@ setQuestFSMTable(
     end,
 
     quest_refuse_quest = function(uid, value)
-        uidRemoteCall(getNPCharUID('比奇县_0', '王大人_1'), uid, getUID(), getQuestName(),
+        setupNPCQuestBehavior('比奇县_0', '王大人_1', uid,
         [[
-            local playerUID, questUID, questName = ...
+            return getUID(), getQuestName()
+        ]],
+        [[
+            local questUID, questName = ...
             local questPath = {SYS_EPUID, questName}
 
-            setUIDQuestHandler(playerUID, questName,
+            return
             {
                 [SYS_ENTER] = function(uid, value)
                     uidPostXML(uid, questPath,
@@ -81,7 +84,7 @@ setQuestFSMTable(
                         </layout>
                     ]=], SYS_EXIT)
                 end,
-            })
+            }
         ]])
     end,
 
@@ -837,12 +840,15 @@ setQuestFSMTable(fsmName_persuade_librarian,
 setQuestFSMTable(fsmName_persuade_pharmacist,
 {
     [SYS_ENTER] = function(uid, value)
-        uidRemoteCall(getNPCharUID('比奇县_0', '药剂师_1'), uid, getQuestName(),
+        setupNPCQuestBehavior('比奇县_0', '药剂师_1', uid,
         [[
-            local playerUID, questName = ...
+            return getQuestName()
+        ]],
+        [[
+            local questName = ...
             local questPath = {SYS_EPUID, questName}
 
-            setUIDQuestHandler(playerUID, questName,
+            return
             {
                 [SYS_ENTER] = function(uid, value)
                     uidPostXML(uid, questPath,
@@ -865,15 +871,18 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                         </layout>
                     ]=], SYS_EXIT)
                 end,
-            })
+            }
         ]])
 
-        uidRemoteCall(getNPCharUID('毒蛇山谷_2', '金中医_1'), uid, getUID(), getQuestName(),
+        setupNPCQuestBehavior('毒蛇山谷_2', '金中医_1', uid,
         [[
-            local playerUID, questUID, questName = ...
+            return getUID(), getQuestName()
+        ]],
+        [[
+            local questUID, questName = ...
             local questPath = {SYS_EPUID, questName}
 
-            setUIDQuestHandler(playerUID, questName,
+            return
             {
                 [SYS_ENTER] = function(uid, value)
                     uidPostXML(uid, questPath,
@@ -947,7 +956,7 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                         setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_pharmacist, state='quest_purchase_with_agreed_price', args=100}
                     ]=])
                 end,
-            })
+            }
         ]])
     end,
 
@@ -1036,12 +1045,12 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
     end,
 
     quest_wait_purchase = function(uid, value)
-        uidRemoteCall(getNPCharUID('毒蛇山谷_2', '金中医_1'), uid, value, getUID(), getQuestName(),
+        setupNPCQuestBehavior('毒蛇山谷_2', '金中医_1', uid, string.format([[ return %d, getUID(), getQuestName() ]], value),
         [[
-            local playerUID, askedGold, questUID, questName = ...
+            local askedGold, questUID, questName = ...
             local questPath = {SYS_EPUID, questName}
 
-            setUIDQuestHandler(playerUID, questName,
+            return
             {
                 [SYS_ENTER] = function(uid, value)
                     uidPostXML(uid, questPath,
@@ -1062,17 +1071,20 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                         setUIDQuestState{uid=playeUID, fsm=fsmName_persuade_pharmacist, state='quest_purchase_with_agreed_price', args=askedGold}
                     ]=])
                 end,
-            })
+            }
         ]])
     end,
 
     quest_purchase_with_free_price = function(uid, value)
-        uidRemoteCall(getNPCharUID('毒蛇山谷_2', '金中医_1'), uid, getUID(), getQuestName(),
+        setupNPCQuestBehavior('毒蛇山谷_2', '金中医_1', uid,
         [[
-            local playerUID, questUID, questName = ...
+            getUID(), getQuestName()
+        ]],
+        [[
+            local questUID, questName = ...
             local questPath = {SYS_EPUID, questName}
 
-            setUIDQuestHandler(playerUID, questName,
+            return
             {
                 [SYS_ENTER] = function(uid, value)
                     uidPostXML(uid, questPath,
@@ -1101,17 +1113,20 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                         setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_pharmacist, state='quest_purchased_tooth'}
                     ]=])
                 end,
-            })
+            }
         ]])
     end,
 
     quest_purchased_tooth = function(uid, value)
-        uidRemoteCall(getNPCharUID('毒蛇山谷_2', '金中医_1'), uid, getQuestName(),
+        setupNPCQuestBehavior('毒蛇山谷_2', '金中医_1', uid,
         [[
-            local playerUID, questName = ...
+            return getQuestName()
+        ]],
+        [[
+            local questName = ...
             local questPath = {SYS_EPUID, questName}
 
-            setUIDQuestHandler(playerUID, questName,
+            return
             {
                 [SYS_ENTER] = function(uid, value)
                     uidPostXML(uid, questPath,
@@ -1123,15 +1138,18 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                         </layout>
                     ]=], SYS_EXIT)
                 end,
-            })
+            }
         ]])
 
-        uidRemoteCall(getNPCharUID('比奇县_0', '药剂师_1'), uid, getUID(), getQuestName(),
+        setupNPCQuestBehavior('比奇县_0', '药剂师_1', uid,
         [[
-            local playerUID, questUID, questName = ...
+            return getUID(), getQuestName()
+        ]],
+        [[
+            local questUID, questName = ...
             local questPath = {SYS_EPQST, questName}
 
-            setUIDQuestHandler(playerUID, questName,
+            return
             {
                 [SYS_ENTER] = function(uid, value)
                     uidPostXML(uid, questPath,
@@ -1151,7 +1169,7 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                         setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_pharmacist, state=SYS_DONE}
                     ]=])
                 end,
-            })
+            }
         ]])
     end,
 })

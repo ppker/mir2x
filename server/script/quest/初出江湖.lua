@@ -152,12 +152,15 @@ setQuestFSMTable(
             }
         ]])
 
-        uidRemoteCall(getNPCharUID('仓库_1_007', '大老板_1'), uid, getUID(), getQuestName(),
+        setupNPCQuestBehavior('仓库_1_007', '大老板_1', uid,
         [[
-            local playerUID, questUID, questName = ...
+            return getQuestName()
+        ]],
+        [[
+            local questName = ...
             local questPath = {SYS_EPUID, questName}
 
-            setUIDQuestHandler(playerUID, questName,
+            return
             {
                 [SYS_ENTER] = function(uid, value)
                     uidPostXML(uid, questPath,
@@ -170,7 +173,7 @@ setQuestFSMTable(
                         </layout>
                     ]=], SYS_EXIT)
                 end,
-            })
+            }
         ]])
 
         setUIDQuestState{uid=uid, state='quest_find_chicken_blood'}
@@ -195,12 +198,15 @@ setQuestFSMTable(
     end,
 
     quest_done_chicken_blood = function(uid, value)
-        uidRemoteCall(getNPCharUID('仓库_1_007', '大老板_1'), uid, getUID(), getQuestName(),
+        setupNPCQuestBehavior('仓库_1_007', '大老板_1', uid,
         [[
-            local playerUID, questUID, questName = ...
+            return getUID(), getQuestName()
+        ]],
+        [[
+            local questUID, questName = ...
             local questPath = {SYS_EPUID, questName}
 
-            setUIDQuestHandler(playerUID, questName,
+            return
             {
                 [SYS_ENTER] = function(uid, value)
                     uidPostXML(uid, questPath,
@@ -216,21 +222,24 @@ setQuestFSMTable(
                     uidRemoteCall(questUID, uid,
                     [=[
                         local playerUID = ...
-                        setUIDQuestState(playerUID, 'quest_prepare_to_wang')
+                        setUIDQuestState(playerUID, 'quest_prepare_to_wang'}
                     ]=])
                 end,
-            })
+            }
         ]])
     end,
 
     quest_prepare_to_wang = function(uid, value)
         if uidRemoteCall(uid, [[ return getLevel() ]]) < 6 then
-            uidRemoteCall(getNPCharUID('道馆_1', '士官_1'), uid, getQuestName(),
+            setupNPCQuestBehavior('道馆_1', '士官_1', uid,
             [[
-                local playerUID, questName = ...
+                return getQuestName()
+            ]],
+            [[
+                local questName = ...
                 local questPath = {SYS_EPUID, questName}
 
-                setUIDQuestHandler(playerUID, questName,
+                return
                 {
                     [SYS_ENTER] = function(uid, value)
                         uidPostXML(uid, questPath,
@@ -242,7 +251,7 @@ setQuestFSMTable(
                             </layout>
                         ]=], SYS_EXIT)
                     end,
-                })
+                }
             ]])
 
             uidRemoteCall(uid, getUID(),
@@ -262,12 +271,15 @@ setQuestFSMTable(
             ]])
 
         else
-            uidRemoteCall(getNPCharUID('道馆_1', '士官_1'), uid, getUID(), getQuestName(),
+            setupNPCQuestBehavior('道馆_1', '士官_1', uid,
             [[
-                local playerUID, questUID, questName = ...
+                return getUID(), getQuestName()
+            ]],
+            [[
+                local questUID, questName = ...
                 local questPath = {SYS_EPUID, questName}
 
-                setUIDQuestHandler(playerUID, questName,
+                return
                 {
                     [SYS_ENTER] = function(uid, value)
                         uidPostXML(uid, questPath,
@@ -296,21 +308,24 @@ setQuestFSMTable(
                         uidRemoteCall(questUID, uid,
                         [=[
                             local playerUID = ...
-                            setUIDQuestState{uid=playerUID, state='quest_accept_wang_book')
+                            setUIDQuestState{uid=playerUID, state='quest_accept_wang_book'}
                         ]=])
                     end,
-                })
+                }
             ]])
         end
     end,
 
     quest_accept_wang_book = function(uid, value)
-        uidRemoteCall(getNPCharUID('道馆_1', '士官_1'), uid, getQuestName(),
+        setupNPCQuestBehavior('道馆_1', '士官_1', uid,
         [[
-            local playerUID, questName = ...
+            return getQuestName()
+        ]],
+        [[
+            local questName = ...
             local questPath = {SYS_EPUID, questName}
 
-            setUIDQuestHandler(playerUID, questName,
+            return
             {
                 [SYS_ENTER] = function(uid, value)
                     uidPostXML(uid, questPath,
@@ -322,15 +337,18 @@ setQuestFSMTable(
                         </layout>
                     ]=], SYS_EXIT)
                 end,
-            })
+            }
         ]])
 
-        uidRemoteCall(getNPCharUID('比奇县_0', '王大人_1'), uid, getUID(), getQuestName(),
+        setupNPCQuestBehavior('比奇县_0', '王大人_1', uid,
         [[
-            local playerUID, questUID, questName = ...
+            return getUID(), getQuestName()
+        ]],
+        [[
+            local questUID, questName = ...
             local questPath = {SYS_EPUID, questName}
 
-            setUIDQuestHandler(playerUID, questName,
+            return
             {
                 [SYS_ENTER] = function(uid, value)
                     uidPostXML(uid, questPath,
@@ -372,7 +390,7 @@ setQuestFSMTable(
                     uidRemoteCall(questUID, uid,
                     [=[
                         local playerUID = ...
-                        setUIDQuestState{uid=playerUID, state='quest_done_wang_book')
+                        setUIDQuestState{uid=playerUID, state='quest_done_wang_book'}
                     ]=])
                 end,
 
@@ -388,7 +406,7 @@ setQuestFSMTable(
                         </layout>
                     ]=], SYS_EXIT)
                 end,
-            })
+            }
         ]])
     end,
 
