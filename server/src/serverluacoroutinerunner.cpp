@@ -17,7 +17,10 @@ LuaCoopResumer::LuaCoopResumer(ServerLuaCoroutineRunner *luaRunner, sol::functio
     , m_currRunner(luaRunner->m_currRunner)
     , m_callback(std::move(callback))
     , m_doneFlag(doneFlag)
-{}
+{
+    fflassert(m_luaRunner);
+    fflassert(m_currRunner);
+}
 
 LuaCoopResumer::LuaCoopResumer(const LuaCoopResumer & resumer)
     : LuaCoopResumer(resumer.m_luaRunner, resumer.m_callback, resumer.m_doneFlag)
