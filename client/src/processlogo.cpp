@@ -2,10 +2,12 @@
 #include "pngtexdb.hpp"
 #include "sdldevice.hpp"
 #include "processlogo.hpp"
+#include "clientargparser.hpp"
 
 extern Client *g_client;
 extern PNGTexDB *g_progUseDB;
 extern SDLDevice *g_sdlDevice;
+extern ClientArgParser *g_clientArgParser;
 
 void ProcessLogo::processEvent(const SDL_Event &event)
 {
@@ -32,7 +34,7 @@ void ProcessLogo::processEvent(const SDL_Event &event)
 void ProcessLogo::update(double fDTime)
 {
     m_totalTime += fDTime;
-    if(m_totalTime >= m_fullTime){
+    if(m_totalTime >= m_fullTime || g_clientArgParser->autoLogin){
         g_client->requestProcess(PROCESSID_SYRC);
     }
 }
