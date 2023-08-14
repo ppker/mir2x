@@ -262,6 +262,7 @@ namespace luaf
 }
 
 std::ostream & operator << (std::ostream &, const sol::object &);
+std::ostream & operator << (std::ostream &, const sol::stack_proxy &);
 std::ostream & operator << (std::ostream &, const sol::variadic_args &);
 std::ostream & operator << (std::ostream &, const sol::protected_function_result &);
 std::ostream & operator << (std::ostream &, const luaf::luaNil &);

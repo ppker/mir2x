@@ -332,6 +332,11 @@ std::ostream & operator << (std::ostream &os, const sol::object &obj)
     return os << str_any(luaf::buildLuaVar(obj));
 }
 
+std::ostream & operator << (std::ostream &os, const sol::stack_proxy &proxy)
+{
+    return os << str_any(luaf::buildLuaVar(sol::object(proxy)));
+}
+
 std::ostream & operator << (std::ostream &os, const sol::variadic_args &args)
 {
     return os << str_any(luaf::vargBuildLuaVarList(args));

@@ -1,9 +1,12 @@
 #include <memory>
 #include <cstring>
+#include "luaf.hpp"
+#include "strf.hpp"
 #include "log.hpp"
 #include "pathf.hpp"
 #include "client.hpp"
 #include "dbcomid.hpp"
+#include "clientargparser.hpp"
 #include "clientmonster.hpp"
 #include "clienttaodog.hpp"
 #include "clienttaoskeleton.hpp"
@@ -23,6 +26,7 @@
 
 extern IMEBoard *g_imeBoard;
 extern SDLDevice *g_sdlDevice;
+extern ClientArgParser *g_clientArgParser;
 
 void ProcessRun::net_STARTGAMESCENE(const uint8_t *buf, size_t bufSize)
 {
@@ -46,6 +50,21 @@ void ProcessRun::net_STARTGAMESCENE(const uint8_t *buf, size_t bufSize)
 
     centerMyHero();
     getMyHero()->pullGold();
+
+    if(g_clientArgParser->inputScript.has_value()){
+        std::vector<std::string> error;
+        const auto pfr = m_luaModule.execFile(g_clientArgParser->inputScript.value().c_str());
+
+        if(m_luaModule.pfrCheck(pfr, [&error](const std::string &s){ error.push_back(s); })){
+            addCBLog(CBLOG_SYS, u8"脚本返回: %s", str_any(pfr).c_str());
+        }
+        else{
+            addCBLog(CBLOG_ERR, u8"脚本错误: %s", g_clientArgParser->inputScript.value().c_str());
+            for(const auto &err: error){
+                addCBLog(CBLOG_ERR, u8"%s", err.c_str());
+            }
+        }
+    }
 }
 
 void ProcessRun::net_PLAYERCONFIG(const uint8_t *buf, size_t bufSize)

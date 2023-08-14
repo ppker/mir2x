@@ -35,6 +35,7 @@ struct ClientArgParser
     const std::string serverIP;         // "--server-ip"
     const std::string serverPort;       // "--server-port"
 
+    const std::optional<std::string> inputScript;                       // "--input-script"
     const std::optional<std::pair<std::string, std::string>> autoLogin; // "--auto-login"
 
     bool traceMove;
@@ -66,6 +67,13 @@ struct ClientArgParser
         , drawFPS(cmdParser["draw-fps"])
         , serverIP(cmdParser("server-ip").str())
         , serverPort(cmdParser("server-port").str())
+        , inputScript([&cmdParser]() -> std::optional<std::string>
+          {
+              if(const auto inputScript = cmdParser("input-script").str(); !inputScript.empty()){
+                  return inputScript;
+              }
+              return std::nullopt;
+          }())
         , autoLogin([&cmdParser]() -> std::optional<std::pair<std::string, std::string>>
           {
               if(const auto autoLoginStr = cmdParser("auto-login").str(); !autoLoginStr.empty()){
