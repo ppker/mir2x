@@ -12,9 +12,9 @@
 
 extern MonoServer *g_monoServer;
 
-LuaCoopResumer::LuaCoopResumer(ServerLuaCoroutineRunner *luaRunner, sol::function callback, const LuaCoopCallDoneFlag &doneFlag)
+LuaCoopResumer::LuaCoopResumer(ServerLuaCoroutineRunner *luaRunner, void *currRunner, sol::function callback, const LuaCoopCallDoneFlag &doneFlag)
     : m_luaRunner(luaRunner)
-    , m_currRunner(luaRunner->m_currRunner)
+    , m_currRunner(currRunner)
     , m_callback(std::move(callback))
     , m_doneFlag(doneFlag)
 {
@@ -23,11 +23,11 @@ LuaCoopResumer::LuaCoopResumer(ServerLuaCoroutineRunner *luaRunner, sol::functio
 }
 
 LuaCoopResumer::LuaCoopResumer(const LuaCoopResumer & resumer)
-    : LuaCoopResumer(resumer.m_luaRunner, resumer.m_callback, resumer.m_doneFlag)
+    : LuaCoopResumer(resumer.m_luaRunner, resumer.m_currRunner, resumer.m_callback, resumer.m_doneFlag)
 {}
 
 LuaCoopResumer::LuaCoopResumer(LuaCoopResumer && resumer)
-    : LuaCoopResumer(resumer.m_luaRunner, std::move(resumer.m_callback), resumer.m_doneFlag /* always copy doneFlag */)
+    : LuaCoopResumer(resumer.m_luaRunner, resumer.m_currRunner, std::move(resumer.m_callback), resumer.m_doneFlag /* always copy doneFlag */)
 {}
 
 void LuaCoopResumer::pushOnClose(std::function<void()> fnOnClose) const

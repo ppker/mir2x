@@ -58,7 +58,7 @@ class LuaCoopResumer final
         const LuaCoopCallDoneFlag m_doneFlag;
 
     public:
-        LuaCoopResumer(ServerLuaCoroutineRunner *, sol::function, const LuaCoopCallDoneFlag &);
+        LuaCoopResumer(ServerLuaCoroutineRunner *, void *, sol::function, const LuaCoopCallDoneFlag &);
 
     public:
         LuaCoopResumer(const LuaCoopResumer & );
@@ -367,10 +367,10 @@ class ServerLuaCoroutineRunner: public ServerLuaModule
                     const LuaCoopCallDoneFlag doneFlag;
 
                     if constexpr (std::is_same_v<LuaCoopState, typename _extractLambdaSecondArg<Func>::type>){
-                        std::apply(func, std::tuple_cat(std::tuple(LuaCoopResumer(this, cb, doneFlag), LuaCoopState(s)), std::move(args)));
+                        std::apply(func, std::tuple_cat(std::tuple(LuaCoopResumer(this, m_currRunner, cb, doneFlag), LuaCoopState(s)), std::move(args)));
                     }
                     else{
-                        std::apply(func, std::tuple_cat(std::tuple(LuaCoopResumer(this, cb, doneFlag)), std::move(args)));
+                        std::apply(func, std::tuple_cat(std::tuple(LuaCoopResumer(this, m_currRunner, cb, doneFlag)), std::move(args)));
                     }
                 };
             }(std::forward<Func>(func)));
