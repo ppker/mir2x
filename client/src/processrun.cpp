@@ -1374,6 +1374,11 @@ void ProcessRun::registerLuaExport(ClientLuaModule *luaModulePtr)
             });
         }
     });
+
+    luaModulePtr->bindFunction("addExp", [this](uint64_t exp)
+    {
+        requestAddExp(exp);
+    });
 }
 
 void ProcessRun::addCBLog(int logType, const char8_t *format, ...)
