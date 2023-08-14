@@ -171,8 +171,8 @@ end
 
 function hasQuestFSM(fsm)
     assertType(fsm, 'string')
-    if not _RSVD_NAME_questFSMTable          then return false end
-    if not _RSVD_NAME_questFSMTable[fsmName] then return false end
+    if not _RSVD_NAME_questFSMTable      then return false end
+    if not _RSVD_NAME_questFSMTable[fsm] then return false end
     return true
 end
 
@@ -266,7 +266,7 @@ function setUIDQuestDesp(args)
     local uid = args.uid
     local fsm = args.fsm or SYS_QSTFSM
 
-    assert(hasQuestFSM(fsm))
+    assert(hasQuestFSM(fsm), string.format('Invalid fsm name: %s', fsm))
 
     local desp = (function()
         if args.format == nil and #args == 0 then
