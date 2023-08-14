@@ -981,9 +981,10 @@ setQuestFSMTable(fsmName_persuade_librarian,
                             </layout>
                         ]=])
 
-                        uidRemoteCall(questUID, uid,
+                        uidRemoteCall(questUID, uid, getNPCMapName(false), getNPCName(false),
                         [=[
-                            local playerUID = ...
+                            local playerUID, mapName, npcName = ...
+                            clearNPCQuestBehavior(mapName, npcName, playerUID)
                             setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_librarian, state=SYS_DONE}
                         ]=])
                     else
@@ -1333,9 +1334,10 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
                     ]=], SYS_EXIT)
 
                     uidRemoteCall(uid, [=[ addItem(getItemID('金创药（特）'), 8) ]=])
-                    uidRemoteCall(questUID, uid,
+                    uidRemoteCall(questUID, uid, getNPCMapName(false), getNPCName(false),
                     [=[
-                        local playerUID = ...
+                        local playerUID, mapName, npcName = ...
+                        clearNPCQuestBehavior(mapName, npcName, playerUID)
                         setUIDQuestState{uid=playerUID, fsm=fsmName_persuade_pharmacist, state=SYS_DONE}
                     ]=])
                 end,

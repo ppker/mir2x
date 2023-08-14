@@ -105,9 +105,11 @@ function _RSVD_NAME_setupQuests()
 
                 if states[SYS_QSTFSM][1] ~= SYS_DONE then
                     for k, v in pairs(states) do
-                        runQuestThread(function()
-                            _RSVD_NAME_enterUIDQuestState(playerUID, k, v[1], v[2])
-                        end)
+                        if v[1] ~= SYS_DONE then
+                            runQuestThread(function()
+                                _RSVD_NAME_enterUIDQuestState(playerUID, k, v[1], v[2])
+                            end)
+                        end
                     end
                 end
             end
