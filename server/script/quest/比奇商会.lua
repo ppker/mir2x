@@ -1131,7 +1131,7 @@ setQuestFSMTable(fsmName_persuade_pharmacist,
             local playerUID, questUID, questName = ...
             local questPath = {SYS_EPQST, questName}
 
-            return setUIDQuestHandler(playerUID, questName,
+            setUIDQuestHandler(playerUID, questName,
             {
                 [SYS_ENTER] = function(uid, value)
                     uidPostXML(uid, questPath,
