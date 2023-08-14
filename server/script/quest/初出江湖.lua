@@ -222,7 +222,7 @@ setQuestFSMTable(
                     uidRemoteCall(questUID, uid,
                     [=[
                         local playerUID = ...
-                        setUIDQuestState(playerUID, 'quest_prepare_to_wang'}
+                        setUIDQuestState{uid=playerUID, state='quest_prepare_to_wang'}
                     ]=])
                 end,
             }
