@@ -37,6 +37,26 @@ string_filter = {
 '%c',
 '%q',
 '/'
+'0',
+'1',
+'2',
+'3',
+'4',
+'5',
+'6',
+'7',
+'8',
+'9',
+'and',
+'break',
+'do',
+'if'
+'else',
+'elseif',
+'end',
+'true'
+'false',
+'for',
 }
 
 def parse_lua_substr(s):
