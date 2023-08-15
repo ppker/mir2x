@@ -34,7 +34,7 @@ def check_lua_str(s):
         subprocess.run(['luac', '-p', path], check=True)
 
     except subprocess.CalledProcessError:
-        print('code: ', s)
+        print('code:', s)
         print('-----------------------------------------------------------------------------------')
 
     else:
@@ -46,10 +46,11 @@ def check_lua_str(s):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print('Usage: pyluacheck.py <filename>')
+        print('Usage: %s <filename>' % sys.argv[0])
         sys.exit(1)
 
     path = sys.argv[1]
     with open(path) as f:
         s = f.read()
+
     check_lua_str(s)
