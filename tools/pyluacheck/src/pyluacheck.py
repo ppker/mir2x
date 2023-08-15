@@ -22,6 +22,7 @@ def create_lua_tmpfile(s):
 def check_lua_str(s, level=0):
     path = create_lua_tmpfile(s)
     subprocess.run(['luac', '-p', path], check=True)
+    os.unlink(path)
 
     subslist = parse_lua_substr(s, level)
     if subslist:
