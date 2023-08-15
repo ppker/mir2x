@@ -7,10 +7,20 @@ import subprocess
 import re
 from tempfile import mkstemp
 
-# from https://www.reddit.com/r/regex/comments/1288k8r/python_regex_to_match_all_strings_in_lua_code
-# and applied small changes
-# but looks like I can not get rid of the named-group (here the =*) always get captured
-pattern = re.compile(r'--[\S \t]*?\n|(?:\"((?:[^\"\\\n]|\\.|\\\n)*)\"|\'((?:[^\'\\\n]|\\.|\\\n)*)\'|\[(?P<raised>=*)\[([\w\W]*?)\](?P=raised)\])')
+# regex is from
+#
+#    https://www.reddit.com/r/regex/comments/1288k8r/python_regex_to_match_all_strings_in_lua_code
+#
+# and applied small changes to get rid of parthentesis
+# but I can not get rid of the named-group (here the =*), per:
+#
+#    https://stackoverflow.com/questions/16471776/named-non-capturing-group-in-python
+#
+# I have to filter out =* manually in code
+#
+pattern = re.compile(r'''(?:--[\S \t]*?\n)|(?:\"((?:[^\"\\\n]|\\.|\\\n)*)\")|(?:\'((?:[^\'\\\n]|\\.|\\\n)*)\')|(?:\[(?P<raised>=*)\[([\w\W]*?)\](?P=raised)\])''')
+
+# ignore these strings if they are as code string
 string_filter = {
 'integer',
 'string',
@@ -82,7 +92,7 @@ def check_lua_str(s):
 
     except subprocess.CalledProcessError:
         print('code:', s)
-        print('-----------------------------------------------------------------------------------')
+        print('-----------------------------------------------------------------------------------------')
 
     else:
         os.unlink(path)
