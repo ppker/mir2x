@@ -7,9 +7,18 @@ import subprocess
 import re
 from tempfile import mkstemp
 
-def parse_lua_substr(s, level):
-    pattern = r'(?<=\[' + (level * r'=') + r'\[).+?(?=\]' + (level * r'=') + r'\])'
-    return re.findall(pattern, s, re.DOTALL)
+# from https://www.reddit.com/r/regex/comments/1288k8r/python_regex_to_match_all_strings_in_lua_code
+# and applied small changes
+# but looks like I can not get rid of the named-group (here the =*) always get captured
+pattern = re.compile(r'--[\S \t]*?\n|(?:\"((?:[^\"\\\n]|\\.|\\\n)*)\"|\'((?:[^\'\\\n]|\\.|\\\n)*)\'|\[(?P<raised>=*)\[([\w\W]*?)\](?P=raised)\])')
+
+def parse_lua_substr(s):
+    result = []
+    for tup in pattern.findall(s):
+        for elem in tup:
+            if elem and elem != ('=' * len(elem)):
+                result.append(elem)
+    return result
 
 
 def create_lua_tmpfile(s):
@@ -19,15 +28,20 @@ def create_lua_tmpfile(s):
     return path
 
 
-def check_lua_str(s, level=0):
+def check_lua_str(s):
     path = create_lua_tmpfile(s)
-    subprocess.run(['luac', '-p', path], check=True)
-    os.unlink(path)
+    try:
+        subprocess.run(['luac', '-p', path], check=True)
 
-    subslist = parse_lua_substr(s, level)
-    if subslist:
-        for subs in subslist:
-            check_lua_str(subs, level + 1)
+    except subprocess.CalledProcessError:
+        print('code: ', s)
+        print('-----------------------------------------------------------------------------------')
+
+    else:
+        os.unlink(path)
+
+    for subs in parse_lua_substr(s):
+        check_lua_str(subs)
 
 
 if __name__ == '__main__':
