@@ -137,7 +137,7 @@ struct ServerArgParser
           {
               if(const auto numStr = cmdParser("text-font").str(); !numStr.empty()){
                   try{
-                      if(const auto font = std::stoi(numStr); font > 0){
+                      if(const auto font = std::stoi(numStr); font >= 0){
                           return font;
                       }
                   }
