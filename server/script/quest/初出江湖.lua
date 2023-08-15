@@ -1,3 +1,7 @@
+-- when done:
+--      1. dbAddFlag('done_wang_book')
+--      2.
+
 setQuestFSMTable(
 {
     [SYS_ENTER] = function(uid, value)
@@ -433,6 +437,8 @@ setQuestFSMTable(
                 end,
             }
         ]])
+
+        uidRemoteCall(uid, [[ dbAddFlag('done_wang_book') ]])
         setUIDQuestState{uid=uid, state=SYS_DONE}
     end,
 })

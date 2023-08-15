@@ -1,3 +1,9 @@
+-- requires:
+--      1. dbHasFlag('done_wang_book')
+-- when done:
+--      1. dbAddFlag('done_wang_coc')
+--      2.
+
 _G.fsmName_persuade_librarian  = '劝说图书管理人加入比奇商会'
 _G.fsmName_persuade_pharmacist = '劝说药剂师加入比奇商会'
 
@@ -169,6 +175,7 @@ setQuestFSMTable(
                     uidRemoteCall(questUID, uid,
                     [=[
                         local playerUID = ...
+                        dbAddFlag('done_wang_coc')
                         setUIDQuestState{uid=playerUID, state=SYS_DONE}
                     ]=])
                 end,
@@ -1354,7 +1361,7 @@ uidRemoteCall(getNPCharUID('比奇县_0', '王大人_1'), getUID(), getQuestName
     setQuestHandler(questName,
     {
         [SYS_CHECKACTIVE] = function(uid)
-            return SYS_DEBUG or uidRemoteCall(uid, [=[ return getQuestState('初出江湖') ]=]) == SYS_DONE
+            return SYS_DEBUG or uidRemoteCall(uid, [=[ return dbHasFlag('done_wang_book') ]=])
         end,
 
         [SYS_ENTER] = function(uid, value)
