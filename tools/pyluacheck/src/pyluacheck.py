@@ -11,12 +11,39 @@ from tempfile import mkstemp
 # and applied small changes
 # but looks like I can not get rid of the named-group (here the =*) always get captured
 pattern = re.compile(r'--[\S \t]*?\n|(?:\"((?:[^\"\\\n]|\\.|\\\n)*)\"|\'((?:[^\'\\\n]|\\.|\\\n)*)\'|\[(?P<raised>=*)\[([\w\W]*?)\](?P=raised)\])')
+string_filter = {
+'integer',
+'string',
+'nil',
+'boolean',
+'number',
+'function',
+'userdata',
+'table',
+'array',
+'thread',
+'coroutine',
+'io',
+'os',
+'debug',
+'math',
+'package',
+'string',
+'utf8',
+'%s',
+'%d',
+'%f',
+'%x',
+'%c',
+'%q',
+'/'
+}
 
 def parse_lua_substr(s):
     result = []
     for tup in pattern.findall(s):
         for elem in tup:
-            if elem and elem != ('=' * len(elem)):
+            if elem and elem != ('=' * len(elem)) and (elem not in string_filter):
                 result.append(elem)
     return result
 
