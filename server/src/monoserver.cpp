@@ -256,6 +256,14 @@ void MonoServer::createDefaultDatabase()
         u8R"###(     fld_haircolor      int unsigned default 0                       )###"
         u8R"###( );                                                                  )###",
 
+        u8R"###( create table tbl_charflaglist(                                      )###"
+        u8R"###(     fld_dbid           int unsigned not null,                       )###"
+        u8R"###(     fld_flag           text         not null,                       )###"
+        u8R"###(                                                                     )###"
+        u8R"###(     foreign key (fld_dbid) references tbl_char(fld_dbid),           )###"
+        u8R"###(     primary key (fld_dbid, fld_flag)                                )###"
+        u8R"###( );                                                                  )###",
+
         u8R"###( create table tbl_belt(                                              )###"
         u8R"###(     fld_dbid           int unsigned not null,                       )###"
         u8R"###(     fld_belt           int unsigned not null,                       )###"

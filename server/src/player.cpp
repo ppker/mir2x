@@ -286,6 +286,24 @@ void Player::onActivate()
         return hasInventoryItem(to_u32(itemID), to_u32(seqID), count);
     });
 
+    m_luaRunner->bindFunction("dbHasFlag", [this](std::string flag) -> bool
+    {
+        fflassert(str_haschar(flag));
+        return g_dbPod->createQuery("select fld_dbid from tbl_charflaglist where fld_dbid = %llu and fld_flag = '%s'", to_llu(dbid()), flag.c_str()).executeStep();
+    });
+
+    m_luaRunner->bindFunction("dbAddFlag", [this](std::string flag)
+    {
+        fflassert(str_haschar(flag));
+        g_dbPod->exec("insert or ignore into tbl_charflaglist(fld_dbid, fld_flag) values(%llu, '%s')", to_llu(dbid()), flag.c_str());
+    });
+
+    m_luaRunner->bindFunction("dbRemoveFlag", [this](std::string flag)
+    {
+        fflassert(str_haschar(flag));
+        g_dbPod->exec("delete from tbl_charflaglist where fld_dbid = %llu and fld_flag = '%s'", to_llu(dbid()), flag.c_str());
+    });
+
     m_luaRunner->bindFunction("_RSVD_NAME_reportQuestDespList", [this](sol::object obj)
     {
         fflassert(obj.is<sol::table>(), luaf::luaObjTypeString(obj));
