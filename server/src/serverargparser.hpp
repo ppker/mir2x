@@ -33,6 +33,7 @@ struct ServerArgParser
     const int  actorPoolThread;             // "--actor-pool-thread"
     const int  logicalFPS;                  // "--logical-fps"
     const int  summonCount;                 // "--summon-count"
+    const int  textFont;                    // "--text-font"
 
     ServerArgParser(const argh::parser &cmdParser)
         : disableProfiler(cmdParser["disable-profiler"])
@@ -130,6 +131,23 @@ struct ServerArgParser
               }
               else{
                   return 1;
+              }
+          }())
+        , textFont([&cmdParser]() -> int
+          {
+              if(const auto numStr = cmdParser("text-font").str(); !numStr.empty()){
+                  try{
+                      if(const auto font = std::stoi(numStr); font > 0){
+                          return font;
+                      }
+                  }
+                  catch(...){
+                      // ...
+                  }
+                  throw fflerror("invalid font: %s", numStr.c_str());
+              }
+              else{
+                  return 0;
               }
           }())
     {}

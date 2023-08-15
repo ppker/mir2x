@@ -55,6 +55,10 @@ int main(int argc, char *argv[])
         g_podMonitorWindow      = new PodMonitorWindow();
         g_actorMonitorWindow    = new ActorMonitorWindow();
 
+        if(g_serverArgParser->textFont > 0){
+            g_mainWindow->setGUIFont(g_serverArgParser->textFont);
+        }
+
         std::atexit(+[]()
         {
             logProfiling([](const std::string &s)
