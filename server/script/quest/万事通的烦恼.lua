@@ -1,4 +1,5 @@
 _G.minQuestLevel = 7
+_G.questDoneFlag = 'done_quest_万事通的烦恼'
 
 addQuestTrigger(SYS_ON_LEVELUP, function(playerUID, oldLevel, newLevel)
     if oldLevel < minQuestLevel and newLevel >= minQuestLevel then
@@ -109,15 +110,21 @@ setQuestFSMTable(
     end,
 })
 
-uidRemoteCall(getNPCharUID('道馆_1', '万事通_1'), getUID(), getQuestName(), minQuestLevel,
+uidRemoteCall(getNPCharUID('道馆_1', '万事通_1'), getUID(), getQuestName(), minQuestLevel, questDoneFlag,
 [[
-    local questUID, questName, minQuestLevel = ...
+    local questUID, questName, minQuestLevel, questDoneFlag = ...
     local questPath = {SYS_EPQST, questName}
 
     setQuestHandler(questName,
     {
         [SYS_CHECKACTIVE] = function(uid)
-            if uidRemoteCall(uid, [=[ return getLevel() ]=]) < minQuestLevel then
+            local level, hasDoneFlag = uidRemoteCall(uid, questDoneFlag,
+            [=[
+                local questDoneFlag = ...
+                return getLevel(), dbHasFlag(questDoneFlag)
+            ]=])
+
+            if level < minQuestLevel or hasDoneFlag then
                 return false
             end
 
@@ -150,6 +157,12 @@ uidRemoteCall(getNPCharUID('道馆_1', '万事通_1'), getUID(), getQuestName(),
             [=[
                 local playerUID = ...
                 setUIDQuestState{uid=playerUID, state=SYS_ENTER}
+            ]=])
+
+            uidRemoteCall(uid, questDoneFlag,
+            [=[
+                local questDoneFlag = ...
+                dbAddFlag(questDoneFlag)
             ]=])
         end,
     })
