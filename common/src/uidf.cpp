@@ -110,6 +110,11 @@ uint64_t uidf::getServiceCoreUID()
     return to_u64(UID_COR) << 59;
 }
 
+uint64_t uidf::getServerLuaObjectUID(uint32_t luaObjIndex)
+{
+    return (to_u64(UID_SLO) << 59) + luaObjIndex;
+}
+
 uint64_t uidf::getQuestUID(uint32_t questID)
 {
     return (to_u64(UID_QST) << 59) + questID;
