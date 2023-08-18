@@ -10,6 +10,7 @@ function dbQuery(query, ...)
 end
 
 plyapi = require 'api.ply'
+qstapi = require 'api.qst'
 
 --
 -- )###"
