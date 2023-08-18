@@ -19,9 +19,15 @@ class ServerLuaObject: public ServerObject
                 }
         };
 
+    private:
+        std::unique_ptr<ServerObjectLuaThreadRunner> m_luaRunner;
+
     public:
         ServerLuaObject(uint32_t);
 
     public:
         virtual ~ServerLuaObject() = default;
+
+    protected:
+        void onActivate() override;
 };

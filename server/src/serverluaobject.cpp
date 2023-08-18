@@ -11,3 +11,9 @@ ServerLuaObject::ServerObjectLuaThreadRunner::ServerObjectLuaThreadRunner(Server
 ServerLuaObject::ServerLuaObject(uint32_t luaObjIndex)
     : ServerObject(uidf::getServerLuaObjectUID(luaObjIndex))
 {}
+
+void ServerLuaObject::onActivate()
+{
+    ServerObject::onActivate();
+    m_luaRunner = std::make_unique<ServerObjectLuaThreadRunner>(this);
+}
