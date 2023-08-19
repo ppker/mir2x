@@ -11,9 +11,6 @@ class CommandLuaModule: public ServerLuaModule
         CommandLuaModule(uint32_t);
 
     public:
-        ~CommandLuaModule() override = default;
-
-    public:
         uint32_t CWID() const
         {
             return m_CWID;
