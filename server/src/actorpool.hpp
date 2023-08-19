@@ -460,6 +460,9 @@ class ActorPool final
 
     private:
         const uint32_t m_logicFPS;
+
+    private:
+        std::atomic<size_t> m_countRunning {0};
         std::vector<MailboxBucket> m_bucketList;
 
     private:
@@ -525,6 +528,12 @@ class ActorPool final
 
     public:
         ~ActorPool();
+
+    public:
+        bool running() const
+        {
+            return m_countRunning >= m_bucketList.size();
+        }
 
     private:
         bool isActorThread()    const;

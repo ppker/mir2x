@@ -750,6 +750,28 @@ void ActorPool::runOneMailboxBucket(int bucketId, uint64_t startUpdateTime)
     }
 }
 
+namespace _details
+{
+    class AutoCounter
+    {
+        private:
+            std::atomic<size_t> &m_ref;
+
+        public:
+            AutoCounter(std::atomic<size_t> &ref)
+                : m_ref(ref)
+            {
+                m_ref++;
+            }
+
+        public:
+            ~AutoCounter()
+            {
+                m_ref--;
+            }
+    };
+}
+
 void ActorPool::launchPool()
 {
     // one bucket has one dedicated thread
@@ -769,6 +791,7 @@ void ActorPool::launchPool()
                 std::vector<uint64_t> uidList;
                 uidList.reserve(2048);
 
+                const _details::AutoCounter autoCounter(m_countRunning);
                 while(true){
                     if(!uidList.empty()){
                         for(const auto uid: uidList){
