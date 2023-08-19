@@ -9,7 +9,7 @@ class CommandLuaModule: public ServerLuaModule
 
     public:
         CommandLuaModule(uint32_t);
-        
+
     public:
         ~CommandLuaModule() override = default;
 

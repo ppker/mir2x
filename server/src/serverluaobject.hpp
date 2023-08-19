@@ -25,9 +25,9 @@ class ServerLuaObject: public ServerObject
     public:
         ServerLuaObject(uint32_t);
 
-    public:
-        virtual ~ServerLuaObject() = default;
-
     protected:
         void onActivate() override;
+
+    protected:
+        void operateAM(const ActorMsgPack &) override;
 };

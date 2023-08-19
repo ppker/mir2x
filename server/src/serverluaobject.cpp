@@ -17,3 +17,7 @@ void ServerLuaObject::onActivate()
     ServerObject::onActivate();
     m_luaRunner = std::make_unique<ServerObjectLuaThreadRunner>(this);
 }
+
+void ServerLuaObject::operateAM(const ActorMsgPack &)
+{
+}
