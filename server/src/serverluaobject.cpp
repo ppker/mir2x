@@ -18,6 +18,22 @@ void ServerLuaObject::onActivate()
     m_luaRunner = std::make_unique<ServerObjectLuaThreadRunner>(this);
 }
 
-void ServerLuaObject::operateAM(const ActorMsgPack &)
+void ServerLuaObject::operateAM(const ActorMsgPack &mpk)
 {
+    switch(mpk.type()){
+        case AM_METRONOME:
+            {
+                on_AM_METRONOME(mpk);
+                break;
+            }
+        case AM_REMOTECALL:
+            {
+                on_AM_REMOTECALL(mpk);
+                break;
+            }
+        default:
+            {
+                throw fflerror("unsupported message: %s", mpkName(mpk.type()));
+            }
+    }
 }
