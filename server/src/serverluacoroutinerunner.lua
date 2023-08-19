@@ -312,5 +312,8 @@ if SYS_DEBUG then
     v = nil
 end
 
+plyapi = require 'api.ply'
+qstapi = require 'api.qst'
+
 --
 -- )###"

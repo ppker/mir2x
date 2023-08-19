@@ -9,8 +9,5 @@ function dbQuery(query, ...)
     return dbQueryString(query:format(...))
 end
 
-plyapi = require 'api.ply'
-qstapi = require 'api.qst'
-
 --
 -- )###"
