@@ -47,7 +47,25 @@ class CommandWindow {} {
         } {
           MenuItem {} {
             label Clear
+            callback {m_browser->clear();}
             xywh {0 0 100 20} labelfont 4
+          }
+          Submenu {} {
+            label {Run Mode    }
+            xywh {0 0 100 20}
+          } {
+            MenuItem m_runModeAuto {
+              label Auto
+              xywh {5 5 100 20} type Radio value 1
+            }
+            MenuItem m_runModeLocal {
+              label Local
+              xywh {15 15 100 20} type Radio
+            }
+            MenuItem m_runModeAsync {
+              label {Async   }
+              xywh {25 25 100 20} type Radio
+            }
           }
         }
       }
