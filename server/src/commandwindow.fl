@@ -1,5 +1,5 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0304
+version 1.0308
 header_name {.hpp}
 code_name {.cpp}
 decl {\#include <memory>} {public global
@@ -24,6 +24,7 @@ class CommandWindow {} {
   }
   Function {CommandWindow()} {} {
     Fl_Window m_window {
+      label LauCommand
       callback {// when get esc
 // 1. hide current window
 // 2. activate its menuitem in main window
