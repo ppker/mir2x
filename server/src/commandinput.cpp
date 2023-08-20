@@ -1,3 +1,4 @@
+#include "luaf.hpp"
 #include "totype.hpp"
 #include "flwrapper.hpp"
 #include "actorpool.hpp"
@@ -123,7 +124,7 @@ int CommandInput::handle(int event)
                                     {
                                         if(m_window->getEvalMode() == "AUTO"){
                                             if(g_actorPool->running()){
-                                                return m_window->getLuaModule()->execRawString(str_printf("asyncEval([[ %s ]])", code).c_str());
+                                                return m_window->getLuaModule()->execString("asyncEval(%s)", luaf::quotedLuaString(code).c_str());
                                             }
                                             else{
                                                 return m_window->getLuaModule()->execRawString(code);
@@ -134,7 +135,7 @@ int CommandInput::handle(int event)
                                         }
                                         else if(m_window->getEvalMode() == "ASYNC"){
                                             if(g_actorPool->running()){
-                                                return m_window->getLuaModule()->execRawString(str_printf("asyncEval([[ %s ]])", code).c_str());
+                                                return m_window->getLuaModule()->execString("asyncEval(%s)", luaf::quotedLuaString(code).c_str());
                                             }
                                             else{
                                                 throw fflerror("actor pool not running");
