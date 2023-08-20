@@ -223,11 +223,15 @@ class CommandWindow {} {
     }
 
     if(!m_luaModule){
-        fl_alert("Command window has no lua module bound: CWID = %d", m_CWID);
+        fl_alert("Command window %d has no lua module bound", m_CWID);
         return;
     }
 
-    m_luaModule->pfrCheck(m_luaModule->execFile(fileName));
+    if(!m_input->active()){
+        fl_alert("Command window %d is busy", m_CWID);
+    }
+
+    m_input->postExecLuaString(filesys::readFile(fileName));
 }} {}
   }
   Function {getEvalMode()} {return_type {std::string}

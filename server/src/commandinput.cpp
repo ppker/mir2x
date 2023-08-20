@@ -1,5 +1,6 @@
 #include "luaf.hpp"
 #include "totype.hpp"
+#include "fflerror.hpp"
 #include "flwrapper.hpp"
 #include "actorpool.hpp"
 #include "monoserver.hpp"
@@ -55,6 +56,10 @@ int CommandInput::handle(int event)
                         {
                             if(currCmdStr.empty()){
                                 // to inform fltk that we have handled this event
+                                return 1;
+                            }
+
+                            if(!active()){
                                 return 1;
                             }
 
@@ -117,68 +122,7 @@ int CommandInput::handle(int event)
                                 // put a task in the thread pool
                                 // and return immediately for current thread, don't block GUI logic
 
-                                deactivate();
-                                m_worker->addTask([this, cwid, currCmdStr](int)
-                                {
-                                    const auto fnEvalLuaStr = [this](const char *code)
-                                    {
-                                        if(m_window->getEvalMode() == "AUTO"){
-                                            if(g_actorPool->running()){
-                                                return m_window->getLuaModule()->execString("asyncEval(%s)", luaf::quotedLuaString(code).c_str());
-                                            }
-                                            else{
-                                                return m_window->getLuaModule()->execRawString(code);
-                                            }
-                                        }
-                                        else if(m_window->getEvalMode() == "LOCAL"){
-                                            return m_window->getLuaModule()->execRawString(code);
-                                        }
-                                        else if(m_window->getEvalMode() == "ASYNC"){
-                                            if(g_actorPool->running()){
-                                                return m_window->getLuaModule()->execString("asyncEval(%s)", luaf::quotedLuaString(code).c_str());
-                                            }
-                                            else{
-                                                throw fflerror("actor pool not running");
-                                            }
-                                        }
-                                        else{
-                                            throw fflerror("invalid eval mode: %s", to_cstr(m_window->getEvalMode()));
-                                        }
-                                    };
-
-                                    try{
-                                        if(const auto callResult = fnEvalLuaStr(currCmdStr.c_str()); callResult.valid()){
-                                            // default nothing printed
-                                            // can put information here to show call succeeds
-                                        }
-                                        else{
-                                            sol::error err = callResult;
-                                            std::stringstream errStream(err.what());
-
-                                            // need to handle here
-                                            // error message could be more than one line
-
-                                            std::string errLine;
-                                            while(std::getline(errStream, errLine, '\n')){
-                                                g_monoServer->addCWLogString(cwid, 2, ">>> ", errLine.c_str());
-                                            }
-                                        }
-                                    }
-                                    catch(const std::exception &e){
-                                        g_monoServer->addCWLogString(cwid, 2, ">>> ", e.what());
-                                    }
-                                    catch(...){
-                                        g_monoServer->addCWLogString(cwid, 2, ">>> ", "unknown error");
-                                    }
-
-                                    // need to protect any FLTK widget access by Fl::lock() and Fl::unlock()
-                                    // check FLTK manual for multithreading: https://www.fltk.org/doc-1.3/advanced.html
-                                    fl_wrapper::mtcall([this]()
-                                    {
-                                        activate();
-                                        m_window->redrawAll();
-                                    });
-                                });
+                                postExecLuaString(currCmdStr);
 
                                 // to inform fltk that we have handled this event
                                 return 1;
@@ -198,4 +142,72 @@ int CommandInput::handle(int event)
 
     }
     return Fl_Multiline_Input::handle(event);
+}
+
+void CommandInput::postExecLuaString(const std::string &code)
+{
+    fflassert(str_haschar(code));
+
+    deactivate();
+    m_worker->addTask([this, cwid = m_window->getCWID(), code](int)
+    {
+        const auto fnEvalLuaStr = [this](const char *code)
+        {
+            if(m_window->getEvalMode() == "AUTO"){
+                if(g_actorPool->running()){
+                    return m_window->getLuaModule()->execString("asyncEval(%s)", luaf::quotedLuaString(code).c_str());
+                }
+                else{
+                    return m_window->getLuaModule()->execRawString(code);
+                }
+            }
+            else if(m_window->getEvalMode() == "LOCAL"){
+                return m_window->getLuaModule()->execRawString(code);
+            }
+            else if(m_window->getEvalMode() == "ASYNC"){
+                if(g_actorPool->running()){
+                    return m_window->getLuaModule()->execString("asyncEval(%s)", luaf::quotedLuaString(code).c_str());
+                }
+                else{
+                    throw fflerror("actor pool not running");
+                }
+            }
+            else{
+                throw fflerror("invalid eval mode: %s", to_cstr(m_window->getEvalMode()));
+            }
+        };
+
+        try{
+            if(const auto callResult = fnEvalLuaStr(code.c_str()); callResult.valid()){
+                // default nothing printed
+                // can put information here to show call succeeds
+            }
+            else{
+                sol::error err = callResult;
+                std::stringstream errStream(err.what());
+
+                // need to handle here
+                // error message could be more than one line
+
+                std::string errLine;
+                while(std::getline(errStream, errLine, '\n')){
+                    g_monoServer->addCWLogString(cwid, 2, ">>> ", errLine.c_str());
+                }
+            }
+        }
+        catch(const std::exception &e){
+            g_monoServer->addCWLogString(cwid, 2, ">>> ", e.what());
+        }
+        catch(...){
+            g_monoServer->addCWLogString(cwid, 2, ">>> ", "unknown error");
+        }
+
+        // need to protect any FLTK widget access by Fl::lock() and Fl::unlock()
+        // check FLTK manual for multithreading: https://www.fltk.org/doc-1.3/advanced.html
+        fl_wrapper::mtcall([this]()
+        {
+            activate();
+            m_window->redrawAll();
+        });
+    });
 }

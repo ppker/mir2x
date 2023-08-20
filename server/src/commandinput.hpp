@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <string>
 #include "threadpool.hpp"
 #include <FL/Fl_Multiline_Input.H>
 
@@ -34,4 +35,7 @@ class CommandInput : public Fl_Multiline_Input
         {
             return m_inputList;
         }
+
+    public:
+        void postExecLuaString(const std::string &);
 };

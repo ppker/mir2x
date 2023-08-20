@@ -66,7 +66,7 @@ class ScriptWindow {} {
         runWin->runScriptFile(m_fileName.c_str());
     }
     else{
-        fl_alert("Command window is not active: CWID = %d", cwid);
+        fl_alert("Command window %d is not active", cwid);
     }
 }}
             xywh {0 0 100 20} shortcut 0x40072 labelfont 4
