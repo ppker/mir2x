@@ -56,21 +56,34 @@ class CommandWindow {} {
           } {
             MenuItem m_runModeAuto {
               label Auto
+              callback {{
+    m_input->label("AUTO");
+    m_window->redraw();
+}}
               xywh {5 5 100 20} type Radio value 1
             }
             MenuItem m_runModeLocal {
               label Local
+              callback {{
+    m_input->label("LOCAL");
+    m_window->redraw();
+}}
               xywh {15 15 100 20} type Radio
             }
             MenuItem m_runModeAsync {
               label {Async   }
+              callback {{
+    m_input->label("ASYNC");
+    m_window->redraw();
+}}
               xywh {25 25 100 20} type Radio
             }
           }
         }
       }
       Fl_Input m_input {
-        xywh {0 375 580 25} labeltype NO_LABEL labelfont 4 textfont 4 resizable
+        label AUTO
+        xywh {45 375 535 25} labelfont 4 textfont 4 resizable
         class CommandInput
       }
       Fl_Browser m_browser {
