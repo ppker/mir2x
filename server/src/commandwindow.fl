@@ -83,7 +83,7 @@ class CommandWindow {} {
       }
       Fl_Input m_input {
         label AUTO
-        xywh {45 375 535 25} labelfont 4 textfont 4 resizable
+        xywh {50 375 530 25} labelfont 4 textfont 4 resizable
         class CommandInput
       }
       Fl_Browser m_browser {
