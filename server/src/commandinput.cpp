@@ -1,11 +1,14 @@
 #include "totype.hpp"
 #include "flwrapper.hpp"
+#include "actorpool.hpp"
 #include "monoserver.hpp"
 #include "threadpool.hpp"
 #include "commandinput.hpp"
 #include "commandwindow.hpp"
 
+extern ActorPool *g_actorPool;
 extern MonoServer *g_monoServer;
+
 int CommandInput::handle(int event)
 {
     switch(event){
@@ -116,8 +119,34 @@ int CommandInput::handle(int event)
                                 deactivate();
                                 m_worker->addTask([this, cwid, currCmdStr](int)
                                 {
+                                    const auto fnEvalLuaStr = [this](const char *code)
+                                    {
+                                        if(m_window->getEvalMode() == "AUTO"){
+                                            if(g_actorPool->running()){
+                                                return m_window->getLuaModule()->execRawString(str_printf("asyncEval([[ %s ]])", code).c_str());
+                                            }
+                                            else{
+                                                return m_window->getLuaModule()->execRawString(code);
+                                            }
+                                        }
+                                        else if(m_window->getEvalMode() == "LOCAL"){
+                                            return m_window->getLuaModule()->execRawString(code);
+                                        }
+                                        else if(m_window->getEvalMode() == "ASYNC"){
+                                            if(g_actorPool->running()){
+                                                return m_window->getLuaModule()->execRawString(str_printf("asyncEval([[ %s ]])", code).c_str());
+                                            }
+                                            else{
+                                                throw fflerror("actor pool not running");
+                                            }
+                                        }
+                                        else{
+                                            throw fflerror("invalid eval mode: %s", to_cstr(m_window->getEvalMode()));
+                                        }
+                                    };
+
                                     try{
-                                        if(const auto callResult = m_window->getLuaModule()->execRawString(currCmdStr.c_str()); callResult.valid()){
+                                        if(const auto callResult = fnEvalLuaStr(currCmdStr.c_str()); callResult.valid()){
                                             // default nothing printed
                                             // can put information here to show call succeeds
                                         }

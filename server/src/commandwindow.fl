@@ -217,4 +217,14 @@ class CommandWindow {} {
     m_luaModule->pfrCheck(m_luaModule->execFile(fileName));
 }} {}
   }
+  Function {getEvalMode()} {return_type {std::string}
+  } {
+    code {{
+    if(m_runModeAuto ->value()) return "AUTO";
+    if(m_runModeLocal->value()) return "LOCAL";
+    if(m_runModeAsync->value()) return "ASYNC";
+
+    throw fflerror("invalid eval mode");
+}} {}
+  }
 }

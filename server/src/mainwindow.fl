@@ -1,5 +1,5 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0304
+version 1.0308
 header_name {.hpp}
 code_name {.cpp}
 decl {\#include <asio.hpp>} {public global
@@ -12,6 +12,9 @@ decl {\#include <string>} {public global
 }
 
 decl {\#include <mutex>} {private local
+}
+
+decl {\#include "fflerror.hpp"} {private local
 }
 
 decl {\#include "serverargparser.hpp"} {private local
