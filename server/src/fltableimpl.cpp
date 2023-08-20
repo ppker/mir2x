@@ -135,6 +135,7 @@ void Fl_TableImpl::drawHeader(const char *szInfo, int nX, int nY, int nW, int nH
     {
         fl_draw_box(FL_THIN_UP_BOX, nX, nY, nW, nH, row_header_color());
         fl_color(FL_BLACK);
+        fl_font(FL_COURIER, 14);
         fl_draw(szInfo, nX, nY, nW, nH, FL_ALIGN_CENTER);
     }
     fl_pop_clip();
@@ -169,6 +170,7 @@ void Fl_TableImpl::drawData(int nRow, int nCol, int nX, int nY, int nW, int nH)
         fl_rectf(nX, nY, nW, nH);
 
         fl_color(fg_color);
+        fl_font(FL_COURIER, 14);
         fl_draw(getGridData(nRow, nCol).c_str(), nX, nY, nW, nH, FL_ALIGN_CENTER);
 
         fl_color(color());
