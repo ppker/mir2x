@@ -57,5 +57,28 @@ setEventHandler(
         else
             dq.setQuest(0, uid, value)
         end
-    end
+    end,
+
+    npc_goto_4 = function(uid, value)
+        if plyapi.getLevel(uid) < 5 then
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>你还没有开始苍蝇拍任务呢！</par>
+                    <par>这是一个为在比奇省经营肉铺店的<t color="red"金氏(446:405)</t>找苍蝇拍的任务！</par>
+                    <par>可惜你现在还没有帮助他的能力。先去把等级提高到<t color="red">5</t>以上吧！</par>
+                    <par><event id="npc_goto_1">前一步</event></par>
+                </layout>
+            ]])
+        else
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>你还没有开始苍蝇拍任务呢！</par>
+                    <par>比奇省经营肉铺店的<t color="red">金氏(446:405)</t>正在因为没有苍蝇拍的事儿而苦恼呢！去看看怎么回事吧！</par>
+                    <par><event id="%s">结束</event></par>
+                </layout>
+            ]], SYS_EXIT)
+        end
+    end,
 })
