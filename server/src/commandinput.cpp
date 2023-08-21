@@ -148,6 +148,11 @@ void CommandInput::postExecLuaString(const std::string &code)
 {
     fflassert(str_haschar(code));
 
+    if(!active()){
+        fl_alert("Command window %d is busy", m_window->getCWID());
+        return;
+    }
+
     deactivate();
     m_worker->addTask([this, cwid = m_window->getCWID(), code](int)
     {
