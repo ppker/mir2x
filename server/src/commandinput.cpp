@@ -63,10 +63,9 @@ int CommandInput::handle(int event)
                                 return 1;
                             }
 
-                            // if last char is escape as ``\"
+                            // if shift is pressed
                             // don't commit the command for execution
-                            if(true && !currCmdStr.empty()
-                                    &&  currCmdStr.back() == '\\'){
+                            if(Fl::event_state(FL_SHIFT)){
                                 return Fl_Multiline_Input::handle(event);
                             }
 
