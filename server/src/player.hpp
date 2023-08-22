@@ -279,6 +279,12 @@ class Player final: public BattleObject
         bool CanPickUp(uint32_t, uint32_t);
 
     private:
+        luaf::luaVar                  dbGetVar   (const std::string &);
+        void                          dbSetVar   (const std::string &, luaf::luaVar);
+        std::pair<bool, luaf::luaVar> dbHasVar   (const std::string &);
+        void                          dbRemoveVar(const std::string &);
+
+    private:
         void dbUpdateExp();
         void dbUpdateHealth();
         void dbUpdateMapGLoc();

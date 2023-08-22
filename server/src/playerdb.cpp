@@ -1,9 +1,67 @@
+#include "luaf.hpp"
 #include "dbpod.hpp"
 #include "player.hpp"
 #include "monoserver.hpp"
 
 extern DBPod *g_dbPod;
 extern MonoServer *g_monoServer;
+
+luaf::luaVar Player::dbGetVar(const std::string &var)
+{
+    fflassert(str_haschar(var));
+    auto query = g_dbPod->createQuery("select fld_value from tbl_charvarlist where fld_dbid = %llu and fld_var = '%s' and fld_value is not null", to_llu(dbid()), var.c_str());
+
+    if(query.executeStep()){
+        return cerealf::deserialize<luaf::luaVar>(query.getColumn(0).getString());
+    }
+    else{
+        return luaf::luaNil{}; // TODO throw or return nil ?
+    }
+}
+
+void Player::dbSetVar(const std::string &var, luaf::luaVar value)
+{
+    fflassert(str_haschar(var));
+    if(std::get_if<luaf::luaNil>(&value)){
+        g_dbPod->exec("delete from tbl_charvarlist where fld_dbid = %llu and fld_var = '%s'", to_llu(dbid()), var.c_str());
+    }
+    else{
+        auto query = g_dbPod->createQuery(
+            u8R"###( insert into tbl_charvarlist(fld_dbid, fld_var, fld_value) )###"
+            u8R"###( values                                                    )###"
+            u8R"###(     (%llu, '%s', ?)                                       )###"
+            u8R"###(                                                           )###"
+            u8R"###( on conflict(fld_dbid, fld_var) do                         )###"
+            u8R"###( update set                                                )###"
+            u8R"###(                                                           )###"
+            u8R"###(     fld_value=excluded.fld_value,                         )###",
+
+            to_llu(dbid()),
+            var.c_str());
+
+        query.bind(1, cerealf::serialize(value));
+        query.exec();
+    }
+}
+
+std::pair<bool, luaf::luaVar> Player::dbHasVar(const std::string &var)
+{
+    fflassert(str_haschar(var));
+    auto query = g_dbPod->createQuery("select fld_value from tbl_charvarlist where fld_dbid = %llu and fld_var = '%s' and fld_value is not null", to_llu(dbid()), var.c_str());
+
+    if(query.executeStep()){
+        return std::make_pair(true, cerealf::deserialize<luaf::luaVar>(query.getColumn(0).getString()));
+    }
+    else{
+        return std::make_pair(false, luaf::luaNil{});
+    }
+}
+
+void Player::dbRemoveVar(const std::string &var)
+{
+    fflassert(str_haschar(var));
+    g_dbPod->exec("delete from tbl_charvarlist where fld_dbid = %llu and fld_var = '%s'", to_llu(dbid()), var.c_str());
+}
 
 void Player::dbUpdateExp()
 {

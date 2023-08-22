@@ -1,6 +1,32 @@
 --, u8R"###(
 --
 
+function dbHasFlag(flag)
+    assertType(flag, 'string')
+    local found, value = dbGetVar(flag)
+
+    if found then
+        if value == SYS_FLAGVAL then
+            return true
+        else
+            fatalPrintf('Not a flag name: %s', flag)
+        end
+    else
+        assertType(value, 'nil')
+        return false
+    end
+end
+
+function dbAddFlag(flag)
+    assertType(flag, 'string')
+    return dbSetVar(flag, SYS_FLAGVAL)
+end
+
+function dbRemoveFlag(flag)
+    assertType(flag, 'string')
+    return dbRemoveVar(flag)
+end
+
 function postString(msg, ...)
     postRawString(msg:format(...))
 end

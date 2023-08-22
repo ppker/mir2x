@@ -156,6 +156,8 @@ LuaModule::LuaModule()
     execString("SYS_EXECCLOSE  = %s", str_quoted(SYS_EXECCLOSE ).c_str());
     execString("SYS_EXECBADUID = %s", str_quoted(SYS_EXECBADUID).c_str());
 
+    execString("SYS_FLAGVAL = %s", str_quoted(SYS_FLAGVAL).c_str());
+
     execString("SYS_EPDEF = \'%s\'", SYS_EPDEF);
     execString("SYS_EPUID = \'%s\'", SYS_EPUID);
     execString("SYS_EPQST = \'%s\'", SYS_EPQST);

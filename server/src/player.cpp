@@ -286,22 +286,39 @@ void Player::onActivate()
         return hasInventoryItem(to_u32(itemID), to_u32(seqID), count);
     });
 
-    m_luaRunner->bindFunction("dbHasFlag", [this](std::string flag) -> bool
+    m_luaRunner->bindFunction("dbGetVar", [this](std::string var, sol::this_state s)
     {
-        fflassert(str_haschar(flag));
-        return g_dbPod->createQuery("select fld_dbid from tbl_charflaglist where fld_dbid = %llu and fld_flag = '%s'", to_llu(dbid()), flag.c_str()).executeStep();
+        return luaf::buildLuaObj(sol::state_view(s), dbGetVar(var));
     });
 
-    m_luaRunner->bindFunction("dbAddFlag", [this](std::string flag)
+    m_luaRunner->bindFunction("dbSetVar", [this](std::string var, sol::object value)
     {
-        fflassert(str_haschar(flag));
-        g_dbPod->exec("insert or ignore into tbl_charflaglist(fld_dbid, fld_flag) values(%llu, '%s')", to_llu(dbid()), flag.c_str());
+        dbSetVar(var, luaf::buildLuaVar(value));
     });
 
-    m_luaRunner->bindFunction("dbRemoveFlag", [this](std::string flag)
+    m_luaRunner->bindFunction("dbHasVar", [this](std::string var, sol::this_state s)
     {
-        fflassert(str_haschar(flag));
-        g_dbPod->exec("delete from tbl_charflaglist where fld_dbid = %llu and fld_flag = '%s'", to_llu(dbid()), flag.c_str());
+        auto &&[found, value] = dbHasVar(var);
+
+        sol::state_view sv(s);
+        std::vector<sol::object> resList;
+
+        if(found){
+            resList.reserve(2);
+            resList.push_back(sol::object(sv, sol::in_place_type<bool>, true));
+            resList.push_back(luaf::buildLuaObj(sv, std::move(value)));
+        }
+        else{
+            resList.reserve(1);
+            resList.push_back(sol::object(sv, sol::in_place_type<bool>, false));
+        }
+
+        return sol::as_returns(resList);
+    });
+
+    m_luaRunner->bindFunction("dbRemoveVar", [this](std::string var)
+    {
+        dbRemoveVar(std::move(var));
     });
 
     m_luaRunner->bindFunction("_RSVD_NAME_reportQuestDespList", [this](sol::object obj)
