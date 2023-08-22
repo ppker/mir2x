@@ -34,7 +34,7 @@ void Player::dbSetVar(const std::string &var, luaf::luaVar value)
             u8R"###( on conflict(fld_dbid, fld_var) do                         )###"
             u8R"###( update set                                                )###"
             u8R"###(                                                           )###"
-            u8R"###(     fld_value=excluded.fld_value,                         )###",
+            u8R"###(     fld_value=excluded.fld_value                          )###",
 
             to_llu(dbid()),
             var.c_str());
