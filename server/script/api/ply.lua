@@ -45,4 +45,12 @@ function ply.hasItem(uid, item, seq, count)
     ]])
 end
 
+function ply.getQuestState(uid, ...)
+    return uidRemoteCall(uid, table.pack(...),
+    [[
+        local args = ...
+        return getQuestState(table.unpack(args, 1, args.n))
+    ]])
+end
+
 return ply
