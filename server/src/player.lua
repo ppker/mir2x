@@ -114,7 +114,7 @@ function _RSVD_NAME_setupQuests()
         [[
             local playerUID = ...
 
-            local npcBehaviors = dbGetUIDQuestField(playerUID, 'fld_npcbehaviors')
+            local npcBehaviors = dbGetQuestField(playerUID, 'fld_npcbehaviors')
             assertType(npcBehaviors, 'table', 'nil')
 
             if npcBehaviors then

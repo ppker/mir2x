@@ -6,11 +6,11 @@ function runQuestThread(func)
     return runThread(rollKey(), func)
 end
 
-local function _RSVD_NAME_dbUpdateUIDQuestFieldTable(uid, field, key, value)
+local function _RSVD_NAME_dbUpdateQuestFieldTable(uid, field, key, value)
     assertType(uid, 'integer')
     assertType(field, 'string')
 
-    local fieldTable = dbGetUIDQuestField(uid, field)
+    local fieldTable = dbGetQuestField(uid, field)
     assertType(fieldTable, 'nil', 'table')
 
     if fieldTable == nil then
@@ -26,24 +26,24 @@ local function _RSVD_NAME_dbUpdateUIDQuestFieldTable(uid, field, key, value)
     if tableEmpty(fieldTable) then
         fieldTable = nil
     end
-    dbSetUIDQuestField(uid, field, fieldTable)
+    dbSetQuestField(uid, field, fieldTable)
 end
 
 function dbGetUIDQuestVar(uid, key)
     assertType(uid, 'integer')
-    return (dbGetUIDQuestField(uid, 'fld_vars') or {})[key]
+    return (dbGetQuestField(uid, 'fld_vars') or {})[key]
 end
 
 function dbSetUIDQuestVar(uid, key, value)
     assertType(uid, 'integer')
-    _RSVD_NAME_dbUpdateUIDQuestFieldTable(uid, 'fld_vars', key, value)
+    _RSVD_NAME_dbUpdateQuestFieldTable(uid, 'fld_vars', key, value)
 end
 
 function dbGetQuestState(uid, fsm)
     assertType(uid, 'integer')
     assertType(fsm, 'string', 'nil')
 
-    local states = dbGetUIDQuestField(uid, 'fld_states')
+    local states = dbGetQuestField(uid, 'fld_states')
     if fsm == nil then
         return states
     end
@@ -59,18 +59,18 @@ function hasQuestFlag(uid, flagName)
     assertType(uid, 'integer')
     assertType(flagName, 'string')
 
-    local flags = dbGetUIDQuestField(uid, 'fld_flags') or {}
+    local flags = dbGetQuestField(uid, 'fld_flags') or {}
     return flags[flagName] or false
 end
 
 function addQuestFlag(uid, flagName)
     assertType(uid, 'integer')
-    _RSVD_NAME_dbUpdateUIDQuestFieldTable(uid, 'fld_flags', flagName, true)
+    _RSVD_NAME_dbUpdateQuestFieldTable(uid, 'fld_flags', flagName, true)
 end
 
 function deleteQuestFlag(uid, flagName)
     assertType(uid, 'integer')
-    _RSVD_NAME_dbUpdateUIDQuestFieldTable(uid, 'fld_flags', flagName, nil)
+    _RSVD_NAME_dbUpdateQuestFieldTable(uid, 'fld_flags', flagName, nil)
 end
 
 function loadMap(map)
@@ -117,14 +117,14 @@ function setQuestTeam(args)
 
     for _, member in ipairs(team[SYS_QUESTFIELD.TEAM.MEMBERLIST]) do
         if args.propagate or (member == uid) then
-            dbSetUIDQuestField(member, 'fld_team', team)
+            dbSetQuestField(member, 'fld_team', team)
         end
     end
 end
 
 function getQuestTeam(uid)
     assertType(uid, 'integer')
-    local team = dbGetUIDQuestField(uid, 'fld_team')
+    local team = dbGetQuestField(uid, 'fld_team')
 
     team.getRoleIndex = function(self, uid)
         assertType(self, 'table')
@@ -216,7 +216,7 @@ function setQuestState(fargs)
     -- a player can be in a team but still start a single-role quest alone
 
     if (fsm == SYS_QSTFSM) and (state == SYS_DONE) then
-        local npcBehaviors = dbGetUIDQuestField(uid, 'fld_npcbehaviors')
+        local npcBehaviors = dbGetQuestField(uid, 'fld_npcbehaviors')
         if npcBehaviors then
             for _, v in pairs(npcBehaviors) do
                 clearNPCQuestBehavior(v[1], v[2], uid)
@@ -227,7 +227,7 @@ function setQuestState(fargs)
         if (state ~= SYS_DONE) and (not dbGetQuestState(uid, fsm)) then
             setQuestDesp{uid=uid, fsm=fsm, ''}
         end
-        _RSVD_NAME_dbUpdateUIDQuestFieldTable(uid, 'fld_states', fsm, {state, fargs.args})
+        _RSVD_NAME_dbUpdateQuestFieldTable(uid, 'fld_states', fsm, {state, fargs.args})
     end
 
     -- if not called from another FSM state op
@@ -262,7 +262,7 @@ end
 
 function dbGetQuestDesp(uid)
     assertType(uid, 'integer')
-    return dbGetUIDQuestField(uid, 'fld_desp')
+    return dbGetQuestField(uid, 'fld_desp')
 end
 
 function setQuestDesp(args)
@@ -294,7 +294,7 @@ function setQuestDesp(args)
             return nil
         end
 
-        local despTable = dbGetUIDQuestField(uid, 'fld_desp') or {}
+        local despTable = dbGetQuestField(uid, 'fld_desp') or {}
         despTable[fsm] = desp
 
         if tableEmpty(despTable) then
@@ -372,7 +372,7 @@ function setupNPCQuestBehavior(mapName, npcName, uid, arg1, arg2)
     -- argstr can be nil, put ahead may cause trouble
 
     uidRemoteCall(getNPCharUID(mapName, npcName), table.unpack(args, 1, args.n + 1))
-    _RSVD_NAME_dbUpdateUIDQuestFieldTable(uid, 'fld_npcbehaviors', strAny({mapName, npcName}), {mapName, npcName, code, argstr})
+    _RSVD_NAME_dbUpdateQuestFieldTable(uid, 'fld_npcbehaviors', strAny({mapName, npcName}), {mapName, npcName, code, argstr})
 end
 
 function clearNPCQuestBehavior(mapName, npcName, uid)
@@ -383,7 +383,7 @@ function clearNPCQuestBehavior(mapName, npcName, uid)
     assert(uid > 0)
 
     uidRemoteCall(getNPCharUID(mapName, npcName), uid, getQuestName(), [[ deleteUIDQuestHandler(...) ]])
-    _RSVD_NAME_dbUpdateUIDQuestFieldTable(uid, 'fld_npcbehaviors', strAny({mapName, npcName}), nil)
+    _RSVD_NAME_dbUpdateQuestFieldTable(uid, 'fld_npcbehaviors', strAny({mapName, npcName}), nil)
 end
 
 function runNPCEventHandler(npcUID, playerUID, eventPath, event, value)

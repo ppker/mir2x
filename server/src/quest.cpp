@@ -92,7 +92,7 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
         getQuest()->forwardNetPackage(uid, SM_QUESTDESPUPDATE, cerealf::serialize(sdQDU));
     });
 
-    bindFunction("dbGetUIDQuestField", [this](uint64_t uid, std::string fieldName, sol::this_state s) -> sol::object
+    bindFunction("dbGetQuestField", [this](uint64_t uid, std::string fieldName, sol::this_state s) -> sol::object
     {
         sol::state_view sv(s);
         const auto dbName = getQuest()->getQuestDBName();
@@ -108,7 +108,7 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
         return luaf::buildLuaObj(sol::state_view(s), std::move(cerealf::deserialize<luaf::luaVar>(queryStatement.getColumn(0))));
     });
 
-    bindFunction("dbSetUIDQuestField", [this](uint64_t uid, std::string fieldName, sol::object obj)
+    bindFunction("dbSetQuestField", [this](uint64_t uid, std::string fieldName, sol::object obj)
     {
         const auto dbName = getQuest()->getQuestDBName();
         const auto dbid = uidf::getPlayerDBID(uid);
@@ -385,7 +385,7 @@ void Quest::operateAM(const ActorMsgPack &mpk)
     }
 }
 
-void Quest::dumpUIDQuestField(uint64_t uid, const std::string &fieldName) const
+void Quest::dumpQuestField(uint64_t uid, const std::string &fieldName) const
 {
     const auto dbName = getQuestDBName();
     const auto dbid = uidf::getPlayerDBID(uid);
