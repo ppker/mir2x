@@ -45,7 +45,7 @@ function dbGetQuestState(uid, fsm)
 
     local states = dbGetQuestField(uid, 'fld_states')
     if fsm == nil then
-        return states
+        fsm = SYS_QSTFSM
     end
 
     for k, v in pairs(states or {}) do
@@ -53,6 +53,11 @@ function dbGetQuestState(uid, fsm)
             return v[1], v[2]
         end
     end
+end
+
+function _RSVD_NAME_dbGetQuestStateList(uid)
+    assertType(uid, 'integer')
+    return dbGetQuestField(uid, 'fld_states')
 end
 
 function hasQuestFlag(uid, flagName)

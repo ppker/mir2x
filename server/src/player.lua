@@ -123,7 +123,7 @@ function _RSVD_NAME_setupQuests()
                 end
             end
 
-            local states = dbGetQuestState(playerUID)
+            local states = _RSVD_NAME_dbGetQuestStateList(playerUID)
             assertType(states, 'table', 'nil')
 
             if states then
