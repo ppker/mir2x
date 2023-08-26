@@ -41,7 +41,7 @@ setQuestFSMTable(
                     uidRemoteCall(questUID, uid,
                     [=[
                         local playerUID = ...
-                        setUIDQuestState{uid=playerUID, state='quest_setup_apan'}
+                        setQuestState{uid=playerUID, state='quest_setup_apan'}
                     ]=])
                 end,
 
@@ -117,7 +117,7 @@ setQuestFSMTable(
                     uidRemoteCall(questUID, uid,
                     [=[
                         local playerUID = ...
-                        setUIDQuestState{uid=playerUID, state='quest_done_apan'}
+                        setQuestState{uid=playerUID, state='quest_done_apan'}
                     ]=])
                 end,
             }
@@ -180,7 +180,7 @@ setQuestFSMTable(
             }
         ]])
 
-        setUIDQuestState{uid=uid, state='quest_find_chicken_blood'}
+        setQuestState{uid=uid, state='quest_find_chicken_blood'}
     end,
 
     quest_find_chicken_blood = function(uid, value)
@@ -193,7 +193,7 @@ setQuestFSMTable(
                     uidRemoteCall(questUID, playerUID,
                     [=[
                         local playerUID = ...
-                        setUIDQuestState{uid=playerUID, state='quest_done_chicken_blood'}
+                        setQuestState{uid=playerUID, state='quest_done_chicken_blood'}
                     ]=])
                     return true
                 end
@@ -226,7 +226,7 @@ setQuestFSMTable(
                     uidRemoteCall(questUID, uid,
                     [=[
                         local playerUID = ...
-                        setUIDQuestState{uid=playerUID, state='quest_prepare_to_wang'}
+                        setQuestState{uid=playerUID, state='quest_prepare_to_wang'}
                     ]=])
                 end,
             }
@@ -267,7 +267,7 @@ setQuestFSMTable(
                         uidRemoteCall(questUID, getUID(),
                         [=[
                             local playerUID = ...
-                            setUIDQuestState{uid=playerUID, state='quest_prepare_to_wang'}
+                            setQuestState{uid=playerUID, state='quest_prepare_to_wang'}
                         ]=])
                         return true
                     end
@@ -312,7 +312,7 @@ setQuestFSMTable(
                         uidRemoteCall(questUID, uid,
                         [=[
                             local playerUID = ...
-                            setUIDQuestState{uid=playerUID, state='quest_accept_wang_book'}
+                            setQuestState{uid=playerUID, state='quest_accept_wang_book'}
                         ]=])
                     end,
                 }
@@ -394,7 +394,7 @@ setQuestFSMTable(
                     uidRemoteCall(questUID, uid,
                     [=[
                         local playerUID = ...
-                        setUIDQuestState{uid=playerUID, state='quest_done_wang_book'}
+                        setQuestState{uid=playerUID, state='quest_done_wang_book'}
                     ]=])
                 end,
 
@@ -439,7 +439,7 @@ setQuestFSMTable(
         ]])
 
         uidRemoteCall(uid, [[ dbAddFlag('done_wang_book') ]])
-        setUIDQuestState{uid=uid, state=SYS_DONE}
+        setQuestState{uid=uid, state=SYS_DONE}
     end,
 })
 
@@ -559,7 +559,7 @@ uidRemoteCall(getNPCharUID('道馆_1', '士官_1'), getUID(), getQuestName(),
             uidRemoteCall(questUID, uid,
             [=[
                 local playerUID = ...
-                setUIDQuestState{uid=playerUID, state=SYS_ENTER}
+                setQuestState{uid=playerUID, state=SYS_ENTER}
             ]=])
         end
     })

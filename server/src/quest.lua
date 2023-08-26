@@ -197,7 +197,7 @@ function hasQuestState(arg1, arg2)
     return true
 end
 
-function setUIDQuestState(fargs)
+function setQuestState(fargs)
     assertType(fargs, 'table')
     assertType(fargs.uid, 'integer')
     assertType(fargs.fsm, 'string', 'nil')

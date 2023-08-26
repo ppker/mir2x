@@ -13,7 +13,7 @@ setQuestFSMTable(
                 </layout>
             ]=], SYS_EXIT)
         ]])
-        setUIDQuestState{uid=uid, state='quest_setup_kill_trigger'}
+        setQuestState{uid=uid, state='quest_setup_kill_trigger'}
     end,
 
     quest_setup_kill_trigger = function(uid, value)
@@ -38,7 +38,7 @@ setQuestFSMTable(
 
         if waitNotify(10 * 1000) then
             uidRemoteCall(uid, [[ postString([=[挑战成功！]=]) ]])
-            setUIDQuestState{uid=uid, state=SYS_DONE}
+            setQuestState{uid=uid, state=SYS_DONE}
         else
             uidRemoteCall(uid, triggerKey,
             [[
@@ -149,7 +149,7 @@ uidRemoteCall(getNPCharUID('道馆_1', '士官_1'), getUID(), getQuestName(),
                 uidRemoteCall(questUID, teamRole,
                 [=[
                     local teamRole = ...
-                    setUIDQuestState{uid=teamRole, state=SYS_ENTER}
+                    setQuestState{uid=teamRole, state=SYS_ENTER}
                 ]=])
             end
         end,

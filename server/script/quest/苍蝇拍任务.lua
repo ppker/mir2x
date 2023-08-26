@@ -93,7 +93,7 @@ setQuestFSMTable(
                     [=[
                         local playerUID = ...
                         setQuestDesp{uid=playerUID, '已经收集到制作苍蝇拍所需要的竹棍和牛毛，把他们交给杂货商吧。'}
-                        setUIDQuestState{uid=playerUID, state='quest_complete_collection'}
+                        setQuestState{uid=playerUID, state='quest_complete_collection'}
                     ]=])
                     return true
                 end

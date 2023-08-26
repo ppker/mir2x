@@ -38,7 +38,7 @@ function qst.setState(questUID, fargs)
     return uidRemoteCall(questUID, fargs,
     [[
         local fargs = ...
-        return setUIDQuestState(fargs)
+        return setQuestState(fargs)
     ]])
 end
 

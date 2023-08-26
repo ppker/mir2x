@@ -32,7 +32,7 @@ setQuestFSMTable(
                     uidRemoteCall(questUID, uid,
                     [=[
                         local playerUID = ...
-                        setUIDQuestState{uid=playerUID, state=SYS_DONE}
+                        setQuestState{uid=playerUID, state=SYS_DONE}
                     ]=])
                 end,
             }
@@ -65,7 +65,7 @@ uidRemoteCall(getNPCharUID('道馆_1', '物品展示商人'), getUID(), getQuest
             uidRemoteCall(questUID, uid, questName,
             [=[
                 local playerUID, questName = ...
-                setUIDQuestState{uid=playerUID, state=SYS_ENTER, exitfunc=function()
+                setQuestState{uid=playerUID, state=SYS_ENTER, exitfunc=function()
                     runNPCEventHandler(getNPCharUID('道馆_1', '物品展示商人'), playerUID, {SYS_EPUID, questName}, SYS_ENTER)
                 end}
             ]=])

@@ -27,7 +27,7 @@ setQuestFSMTable(
             ]=], SYS_EXIT)
         ]])
 
-        setUIDQuestState{uid=uid, state='quest_setup_kill_trigger'}
+        setQuestState{uid=uid, state='quest_setup_kill_trigger'}
     end,
 
     ['quest_setup_kill_trigger'] = function(uid, value)
@@ -40,7 +40,7 @@ setQuestFSMTable(
                     uidRemoteCall(questUID, getUID(),
                     [=[
                         local playerUID = ...
-                        setUIDQuestState{uid=playerUID, state='quest_killed_monster'}
+                        setQuestState{uid=playerUID, state='quest_killed_monster'}
                     ]=])
                     return true
                 end
@@ -102,7 +102,7 @@ setQuestFSMTable(
                     uidRemoteCall(questUID, uid,
                     [=[
                         local playerUID = ...
-                        setUIDQuestState{uid=playerUID, state=SYS_DONE}
+                        setQuestState{uid=playerUID, state=SYS_DONE}
                     ]=])
                 end,
             }
@@ -156,7 +156,7 @@ uidRemoteCall(getNPCharUID('道馆_1', '万事通_1'), getUID(), getQuestName(),
             uidRemoteCall(questUID, uid,
             [=[
                 local playerUID = ...
-                setUIDQuestState{uid=playerUID, state=SYS_ENTER}
+                setQuestState{uid=playerUID, state=SYS_ENTER}
             ]=])
 
             uidRemoteCall(uid, questDoneFlag,
