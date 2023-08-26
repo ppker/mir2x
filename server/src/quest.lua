@@ -236,7 +236,7 @@ function setQuestState(fargs)
     local currFSMName = _RSVD_NAME_currFSMName
     assertType(currFSMName, 'string', 'nil')
 
-    _RSVD_NAME_closeUIDQuestState(uid, fsm)
+    _RSVD_NAME_closeQuestState(uid, fsm)
     if hasQuestState(fsm, state) then
         runQuestThread(function()
             _RSVD_NAME_enterQuestState(uid, fsm, state, fargs.args)

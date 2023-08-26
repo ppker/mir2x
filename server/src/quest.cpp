@@ -235,7 +235,7 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
         });
     });
 
-    bindFunction("_RSVD_NAME_closeUIDQuestState", [this](uint64_t uid, const char *fsm)
+    bindFunction("_RSVD_NAME_closeQuestState", [this](uint64_t uid, const char *fsm)
     {
         closeUIDQuestState(uid, fsm, m_currRunner);
     });
