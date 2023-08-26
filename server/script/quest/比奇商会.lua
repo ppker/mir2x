@@ -426,7 +426,7 @@ setQuestFSMTable(fsmName_persuade_librarian,
             return
             {
                 [SYS_ENTER] = function(uid, value)
-                    if uidRemoteCall(questUID, uid, [=[ return hasUIDQuestFlag(..., 'flag_done_query_guard_2') ]=]) then
+                    if uidRemoteCall(questUID, uid, [=[ return hasQuestFlag(..., 'flag_done_query_guard_2') ]=]) then
                         runEventHandler(uid, questPath, 'npc_guard_2_deny')
                     else
                         runEventHandler(uid, questPath, 'npc_guard_2_accept')
@@ -476,7 +476,7 @@ setQuestFSMTable(fsmName_persuade_librarian,
                     uidRemoteCall(questUID, uid,
                     [=[
                         local playerUID = ...
-                        addUIDQuestFlag(playerUID, 'flag_done_query_guard_2')
+                        addQuestFlag(playerUID, 'flag_done_query_guard_2')
                         setQuestState{uid=playerUID, fsm=fsmName_persuade_librarian, state='quest_wait_guard_1_and_guard_2_done'}
                     ]=])
                 end,
@@ -617,7 +617,7 @@ setQuestFSMTable(fsmName_persuade_librarian,
                     uidRemoteCall(questUID, uid,
                     [=[
                         local playerUID = ...
-                        addUIDQuestFlag(playerUID, 'flag_done_query_guard_1')
+                        addQuestFlag(playerUID, 'flag_done_query_guard_1')
                         setQuestState{uid=playerUID, fsm=fsmName_persuade_librarian, state='quest_wait_guard_1_and_guard_2_done'}
                     ]=])
                 end,
@@ -626,8 +626,8 @@ setQuestFSMTable(fsmName_persuade_librarian,
     end,
 
     quest_wait_guard_1_and_guard_2_done = function(uid, value)
-        local done_guard_1 = hasUIDQuestFlag(uid, 'flag_done_query_guard_1')
-        local done_guard_2 = hasUIDQuestFlag(uid, 'flag_done_query_guard_2')
+        local done_guard_1 = hasQuestFlag(uid, 'flag_done_query_guard_1')
+        local done_guard_2 = hasQuestFlag(uid, 'flag_done_query_guard_2')
 
         if not (done_guard_1 and done_guard_2) then
             return

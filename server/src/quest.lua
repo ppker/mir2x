@@ -55,7 +55,7 @@ function dbGetQuestState(uid, fsm)
     end
 end
 
-function hasUIDQuestFlag(uid, flagName)
+function hasQuestFlag(uid, flagName)
     assertType(uid, 'integer')
     assertType(flagName, 'string')
 
@@ -63,12 +63,12 @@ function hasUIDQuestFlag(uid, flagName)
     return flags[flagName] or false
 end
 
-function addUIDQuestFlag(uid, flagName)
+function addQuestFlag(uid, flagName)
     assertType(uid, 'integer')
     _RSVD_NAME_dbUpdateUIDQuestFieldTable(uid, 'fld_flags', flagName, true)
 end
 
-function deleteUIDQuestFlag(uid, flagName)
+function deleteQuestFlag(uid, flagName)
     assertType(uid, 'integer')
     _RSVD_NAME_dbUpdateUIDQuestFieldTable(uid, 'fld_flags', flagName, nil)
 end
