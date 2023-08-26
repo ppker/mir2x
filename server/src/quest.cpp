@@ -165,7 +165,7 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
         }
     });
 
-    bindFunction("_RSVD_NAME_dbSetUIDQuestStateDone", [this](uint64_t uid)
+    bindFunction("_RSVD_NAME_dbSetQuestStateDone", [this](uint64_t uid)
     {
         // finialize quest
         // all quest vars get removed except fld_states

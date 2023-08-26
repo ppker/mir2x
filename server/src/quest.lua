@@ -222,7 +222,7 @@ function setQuestState(fargs)
                 clearNPCQuestBehavior(v[1], v[2], uid)
             end
         end
-        _RSVD_NAME_dbSetUIDQuestStateDone(uid)
+        _RSVD_NAME_dbSetQuestStateDone(uid)
     else
         if (state ~= SYS_DONE) and (not dbGetQuestState(uid, fsm)) then
             setQuestDesp{uid=uid, fsm=fsm, ''}
