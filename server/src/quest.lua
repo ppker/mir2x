@@ -95,7 +95,7 @@ function getNPCharUID(mapName, npcName)
     return npcUID
 end
 
-function setUIDQuestTeam(args)
+function setQuestTeam(args)
     assertType(args, 'table')
     assertType(args.uid, 'integer')
     assertType(args.randRole, 'boolean', 'nil')
@@ -122,7 +122,7 @@ function setUIDQuestTeam(args)
     end
 end
 
-function getUIDQuestTeam(uid)
+function getQuestTeam(uid)
     assertType(uid, 'integer')
     local team = dbGetUIDQuestField(uid, 'fld_team')
 

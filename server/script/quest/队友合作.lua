@@ -141,8 +141,8 @@ uidRemoteCall(getNPCharUID('道馆_1', '士官_1'), getUID(), getQuestName(),
             local teamRoleList = uidRemoteCall(questUID, uid,
             [=[
                 local playerUID = ...
-                setUIDQuestTeam{uid=playerUID, randRole=true, propagate=true}
-                return getUIDQuestTeam(playerUID)[SYS_QUESTFIELD.TEAM.ROLELIST]
+                setQuestTeam{uid=playerUID, randRole=true, propagate=true}
+                return getQuestTeam(playerUID)[SYS_QUESTFIELD.TEAM.ROLELIST]
             ]=])
 
             for _, teamRole in ipairs(teamRoleList) do
