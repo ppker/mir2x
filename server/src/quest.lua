@@ -29,12 +29,12 @@ local function _RSVD_NAME_dbUpdateQuestFieldTable(uid, field, key, value)
     dbSetQuestField(uid, field, fieldTable)
 end
 
-function dbGetUIDQuestVar(uid, key)
+function dbGetQuestVar(uid, key)
     assertType(uid, 'integer')
     return (dbGetQuestField(uid, 'fld_vars') or {})[key]
 end
 
-function dbSetUIDQuestVar(uid, key, value)
+function dbSetQuestVar(uid, key, value)
     assertType(uid, 'integer')
     _RSVD_NAME_dbUpdateQuestFieldTable(uid, 'fld_vars', key, value)
 end
