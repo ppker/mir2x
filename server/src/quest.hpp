@@ -58,7 +58,7 @@ class Quest final: public ServerObject
         }
 
     public:
-        void dumpUIDQuestField(uint64_t, const std::string &) const;
+        void dumpQuestField(uint64_t, const std::string &) const;
 
     protected:
         void operateAM(const ActorMsgPack &) override;
