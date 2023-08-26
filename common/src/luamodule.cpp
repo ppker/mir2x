@@ -176,6 +176,7 @@ LuaModule::LuaModule()
 
     execString("SYS_COOP        = \'%s\'", SYS_COOP);
     execString("SYS_QSTFSM      = \'%s\'", SYS_QSTFSM);
+    execString("SYS_HIDE        = \'%s\'", SYS_HIDE);
     execString("SYS_CHECKACTIVE = \'%s\'", SYS_CHECKACTIVE);
     execString("SYS_ALLOWREDNAME = \'%s\'", SYS_ALLOWREDNAME);
 
@@ -224,6 +225,26 @@ LuaModule::LuaModule()
     bindFunction("getUIDType", [](uint64_t uid)
     {
         return uidf::getUIDType(uid);
+    });
+
+    bindFunction("isPlayer", [](uint64_t uid)
+    {
+        return uidf::isPlayer(uid);
+    });
+
+    bindFunction("isQuest", [](uint64_t uid)
+    {
+        return uidf::isQuest(uid);
+    });
+
+    bindFunction("isNPChar", [](uint64_t uid)
+    {
+        return uidf::isNPChar(uid);
+    });
+
+    bindFunction("isMonster", [](uint64_t uid)
+    {
+        return uidf::isMonster(uid);
     });
 
     bindFunction("sleep", [](int nSleepMS)

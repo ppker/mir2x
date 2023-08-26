@@ -53,4 +53,18 @@ function ply.getQuestState(uid, ...)
     ]])
 end
 
+function ply.addTrigger(playerUID, triggerType, funcStr)
+    assertType(playerUID, 'integer')
+    assert(isPlayer(playerUID))
+
+    assertType(triggerType, 'integer')
+    assertType(funcStr, 'string')
+
+    return uidRemoteCall(playerUID, triggerType, funcStr,
+    [[
+        local triggerType, funcStr = ...
+        return addTrigger(triggerType, load(funcStr))
+    ]])
+end
+
 return ply

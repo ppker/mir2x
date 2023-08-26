@@ -1,14 +1,56 @@
 local qst = {}
 
-function qst.getQuestName(questUID)
+function qst.getName(questUID)
+    assertType(questUID, "integer")
+    assert(isQuest(questUID))
     return uidRemoteCall(questUID, [[ return getQuestName() ]])
 end
 
-function qst.getQuestState(questUID, playerUID, fsmName)
-    return uidRemoteCall(questUID, playerUID, fsmName,
+function qst.getUID(questName)
+    assertType(questName, "string")
+    assert(#questName > 0)
+    return _RSVD_NAME_callFuncCoop('queryQuestUID', questName)
+end
+
+function qst.getState(questUID, fargs)
+    assertType(questUID, "integer")
+    assert(isQuest(questUID))
+
+    assertType(fargs, "table")
+
+    assertType(fargs.uid, 'integer')
+    assert(isPlayer(fargs.uid))
+
+    assertType(fargs.fsm, 'string', 'nil')
+
+    return uidRemoteCall(questUID, fargs,
     [[
-        local playerUID, fsmName = ...
-        return dbGetUIDQuestState(playerUID, fsmName)
+        local fargs = ...
+        return dbGetUIDQuestState(fargs.uid, fargs.fsm)
+    ]])
+end
+
+function qst.setState(questUID, fargs)
+    assertType(questUID, "integer")
+    assert(isQuest(questUID))
+
+    assertType(fargs, 'table')
+    return uidRemoteCall(questUID, fargs,
+    [[
+        local fargs = ...
+        return setUIDQuestState(fargs)
+    ]])
+end
+
+function qst.setDesp(questUID, fargs)
+    assertType(questUID, "integer")
+    assert(isQuest(questUID))
+
+    assertType(fargs, 'table')
+    return uidRemoteCall(questUID, fargs,
+    [[
+        local fargs = ...
+        return setUIDQuestDesp(fargs)
     ]])
 end
 

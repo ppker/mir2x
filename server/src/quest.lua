@@ -202,7 +202,7 @@ function setUIDQuestState(fargs)
     assertType(fargs.uid, 'integer')
     assertType(fargs.fsm, 'string', 'nil')
     assertType(fargs.state, 'string')
-    assertType(fargs.exitfunc, 'function', 'nil')
+    assertType(fargs.exitfunc, 'function', 'string', 'nil')
 
     local uid   = fargs.uid
     local fsm   = fargs.fsm or SYS_QSTFSM
@@ -240,8 +240,12 @@ function setUIDQuestState(fargs)
     if hasQuestState(fsm, state) then
         runQuestThread(function()
             _RSVD_NAME_enterUIDQuestState(uid, fsm, state, fargs.args)
-            if fargs.exitfunc then
+            if type(fargs.exitfunc) == 'function' then
                 runQuestThread(fargs.exitfunc)
+            elseif type(fargs.exitfunc) == 'string' then
+                runQuestThread(load(fargs.exitfunc))
+            elseif fargs.exitfunc ~= nil then
+                fatalPrintf('Invalid exitfunc type: %s', type(fargs.exitfunc))
             end
         end)
     end

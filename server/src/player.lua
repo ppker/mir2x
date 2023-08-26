@@ -95,8 +95,9 @@ function getQuestState(questName, fsmName)
 
     local questUID = _RSVD_NAME_callFuncCoop('queryQuestUID', questName)
 
-    assertType(questUID, 'integer')
-    if questUID ~= 0 then
+    assertType(questUID, 'integer', 'nil')
+    if questUID then
+        assert(isQuest(questUID))
         return uidRemoteCall(questUID, getUID(), fsmName or SYS_QSTFSM,
         [[
             local playerUID, fsmName = ...
@@ -107,7 +108,7 @@ end
 
 function _RSVD_NAME_setupQuests()
     local questDespList = {}
-    for _, questUID in ipairs(_RSVD_NAME_callFuncCoop('queryQuestUIDList'))
+    for _, questUID in ipairs(_RSVD_NAME_callFuncCoop('queryQuestUIDList') or {})
     do
         uidRemoteCall(questUID, getUID(),
         [[

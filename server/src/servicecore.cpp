@@ -158,8 +158,17 @@ void ServiceCore::onActivate()
     if(!g_serverArgParser->disableQuestScript){
         const auto cfgScriptPath = g_serverConfigureWindow->getConfig().scriptPath;
         const auto scriptPath = cfgScriptPath.empty() ? std::string("script/quest") : (cfgScriptPath + "/quest");
+        const auto questFileNameRegex = []() -> std::string
+        {
+            if(g_serverArgParser->loadSingleQuest.empty()){
+                return R"#(.*\.lua)#";
+            }
+            else{
+                return g_serverArgParser->loadSingleQuest + R"#(\.lua)#";
+            }
+        }();
 
-        for(uint32_t questID = 1; const auto &fileName: filesys::getFileList(scriptPath.c_str(), false, R"#(.*\.lua)#")){
+        for(uint32_t questID = 1; const auto &fileName: filesys::getFileList(scriptPath.c_str(), false, questFileNameRegex.c_str())){
             if(auto questPtr = new Quest(SDInitQuest
             {
                 .questID = questID++,

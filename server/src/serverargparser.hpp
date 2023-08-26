@@ -35,6 +35,8 @@ struct ServerArgParser
     const int  summonCount;                 // "--summon-count"
     const int  textFont;                    // "--text-font"
 
+    const std::string loadSingleQuest;      // "--load-single-quest"
+
     ServerArgParser(const argh::parser &cmdParser)
         : disableProfiler(cmdParser["disable-profiler"])
         , disableMapScript(cmdParser["disable-map-script"])
@@ -150,5 +152,6 @@ struct ServerArgParser
                   return 0;
               }
           }())
+        , loadSingleQuest(cmdParser("load-single-quest").str())
     {}
 };

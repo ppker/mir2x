@@ -354,10 +354,76 @@ ServerLuaCoroutineRunner::ServerLuaCoroutineRunner(ActorPod *podPtr)
         });
     });
 
-    // bindFunction("_RSVD_NAME_switchExclusiveFunc", [this](uint64_t exclusiveKey, uint64_t threadKey, uint64_t threadSeqID)
-    // {
-    //     // TODO
-    // });
+    bindFunctionCoop("_RSVD_NAME_queryQuestUID", [this](LuaCoopResumer onDone, std::string questName)
+    {
+        auto closed = std::make_shared<bool>(false);
+        onDone.pushOnClose([closed]()
+        {
+            *closed = true;
+        });
+
+        m_actorPod->forward(uidf::getServiceCoreUID(), {AM_QUERYQUESTUID, cerealf::serialize(SDQueryQuestUID
+        {
+            .name = std::move(questName),
+        })},
+
+        [closed, onDone](const ActorMsgPack &rmpk)
+        {
+            if(*closed){
+                return;
+            }
+            else{
+                onDone.popOnClose();
+            }
+
+            switch(rmpk.type()){
+                case AM_UID:
+                    {
+                        const auto amUID = rmpk.conv<AMUID>();
+                        onDone(amUID.UID);
+                        break;
+                    }
+                default:
+                    {
+                        onDone();
+                        break;
+                    }
+            }
+        });
+    });
+
+    bindFunctionCoop("_RSVD_NAME_queryQuestUIDList", [this](LuaCoopResumer onDone)
+    {
+        auto closed = std::make_shared<bool>(false);
+        onDone.pushOnClose([closed]()
+        {
+            *closed = true;
+        });
+
+        m_actorPod->forward(uidf::getServiceCoreUID(), AM_QUERYQUESTUIDLIST, [closed, onDone](const ActorMsgPack &rmpk)
+        {
+            if(*closed){
+                return;
+            }
+            else{
+                onDone.popOnClose();
+            }
+
+            switch(rmpk.type()){
+                case AM_UIDLIST:
+                    {
+                        const auto uidList = rmpk.deserialize<SDUIDList>();
+                        onDone(sol::as_table(uidList));
+                        break;
+                    }
+                default:
+                    {
+                        onDone();
+                        break;
+                    }
+            }
+        });
+    });
 
     pfrCheck(execRawString(BEGIN_LUAINC(char)
 #include "serverluacoroutinerunner.lua"
