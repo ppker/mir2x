@@ -16,7 +16,7 @@ class Quest final: public ServerObject
                 QuestThreadRunner(Quest *);
 
             protected:
-                void closeUIDQuestState(uint64_t, const char *, const void *);
+                void closeQuestState(uint64_t, const char *, const void *);
 
             public:
                 Quest *getQuest() const

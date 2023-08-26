@@ -237,7 +237,7 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
 
     bindFunction("_RSVD_NAME_closeQuestState", [this](uint64_t uid, const char *fsm)
     {
-        closeUIDQuestState(uid, fsm, m_currRunner);
+        closeQuestState(uid, fsm, m_currRunner);
     });
 
     bindFunctionCoop("_RSVD_NAME_loadMap", [this](LuaCoopResumer onDone, std::string mapName)
@@ -282,7 +282,7 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
     });
 }
 
-void Quest::QuestThreadRunner::closeUIDQuestState(uint64_t uid, const char *fsm, const void *handle)
+void Quest::QuestThreadRunner::closeQuestState(uint64_t uid, const char *fsm, const void *handle)
 {
     fflassert(uidf::isPlayer(uid));
     fflassert(str_haschar(fsm));
