@@ -411,6 +411,21 @@ function _RSVD_NAME_npc_main(from, path, event, value)
         end
     end
 
+    local fnShowEntry = function(funcTable)
+        assertType(funcTable, 'table')
+        if funcTable[SYS_HIDE] == nil then
+            return true
+        elseif type(funcTable[SYS_HIDE]) == 'boolean' then
+            return not funcTable[SYS_HIDE]
+        elseif type(funcTable[SYS_HIDE]) == 'function' then
+            local hideRes = funcTable[SYS_HIDE](from)
+            assertType(hideRes, 'boolean', 'nil')
+            return not hideRes
+        else
+            fatalPrintf([[Invalid [SYS_HIDE] type: %s]], type(funcTable[SYS_HIDE]))
+        end
+    end
+
     local fnAllowRedName = function(funcTable)
         if funcTable[SYS_ALLOWREDNAME] == nil then
             return false
@@ -430,7 +445,9 @@ function _RSVD_NAME_npc_main(from, path, event, value)
         local uidEntryList = {}
         if not tableEmpty(_RSVD_NAME_EPUID_eventHandlers) and not tableEmpty(_RSVD_NAME_EPUID_eventHandlers[from], true) then
             for questName, questHandler in pairs(_RSVD_NAME_EPUID_eventHandlers[from]) do
-                uidEntryList[questName] = {fnGetEntryLabel(questHandler, questName), questHandler}
+                if fnShowEntry(questHandler) then
+                    uidEntryList[questName] = {fnGetEntryLabel(questHandler, questName), questHandler}
+                end
             end
         end
 
