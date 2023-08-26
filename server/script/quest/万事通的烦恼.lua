@@ -131,7 +131,7 @@ uidRemoteCall(getNPCharUID('道馆_1', '万事通_1'), getUID(), getQuestName(),
             local questState = uidRemoteCall(questUID, uid,
             [=[
                 local playerUID = ...
-                return dbGetUIDQuestState(playerUID)
+                return dbGetQuestState(playerUID)
             ]=])
 
             if questState ~= nil then

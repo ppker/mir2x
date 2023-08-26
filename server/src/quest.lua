@@ -39,7 +39,7 @@ function dbSetUIDQuestVar(uid, key, value)
     _RSVD_NAME_dbUpdateUIDQuestFieldTable(uid, 'fld_vars', key, value)
 end
 
-function dbGetUIDQuestState(uid, fsm)
+function dbGetQuestState(uid, fsm)
     assertType(uid, 'integer')
     assertType(fsm, 'string', 'nil')
 
@@ -224,7 +224,7 @@ function setQuestState(fargs)
         end
         _RSVD_NAME_dbSetUIDQuestStateDone(uid)
     else
-        if (state ~= SYS_DONE) and (not dbGetUIDQuestState(uid, fsm)) then
+        if (state ~= SYS_DONE) and (not dbGetQuestState(uid, fsm)) then
             setQuestDesp{uid=uid, fsm=fsm, ''}
         end
         _RSVD_NAME_dbUpdateUIDQuestFieldTable(uid, 'fld_states', fsm, {state, fargs.args})

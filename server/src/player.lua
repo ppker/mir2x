@@ -101,7 +101,7 @@ function getQuestState(questName, fsmName)
         return uidRemoteCall(questUID, getUID(), fsmName or SYS_QSTFSM,
         [[
             local playerUID, fsmName = ...
-            return dbGetUIDQuestState(playerUID, fsmName)
+            return dbGetQuestState(playerUID, fsmName)
         ]])
     end
 end
@@ -123,7 +123,7 @@ function _RSVD_NAME_setupQuests()
                 end
             end
 
-            local states = dbGetUIDQuestState(playerUID)
+            local states = dbGetQuestState(playerUID)
             assertType(states, 'table', 'nil')
 
             if states then
@@ -145,7 +145,7 @@ function _RSVD_NAME_setupQuests()
         local questName, questState, questDesp = uidRemoteCall(questUID, getUID(),
         [[
             local playerUID = ...
-            return getQuestName(), dbGetUIDQuestState(playerUID, SYS_QSTFSM), dbGetUIDQuestDesp(playerUID)
+            return getQuestName(), dbGetQuestState(playerUID, SYS_QSTFSM), dbGetUIDQuestDesp(playerUID)
         ]])
 
         assertType(questName,  'string')

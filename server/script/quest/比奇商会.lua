@@ -109,8 +109,8 @@ setQuestFSMTable(
                     local fsmState_pharmacist, fsmState_librarian = uidRemoteCall(questUID, uid,
                     [=[
                         local playerUID = ...
-                        return dbGetUIDQuestState(playerUID, fsmName_persuade_pharmacist),
-                               dbGetUIDQuestState(playerUID, fsmName_persuade_librarian)
+                        return dbGetQuestState(playerUID, fsmName_persuade_pharmacist),
+                               dbGetQuestState(playerUID, fsmName_persuade_librarian)
                     ]=])
 
                     local donePharmacist = (fsmState_pharmacist == SYS_DONE)

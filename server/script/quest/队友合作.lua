@@ -61,7 +61,7 @@ uidRemoteCall(getNPCharUID('道馆_1', '士官_1'), getUID(), getQuestName(),
             local currState = uidRemoteCall(questUID, uid,
             [=[
                 local playerUID = ...
-                return dbGetUIDQuestState(playerUID)
+                return dbGetQuestState(playerUID)
             ]=])
 
             if currState == SYS_DONE then

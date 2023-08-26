@@ -26,7 +26,7 @@ function qst.getState(questUID, fargs)
     return uidRemoteCall(questUID, fargs,
     [[
         local fargs = ...
-        return dbGetUIDQuestState(fargs.uid, fargs.fsm)
+        return dbGetQuestState(fargs.uid, fargs.fsm)
     ]])
 end
 
