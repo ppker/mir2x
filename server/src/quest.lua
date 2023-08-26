@@ -239,7 +239,7 @@ function setQuestState(fargs)
     _RSVD_NAME_closeUIDQuestState(uid, fsm)
     if hasQuestState(fsm, state) then
         runQuestThread(function()
-            _RSVD_NAME_enterUIDQuestState(uid, fsm, state, fargs.args)
+            _RSVD_NAME_enterQuestState(uid, fsm, state, fargs.args)
             if type(fargs.exitfunc) == 'function' then
                 runQuestThread(fargs.exitfunc)
             elseif type(fargs.exitfunc) == 'string' then
@@ -394,7 +394,7 @@ function runNPCEventHandler(npcUID, playerUID, eventPath, event, value)
     ]])
 end
 
-function _RSVD_NAME_enterUIDQuestState(uid, fsm, state, args)
+function _RSVD_NAME_enterQuestState(uid, fsm, state, args)
     assertType(uid, 'integer')
     assertType(fsm, 'string')
     assertType(state, 'string')
