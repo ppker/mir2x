@@ -260,7 +260,7 @@ function setQuestState(fargs)
     end
 end
 
-function dbGetUIDQuestDesp(uid)
+function dbGetQuestDesp(uid)
     assertType(uid, 'integer')
     return dbGetUIDQuestField(uid, 'fld_desp')
 end
