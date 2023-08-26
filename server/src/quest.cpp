@@ -30,7 +30,7 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
         return getQuest()->m_threadKey++;
     });
 
-    bindFunction("_RSVD_NAME_setUIDQuestDesp", [this](uint64_t uid, sol::object despTable, std::string fsm, sol::object desp)
+    bindFunction("_RSVD_NAME_setQuestDesp", [this](uint64_t uid, sol::object despTable, std::string fsm, sol::object desp)
     {
         fflassert(str_haschar(fsm));
         fflassert(desp.is<std::string>() || (desp == sol::nil), luaf::luaObjTypeString(desp));

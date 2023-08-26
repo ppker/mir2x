@@ -24,7 +24,7 @@ setQuestFSMTable(
                     uidRemoteCall(questUID, uid,
                     [=[
                         local playerUID = ...
-                        setUIDQuestDesp{uid=playerUID, '请选择是否要进行脚本测试。'}
+                        setQuestDesp{uid=playerUID, '请选择是否要进行脚本测试。'}
                     ]=])
                 end,
 

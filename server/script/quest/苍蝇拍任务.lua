@@ -3,7 +3,7 @@ _G.minQuestLevel = 5
 setQuestFSMTable(
 {
     [SYS_ENTER] = function(uid, args)
-        setUIDQuestDesp{uid=uid, '按照比奇城肉店金氏的嘱托，去找杂货商人吧。'}
+        setQuestDesp{uid=uid, '按照比奇城肉店金氏的嘱托，去找杂货商人吧。'}
         setupNPCQuestBehavior('比奇县_0', '金氏_1', uid,
         [[
             return getQuestName()
@@ -79,7 +79,7 @@ setQuestFSMTable(
     end,
 
     quest_start_collection = function(uid, args)
-        setUIDQuestDesp{uid=uid, '杂货商希望你帮他找到制作苍蝇拍的材料竹棍和牛毛，这些东西可以从钉耙猫和牛身上找到。'}
+        setQuestDesp{uid=uid, '杂货商希望你帮他找到制作苍蝇拍的材料竹棍和牛毛，这些东西可以从钉耙猫和牛身上找到。'}
         uidRemoteCall(uid, uid, getUID(),
         [[
             local playerUID, questUID = ...
@@ -92,7 +92,7 @@ setQuestFSMTable(
                     uidRemoteCall(questUID, playerUID,
                     [=[
                         local playerUID = ...
-                        setUIDQuestDesp{uid=playerUID, '已经收集到制作苍蝇拍所需要的竹棍和牛毛，把他们交给杂货商吧。'}
+                        setQuestDesp{uid=playerUID, '已经收集到制作苍蝇拍所需要的竹棍和牛毛，把他们交给杂货商吧。'}
                         setUIDQuestState{uid=playerUID, state='quest_complete_collection'}
                     ]=])
                     return true
@@ -103,7 +103,7 @@ setQuestFSMTable(
                     uidRemoteCall(questUID, playerUID,
                     [=[
                         local playerUID = ...
-                        setUIDQuestDesp{uid=playerUID, '获得了牛毛，再去找竹棍，一起送给杂货商。'}
+                        setQuestDesp{uid=playerUID, '获得了牛毛，再去找竹棍，一起送给杂货商。'}
                     ]=])
                 end
 
@@ -112,7 +112,7 @@ setQuestFSMTable(
                     uidRemoteCall(questUID, playerUID,
                     [=[
                         local playerUID = ...
-                        setUIDQuestDesp{uid=playerUID, '获得了竹棍，再去找牛毛，一起送给杂货商。'}
+                        setQuestDesp{uid=playerUID, '获得了竹棍，再去找牛毛，一起送给杂货商。'}
                     ]=])
                 end
             end)
@@ -157,7 +157,7 @@ setQuestFSMTable(
     end,
 
     quest_get_fly_swatter = function(uid, args)
-        setUIDQuestDesp{uid=uid, '把材料转给杂货商后，获得了苍蝇拍，把苍蝇拍给肉店金氏送去吧。'}
+        setQuestDesp{uid=uid, '把材料转给杂货商后，获得了苍蝇拍，把苍蝇拍给肉店金氏送去吧。'}
         setupNPCQuestBehavior('比奇县_0', '金氏_1', uid,
         [[
             return getUID(), getQuestName()

@@ -225,7 +225,7 @@ function setUIDQuestState(fargs)
         _RSVD_NAME_dbSetUIDQuestStateDone(uid)
     else
         if (state ~= SYS_DONE) and (not dbGetUIDQuestState(uid, fsm)) then
-            setUIDQuestDesp{uid=uid, fsm=fsm, ''}
+            setQuestDesp{uid=uid, fsm=fsm, ''}
         end
         _RSVD_NAME_dbUpdateUIDQuestFieldTable(uid, 'fld_states', fsm, {state, fargs.args})
     end
@@ -265,7 +265,7 @@ function dbGetUIDQuestDesp(uid)
     return dbGetUIDQuestField(uid, 'fld_desp')
 end
 
-function setUIDQuestDesp(args)
+function setQuestDesp(args)
     assertType(args, 'table')
     assertType(args.uid, 'integer')
     assertType(args.fsm, 'string', 'nil')
@@ -304,7 +304,7 @@ function setUIDQuestDesp(args)
         end
     end)()
 
-    _RSVD_NAME_setUIDQuestDesp(uid, newDespTable, fsm, desp)
+    _RSVD_NAME_setQuestDesp(uid, newDespTable, fsm, desp)
 end
 
 -- setup NPC chat logics

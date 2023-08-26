@@ -50,7 +50,7 @@ function qst.setDesp(questUID, fargs)
     return uidRemoteCall(questUID, fargs,
     [[
         local fargs = ...
-        return setUIDQuestDesp(fargs)
+        return setQuestDesp(fargs)
     ]])
 end
 
