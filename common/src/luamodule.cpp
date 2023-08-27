@@ -372,6 +372,16 @@ LuaModule::LuaModule()
         return str_any(luaf::buildLuaVar(obj));
     });
 
+    bindFunction("strUpper", [this](std::string s) -> std::string
+    {
+        return str_toupper(s);
+    });
+
+    bindFunction("strLower", [this](std::string s) -> std::string
+    {
+        return str_tolower(s);
+    });
+
     bindFunction("base64Encode", [this](sol::object obj) -> std::string
     {
         return cerealf::base64_serialize(luaf::buildLuaVar(obj));

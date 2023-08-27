@@ -641,5 +641,46 @@ function runEventHandler(uid, ...)
     _RSVD_NAME_npc_main(uid, pathStr, event, value)
 end
 
+function getNPCMapLocXML(fargs)
+    assertType(fargs, 'table')
+
+    assertType(fargs.tag, 'string')
+    assert(#fargs.tag > 0)
+
+    local     mapName = getNPCMapName(true)
+    local fullMapName = getNPCMapName(false)
+
+    local x, y = getNPCMapLoc()
+
+    local text = string.format([[%s（%d，%d）]], mapName, x, y)
+    local attrList = {''}
+
+    if strUpper(fargs.tag) == 'EVENT' then
+        assertType(fargs.id, 'string')
+        assert(#fargs.id > 0)
+
+        table.insert(attrList, string.format([[id="%s"]], fargs.id))
+        table.insert(attrList, string.format([[args="{'%s',%d,%d}"]], fullMapName, x, y))
+    end
+
+    if fargs.close ~= nil then
+        if fargs.close == true or fargs.close == 1 then
+            table.insert(attrList, [[close="1"]])
+        elseif fargs.close == false or fargs.close == 0 then
+            table.insert(attrList, [[close="0"]])
+        else
+            fatalPrintf('Invalid value for "close" attribute: %s', tostring(fargs.close))
+        end
+    end
+
+    if fargs.color ~= nil then
+        assertType(fargs.color, 'string')
+        assert(#fargs.color > 0)
+        table.insert(attrList, string.format([[color="%s"]], fargs.color))
+    end
+
+    return string.format([[<%s%s>%s</%s>]], fargs.tag, table.concat(attrList, ' '), text, fargs.tag)
+end
+
 --
 -- )###"

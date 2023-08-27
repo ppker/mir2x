@@ -148,6 +148,11 @@ void NPChar::onActivate()
         }
     });
 
+    m_luaRunner->bindFunction("getNPCMapLoc", [this]()
+    {
+        return std::make_tuple(X(), Y());
+    });
+
     m_luaRunner->bindFunction("getSubukGuildName", [this]() -> std::string
     {
         return "占领沙巴克行会的名字";

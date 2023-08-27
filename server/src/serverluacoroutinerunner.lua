@@ -314,6 +314,7 @@ end
 
 plyapi = require 'api.ply'
 qstapi = require 'api.qst'
+npcapi = require 'api.npc'
 
 --
 -- )###"
