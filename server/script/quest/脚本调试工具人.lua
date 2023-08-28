@@ -59,7 +59,7 @@ uidRemoteCall(getNPCharUID('道馆_1', '物品展示商人'), getUID(), getQuest
                     <par>%s</par>
                     <par><event id="%s">退出</event></par>
                 </layout>
-            ]=], getNPCMapLocXML{tag="event", id="npc_test_switch_map", close=1}, SYS_EXIT)
+            ]=], getNPCMapLocXML("event", {id="npc_test_switch_map", close="1"}), SYS_EXIT)
         end,
 
         npc_test_script = function(uid, value)

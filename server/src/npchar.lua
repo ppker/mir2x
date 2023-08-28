@@ -641,11 +641,14 @@ function runEventHandler(uid, ...)
     _RSVD_NAME_npc_main(uid, pathStr, event, value)
 end
 
-function getNPCMapLocXML(fargs)
-    assertType(fargs, 'table')
+function getNPCMapLocXML(tag, fargs)
+    assertType(tag, 'string')
+    assertType(fargs, 'table', 'nil')
 
-    assertType(fargs.tag, 'string')
-    assert(#fargs.tag > 0)
+    assert(#tag > 0)
+    if not fargs then
+        fargs = {}
+    end
 
     local     mapName = getNPCMapName(true)
     local fullMapName = getNPCMapName(false)
@@ -655,7 +658,7 @@ function getNPCMapLocXML(fargs)
     local text = string.format([[%s（%d，%d）]], mapName, x, y)
     local attrList = {''}
 
-    if strUpper(fargs.tag) == 'EVENT' then
+    if strUpper(tag) == 'EVENT' then
         assertType(fargs.id, 'string')
         assert(#fargs.id > 0)
 
@@ -664,9 +667,9 @@ function getNPCMapLocXML(fargs)
     end
 
     if fargs.close ~= nil then
-        if fargs.close == true or fargs.close == 1 then
+        if fargs.close == true or fargs.close == 1 or fargs.close == "1" then
             table.insert(attrList, [[close="1"]])
-        elseif fargs.close == false or fargs.close == 0 then
+        elseif fargs.close == false or fargs.close == 0  or fargs.close == "0" then
             table.insert(attrList, [[close="0"]])
         else
             fatalPrintf('Invalid value for "close" attribute: %s', tostring(fargs.close))
@@ -679,7 +682,7 @@ function getNPCMapLocXML(fargs)
         table.insert(attrList, string.format([[color="%s"]], fargs.color))
     end
 
-    return string.format([[<%s%s>%s</%s>]], fargs.tag, table.concat(attrList, ' '), text, fargs.tag)
+    return string.format([[<%s%s>%s</%s>]], tag, table.concat(attrList, ' '), text, tag)
 end
 
 --
