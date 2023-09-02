@@ -37,7 +37,7 @@ setEventHandler(
         [[
             <layout>
                 <par>来吧，你有什么任务？</par>
-                <par><event id="npc_goto_3">乞丐任务</event>，<event id="npc_goto_4">苍蝇拍任务</event>，<event id="npc_goto_5">石母任务</event></par>
+                <par><event id="npc_goto_3">乞丐任务</event>，<event id="npc_goto_pariche">苍蝇拍任务</event>，<event id="npc_goto_5">石母任务</event></par>
                 <par></par>
 
                 <par>（等级 9）</par>
@@ -77,7 +77,7 @@ setEventHandler(
         end
     end,
 
-    npc_goto_4 = function(uid, value)
+    npc_goto_pariche = function(uid, value)
         if plyapi.getLevel(uid) < 5 then
             uidPostXML(uid,
             [[
