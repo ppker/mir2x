@@ -1,6 +1,22 @@
 local dq = require('npc.include.dailyquest')
 
-_G.questName_flySwatter = '苍蝇拍任务'
+_G.questName_mujun    = '乞丐任务'
+_G.questName_pariche  = '苍蝇拍任务'
+_G.questName_dolumi   = '石母任务'
+
+_G.questName_wang     = '王大人任务'
+_G.questName_bichun   = '比奇省任务'
+_G.questName_yaksa    = '药剂师任务'
+
+_G.questName_kyunggap = '轻型盔甲任务'
+_G.questName_oma      = '半兽人任务'
+
+_G.questName_younghon = '被盗灵魂任务'
+_G.questName_bamgol   = '千年毒蛇任务'
+_G.questName_tarak    = '堕落道士任务'
+
+_G.questName_umyun    = '沃玛教主任务'
+
 setEventHandler(
 {
     [SYS_ENTER] = function(uid, value)
@@ -73,7 +89,7 @@ setEventHandler(
                 </layout>
             ]])
         else
-            local questState = plyapi.getQuestState(uid, questName_flySwatter)
+            local questState = plyapi.getQuestState(uid, questName_pariche)
             if questState == nil then
                 uidPostXML(uid,
                 [[
@@ -92,7 +108,7 @@ setEventHandler(
                     </layout>
                 ]], SYS_EXIT)
             else
-                runEventHandler(uid, {SYS_EPUID, questName_flySwatter}, SYS_ENTER)
+                runEventHandler(uid, {SYS_EPUID, questName_pariche}, SYS_ENTER)
             end
         end
     end,
