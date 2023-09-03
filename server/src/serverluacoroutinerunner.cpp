@@ -380,7 +380,12 @@ ServerLuaCoroutineRunner::ServerLuaCoroutineRunner(ActorPod *podPtr)
                 case AM_UID:
                     {
                         const auto amUID = rmpk.conv<AMUID>();
-                        onDone(amUID.UID);
+                        if(amUID.UID){
+                            onDone(amUID.UID);
+                        }
+                        else{
+                            onDone();
+                        }
                         break;
                     }
                 default:
