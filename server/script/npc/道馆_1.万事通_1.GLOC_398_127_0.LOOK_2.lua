@@ -178,6 +178,285 @@ local quest_config = {
             ]], SYS_EXIT)
         end,
     },
+
+    [questName_kyunggap] = {
+        level = 11,
+        level_failure = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>你还没有开始轻型盔甲任务呢！</par>
+                    <par>轻型盔甲任务就是帮助比奇省的棉布商怡美解决困难。</par>
+                    <par>可惜你现在还没有能力帮助怡美。因此，首先要将等级提高到11以上再说吧。</par>
+                    <par><event id="npc_show_quest_list">前一步</event></par>
+                </layout>
+            ]])
+        end,
+
+        prequest = questName_wang,
+        prequest_failure = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>你还没有开始轻型盔甲任务呢！</par>
+                    <par>轻型盔甲任务就是帮助比奇省的棉布商“怡美”解决困难。</par>
+                    <par>要想得到在比奇省做生意的怡美姑娘的信任，可是需要一定声望才行的。</par>
+                    <par>要首先完成了王大人任务才行。</par>
+                    <par><event id="npc_show_quest_list">前一步</event></par>
+                </layout>
+            ]])
+        end,
+
+        on_start = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>你还没有开始轻型盔甲任务呢！</par>
+                    <par>去找一找在比奇省经营布店的怡美，她会向你提出一个请求。</par>
+                    <par>如果完成了她拜托你办的事情的话，你会得到她送给你的礼物哦。</par>
+                    <par><event id="%s">结束</event></par>
+                </layout>
+            ]], SYS_EXIT)
+        end,
+
+        on_done = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>你辛苦了！</par>
+                    <par>得到特制的轻型盔甲，辛苦总算没有白费啊！</par>
+                    <par><event id="%s">结束</event></par>
+                </layout>
+            ]], SYS_EXIT)
+        end,
+    },
+
+    [questName_oma] = {
+        level = 11,
+        level_failure = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>你还没有开始半兽任务呢！</par>
+                    <par>半兽任务是制止以半兽勇士为中心集结起来的半兽人纠合势力使用古代魔法的阴谋。</par>
+                    <par>可惜你现在还没有与半兽勇士和半兽人对抗的能力。首先将等级提高到11以上再说吧！</par>
+                    <par><event id="npc_show_quest_list">前一步</event></par>
+                </layout>
+            ]])
+        end,
+
+        prequest = questName_wang,
+        prequest_failure = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>你还没有开始半兽任务呢！</par>
+                    <par>半兽任务是制止以半兽勇士为中心集结起来的半兽人纠合势力使用古代魔法的阴谋。</par>
+                    <par>首先要证明自己的能力，才能让官府启用你。先要完成王大人任务才行。</par>
+                    <par><event id="npc_show_quest_list">前一步</event></par>
+                </layout>
+            ]])
+        end,
+
+        on_start = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>你还没有开始半兽任务呢！</par>
+                    <par>半兽任务是制止以半兽勇士为中心集结起来的半兽人纠合势力使用古代魔法的阴谋。</par>
+                    <par>前往比奇省内城找比奇城城主看看，他好像要拜托你帮助他阻止半兽人的阴谋。</par>
+                    <par><event id="%s">结束</event></par>
+                </layout>
+            ]], SYS_EXIT)
+        end,
+
+        on_done = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>太辛苦你了！</par>
+                    <par>托你的福，来自半兽人的威胁已经大大减轻了。</par>
+                    <par><event id="%s">结束</event></par>
+                </layout>
+            ]], SYS_EXIT)
+        end,
+    },
+
+    [questName_younghon] = {
+        level = 11,
+        level_failure = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>你还没有开始被盗灵魂任务呢！</par>
+                    <par>最近比奇省的贩牛商王小二的独生女王丽灵突然被发现一夕之间变成了白痴。好像是最近盗取百姓灵魂的妖怪干的好事！灵魂任务就是揭开这个妖怪的真面目。</par>
+                    <par>可惜你现在还没有能力完成灵魂任务。先去将等级提高到16以上吧。</par>
+                    <par><event id="npc_show_quest_list">前一步</event></par>
+                </layout>
+            ]])
+        end,
+
+        prequest = questName_oma,
+        prequest_failure = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>你还没有开始被盗灵魂任务呢！</par>
+                    <par>这次任务是揭露盗取灵魂导致民心惶惶的妖怪真面目！</par>
+                    <par>你要证明你有能力对抗妖怪才行啊！那么，首先要去完成半兽人任务吧。</par>
+                    <par><event id="npc_show_quest_list">前一步</event></par>
+                </layout>
+            ]])
+        end,
+
+        on_start = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>你还没有开始被盗灵魂任务呢！</par>
+                    <par>最近比奇省的贩牛商王小二的独生女王丽灵突然被发现一夕之间变成了白痴。好像是最近盗取百姓灵魂的妖怪干的好事！灵魂任务就是揭开这个妖怪的真面目。</par>
+                    <par>先去王小二的亲戚王大人家了解一些情况吧。</par>
+                    <par><event id="%s">结束</event></par>
+                </layout>
+            ]], SYS_EXIT)
+        end,
+
+        on_done = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>再晚到一步，就让邪恶的道士偷到不死牌了！</par>
+                    <par>你救出了王丽灵小姐，并揭开妖怪的真面目，真的很不错啊！</par>
+                    <par><event id="%s">结束</event></par>
+                </layout>
+            ]], SYS_EXIT)
+        end,
+    },
+
+    [questName_bamgol] = {
+        level = 16,
+        level_failure = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>你还没有开始千年毒蛇任务呢！</par>
+                    <par>毒蛇山谷出现了传说中的蛇，寻找这条传说中的蛇，取得解毒剂就是千年毒蛇任务。</par>
+                    <par>可惜你现在还没有能力帮助毒蛇山谷的毒蛇山谷老太啊！首先去将等级修炼提高到16以上吧。</par>
+                    <par><event id="npc_show_quest_list">前一步</event></par>
+                </layout>
+            ]])
+        end,
+
+        prequest = questName_younghon,
+        prequest_failure = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>你还没有开始千年毒蛇任务呢！</par>
+                    <par>听说毒蛇山谷出现了传说中的蛇，寻找这条传说中的蛇，取得解毒剂就是千年毒蛇任务。</par>
+                    <par>可惜你现在还没有对抗传说中千年毒蛇的能力，无法得到信任啊！还是先去完成被盗灵魂任务吧！</par>
+                    <par><event id="npc_show_quest_list">前一步</event></par>
+                </layout>
+            ]])
+        end,
+
+        on_start = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>你还没有开始千年毒蛇任务呢！</par>
+                    <par>毒蛇山谷中出现了传说中的蛇，叫做珍珍的小孩好像已经中毒了！当务之急就是找那条传说中的蛇取得解毒剂。</par>
+                    <par>先去毒蛇山谷去见珍珍的毒蛇山谷老太吧！</par>
+                    <par><event id="%s">结束</event></par>
+                </layout>
+            ]], SYS_EXIT)
+        end,
+
+        on_done = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>幸亏你及时找到药，毒蛇山谷的珍珍现在已经平安无恙了！</par>
+                    <par>辛苦你了！</par>
+                    <par><event id="%s">结束</event></par>
+                </layout>
+            ]], SYS_EXIT)
+        end,
+    },
+
+    [questName_tarak] = {
+        level = 16,
+        level_failure = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>你还没有开始堕落道士任务呢！</par>
+                    <par>经过浴血奋战从半兽人手中拿到的不死牌，却被某个道士给偷走了。因此必须粉碎这个堕落道士计划利用不死牌进行的邪恶阴谋！这就是堕落道士任务。</par>
+                    <par>可惜你现在还没有能力阻止堕落道士的阴谋。先去把等级提高到16以上吧。</par>
+                    <par><event id="npc_show_quest_list">前一步</event></par>
+                </layout>
+            ]])
+        end,
+
+        prequest = questName_younghon,
+        prequest_failure = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>这不是还没有完成被盗灵魂任务的你所应该关心的事儿！</par>
+                    <par><event id="npc_show_quest_list">前一步</event></par>
+                </layout>
+            ]])
+        end,
+
+        on_start = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>你还没有开始堕落道士任务呢！</par>
+                    <par>经过浴血奋战从半兽人手中拿到的不死牌，却被某个道士给偷走了。 因此必须粉碎这个堕落道士计划利用不死牌进行的邪恶阴谋！</par>
+                    <par>去向曾经保管不死牌的比奇城城主打听具体的情况吧！</par>
+                    <par><event id="%s">结束</event></par>
+                </layout>
+            ]], SYS_EXIT)
+        end,
+
+        on_done = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>你做得很棒！由于你的努力堕落道士引发的灾难终于到此结束了！</par>
+                    <par><event id="%s">结束</event></par>
+                </layout>
+            ]], SYS_EXIT)
+        end,
+    },
+
+    [questName_umyun] = {
+        level = 20,
+        level_failure = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>抱歉，对于这个任务我几乎一无所知。</par>
+                    <par>我只是听说过去曾经追随沃玛教主的沃玛教最后幸存者为了弥补过去的罪过而与邪恶势力在孤军奋战。去帮助他破坏沃玛教主在地上发挥力量的根源---灵魂明珠，并处决沃玛教主好让那些惨死的冤魂们升天。</par>
+                    <par>同沃玛教主对抗需要很强的实力。可惜你现在还没有这个能力，因此首先要将等级提高到20以上再说吧。</par>
+                    <par><event id="npc_show_quest_list">前一步</event></par>
+                </layout>
+            ]])
+        end,
+
+        on_start = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>抱歉，对于这个任务我几乎一无所知。</par>
+                    <par>我只是听说过去曾经追随沃玛教主的沃玛教最后幸存者为了弥补过去的罪过而与邪恶势力在孤军奋战。去帮助他破坏沃玛教主在地上发挥力量的根源---灵魂明珠，并处决沃玛教主好让那些惨死的冤魂们升天。</par>
+                    <par><event id="%s">结束</event></par>
+                </layout>
+            ]], SYS_EXIT)
+        end,
+    },
 }
 
 setEventHandler(
