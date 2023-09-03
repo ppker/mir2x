@@ -22,7 +22,17 @@ extern MonoServer *g_monoServer;
 BattleObject::LuaThreadRunner::LuaThreadRunner(BattleObject *battleObjectPtr)
     : CharObject::LuaThreadRunner(battleObjectPtr)
 {
-    // spaceMove
+    bindFunction("getHealth", [this]()
+    {
+        std::unordered_map<std::string, int> result;
+        result["hp"] = getBO()->m_sdHealth.hp;
+        result["mp"] = getBO()->m_sdHealth.mp;
+
+        result["maxHP"] = getBO()->m_sdHealth.maxHP;
+        result["maxMP"] = getBO()->m_sdHealth.maxMP;
+
+        return sol::as_table(result);
+    });
 }
 
 BattleObject::BOPathFinder::BOPathFinder(const BattleObject *boPtr, int checkCO)
