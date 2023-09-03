@@ -176,22 +176,22 @@ setEventHandler(
             </layout>
         ]],
 
-        fn_create_tag('乞丐任务'),
-        fn_create_tag('苍蝇拍任务'),
-        fn_create_tag('石母任务'),
+        fn_create_tag(questName_mujun),
+        fn_create_tag(questName_pariche),
+        fn_create_tag(questName_dolumi),
 
-        fn_create_tag('王大人任务'),
-        fn_create_tag('比奇省任务'),
-        fn_create_tag('药剂师任务'),
+        fn_create_tag(questName_wang),
+        fn_create_tag(questName_bichun),
+        fn_create_tag(questName_yaksa),
 
-        fn_create_tag('轻型盔甲任务'),
-        fn_create_tag('半兽人任务'),
+        fn_create_tag(questName_kyunggap),
+        fn_create_tag(questName_oma),
 
-        fn_create_tag('被盗的灵魂任务'),
-        fn_create_tag('千年毒蛇任务'),
-        fn_create_tag('堕落道士任务'),
+        fn_create_tag(questName_younghon),
+        fn_create_tag(questName_bamgol),
+        fn_create_tag(questName_tarak),
 
-        fn_create_tag('沃玛教主任务'),
+        fn_create_tag(questName_umyun),
 
         SYS_ENTER, SYS_EXIT)
     end,
