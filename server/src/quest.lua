@@ -78,12 +78,8 @@ function deleteQuestFlag(uid, flagName)
     _RSVD_NAME_dbUpdateQuestFieldTable(uid, 'fld_flags', flagName, nil)
 end
 
-function loadMap(map)
-    return _RSVD_NAME_callFuncCoop('loadMap', map)
-end
-
 function getNPCharUID(mapName, npcName)
-    local mapUID = loadMap(mapName)
+    local mapUID = _RSVD_NAME_callFuncCoop('loadMap', mapName)
     assertType(mapUID, 'integer', 'nil')
 
     if not mapUID then

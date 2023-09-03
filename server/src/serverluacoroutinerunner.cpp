@@ -430,6 +430,52 @@ ServerLuaCoroutineRunner::ServerLuaCoroutineRunner(ActorPod *podPtr)
         });
     });
 
+    bindFunctionCoop("_RSVD_NAME_loadMap", [this](LuaCoopResumer onDone, std::string mapName)
+    {
+        fflassert(str_haschar(mapName));
+
+        auto closed = std::make_shared<bool>(false);
+        onDone.pushOnClose([closed, this]()
+        {
+            *closed = true;
+        });
+
+        AMLoadMap amLM;
+        std::memset(&amLM, 0, sizeof(AMLoadMap));
+
+        amLM.mapID = DBCOM_MAPID(to_u8cstr(mapName));
+        amLM.activateMap = true;
+
+        m_actorPod->forward(uidf::getServiceCoreUID(), {AM_LOADMAP, amLM}, [closed, mapID = amLM.mapID, onDone, this](const ActorMsgPack &mpk)
+        {
+            if(*closed){
+                return;
+            }
+            else{
+                onDone.popOnClose();
+            }
+
+            switch(mpk.type()){
+                case AM_LOADMAPOK:
+                    {
+                        const auto amLMOK = mpk.conv<AMLoadMapOK>();
+                        if(amLMOK.uid){
+                            onDone(amLMOK.uid);
+                        }
+                        else{
+                            onDone();
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        onDone();
+                        break;
+                    }
+            }
+        });
+    });
+
     pfrCheck(execRawString(BEGIN_LUAINC(char)
 #include "serverluacoroutinerunner.lua"
     END_LUAINC()));
