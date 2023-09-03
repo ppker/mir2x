@@ -21,7 +21,7 @@ class Quest final: public ServerObject
             public:
                 Quest *getQuest() const
                 {
-                    return static_cast<Quest *>(m_actorPod->getSO());
+                    return static_cast<Quest *>(getSO());
                 }
         };
 

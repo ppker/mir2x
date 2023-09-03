@@ -19,62 +19,39 @@ extern DBPod *g_dbPod;
 extern MonoServer *g_monoServer;
 extern ServerConfigureWindow *g_serverConfigureWindow;
 
-NPChar::NPChar(const ServerMap *mapCPtr, const SDInitNPChar &initNPChar)
-    : CharObject
-      {
-          mapCPtr,
-          uidf::buildNPCUID(initNPChar.lookID),
-
-          initNPChar.x,
-          initNPChar.y,
-          initNPChar.gfxDir + DIR_BEGIN, // NPC gfx dir, may not be the 8-dir, but should be in DIR_BEGIN + [0, 8)
-      }
-    , m_npcName(initNPChar.npcName)
-    , m_initScriptName(initNPChar.fullScriptName)
-{}
-
-bool NPChar::update()
+NPChar::LuaThreadRunner::LuaThreadRunner(NPChar *npc)
+    : ServerObjectLuaThreadRunner(npc)
 {
-    return true;
-}
+    fflassert(dynamic_cast<NPChar *>(getSO()));
+    fflassert(dynamic_cast<NPChar *>(getSO()) == npc);
 
-void NPChar::reportCO(uint64_t)
-{
-}
-
-void NPChar::onActivate()
-{
-    CharObject::onActivate();
-    m_luaRunner = std::make_unique<ServerObjectLuaThreadRunner>(this);
-
-    // NOTE I didn't understand the different between sol::as_table_t and sol:nested
-    m_luaRunner->bindFunction("setNPCSell", [this](sol::as_table_t<std::vector<std::string>> itemNameList)
+    bindFunction("setNPCSell", [this](sol::as_table_t<std::vector<std::string>> itemNameList)
     {
-        m_npcSell.clear();
-        m_sellItemList.clear();
+        getNPChar()->m_npcSell.clear();
+        getNPChar()->m_sellItemList.clear();
 
         for(const auto &itemName: itemNameList.value()){
             if(const auto itemID = DBCOM_ITEMID(to_u8cstr(itemName))){
-                m_npcSell.insert(itemID);
+                getNPChar()->m_npcSell.insert(itemID);
             }
         }
 
-        fillSellItemList();
+        getNPChar()->fillSellItemList();
     });
 
-    m_luaRunner->bindFunction("addNPCSell", [this](std::string itemName)
+    bindFunction("addNPCSell", [this](std::string itemName)
     {
         if(const auto itemID = DBCOM_ITEMID(to_u8cstr(itemName))){
-            m_npcSell.insert(itemID);
+            getNPChar()->m_npcSell.insert(itemID);
         }
     });
 
-    m_luaRunner->bindFunction("clearNPCSell", [this]()
+    bindFunction("clearNPCSell", [this]()
     {
-        m_npcSell.clear();
+        getNPChar()->m_npcSell.clear();
     });
 
-    m_luaRunner->bindFunction("getNPCName", [this](sol::variadic_args args) -> std::string
+    bindFunction("getNPCName", [this](sol::variadic_args args) -> std::string
     {
         const auto skip = [&args]() -> bool
         {
@@ -101,19 +78,19 @@ void NPChar::onActivate()
         }();
 
         if(skip){
-            return getNPCName().substr(0, getNPCName().find('_'));
+            return getNPChar()->getNPCName().substr(0, getNPChar()->getNPCName().find('_'));
         }
         else{
-            return getNPCName();
+            return getNPChar()->getNPCName();
         }
     });
 
-    m_luaRunner->bindFunction("getNPCFullName", [this]() -> std::string
+    bindFunction("getNPCFullName", [this]() -> std::string
     {
-        return std::string(to_cstr(DBCOM_MAPRECORD(mapID()).name)) + "." + getNPCName();
+        return std::string(to_cstr(DBCOM_MAPRECORD(getNPChar()->mapID()).name)) + "." + getNPChar()->getNPCName();
     });
 
-    m_luaRunner->bindFunction("getNPCMapName", [this](sol::variadic_args args) -> std::string
+    bindFunction("getNPCMapName", [this](sol::variadic_args args) -> std::string
     {
         const auto skip = [&args]() -> bool
         {
@@ -139,7 +116,7 @@ void NPChar::onActivate()
             }
         }();
 
-        const std::string mapName = to_cstr(DBCOM_MAPRECORD(mapID()).name);
+        const std::string mapName = to_cstr(DBCOM_MAPRECORD(getNPChar()->mapID()).name);
         if(skip){
             return mapName.substr(0, mapName.find('_'));
         }
@@ -148,27 +125,27 @@ void NPChar::onActivate()
         }
     });
 
-    m_luaRunner->bindFunction("getNPCMapLoc", [this]()
+    bindFunction("getNPCMapLoc", [this]()
     {
-        return std::make_tuple(X(), Y());
+        return std::make_tuple(getNPChar()->X(), getNPChar()->Y());
     });
 
-    m_luaRunner->bindFunction("getSubukGuildName", [this]() -> std::string
+    bindFunction("getSubukGuildName", [this]() -> std::string
     {
         return "占领沙巴克行会的名字";
     });
 
-    m_luaRunner->bindFunction("addMonster", [this](std::string monsterName)
+    bindFunction("addMonster", [this](std::string monsterName)
     {
         const auto monsterID = DBCOM_MONSTERID(to_u8cstr(monsterName));
 
         fflassert(monsterID);
-        postAddMonster(monsterID);
+        getNPChar()->postAddMonster(monsterID);
     });
 
-    m_luaRunner->bindFunction("dbSetGKey", [this](std::string key, sol::object obj)
+    bindFunction("dbSetGKey", [this](std::string key, sol::object obj)
     {
-        const auto npcDBName = str_printf("tbl_global_npcdb_%s_%s", to_cstr(DBCOM_MAPRECORD(mapID()).name), getNPCName().c_str());
+        const auto npcDBName = str_printf("tbl_global_npcdb_%s_%s", to_cstr(DBCOM_MAPRECORD(getNPChar()->mapID()).name), getNPChar()->getNPCName().c_str());
         if(!g_dbPod->createQuery(u8R"###(select name from sqlite_master where type='table' and name='%s')###", npcDBName.c_str()).executeStep()){
             g_dbPod->exec(
                     u8R"###( create table %s(                         )###"
@@ -182,10 +159,10 @@ void NPChar::onActivate()
         query.exec();
     });
 
-    m_luaRunner->bindFunction("dbGetGKey", [this](std::string key, sol::this_state s) -> sol::object
+    bindFunction("dbGetGKey", [this](std::string key, sol::this_state s) -> sol::object
     {
         fflassert(!key.empty());
-        const auto npcDBName = str_printf("tbl_global_npcdb_%s_%s", to_cstr(DBCOM_MAPRECORD(mapID()).name), getNPCName().c_str());
+        const auto npcDBName = str_printf("tbl_global_npcdb_%s_%s", to_cstr(DBCOM_MAPRECORD(getNPChar()->mapID()).name), getNPChar()->getNPCName().c_str());
 
         sol::state_view sv(s);
         if(!g_dbPod->createQuery(u8R"###(select name from sqlite_master where type='table' and name='%s')###", npcDBName.c_str()).executeStep()){
@@ -199,10 +176,10 @@ void NPChar::onActivate()
         return luaf::buildLuaObj(sv, cerealf::deserialize<luaf::luaVar>(queryStatement.getColumn(0).getString()));
     });
 
-    m_luaRunner->bindFunction("uidDBSetKey", [this](uint64_t uid, std::string key, sol::object obj)
+    bindFunction("uidDBSetKey", [this](uint64_t uid, std::string key, sol::object obj)
     {
         const auto dbid = uidf::getPlayerDBID(uid);
-        const auto npcDBName = str_printf("tbl_npcdb_%s_%s", to_cstr(DBCOM_MAPRECORD(mapID()).name), getNPCName().c_str());
+        const auto npcDBName = str_printf("tbl_npcdb_%s_%s", to_cstr(DBCOM_MAPRECORD(getNPChar()->mapID()).name), getNPChar()->getNPCName().c_str());
 
         if(!g_dbPod->createQuery(u8R"###(select name from sqlite_master where type='table' and name='%s')###", npcDBName.c_str()).executeStep()){
             g_dbPod->exec(u8R"###(create table %s(fld_dbid integer not null primary key))###", npcDBName.c_str());
@@ -253,11 +230,11 @@ void NPChar::onActivate()
         }
     });
 
-    m_luaRunner->bindFunction("uidDBGetKey", [this](uint64_t uid, std::string key, sol::this_state s) -> sol::object
+    bindFunction("uidDBGetKey", [this](uint64_t uid, std::string key, sol::this_state s) -> sol::object
     {
         fflassert(!key.empty());
         const auto dbid = uidf::getPlayerDBID(uid);
-        const auto npcDBName = str_printf("tbl_npcdb_%s_%s", to_cstr(DBCOM_MAPRECORD(mapID()).name), getNPCName().c_str());
+        const auto npcDBName = str_printf("tbl_npcdb_%s_%s", to_cstr(DBCOM_MAPRECORD(getNPChar()->mapID()).name), getNPChar()->getNPCName().c_str());
 
         sol::state_view sv(s);
         if(!g_dbPod->createQuery(u8R"###(select name from sqlite_master where type='table' and name='%s')###", npcDBName.c_str()).executeStep()){
@@ -293,12 +270,12 @@ void NPChar::onActivate()
         }
     });
 
-    m_luaRunner->bindFunction("uidPostSell", [this](uint64_t uid)
+    bindFunction("uidPostSell", [this](uint64_t uid)
     {
-        postSell(uid);
+        getNPChar()->postSell(uid);
     });
 
-    m_luaRunner->bindFunction("uidPostStartInvOp", [this](uint64_t uid, int invOp, std::string queryTag, std::string commitTag, sol::as_table_t<std::vector<std::string>> typeTable)
+    bindFunction("uidPostStartInvOp", [this](uint64_t uid, int invOp, std::string queryTag, std::string commitTag, sol::as_table_t<std::vector<std::string>> typeTable)
     {
         fflassert(invOp >= INVOP_BEGIN);
         fflassert(invOp <  INVOP_END);
@@ -307,37 +284,37 @@ void NPChar::onActivate()
         for(const auto &type: typeTable.value()){
             typeList.insert(to_u8cstr(type));
         }
-        postStartInvOp(uid, invOp, queryTag, commitTag, {typeList.begin(), typeList.end()});
+        getNPChar()->postStartInvOp(uid, invOp, queryTag, commitTag, {typeList.begin(), typeList.end()});
     });
 
-    m_luaRunner->bindFunction("uidPostInvOpCost", [this](uint64_t uid, int invOp, int itemID, int seqID, int cost)
+    bindFunction("uidPostInvOpCost", [this](uint64_t uid, int invOp, int itemID, int seqID, int cost)
     {
         fflassert(invOp >= INVOP_BEGIN);
         fflassert(invOp <  INVOP_END);
 
-        postInvOpCost(uid, invOp, itemID, seqID, cost);
+        getNPChar()->postInvOpCost(uid, invOp, itemID, seqID, cost);
     });
 
-    m_luaRunner->bindFunction("uidPostStartInput", [this](uint64_t uid, std::string title, std::string commitTag, bool show)
+    bindFunction("uidPostStartInput", [this](uint64_t uid, std::string title, std::string commitTag, bool show)
     {
         fflassert(!title.empty());
         fflassert(!commitTag.empty());
-        postStartInput(uid, title, commitTag, show);
+        getNPChar()->postStartInput(uid, title, commitTag, show);
     });
 
-    m_luaRunner->bindFunction("uidPostXMLString", [this](uint64_t uid, std::string path, std::string xmlString)
+    bindFunction("uidPostXMLString", [this](uint64_t uid, std::string path, std::string xmlString)
     {
         fflassert(uid);
         fflassert(uidf::isPlayer(uid), uid, uidf::getUIDString(uid));
-        postXMLLayout(uid, std::move(path), std::move(xmlString));
+        getNPChar()->postXMLLayout(uid, std::move(path), std::move(xmlString));
     });
 
-    m_luaRunner->pfrCheck(m_luaRunner->execRawString(BEGIN_LUAINC(char)
+    pfrCheck(execRawString(BEGIN_LUAINC(char)
 #include "npchar.lua"
     END_LUAINC()));
 
-    m_luaRunner->pfrCheck(m_luaRunner->execFile(m_initScriptName.c_str()));
-    m_luaRunner->pfrCheck(m_luaRunner->execRawString(R"###(
+    pfrCheck(execFile(getNPChar()->m_initScriptName.c_str()));
+    pfrCheck(execRawString(R"###(
         -- sanity check
         -- print warning message for NPCs that have not script installed
 
@@ -345,6 +322,35 @@ void NPChar::onActivate()
             addLog(LOGTYPE_WARNING, 'No event handler installed: %s', getNPCFullName())
         end
     )###"));
+}
+
+NPChar::NPChar(const ServerMap *mapCPtr, const SDInitNPChar &initNPChar)
+    : CharObject
+      {
+          mapCPtr,
+          uidf::buildNPCUID(initNPChar.lookID),
+
+          initNPChar.x,
+          initNPChar.y,
+          initNPChar.gfxDir + DIR_BEGIN, // NPC gfx dir, may not be the 8-dir, but should be in DIR_BEGIN + [0, 8)
+      }
+    , m_npcName(initNPChar.npcName)
+    , m_initScriptName(initNPChar.fullScriptName)
+{}
+
+bool NPChar::update()
+{
+    return true;
+}
+
+void NPChar::reportCO(uint64_t)
+{
+}
+
+void NPChar::onActivate()
+{
+    CharObject::onActivate();
+    m_luaRunner = std::make_unique<NPChar::LuaThreadRunner>(this);
 }
 
 bool NPChar::goDie()

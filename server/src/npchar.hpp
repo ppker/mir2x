@@ -17,6 +17,19 @@ class NPChar final: public CharObject
             std::vector<SDCostItem> costList;
         };
 
+    protected:
+        class LuaThreadRunner: public ServerObjectLuaThreadRunner
+        {
+            public:
+                LuaThreadRunner(NPChar *npc);
+
+            public:
+                NPChar *getNPChar() const
+                {
+                    return static_cast<NPChar *>(getSO());
+                }
+        };
+
     private:
         const std::string m_npcName;
         const std::string m_initScriptName;
