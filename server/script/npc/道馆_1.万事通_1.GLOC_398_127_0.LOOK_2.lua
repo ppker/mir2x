@@ -19,7 +19,7 @@ _G.questName_umyun    = '沃玛教主任务'
 
 setEventHandler(
 {
-    [SYS_ENTER] = function(uid, value)
+    [SYS_ENTER] = function(uid, args)
         uidPostXML(uid,
         [[
             <layout>
@@ -32,12 +32,12 @@ setEventHandler(
         ]], SYS_EXIT)
     end,
 
-    npc_show_quest_list = function(uid, value)
+    npc_show_quest_list = function(uid, args)
         uidPostXML(uid,
         [[
             <layout>
                 <par>来吧，你有什么任务？</par>
-                <par><event id="npc_goto_3">乞丐任务</event>，<event id="npc_goto_pariche">苍蝇拍任务</event>，<event id="npc_goto_5">石母任务</event></par>
+                <par><event id="npc_goto_mujun">乞丐任务</event>，<event id="npc_goto_pariche">苍蝇拍任务</event>，<event id="npc_goto_5">石母任务</event></par>
                 <par></par>
 
                 <par>（等级 9）</par>
@@ -62,7 +62,7 @@ setEventHandler(
         ]], SYS_ENTER, SYS_EXIT)
     end,
 
-    npc_daily_quest = function(uid, value)
+    npc_daily_quest = function(uid, args)
         if uidQueryLevel(uid) < 7 then
             uidPostXML(uid,
             [[
@@ -73,11 +73,52 @@ setEventHandler(
                 </layout>
             ]], SYS_EXIT)
         else
-            dq.setQuest(0, uid, value)
+            dq.setQuest(0, uid, args)
         end
     end,
 
-    npc_goto_pariche = function(uid, value)
+    npc_goto_mujun = function(uid, args)
+        if plyapi.getLevel(uid) < 3 then
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>你还没有开始完成乞丐任务呢！</par>
+                    <par>这个任务是去帮助在比奇省东海客栈工作的客栈店员遇到的麻烦。</par>
+                    <par>可惜你现在还没有能力帮助她啊！先去把<t color="red">等级</t>修炼提高到<t color="red">3</t>以上再说吧！</par>
+                    <par><event id="npc_show_quest_list">前一步</event></par>
+                </layout>
+            ]])
+
+        else
+            local questState = plyapi.getQuestState(uid, questName_pariche)
+            if questState == nil then
+                uidPostXML(uid,
+                [[
+                    <layout>
+                        <par>你还没有开始完成乞丐任务呢！</par>
+                        <par>在比奇省东海客栈工作的客栈店员最近好像有点棘手的事情，去看看吧！</par>
+                        <par><event id="%s">结束</event></par>
+                    </layout>
+                ]], SYS_EXIT)
+
+            elseif questState == SYS_DONE then
+                uidPostXML(uid,
+                [[
+                    <layout>
+                        <par>你辛苦了。</par>
+                        <par>像你这样热心帮助别人的好心人，一定有好报的…</par>
+                        <par></par>
+                        <par><event id="%s">结束</event></par>
+                    </layout>
+                ]], SYS_EXIT)
+
+            else
+                runEventHandler(uid, {SYS_EPUID, questName_pariche}, SYS_ENTER)
+            end
+        end
+    end,
+
+    npc_goto_pariche = function(uid, args)
         if plyapi.getLevel(uid) < 5 then
             uidPostXML(uid,
             [[
