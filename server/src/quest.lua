@@ -84,10 +84,10 @@ end
 
 function getNPCharUID(mapName, npcName)
     local mapUID = loadMap(mapName)
-    assertType(mapUID, 'integer')
+    assertType(mapUID, 'integer', 'nil')
 
-    if mapUID == 0 then
-        return 0
+    if not mapUID then
+        return nil
     end
 
     local npcUID = uidRemoteCall(mapUID, npcName,
@@ -96,7 +96,7 @@ function getNPCharUID(mapName, npcName)
         return getNPCharUID(npcName)
     ]])
 
-    assertType(npcUID, 'integer')
+    assertType(npcUID, 'integer', 'nil')
     return npcUID
 end
 

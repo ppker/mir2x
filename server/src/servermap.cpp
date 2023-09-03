@@ -1432,14 +1432,14 @@ void ServerMap::onActivate()
         }
     });
 
-    m_luaRunner->bindFunction("getNPCharUID", [this](std::string npcName) -> uint64_t
+    m_luaRunner->bindFunction("getNPCharUID", [this](std::string npcName, sol::this_state s) -> sol::object
     {
         for(const auto [uid, npcPtr]: m_npcList){
             if(npcPtr->getNPCName() == npcName){
-                return uid;
+                return luaf::buildLuaObj(sol::state_view(s), lua_Integer(uid));
             }
         }
-        return 0;
+        return luaf::buildLuaObj(sol::state_view(s), luaf::luaNil{});
     });
 
     m_luaRunner->bindFunction("getMonsterCount", [this](sol::variadic_args args) -> int
