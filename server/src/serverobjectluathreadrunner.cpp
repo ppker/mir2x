@@ -126,5 +126,4 @@ ServerObjectLuaThreadRunner::ServerObjectLuaThreadRunner(ServerObject *serverObj
             }
         });
     });
-
 }
