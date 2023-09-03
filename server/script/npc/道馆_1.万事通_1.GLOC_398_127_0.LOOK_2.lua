@@ -220,7 +220,7 @@ setEventHandler(
                     <par></par>
                     <par><event id="npc_show_quest_list">前一步</event></par>
                 </layout>
-            ]])
+            ]], args)
 
         elseif quest_config[args].prequest and plyapi.getQuestState(uid, quest_config[args].prequest) ~= SYS_DONE then
             if quest_config[args].prequest_failure then
