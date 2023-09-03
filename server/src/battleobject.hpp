@@ -25,6 +25,19 @@ class BattleObject: public CharObject
         template<uint32_t> friend class BuffActTrigger;
 
     protected:
+        class LuaThreadRunner: public CharObject::LuaThreadRunner
+        {
+            public:
+                LuaThreadRunner(BattleObject *);
+
+            public:
+                BattleObject *getBO() const
+                {
+                    return static_cast<BattleObject *>(getCO());
+                }
+        };
+
+    protected:
         class BOPathFinder final: public pathf::AStarPathFinder
         {
             private:

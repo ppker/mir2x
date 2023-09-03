@@ -9,8 +9,8 @@
 extern DBPod *g_dbPod;
 extern MonoServer *g_monoServer;
 
-Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
-    : ServerObjectLuaThreadRunner(quest)
+Quest::LuaThreadRunner::LuaThreadRunner(Quest *quest)
+    : ServerObject::LuaThreadRunner(quest)
 {
     fflassert(dynamic_cast<Quest *>(getSO()));
     fflassert(dynamic_cast<Quest *>(getSO()) == quest);
@@ -241,7 +241,7 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
     });
 }
 
-void Quest::QuestThreadRunner::closeQuestState(uint64_t uid, const char *fsm, const void *handle)
+void Quest::LuaThreadRunner::closeQuestState(uint64_t uid, const char *fsm, const void *handle)
 {
     fflassert(uidf::isPlayer(uid));
     fflassert(str_haschar(fsm));
@@ -310,7 +310,7 @@ void Quest::onActivate()
         .name = getQuestName(),
     })});
 
-    m_luaRunner = std::make_unique<QuestThreadRunner>(this);
+    m_luaRunner = std::make_unique<Quest::LuaThreadRunner>(this);
 
     m_luaRunner->pfrCheck(m_luaRunner->execRawString(BEGIN_LUAINC(char)
 #include "quest.lua"

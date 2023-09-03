@@ -18,6 +18,13 @@
 #include "bufflist.hpp"
 
 extern MonoServer *g_monoServer;
+
+BattleObject::LuaThreadRunner::LuaThreadRunner(BattleObject *battleObjectPtr)
+    : CharObject::LuaThreadRunner(battleObjectPtr)
+{
+    // spaceMove
+}
+
 BattleObject::BOPathFinder::BOPathFinder(const BattleObject *boPtr, int checkCO)
     : pathf::AStarPathFinder(0, boPtr->maxStep(), [this](int srcX, int srcY, int srcDir, int dstX, int dstY) -> std::optional<double>
       {

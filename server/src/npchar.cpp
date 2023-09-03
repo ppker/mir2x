@@ -20,7 +20,7 @@ extern MonoServer *g_monoServer;
 extern ServerConfigureWindow *g_serverConfigureWindow;
 
 NPChar::LuaThreadRunner::LuaThreadRunner(NPChar *npc)
-    : ServerObjectLuaThreadRunner(npc)
+    : CharObject::LuaThreadRunner(npc)
 {
     fflassert(dynamic_cast<NPChar *>(getSO()));
     fflassert(dynamic_cast<NPChar *>(getSO()) == npc);

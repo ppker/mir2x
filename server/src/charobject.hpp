@@ -21,6 +21,19 @@ struct COLocation
 class CharObject: public ServerObject
 {
     protected:
+        class LuaThreadRunner: public ServerObject::LuaThreadRunner
+        {
+            public:
+                LuaThreadRunner(CharObject *);
+
+            public:
+                CharObject *getCO() const
+                {
+                    return static_cast<CharObject *>(getSO());
+                }
+        };
+
+    protected:
         const ServerMap * m_map;
 
     protected:

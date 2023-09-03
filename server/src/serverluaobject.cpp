@@ -2,7 +2,7 @@
 #include "serverluaobject.hpp"
 
 ServerLuaObject::LuaThreadRunner::LuaThreadRunner(ServerLuaObject *serverLuaObjectPtr)
-    : ServerObjectLuaThreadRunner(serverLuaObjectPtr)
+    : ServerObject::LuaThreadRunner(serverLuaObjectPtr)
 {
     fflassert(dynamic_cast<ServerLuaObject *>(getSO()));
     fflassert(dynamic_cast<ServerLuaObject *>(getSO()) == serverLuaObjectPtr);

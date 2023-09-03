@@ -2,18 +2,17 @@
 #include <memory>
 #include "serdesmsg.hpp"
 #include "serverobject.hpp"
-#include "serverobjectluathreadrunner.hpp"
 
 class Quest final: public ServerObject
 {
     private:
-        class QuestThreadRunner final: public ServerObjectLuaThreadRunner
+        class LuaThreadRunner: public ServerObject::LuaThreadRunner
         {
             private:
-                using LuaThreadHandle = ServerObjectLuaThreadRunner::LuaThreadHandle;
+                using LuaThreadHandle = ServerObject::LuaThreadRunner::LuaThreadHandle;
 
             public:
-                QuestThreadRunner(Quest *);
+                LuaThreadRunner(Quest *);
 
             protected:
                 void closeQuestState(uint64_t, const char *, const void *);
@@ -38,7 +37,7 @@ class Quest final: public ServerObject
         std::unordered_map<std::string, std::unordered_map<uint64_t, uint64_t>> m_uidStateRunner;
 
     private:
-        std::unique_ptr<QuestThreadRunner> m_luaRunner;
+        std::unique_ptr<ServerObject::LuaThreadRunner> m_luaRunner;
 
     public:
         Quest(const SDInitQuest &);

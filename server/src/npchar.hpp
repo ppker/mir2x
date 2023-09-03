@@ -5,7 +5,6 @@
 #include "servicecore.hpp"
 #include "servermap.hpp"
 #include "charobject.hpp"
-#include "serverobjectluathreadrunner.hpp"
 
 class NPChar final: public CharObject
 {
@@ -18,7 +17,7 @@ class NPChar final: public CharObject
         };
 
     protected:
-        class LuaThreadRunner: public ServerObjectLuaThreadRunner
+        class LuaThreadRunner: public CharObject::LuaThreadRunner
         {
             public:
                 LuaThreadRunner(NPChar *npc);
@@ -26,7 +25,7 @@ class NPChar final: public CharObject
             public:
                 NPChar *getNPChar() const
                 {
-                    return static_cast<NPChar *>(getSO());
+                    return static_cast<NPChar *>(getCO());
                 }
         };
 
@@ -38,7 +37,7 @@ class NPChar final: public CharObject
         std::set<uint32_t> m_npcSell;
 
     private:
-        std::unique_ptr<ServerObjectLuaThreadRunner> m_luaRunner;
+        std::unique_ptr<NPChar::LuaThreadRunner> m_luaRunner;
         std::unordered_map<uint32_t, std::map<uint32_t, SellItem>> m_sellItemList;
 
     public:

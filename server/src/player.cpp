@@ -20,6 +20,467 @@ extern NetDriver *g_netDriver;
 extern MonoServer *g_monoServer;
 extern ServerArgParser *g_serverArgParser;
 
+Player::LuaThreadRunner::LuaThreadRunner(Player *playerPtr)
+    : BattleObject::LuaThreadRunner(playerPtr)
+{
+    bindFunction("getLevel", [this]() -> uint64_t
+    {
+        return getPlayer()->level();
+    });
+
+    bindFunction("getGold", [this]() -> uint64_t
+    {
+        return getPlayer()->gold();
+    });
+
+    bindFunction("getGender", [this]() -> bool
+    {
+        return getPlayer()->gender();
+    });
+
+    bindFunction("getName", [this]() -> std::string
+    {
+        return getPlayer()->name();
+    });
+
+    bindFunction("getTeamLeader", [this](sol::this_state s) -> sol::object
+    {
+        sol::state_view sv(s);
+        if(getPlayer()->m_teamLeader){
+            return sol::object(sv, sol::in_place_type<lua_Integer>, getPlayer()->m_teamLeader);
+        }
+        else{
+            return sol::make_object(sv, sol::nil);
+        }
+    });
+
+    bindFunctionCoop("_RSVD_NAME_getTeamMemberList", [this](LuaCoopResumer onDone)
+    {
+        auto closed = std::make_shared<bool>(false);
+        onDone.pushOnClose([closed]()
+        {
+            *closed = true;
+        });
+
+        getPlayer()->pullTeamMemberList([closed, onDone](std::optional<SDTeamMemberList> sdTML)
+        {
+            if(*closed){
+                return;
+            }
+            else{
+                onDone.popOnClose();
+            }
+
+            if(sdTML.has_value()){
+                onDone(sol::as_table(sdTML.value().getUIDList()));
+            }
+            else{
+                onDone();
+            }
+        });
+    });
+
+    bindFunction("_RSVD_NAME_runQuestTrigger", [this](uint64_t questUID, int triggerType, sol::variadic_args args)
+    {
+        fflassert(uidf::isQuest(questUID), uidf::getUIDString(questUID));
+
+        fflassert(triggerType >= SYS_ON_BEGIN, triggerType);
+        fflassert(triggerType <  SYS_ON_END  , triggerType);
+
+        switch(triggerType){
+            case SYS_ON_LEVELUP:
+                {
+                    const auto [oldLevel, newLevel] = [&args, this]() -> std::tuple<int, int>
+                    {
+                        switch(args.size()){
+                            case 1:
+                                {
+                                    fflassert(args[0].is<lua_Integer>());
+                                    return {args[0].as<lua_Integer>(), getPlayer()->level()};
+                                }
+                            case 2:
+                                {
+                                    fflassert(args[0].is<lua_Integer>());
+                                    fflassert(args[1].is<lua_Integer>());
+                                    return {args[0].as<lua_Integer>(), args[1].as<lua_Integer>()};
+                                }
+                            default:
+                                {
+                                    throw fflvalue(args.size());
+                                }
+                        }
+                    }();
+
+                    getPlayer()->m_actorPod->forward(questUID, {AM_RUNQUESTTRIGGER, cerealf::serialize<SDQuestTriggerVar>(SDQuestTriggerLevelUp
+                    {
+                        .oldLevel = oldLevel,
+                        .newLevel = newLevel,
+                    })});
+                    break;
+                }
+            case SYS_ON_KILL:
+                {
+                    fflassert(args.size() == 1, args.size());
+                    fflassert(args[0].is<lua_Integer>());
+
+                    const auto monsterID = to_u32(args[0].as<lua_Integer>());
+                    getPlayer()->m_actorPod->forward(questUID, {AM_RUNQUESTTRIGGER, cerealf::serialize<SDQuestTriggerVar>(SDQuestTriggerKill
+                    {
+                        .monsterID = monsterID,
+                    })});
+                    break;
+                }
+            case SYS_ON_GAINEXP:
+                {
+                    fflassert(args.size() == 1, args.size());
+                    fflassert(args[0].is<lua_Integer>());
+
+                    const auto addedExp = to_d(args[0].as<lua_Integer>());
+                    getPlayer()->m_actorPod->forward(questUID, {AM_RUNQUESTTRIGGER, cerealf::serialize<SDQuestTriggerVar>(SDQuestTriggerGainExp
+                    {
+                        .addedExp = addedExp,
+                    })});
+                    break;
+                }
+            case SYS_ON_GAINGOLD:
+                {
+                    fflassert(args.size() == 1, args.size());
+                    fflassert(args[0].is<lua_Integer>());
+
+                    const auto addedGold = to_d(args[0].as<lua_Integer>());
+                    getPlayer()->m_actorPod->forward(questUID, {AM_RUNQUESTTRIGGER, cerealf::serialize<SDQuestTriggerVar>(SDQuestTriggerGainGold
+                    {
+                        .addedGold = addedGold,
+                    })});
+                    break;
+                }
+            case SYS_ON_GAINITEM:
+                {
+                    fflassert(args.size() == 1, args.size());
+                    fflassert(args[0].is<lua_Integer>());
+
+                    const auto itemID = to_u32(args[0].as<lua_Integer>());
+                    getPlayer()->m_actorPod->forward(questUID, {AM_RUNQUESTTRIGGER, cerealf::serialize<SDQuestTriggerVar>(SDQuestTriggerGainItem
+                    {
+                        .itemID = itemID,
+                    })});
+                    break;
+                }
+            default:
+                {
+                    break;
+                }
+        }
+    });
+
+    bindFunction("postRawString", [this](std::string msg)
+    {
+        getPlayer()->postNetMessage(SM_TEXT, msg);
+    });
+
+    bindFunction("secureItem", [this](uint32_t itemID, uint32_t seqID)
+    {
+        getPlayer()->secureItem(itemID, seqID);
+    });
+
+    bindFunction("reportSecuredItemList", [this]()
+    {
+        getPlayer()->reportSecuredItemList();
+    });
+
+    bindFunction("addItem", [this](int itemID, int itemCount)
+    {
+        const auto &ir = DBCOM_ITEMRECORD(itemID);
+        fflassert(ir);
+        fflassert(itemCount > 0);
+
+        if(ir.isGold()){
+            getPlayer()->setGold(getPlayer()->getGold() + itemCount);
+        }
+        else{
+            int added = 0;
+            while(added < itemCount){
+                const auto &addedItem = getPlayer()->addInventoryItem(SDItem
+                {
+                    .itemID = to_u32(itemID),
+                    .seqID  = 1,
+                    .count = std::min<size_t>(ir.packable() ? SYS_INVGRIDMAXHOLD : 1, itemCount - added),
+                }, false);
+                added += addedItem.count;
+            }
+        }
+    });
+
+    bindFunction("removeItem", [this](int itemID, int seqID, int count) -> bool
+    {
+        fflassert(itemID >  0, itemID);
+        fflassert( seqID >= 0,  seqID);
+        fflassert( count >  0,  count);
+
+        const auto argItemID = to_u32(itemID);
+        const auto argSeqID  = to_u32( seqID);
+        const auto argCount  = to_uz ( count);
+
+        const auto &ir = DBCOM_ITEMRECORD(argItemID);
+        fflassert(ir);
+
+        if(ir.isGold()){
+            fflassert(argSeqID == 0, argSeqID);
+            if(getPlayer()->m_sdItemStorage.gold >= argCount){
+                getPlayer()->setGold(getPlayer()->m_sdItemStorage.gold - argCount);
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+        else if(argSeqID > 0){
+            fflassert(argCount == 1, argCount);
+            return getPlayer()->removeInventoryItem(argItemID, argSeqID) > 0;
+        }
+        else{
+            fflassert(argCount > 0);
+            if(getPlayer()->hasInventoryItem(argItemID, argSeqID, argCount)){
+                getPlayer()->removeInventoryItem(argItemID, 0, argCount);
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+    });
+
+    bindFunction("hasItem", [this](int itemID, int seqID, size_t count) -> bool
+    {
+        fflassert(itemID >  0, itemID);
+        fflassert( seqID >= 0,  seqID);
+        fflassert( count >  0,  count);
+
+        return getPlayer()->hasInventoryItem(to_u32(itemID), to_u32(seqID), count);
+    });
+
+    bindFunction("dbGetVar", [this](std::string var, sol::this_state s)
+    {
+        return luaf::buildLuaObj(sol::state_view(s), getPlayer()->dbGetVar(var));
+    });
+
+    bindFunction("dbSetVar", [this](std::string var, sol::object value)
+    {
+        getPlayer()->dbSetVar(var, luaf::buildLuaVar(value));
+    });
+
+    bindFunction("dbHasVar", [this](std::string var, sol::this_state s)
+    {
+        auto &&[found, value] = getPlayer()->dbHasVar(var);
+
+        sol::state_view sv(s);
+        std::vector<sol::object> resList;
+
+        if(found){
+            resList.reserve(2);
+            resList.push_back(sol::object(sv, sol::in_place_type<bool>, true));
+            resList.push_back(luaf::buildLuaObj(sv, std::move(value)));
+        }
+        else{
+            resList.reserve(1);
+            resList.push_back(sol::object(sv, sol::in_place_type<bool>, false));
+        }
+
+        return sol::as_returns(resList);
+    });
+
+    bindFunction("dbRemoveVar", [this](std::string var)
+    {
+        getPlayer()->dbRemoveVar(std::move(var));
+    });
+
+    bindFunction("_RSVD_NAME_reportQuestDespList", [this](sol::object obj)
+    {
+        fflassert(obj.is<sol::table>(), luaf::luaObjTypeString(obj));
+        SDQuestDespList sdQDL {};
+
+        for(const auto &[quest, table]: obj.as<sol::table>()){
+            fflassert(quest.is<std::string>(), luaf::luaObjTypeString(quest));
+            fflassert(table.is<sol::table >(), luaf::luaObjTypeString(table));
+
+            for(const auto &[fsm, desp]: table.as<sol::table>()){
+                fflassert(fsm .is<std::string>(), luaf::luaObjTypeString(fsm ));
+                fflassert(desp.is<std::string>(), luaf::luaObjTypeString(desp));
+                sdQDL[quest.as<std::string>()][fsm.as<std::string>()] = desp.as<std::string>();
+            }
+        }
+
+        getPlayer()->postNetMessage(SM_QUESTDESPLIST, cerealf::serialize(sdQDL));
+    });
+
+    bindFunctionCoop("_RSVD_NAME_spaceMove", [this](LuaCoopResumer onDone, uint32_t argMapID, int argX, int argY)
+    {
+        auto closed = std::make_shared<bool>(false);
+        onDone.pushOnClose([closed]()
+        {
+            *closed = true;
+        });
+
+        const auto &mr = DBCOM_MAPRECORD(argMapID);
+        fflassert(mr, argMapID);
+
+        fflassert(argX >= 0, argX);
+        fflassert(argY >= 0, argY);
+
+        if(to_u32(argMapID) == getPlayer()->mapID()){
+            getPlayer()->requestSpaceMove(argX, argY, false, [closed, onDone, this]()
+            {
+                if(*closed){
+                    return;
+                }
+                else{
+                    onDone.popOnClose();
+                }
+                onDone(getPlayer()->mapID(), getPlayer()->X(), getPlayer()->Y());
+            },
+
+            [closed, onDone]()
+            {
+                if(*closed){
+                    return;
+                }
+                else{
+                    onDone.popOnClose();
+                }
+                onDone();
+            });
+        }
+        else{
+            getPlayer()->requestMapSwitch(argMapID, argX, argY, false, [closed, onDone, this]()
+            {
+                if(*closed){
+                    return;
+                }
+                else{
+                    onDone.popOnClose();
+                }
+                onDone(getPlayer()->mapID(), getPlayer()->X(), getPlayer()->Y());
+            },
+
+            [closed, onDone]()
+            {
+                if(*closed){
+                    return;
+                }
+                else{
+                    onDone.popOnClose();
+                }
+                onDone();
+            });
+        }
+    });
+
+    bindFunctionCoop("_RSVD_NAME_randomMove", [this](LuaCoopResumer onDone)
+    {
+        const auto newGLoc = [this]() -> std::optional<std::array<int, 2>>
+        {
+            const int startDir = pathf::getRandDir();
+            for(int i = 0; i < 8; ++i){
+                if(const auto [newX, newY] = pathf::getFrontGLoc(getPlayer()->X(), getPlayer()->Y(), pathf::getNextDir(startDir, i)); getPlayer()->m_map->groundValid(newX, newY)){
+                    return {{newX, newY}};
+                }
+            }
+            return {};
+        }();
+
+        if(newGLoc.has_value()){
+            auto closed = std::make_shared<bool>(false);
+            onDone.pushOnClose([closed]()
+            {
+                *closed = true;
+            });
+
+            const auto [newX, newY] = newGLoc.value();
+            getPlayer()->requestMove(newX, newY, SYS_DEFSPEED, false, false, [closed, oldX = getPlayer()->X(), oldY = getPlayer()->Y(), onDone, this]()
+            {
+                if(*closed){
+                    return;
+                }
+                else{
+                    onDone.popOnClose();
+                }
+
+                // player doesn't sendback its move to client in requestMove() because player's move usually driven by client
+                // but here need to sendback the forced move since it's driven by server
+
+                getPlayer()->reportAction(getPlayer()->UID(), getPlayer()->mapID(), ActionMove
+                {
+                    .speed = SYS_DEFSPEED,
+                    .x = oldX,
+                    .y = oldY,
+                    .aimX = getPlayer()->X(),
+                    .aimY = getPlayer()->Y(),
+                });
+
+                onDone(getPlayer()->mapID(), getPlayer()->X(), getPlayer()->Y());
+            },
+
+            [closed, onDone]()
+            {
+                if(*closed){
+                    return;
+                }
+                else{
+                    onDone.popOnClose();
+                }
+                onDone();
+            });
+        }
+        else{
+            onDone();
+        }
+    });
+
+    bindFunctionCoop("_RSVD_NAME_queryQuestTriggerList", [this](LuaCoopResumer onDone, int triggerType)
+    {
+        fflassert(triggerType >= SYS_ON_BEGIN, triggerType);
+        fflassert(triggerType <  SYS_ON_END  , triggerType);
+
+        auto closed = std::make_shared<bool>(false);
+        onDone.pushOnClose([closed]()
+        {
+            *closed = true;
+        });
+
+        AMQueryQuestTriggerList amQQTL;
+        std::memset(&amQQTL, 0, sizeof(amQQTL));
+
+        amQQTL.type = triggerType;
+
+        getPlayer()->m_actorPod->forward(uidf::getServiceCoreUID(), {AM_QUERYQUESTTRIGGERLIST, amQQTL}, [closed, onDone, this](const ActorMsgPack &rmpk)
+        {
+            if(*closed){
+                return;
+            }
+            else{
+                onDone.popOnClose();
+            }
+
+            switch(rmpk.type()){
+                case AM_OK:
+                    {
+                        onDone(rmpk.deserialize<std::vector<uint64_t>>());
+                        break;
+                    }
+                default:
+                    {
+                        onDone();
+                        break;
+                    }
+            }
+        });
+    });
+
+    pfrCheck(execRawString(BEGIN_LUAINC(char)
+#include "player.lua"
+    END_LUAINC()));
+}
+
 Player::Player(const SDInitPlayer &initParam, const ServerMap *mapPtr)
     : BattleObject(mapPtr, uidf::getPlayerUID(initParam.dbid, initParam.gender, initParam.jobList), initParam.x, initParam.y, DIR_DOWN)
     , m_exp(initParam.exp)
@@ -48,465 +509,7 @@ Player::Player(const SDInitPlayer &initParam, const ServerMap *mapPtr)
 void Player::onActivate()
 {
     BattleObject::onActivate();
-    m_luaRunner = std::make_unique<ServerObjectLuaThreadRunner>(this);
-
-    m_luaRunner->bindFunction("getLevel", [this]() -> uint64_t
-    {
-        return level();
-    });
-
-    m_luaRunner->bindFunction("getGold", [this]() -> uint64_t
-    {
-        return gold();
-    });
-
-    m_luaRunner->bindFunction("getGender", [this]() -> bool
-    {
-        return gender();
-    });
-
-    m_luaRunner->bindFunction("getName", [this]() -> std::string
-    {
-        return name();
-    });
-
-    m_luaRunner->bindFunction("getTeamLeader", [this](sol::this_state s) -> sol::object
-    {
-        sol::state_view sv(s);
-        if(m_teamLeader){
-            return sol::object(sv, sol::in_place_type<lua_Integer>, m_teamLeader);
-        }
-        else{
-            return sol::make_object(sv, sol::nil);
-        }
-    });
-
-    m_luaRunner->bindFunctionCoop("_RSVD_NAME_getTeamMemberList", [this](LuaCoopResumer onDone)
-    {
-        auto closed = std::make_shared<bool>(false);
-        onDone.pushOnClose([closed]()
-        {
-            *closed = true;
-        });
-
-        pullTeamMemberList([closed, onDone](std::optional<SDTeamMemberList> sdTML)
-        {
-            if(*closed){
-                return;
-            }
-            else{
-                onDone.popOnClose();
-            }
-
-            if(sdTML.has_value()){
-                onDone(sol::as_table(sdTML.value().getUIDList()));
-            }
-            else{
-                onDone();
-            }
-        });
-    });
-
-    m_luaRunner->bindFunction("_RSVD_NAME_runQuestTrigger", [this](uint64_t questUID, int triggerType, sol::variadic_args args)
-    {
-        fflassert(uidf::isQuest(questUID), uidf::getUIDString(questUID));
-
-        fflassert(triggerType >= SYS_ON_BEGIN, triggerType);
-        fflassert(triggerType <  SYS_ON_END  , triggerType);
-
-        switch(triggerType){
-            case SYS_ON_LEVELUP:
-                {
-                    const auto [oldLevel, newLevel] = [&args, this]() -> std::tuple<int, int>
-                    {
-                        switch(args.size()){
-                            case 1:
-                                {
-                                    fflassert(args[0].is<lua_Integer>());
-                                    return {args[0].as<lua_Integer>(), level()};
-                                }
-                            case 2:
-                                {
-                                    fflassert(args[0].is<lua_Integer>());
-                                    fflassert(args[1].is<lua_Integer>());
-                                    return {args[0].as<lua_Integer>(), args[1].as<lua_Integer>()};
-                                }
-                            default:
-                                {
-                                    throw fflvalue(args.size());
-                                }
-                        }
-                    }();
-
-                    m_actorPod->forward(questUID, {AM_RUNQUESTTRIGGER, cerealf::serialize<SDQuestTriggerVar>(SDQuestTriggerLevelUp
-                    {
-                        .oldLevel = oldLevel,
-                        .newLevel = newLevel,
-                    })});
-                    break;
-                }
-            case SYS_ON_KILL:
-                {
-                    fflassert(args.size() == 1, args.size());
-                    fflassert(args[0].is<lua_Integer>());
-
-                    const auto monsterID = to_u32(args[0].as<lua_Integer>());
-                    m_actorPod->forward(questUID, {AM_RUNQUESTTRIGGER, cerealf::serialize<SDQuestTriggerVar>(SDQuestTriggerKill
-                    {
-                        .monsterID = monsterID,
-                    })});
-                    break;
-                }
-            case SYS_ON_GAINEXP:
-                {
-                    fflassert(args.size() == 1, args.size());
-                    fflassert(args[0].is<lua_Integer>());
-
-                    const auto addedExp = to_d(args[0].as<lua_Integer>());
-                    m_actorPod->forward(questUID, {AM_RUNQUESTTRIGGER, cerealf::serialize<SDQuestTriggerVar>(SDQuestTriggerGainExp
-                    {
-                        .addedExp = addedExp,
-                    })});
-                    break;
-                }
-            case SYS_ON_GAINGOLD:
-                {
-                    fflassert(args.size() == 1, args.size());
-                    fflassert(args[0].is<lua_Integer>());
-
-                    const auto addedGold = to_d(args[0].as<lua_Integer>());
-                    m_actorPod->forward(questUID, {AM_RUNQUESTTRIGGER, cerealf::serialize<SDQuestTriggerVar>(SDQuestTriggerGainGold
-                    {
-                        .addedGold = addedGold,
-                    })});
-                    break;
-                }
-            case SYS_ON_GAINITEM:
-                {
-                    fflassert(args.size() == 1, args.size());
-                    fflassert(args[0].is<lua_Integer>());
-
-                    const auto itemID = to_u32(args[0].as<lua_Integer>());
-                    m_actorPod->forward(questUID, {AM_RUNQUESTTRIGGER, cerealf::serialize<SDQuestTriggerVar>(SDQuestTriggerGainItem
-                    {
-                        .itemID = itemID,
-                    })});
-                    break;
-                }
-            default:
-                {
-                    break;
-                }
-        }
-    });
-
-    m_luaRunner->bindFunction("postRawString", [this](std::string msg)
-    {
-        postNetMessage(SM_TEXT, msg);
-    });
-
-    m_luaRunner->bindFunction("secureItem", [this](uint32_t itemID, uint32_t seqID)
-    {
-        secureItem(itemID, seqID);
-    });
-
-    m_luaRunner->bindFunction("reportSecuredItemList", [this]()
-    {
-        reportSecuredItemList();
-    });
-
-    m_luaRunner->bindFunction("addItem", [this](int itemID, int itemCount)
-    {
-        const auto &ir = DBCOM_ITEMRECORD(itemID);
-        fflassert(ir);
-        fflassert(itemCount > 0);
-
-        if(ir.isGold()){
-            setGold(getGold() + itemCount);
-        }
-        else{
-            int added = 0;
-            while(added < itemCount){
-                const auto &addedItem = addInventoryItem(SDItem
-                {
-                    .itemID = to_u32(itemID),
-                    .seqID  = 1,
-                    .count = std::min<size_t>(ir.packable() ? SYS_INVGRIDMAXHOLD : 1, itemCount - added),
-                }, false);
-                added += addedItem.count;
-            }
-        }
-    });
-
-    m_luaRunner->bindFunction("removeItem", [this](int itemID, int seqID, int count) -> bool
-    {
-        fflassert(itemID >  0, itemID);
-        fflassert( seqID >= 0,  seqID);
-        fflassert( count >  0,  count);
-
-        const auto argItemID = to_u32(itemID);
-        const auto argSeqID  = to_u32( seqID);
-        const auto argCount  = to_uz ( count);
-
-        const auto &ir = DBCOM_ITEMRECORD(argItemID);
-        fflassert(ir);
-
-        if(ir.isGold()){
-            fflassert(argSeqID == 0, argSeqID);
-            if(m_sdItemStorage.gold >= argCount){
-                setGold(m_sdItemStorage.gold - argCount);
-                return true;
-            }
-            else{
-                return false;
-            }
-        }
-        else if(argSeqID > 0){
-            fflassert(argCount == 1, argCount);
-            return removeInventoryItem(argItemID, argSeqID) > 0;
-        }
-        else{
-            fflassert(argCount > 0);
-            if(hasInventoryItem(argItemID, argSeqID, argCount)){
-                removeInventoryItem(argItemID, 0, argCount);
-                return true;
-            }
-            else{
-                return false;
-            }
-        }
-    });
-
-    m_luaRunner->bindFunction("hasItem", [this](int itemID, int seqID, size_t count) -> bool
-    {
-        fflassert(itemID >  0, itemID);
-        fflassert( seqID >= 0,  seqID);
-        fflassert( count >  0,  count);
-
-        return hasInventoryItem(to_u32(itemID), to_u32(seqID), count);
-    });
-
-    m_luaRunner->bindFunction("dbGetVar", [this](std::string var, sol::this_state s)
-    {
-        return luaf::buildLuaObj(sol::state_view(s), dbGetVar(var));
-    });
-
-    m_luaRunner->bindFunction("dbSetVar", [this](std::string var, sol::object value)
-    {
-        dbSetVar(var, luaf::buildLuaVar(value));
-    });
-
-    m_luaRunner->bindFunction("dbHasVar", [this](std::string var, sol::this_state s)
-    {
-        auto &&[found, value] = dbHasVar(var);
-
-        sol::state_view sv(s);
-        std::vector<sol::object> resList;
-
-        if(found){
-            resList.reserve(2);
-            resList.push_back(sol::object(sv, sol::in_place_type<bool>, true));
-            resList.push_back(luaf::buildLuaObj(sv, std::move(value)));
-        }
-        else{
-            resList.reserve(1);
-            resList.push_back(sol::object(sv, sol::in_place_type<bool>, false));
-        }
-
-        return sol::as_returns(resList);
-    });
-
-    m_luaRunner->bindFunction("dbRemoveVar", [this](std::string var)
-    {
-        dbRemoveVar(std::move(var));
-    });
-
-    m_luaRunner->bindFunction("_RSVD_NAME_reportQuestDespList", [this](sol::object obj)
-    {
-        fflassert(obj.is<sol::table>(), luaf::luaObjTypeString(obj));
-        SDQuestDespList sdQDL {};
-
-        for(const auto &[quest, table]: obj.as<sol::table>()){
-            fflassert(quest.is<std::string>(), luaf::luaObjTypeString(quest));
-            fflassert(table.is<sol::table >(), luaf::luaObjTypeString(table));
-
-            for(const auto &[fsm, desp]: table.as<sol::table>()){
-                fflassert(fsm .is<std::string>(), luaf::luaObjTypeString(fsm ));
-                fflassert(desp.is<std::string>(), luaf::luaObjTypeString(desp));
-                sdQDL[quest.as<std::string>()][fsm.as<std::string>()] = desp.as<std::string>();
-            }
-        }
-
-        postNetMessage(SM_QUESTDESPLIST, cerealf::serialize(sdQDL));
-    });
-
-    m_luaRunner->bindFunctionCoop("_RSVD_NAME_spaceMove", [this](LuaCoopResumer onDone, uint32_t argMapID, int argX, int argY)
-    {
-        auto closed = std::make_shared<bool>(false);
-        onDone.pushOnClose([closed]()
-        {
-            *closed = true;
-        });
-
-        const auto &mr = DBCOM_MAPRECORD(argMapID);
-        fflassert(mr, argMapID);
-
-        fflassert(argX >= 0, argX);
-        fflassert(argY >= 0, argY);
-
-        if(to_u32(argMapID) == mapID()){
-            requestSpaceMove(argX, argY, false, [closed, onDone, this]()
-            {
-                if(*closed){
-                    return;
-                }
-                else{
-                    onDone.popOnClose();
-                }
-                onDone(mapID(), X(), Y());
-            },
-
-            [closed, onDone]()
-            {
-                if(*closed){
-                    return;
-                }
-                else{
-                    onDone.popOnClose();
-                }
-                onDone();
-            });
-        }
-        else{
-            requestMapSwitch(argMapID, argX, argY, false, [closed, onDone, this]()
-            {
-                if(*closed){
-                    return;
-                }
-                else{
-                    onDone.popOnClose();
-                }
-                onDone(mapID(), X(), Y());
-            },
-
-            [closed, onDone]()
-            {
-                if(*closed){
-                    return;
-                }
-                else{
-                    onDone.popOnClose();
-                }
-                onDone();
-            });
-        }
-    });
-
-    m_luaRunner->bindFunctionCoop("_RSVD_NAME_randomMove", [this](LuaCoopResumer onDone)
-    {
-        const auto newGLoc = [this]() -> std::optional<std::array<int, 2>>
-        {
-            const int startDir = pathf::getRandDir();
-            for(int i = 0; i < 8; ++i){
-                if(const auto [newX, newY] = pathf::getFrontGLoc(X(), Y(), pathf::getNextDir(startDir, i)); m_map->groundValid(newX, newY)){
-                    return {{newX, newY}};
-                }
-            }
-            return {};
-        }();
-
-        if(newGLoc.has_value()){
-            auto closed = std::make_shared<bool>(false);
-            onDone.pushOnClose([closed]()
-            {
-                *closed = true;
-            });
-
-            const auto [newX, newY] = newGLoc.value();
-            requestMove(newX, newY, SYS_DEFSPEED, false, false, [closed, oldX = X(), oldY = Y(), onDone, this]()
-            {
-                if(*closed){
-                    return;
-                }
-                else{
-                    onDone.popOnClose();
-                }
-
-                // player doesn't sendback its move to client in requestMove() because player's move usually driven by client
-                // but here need to sendback the forced move since it's driven by server
-
-                reportAction(UID(), mapID(), ActionMove
-                {
-                    .speed = SYS_DEFSPEED,
-                    .x = oldX,
-                    .y = oldY,
-                    .aimX = X(),
-                    .aimY = Y(),
-                });
-
-                onDone(mapID(), X(), Y());
-            },
-
-            [closed, onDone]()
-            {
-                if(*closed){
-                    return;
-                }
-                else{
-                    onDone.popOnClose();
-                }
-                onDone();
-            });
-        }
-        else{
-            onDone();
-        }
-    });
-
-    m_luaRunner->bindFunctionCoop("_RSVD_NAME_queryQuestTriggerList", [this](LuaCoopResumer onDone, int triggerType)
-    {
-        fflassert(triggerType >= SYS_ON_BEGIN, triggerType);
-        fflassert(triggerType <  SYS_ON_END  , triggerType);
-
-        auto closed = std::make_shared<bool>(false);
-        onDone.pushOnClose([closed]()
-        {
-            *closed = true;
-        });
-
-        AMQueryQuestTriggerList amQQTL;
-        std::memset(&amQQTL, 0, sizeof(amQQTL));
-
-        amQQTL.type = triggerType;
-
-        m_actorPod->forward(uidf::getServiceCoreUID(), {AM_QUERYQUESTTRIGGERLIST, amQQTL}, [closed, onDone, this](const ActorMsgPack &rmpk)
-        {
-            if(*closed){
-                return;
-            }
-            else{
-                onDone.popOnClose();
-            }
-
-            switch(rmpk.type()){
-                case AM_OK:
-                    {
-                        onDone(rmpk.deserialize<std::vector<uint64_t>>());
-                        break;
-                    }
-                default:
-                    {
-                        onDone();
-                        break;
-                    }
-            }
-        });
-    });
-
-    m_luaRunner->pfrCheck(m_luaRunner->execRawString(BEGIN_LUAINC(char)
-#include "player.lua"
-    END_LUAINC()));
-
+    m_luaRunner = std::make_unique<Player::LuaThreadRunner>(this);
     m_luaRunner->spawn(m_threadKey++, "_RSVD_NAME_setupQuests()");
 }
 

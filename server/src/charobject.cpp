@@ -12,6 +12,16 @@
 #include "protocoldef.hpp"
 
 extern MonoServer *g_monoServer;
+
+CharObject::LuaThreadRunner::LuaThreadRunner(CharObject *charObjectPtr)
+    : ServerObject::LuaThreadRunner(charObjectPtr)
+{
+    bindFunction("getMapLoc", [this]()
+    {
+        return std::make_tuple(getCO()->X(), getCO()->Y());
+    });
+}
+
 CharObject::CharObject(
         const ServerMap *mapCPtr,
         uint64_t         uid,

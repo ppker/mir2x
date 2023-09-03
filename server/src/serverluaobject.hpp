@@ -1,14 +1,11 @@
+#pragma once
 #include "serverobject.hpp"
-#include "serverobjectluathreadrunner.hpp"
 
 class ServerLuaObject: public ServerObject
 {
     protected:
-        class LuaThreadRunner final: public ServerObjectLuaThreadRunner
+        class LuaThreadRunner: public ServerObject::LuaThreadRunner
         {
-            private:
-                using LuaThreadHandle = ServerObjectLuaThreadRunner::LuaThreadHandle;
-
             public:
                 LuaThreadRunner(ServerLuaObject *);
 

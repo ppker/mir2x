@@ -6,9 +6,23 @@
 #include "actormsgpack.hpp"
 #include "delaycommand.hpp"
 #include "statetrigger.hpp"
+#include "serverluacoroutinerunner.hpp"
 
 class ServerObject
 {
+    protected:
+        class LuaThreadRunner: public ServerLuaCoroutineRunner
+        {
+            public:
+                LuaThreadRunner(ServerObject *);
+
+            public:
+                ServerObject *getSO() const
+                {
+                    return m_actorPod->getSO();
+                }
+        };
+
     private:
         friend class ServerObjectLuaThreadRunner;
 

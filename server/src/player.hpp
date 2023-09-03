@@ -8,7 +8,6 @@
 #include "monoserver.hpp"
 #include "battleobject.hpp"
 #include "combatnode.hpp"
-#include "serverobjectluathreadrunner.hpp"
 
 class Player final: public BattleObject
 {
@@ -16,6 +15,19 @@ class Player final: public BattleObject
         friend class ServerObject;
         friend class   CharObject;
         friend class BattleObject;
+
+    protected:
+        class LuaThreadRunner: public BattleObject::LuaThreadRunner
+        {
+            public:
+                LuaThreadRunner(Player *);
+
+            public:
+                Player *getPlayer() const
+                {
+                    return static_cast<Player *>(getBO());
+                }
+        };
 
     protected:
         // empty: hasn't bind to a channel yet
@@ -60,7 +72,7 @@ class Player final: public BattleObject
 
     private:
         uint64_t m_threadKey = 1;
-        std::unique_ptr<ServerObjectLuaThreadRunner> m_luaRunner;
+        std::unique_ptr<Player::LuaThreadRunner> m_luaRunner;
 
     private:
         std::unordered_map<int, std::vector<sol::function>> m_scriptEventTriggerList;
