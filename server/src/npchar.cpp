@@ -125,11 +125,6 @@ NPChar::LuaThreadRunner::LuaThreadRunner(NPChar *npc)
         }
     });
 
-    bindFunction("getNPCMapLoc", [this]()
-    {
-        return std::make_tuple(getNPChar()->X(), getNPChar()->Y());
-    });
-
     bindFunction("getSubukGuildName", [this]() -> std::string
     {
         return "占领沙巴克行会的名字";

@@ -653,7 +653,7 @@ function getNPCMapLocXML(tag, fargs)
     local     mapName = getNPCMapName(true)
     local fullMapName = getNPCMapName(false)
 
-    local x, y = getNPCMapLoc()
+    local x, y = getMapLoc()
 
     local text = string.format([[%s（%d，%d）]], mapName, x, y)
     local attrList = {''}
