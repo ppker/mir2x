@@ -10,6 +10,9 @@
 class ServerObject
 {
     private:
+        friend class ServerObjectLuaThreadRunner;
+
+    private:
         const uint64_t m_UID;
 
     protected:

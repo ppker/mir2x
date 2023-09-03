@@ -48,7 +48,7 @@ Player::Player(const SDInitPlayer &initParam, const ServerMap *mapPtr)
 void Player::onActivate()
 {
     BattleObject::onActivate();
-    m_luaRunner = std::make_unique<ServerLuaCoroutineRunner>(m_actorPod);
+    m_luaRunner = std::make_unique<ServerObjectLuaThreadRunner>(this);
 
     m_luaRunner->bindFunction("getLevel", [this]() -> uint64_t
     {

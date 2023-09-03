@@ -45,7 +45,7 @@ void NPChar::reportCO(uint64_t)
 void NPChar::onActivate()
 {
     CharObject::onActivate();
-    m_luaRunner = std::make_unique<ServerLuaCoroutineRunner>(m_actorPod);
+    m_luaRunner = std::make_unique<ServerObjectLuaThreadRunner>(this);
 
     // NOTE I didn't understand the different between sol::as_table_t and sol:nested
     m_luaRunner->bindFunction("setNPCSell", [this](sol::as_table_t<std::vector<std::string>> itemNameList)

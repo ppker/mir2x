@@ -1,11 +1,11 @@
 #include "serverobject.hpp"
 #include "serverluaobject.hpp"
 
-ServerLuaObject::ServerObjectLuaThreadRunner::ServerObjectLuaThreadRunner(ServerLuaObject *serverLuaObjectPtr)
-    : ServerLuaCoroutineRunner(serverLuaObjectPtr->m_actorPod)
+ServerLuaObject::LuaThreadRunner::LuaThreadRunner(ServerLuaObject *serverLuaObjectPtr)
+    : ServerObjectLuaThreadRunner(serverLuaObjectPtr)
 {
-    fflassert(dynamic_cast<ServerLuaObject *>(m_actorPod->getSO()));
-    fflassert(dynamic_cast<ServerLuaObject *>(m_actorPod->getSO()) == serverLuaObjectPtr);
+    fflassert(dynamic_cast<ServerLuaObject *>(getSO()));
+    fflassert(dynamic_cast<ServerLuaObject *>(getSO()) == serverLuaObjectPtr);
 }
 
 ServerLuaObject::ServerLuaObject(uint32_t luaObjIndex)
@@ -15,7 +15,7 @@ ServerLuaObject::ServerLuaObject(uint32_t luaObjIndex)
 void ServerLuaObject::onActivate()
 {
     ServerObject::onActivate();
-    m_luaRunner = std::make_unique<ServerObjectLuaThreadRunner>(this);
+    m_luaRunner = std::make_unique<ServerLuaObject::LuaThreadRunner>(this);
 }
 
 void ServerLuaObject::operateAM(const ActorMsgPack &mpk)

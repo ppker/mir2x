@@ -1,16 +1,16 @@
-#include <serverobject.hpp>
-#include <serverluacoroutinerunner.hpp>
+#include "serverobject.hpp"
+#include "serverobjectluathreadrunner.hpp"
 
 class ServerLuaObject: public ServerObject
 {
     protected:
-        class ServerObjectLuaThreadRunner final: public ServerLuaCoroutineRunner
+        class LuaThreadRunner final: public ServerObjectLuaThreadRunner
         {
             private:
-                using LuaThreadHandle = ServerLuaCoroutineRunner::LuaThreadHandle;
+                using LuaThreadHandle = ServerObjectLuaThreadRunner::LuaThreadHandle;
 
             public:
-                ServerObjectLuaThreadRunner(ServerLuaObject *);
+                LuaThreadRunner(ServerLuaObject *);
 
             public:
                 ServerLuaObject *getServerLuaObject() const
@@ -20,7 +20,7 @@ class ServerLuaObject: public ServerObject
         };
 
     private:
-        std::unique_ptr<ServerObjectLuaThreadRunner> m_luaRunner;
+        std::unique_ptr<ServerLuaObject::LuaThreadRunner> m_luaRunner;
 
     private:
         uint64_t m_threadKey = 1;

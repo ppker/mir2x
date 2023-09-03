@@ -2,15 +2,15 @@
 #include <memory>
 #include "serdesmsg.hpp"
 #include "serverobject.hpp"
-#include "serverluacoroutinerunner.hpp"
+#include "serverobjectluathreadrunner.hpp"
 
 class Quest final: public ServerObject
 {
     private:
-        class QuestThreadRunner final: public ServerLuaCoroutineRunner
+        class QuestThreadRunner final: public ServerObjectLuaThreadRunner
         {
             private:
-                using LuaThreadHandle = ServerLuaCoroutineRunner::LuaThreadHandle;
+                using LuaThreadHandle = ServerObjectLuaThreadRunner::LuaThreadHandle;
 
             public:
                 QuestThreadRunner(Quest *);

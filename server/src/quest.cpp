@@ -10,10 +10,10 @@ extern DBPod *g_dbPod;
 extern MonoServer *g_monoServer;
 
 Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
-    : ServerLuaCoroutineRunner(quest->m_actorPod)
+    : ServerObjectLuaThreadRunner(quest)
 {
-    fflassert(dynamic_cast<Quest *>(m_actorPod->getSO()));
-    fflassert(dynamic_cast<Quest *>(m_actorPod->getSO()) == quest);
+    fflassert(dynamic_cast<Quest *>(getSO()));
+    fflassert(dynamic_cast<Quest *>(getSO()) == quest);
 
     bindFunction("getQuestName", [this]() -> std::string
     {

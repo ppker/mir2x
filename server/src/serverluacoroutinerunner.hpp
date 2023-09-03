@@ -4,6 +4,7 @@
 #include <functional>
 #include <type_traits>
 #include <sol/sol.hpp>
+#include "sysconst.hpp"
 #include "luaf.hpp"
 #include "totype.hpp"
 #include "serverluamodule.hpp"
@@ -256,9 +257,6 @@ class ServerLuaCoroutineRunner: public ServerLuaModule
 
     public:
         ServerLuaCoroutineRunner(ActorPod *);
-
-    public:
-        ~ServerLuaCoroutineRunner();
 
     public:
         // start a thread to run lua code

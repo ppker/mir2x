@@ -5,7 +5,7 @@
 #include "servicecore.hpp"
 #include "servermap.hpp"
 #include "charobject.hpp"
-#include "serverluacoroutinerunner.hpp"
+#include "serverobjectluathreadrunner.hpp"
 
 class NPChar final: public CharObject
 {
@@ -25,7 +25,7 @@ class NPChar final: public CharObject
         std::set<uint32_t> m_npcSell;
 
     private:
-        std::unique_ptr<ServerLuaCoroutineRunner> m_luaRunner;
+        std::unique_ptr<ServerObjectLuaThreadRunner> m_luaRunner;
         std::unordered_map<uint32_t, std::map<uint32_t, SellItem>> m_sellItemList;
 
     public:

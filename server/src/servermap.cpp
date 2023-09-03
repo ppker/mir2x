@@ -1246,7 +1246,7 @@ void ServerMap::onActivate()
 {
     ServerObject::onActivate();
     loadNPChar();
-    m_luaRunner = std::make_unique<ServerLuaCoroutineRunner>(m_actorPod);
+    m_luaRunner = std::make_unique<ServerObjectLuaThreadRunner>(this);
 
     m_luaRunner->bindFunction("getMapID", [this]() -> int
     {

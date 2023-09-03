@@ -13,7 +13,7 @@
 #include "serdesmsg.hpp"
 #include "mir2xmapdata.hpp"
 #include "serverobject.hpp"
-#include "serverluacoroutinerunner.hpp"
+#include "serverobjectluathreadrunner.hpp"
 #include "lochashtable.hpp"
 #include "parallel_hashmap/phmap.h"
 
@@ -104,7 +104,7 @@ class ServerMap final: public ServerObject
         /* */ uint64_t m_threadKey = m_mainScriptThreadKey + 1;
 
     private:
-        std::unique_ptr<ServerLuaCoroutineRunner> m_luaRunner;
+        std::unique_ptr<ServerObjectLuaThreadRunner> m_luaRunner;
 
     private:
         void operateAM(const ActorMsgPack &);
