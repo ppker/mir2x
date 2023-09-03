@@ -32,7 +32,7 @@ local quest_config = {
             ]])
         end,
 
-        on_start = function(uid, args)
+        on_start = function(uid)
             uidPostXML(uid,
             [[
                 <layout>
@@ -43,7 +43,7 @@ local quest_config = {
             ]], SYS_EXIT)
         end,
 
-        on_done = function(uid, args)
+        on_done = function(uid)
             uidPostXML(uid,
             [[
                 <layout>
@@ -58,7 +58,7 @@ local quest_config = {
 
     [questName_pariche] = {
         level = 5,
-        level_failure = function(uid, args)
+        level_failure = function(uid)
             uidPostXML(uid,
             [[
                 <layout>
@@ -70,7 +70,7 @@ local quest_config = {
             ]])
         end,
 
-        on_start = function(uid, args)
+        on_start = function(uid)
             uidPostXML(uid,
             [[
                 <layout>
@@ -81,7 +81,7 @@ local quest_config = {
             ]], SYS_EXIT)
         end,
 
-        on_done = function(uid, args)
+        on_done = function(uid)
             uidPostXML(uid,
             [[
                 <layout>
@@ -94,7 +94,7 @@ local quest_config = {
 
     [questName_dolumi] = {
         level = 7,
-        level_failure = function(uid, args)
+        level_failure = function(uid)
             uidPostXML(uid,
             [[
                 <layout>
@@ -105,7 +105,7 @@ local quest_config = {
             ]])
         end,
 
-        on_start = function(uid, args)
+        on_start = function(uid)
             uidPostXML(uid,
             [[
                 <layout>
@@ -116,7 +116,7 @@ local quest_config = {
             ]], SYS_EXIT)
         end,
 
-        on_done = function(uid, args)
+        on_done = function(uid)
             uidPostXML(uid,
             [[
                 <layout>
@@ -125,7 +125,59 @@ local quest_config = {
                 </layout>
             ]], SYS_EXIT)
         end,
-    }
+    },
+
+    [questName_wang] = {
+        level = 9,
+        level_failure = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>你还没有开始王大人任务呢！</par>
+                    <par>要想挑战王大人任务，首先要完成初级任务。</par>
+                    <par>王大人任务是去帮助王大人将比奇省商界掌握在比奇商会手中。</par>
+                    <par>可惜你现在还没有帮助王大人的能力，首先要将等级提高到9以上才行！</par>
+                    <par><event id="npc_show_quest_list">前一步</event></par>
+                </layout>
+            ]])
+        end,
+
+        prequest = questName_basic,
+        prequest_failure = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>要想挑战王大人任务，首先要完成初级任务。</par>
+                    <par>最起码要跟王大人有点交情才能得到王大人的信任，不是吗？</par>
+                    <par><event id="npc_show_quest_list">前一步</event></par>
+                </layout>
+            ]])
+        end,
+
+        on_start = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>你还没有开始王大人任务呢！</par>
+                    <par>王大人任务是去帮助王大人将比奇省商界掌握在比奇商会手中。</par>
+                    <par>完成任务后，凭借你与王大人的交情将会对完成以后的任务有很大帮助！</par>
+                    <par>那么，先去王大人那儿走走吧。</par>
+                    <par><event id="%s">结束</event></par>
+                </layout>
+            ]], SYS_EXIT)
+        end,
+
+        on_done = function(uid)
+            uidPostXML(uid,
+            [[
+                <layout>
+                    <par>很好，现在比奇省商界的势力就要改朝换代了！</par>
+                    <par>从王大人的话中得知好像也要得到比奇城城主的信任才行！</par>
+                    <par><event id="%s">结束</event></par>
+                </layout>
+            ]], SYS_EXIT)
+        end,
+    },
 }
 
 setEventHandler(
