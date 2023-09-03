@@ -269,7 +269,12 @@ Quest::QuestThreadRunner::QuestThreadRunner(Quest *quest)
                 case AM_LOADMAPOK:
                     {
                         const auto amLMOK = mpk.conv<AMLoadMapOK>();
-                        onDone(amLMOK.uid);
+                        if(amLMOK.uid){
+                            onDone(amLMOK.uid);
+                        }
+                        else{
+                            onDone();
+                        }
                         break;
                     }
                 default:
