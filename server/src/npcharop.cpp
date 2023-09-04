@@ -14,8 +14,8 @@ void NPChar::on_AM_ACTION(const ActorMsgPack &mpk)
     const auto amA = mpk.conv<AMAction>();
     switch(uidf::getUIDType(amA.UID)){
         case UID_PLY:
-        case UID_MON:
             {
+                m_luaRunner->spawn(amA.UID, str_printf("_RSVD_NAME_trigger(SYS_ON_APPEAR, %llu)", to_llu(amA.UID)));
                 dispatchAction(amA.UID, makeActionStand());
                 break;
             }

@@ -286,6 +286,13 @@ local _RSVD_NAME_triggerConfigList = {
             'integer'   -- itemID
         },
     },
+
+    [SYS_ON_APPEAR] = {
+        'SYS_ON_APPEAR',
+        {
+            'integer'   -- uid
+        },
+    },
 }
 
 function _RSVD_NAME_triggerConfig(triggerType)

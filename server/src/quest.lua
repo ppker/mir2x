@@ -473,15 +473,17 @@ function _RSVD_NAME_trigger(triggerType, uid, ...)
     end
 
     local doneKeyList = {}
-    for triggerKey, triggerFunc in pairs(_RSVD_NAME_triggers[triggerType]) do
-        local result = triggerFunc(uid, table.unpack(args, 1, #config[2]))
-        if type(result) == 'boolean' then
-            if result then
+    if _RSVD_NAME_triggers[triggerType] then
+        for triggerKey, triggerFunc in pairs(_RSVD_NAME_triggers[triggerType]) do
+            local result = triggerFunc(uid, table.unpack(args, 1, #config[2]))
+            if type(result) == 'boolean' then
+                if result then
+                    table.insert(doneKeyList, triggerKey)
+                end
+            elseif type(result) ~= 'nil' then
                 table.insert(doneKeyList, triggerKey)
+                addLog(LOGTYPE_WARNING, 'Trigger %s callback returns invalid type %s, key %s removed.', config[1], type(result), tostring(triggerKey))
             end
-        elseif type(result) ~= 'nil' then
-            table.insert(doneKeyList, triggerKey)
-            addLog(LOGTYPE_WARNING, 'Trigger %s callback returns invalid type %s, key %s removed.', config[1], type(result), tostring(triggerKey))
         end
     end
 
