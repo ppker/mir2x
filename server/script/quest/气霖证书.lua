@@ -7,7 +7,7 @@ setQuestFSMTable(
         ]],
         [[
             local questUID, questName = ...
-            local questPath = {SYS_EPQST, questName}
+            local questPath = {SYS_EPUID, questName}
 
             return
             {
@@ -42,8 +42,6 @@ setQuestFSMTable(
                             <par><event id="%s">结束</event></par>
                         </layout>
                     ]=], SYS_EXIT)
-
-                    qstapi.setState(questUID, {uid=uid, state=SYS_ENTER})
                 end,
             }
         ]])
@@ -52,9 +50,7 @@ setQuestFSMTable(
 
 uidRemoteCall(getNPCharUID('比奇县_0', '世玉_1'), getUID(), getQuestName(),
 [[
-    local questUID, questName, minQuestLevel = ...
-    local questPath = {SYS_EPQST, questName}
-
+    local questUID, questName = ...
     setQuestHandler(questName,
     {
         [SYS_CHECKACTIVE] = function(uid)
