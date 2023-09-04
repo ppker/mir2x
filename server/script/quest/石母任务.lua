@@ -1,16 +1,28 @@
-uidRemoteCall(getNPCharUID('比奇县_0', '母子石像_1'),
+uidRemoteCall(getNPCharUID('比奇县_0', '母子石像_1'), getUID(), getQuestName(),
 [[
+    local questUID, questName = ...
+    local questPath = {SYS_EPQST, questName}
+
+    setQuestHandler(questName,
+    {
+        [SYS_CHECKACTIVE] = false,
+        [SYS_ENTER] = function(uid, args)
+            plyapi.spaceMove(uid, '比奇县_0_003', 28, 35)
+        end,
+    })
+
     addTrigger(SYS_ON_APPEAR, function(uid)
         if not isPlayer(uid) then
             return
         end
 
-        uidPostXML(uid,
+        uidPostXML(uid, questPath,
         [=[
             <layout>
-                <par>你来找我啦？</par>
-                <par><event id="%s">退出</event></par>
+                <par>这石头的样子真奇怪...</par>
+                <par><event id="%s">过去看看？</event></par>
+                <par><event id="%s">感觉很奇怪，我还是离远点比较好...</event></par>
             </layout>
-        ]=], SYS_EXIT)
+        ]=], SYS_ENTER, SYS_EXIT)
     end)
 ]])

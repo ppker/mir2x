@@ -277,7 +277,7 @@ function setQuestHandler(quest, questHandler)
     assertType(quest, 'string')
     assertType(questHandler, 'table')
     assertType(questHandler[SYS_ENTER], 'function')
-    assertType(questHandler[SYS_CHECKACTIVE], 'function', 'nil')
+    assertType(questHandler[SYS_CHECKACTIVE], 'function', 'boolean', 'nil')
     _RSVD_NAME_EPQST_eventHandlers[quest] = questHandler
 end
 

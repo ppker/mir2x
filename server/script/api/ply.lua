@@ -110,6 +110,17 @@ function ply.hasItem(uid, item, arg1, arg2)
     ]])
 end
 
+function ply.spaceMove(playerUID, ...)
+    assert(isPlayer(playerUID))
+    local args = table.pack(...)
+
+    uidRemoteCall(playerUID, args,
+    [[
+        local args = ...
+        return spaceMove(table.unpack(args, 1, args.n))
+    ]])
+end
+
 function ply.getQuestState(uid, ...)
     return uidRemoteCall(uid, table.pack(...),
     [[
