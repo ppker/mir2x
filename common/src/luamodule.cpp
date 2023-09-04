@@ -172,6 +172,7 @@ LuaModule::LuaModule()
     execString("SYS_ON_KILL     = %d", SYS_ON_KILL);
     execString("SYS_ON_TEAMUP   = %d", SYS_ON_TEAMUP);
     execString("SYS_ON_TEAMDOWN = %d", SYS_ON_TEAMDOWN);
+    execString("SYS_ON_APPEAR   = %d", SYS_ON_APPEAR);
     execString("SYS_ON_END      = %d", SYS_ON_END);
 
     execString("SYS_COOP        = \'%s\'", SYS_COOP);

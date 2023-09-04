@@ -27,6 +27,8 @@ enum SysTriggerType: int
     SYS_ON_TEAMUP,
     SYS_ON_TEAMDOWN,
 
+    SYS_ON_APPEAR,
+
     SYS_ON_END,
 };
 
