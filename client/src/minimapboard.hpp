@@ -36,4 +36,7 @@ class MiniMapBoard: public Widget
 
     private:
         int getFrameSize() const;
+
+    private:
+        std::tuple<int, int> mouseOnMapGLoc(int, int) const;
 };

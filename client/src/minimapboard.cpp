@@ -131,7 +131,28 @@ bool MiniMapBoard::processEvent(const SDL_Event &event, bool valid)
     bool took = false;
     took |= m_buttonAlpha .processEvent(event, valid && !took);
     took |= m_buttonExtend.processEvent(event, valid && !took);
-    return took;
+
+    if(took){
+        return true;
+    }
+
+    switch(event.type){
+        case SDL_MOUSEBUTTONDOWN:
+            {
+                if(event.button.button == SDL_BUTTON_RIGHT){
+                    if(in(event.button.x, event.button.y)){
+                        const auto [onMapPX, onMapPY] = mouseOnMapGLoc(event.button.x - x(), event.button.y - y());
+                        m_processRun->requestSpaceMove(std::get<0>(m_processRun->getMap()), onMapPX, onMapPY);
+                        return true;
+                    }
+                }
+                return false;
+            }
+        default:
+            {
+                return false;
+            }
+    }
 }
 
 void MiniMapBoard::flipExtended()
@@ -241,7 +262,7 @@ void MiniMapBoard::drawMiniMapTexture() const
 
         const auto locStr = str_printf(u8"[%ld,%ld]", onMapPX, onMapPY);
         LabelBoard locBoard(DIR_DOWNRIGHT, mousePX, mousePY, locStr.c_str(), 1, 12, 0, colorf::RGBA(0XFF, 0XFF, 0X00, 0XFF));
-        g_sdlDevice->fillRectangle(colorf::BLACK + colorf::A_SHF(200), locBoard.x(), locBoard.y(), locBoard.w(), locBoard.h());
+        g_sdlDevice->fillRectangle((m_processRun->canMove(true, 0, onMapPX, onMapPY) ? colorf::BLACK : colorf::RED) + colorf::A_SHF(200), locBoard.x(), locBoard.y(), locBoard.w(), locBoard.h());
         locBoard.draw();
     }
 }
@@ -269,4 +290,31 @@ void MiniMapBoard::flipMiniMapShow()
 {
     flipShow();
     setPLoc();
+}
+
+std::tuple<int, int> MiniMapBoard::mouseOnMapGLoc(int xOff, int yOff) const
+{
+    auto mapTexPtr = getMiniMapTexture();
+    fflassert(mapTexPtr);
+
+    const auto [mapID, mapW, mapH] = m_processRun->getMap();
+    const auto [texW, texH] = SDLDeviceHelper::getTextureSize(mapTexPtr);
+    const auto fnGetMPLoc = [mapW, mapH, texW, texH](const std::tuple<int, int> &loc) -> std::tuple<int, int>
+    {
+        return
+        {
+            to_d(std::lround((std::get<0>(loc) * 1.0 / mapW) * texW)),
+            to_d(std::lround((std::get<1>(loc) * 1.0 / mapH) * texH)),
+        };
+    };
+
+    const auto [heroMPX, heroMPY] = fnGetMPLoc(m_processRun->getMyHero()->location());
+    const int srcX = std::min<int>(std::max<int>(0, heroMPX - w() / 2), texW - w());
+    const int srcY = std::min<int>(std::max<int>(0, heroMPY - h() / 2), texH - h());
+
+    return
+    {
+        std::lround((xOff + srcX) * 1.0 * mapW / texW),
+        std::lround((yOff + srcY) * 1.0 * mapH / texH),
+    };
 }
