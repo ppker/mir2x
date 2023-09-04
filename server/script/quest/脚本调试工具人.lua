@@ -78,6 +78,8 @@ uidRemoteCall(getNPCharUID('道馆_1', '物品展示商人'), getUID(), getQuest
                 local dstStr = ...
                 spaceMove(load('return' .. dstStr)())
             ]=])
+
+            plyapi.addItem(uid, '制魔宝玉')
         end,
     })
 ]])

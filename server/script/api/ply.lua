@@ -22,6 +22,21 @@ function ply.postString(uid, msg, ...)
 end
 
 function ply.addItem(uid, item, count)
+    assertType(uid, 'integer')
+    assert(isPlayer(uid))
+
+    assertType(item, 'string', 'integer')
+    if type(item) == 'string' then
+        item = getItemID(item)
+    end
+    assert(item > 0)
+
+    assertType(count, 'integer', 'nil')
+    if count == nil then
+        count = 1
+    end
+    assert(count > 0)
+
     return uidRemoteCall(uid, item, count,
     [[
         local item, count = ...
@@ -29,7 +44,32 @@ function ply.addItem(uid, item, count)
     ]])
 end
 
-function ply.removeItem(uid, item, seq, count)
+function ply.removeItem(uid, item, arg1, arg2)
+    assertType(uid, 'integer')
+    assert(isPlayer(uid))
+
+    assertType(item, 'string', 'integer')
+
+    if type(item) == 'string' then
+        item = getItemID(item)
+    end
+
+    assert(item > 0)
+
+    local seq
+    local count
+
+    if math.type(arg1) == 'integer' and math.type(arg2) == 'integer' then
+        seq = arg1
+        count = arg2
+    elseif math.type(arg1) == 'integer' and arg2 == nil then
+        seq = 0
+        count = arg1
+    end
+
+    assert(seq >= 0)
+    assert(count > 0)
+
     return uidRemoteCall(uid, item, seq, count,
     [[
         local item, seq, count = ...
@@ -37,7 +77,32 @@ function ply.removeItem(uid, item, seq, count)
     ]])
 end
 
-function ply.hasItem(uid, item, seq, count)
+function ply.hasItem(uid, item, arg1, arg2)
+    assertType(uid, 'integer')
+    assert(isPlayer(uid))
+
+    assertType(item, 'string', 'integer')
+
+    if type(item) == 'string' then
+        item = getItemID(item)
+    end
+
+    assert(item > 0)
+
+    local seq
+    local count
+
+    if math.type(arg1) == 'integer' and math.type(arg2) == 'integer' then
+        seq = arg1
+        count = arg2
+    elseif math.type(arg1) == 'integer' and arg2 == nil then
+        seq = 0
+        count = arg1
+    end
+
+    assert(seq >= 0)
+    assert(count > 0)
+
     return uidRemoteCall(uid, item, seq, count,
     [[
         local item, seq, count = ...
