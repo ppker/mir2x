@@ -154,6 +154,8 @@ setQuestFSMTable(
                             <par><event id="npc_ask_why_not_go_directly">为什么不直接去找他呢？</event></par>
                         </layout>
                     ]=])
+
+                    plyapi.addItem(uid, getItemID('玉指环'), 1)
                 end,
 
                 npc_ask_why_not_go_directly = function(uid, args)
@@ -165,6 +167,8 @@ setQuestFSMTable(
                             <par><event id="%s">结束</event></par>
                         </layout>
                     ]=], SYS_EXIT)
+
+                    qstapi.setState(questUID, {uid=uid, state='quest_ask_husband'})
                 end,
             }
         ]])
@@ -237,6 +241,7 @@ setQuestFSMTable(
                         </layout>
                     ]=], SYS_EXIT)
 
+                    plyapi.addItem(uid, getItemID('制魔宝玉'), 1)
                     qstapi.setState(questUID, {uid=uid, state=SYS_DONE})
                 end,
             }
