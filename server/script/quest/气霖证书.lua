@@ -182,34 +182,34 @@ setQuestFSMTable(
             return
             {
                 [SYS_ENTER] = function(uid, args)
-                    uidPostXML(uid, questPath,
-                    [=[
-                        <layout>
-                            <par>那个在棉布店工作的女子好像就是我妻子啊！哦…难道没有什么要转交给我的东西吗？</par>
-                            <par></par>
-                            <par><event id="npc_show_ring">请您看看这个？</event></par>
-                        </layout>
-                    ]=])
+                    if plyapi.hasItem(uid, getItemID('玉指环'), 0, 1) then
+                        uidPostXML(uid, questPath,
+                        [=[
+                            <layout>
+                                <par>天啊！这个玉指环不是我作为定情信物送给妻子的吗？请快快告诉我，你是从哪儿得到这个指环的？</par>
+                                <par></par>
+                                <par><event id="npc_where_it_is_from">是从棉布店的苏白花夫人那得到的！</event></par>
+                            </layout>
+                        ]=])
+                    else
+                        uidPostXML(uid, questPath,
+                        [=[
+                            <layout>
+                                <par>那个在棉布店工作的女子好像就是我妻子啊！哦...难道没有什么要转交给我的东西吗？</par>
+                                <par></par>
+                                <par><event id="%s">退出</event></par>
+                            </layout>
+                        ]=], SYS_EXIT)
+                    end
                 end,
 
-                npc_show_ring = function(uid, args)
-                    uidPostXML(uid, questPath,
-                    [=[
-                        <layout>
-                            <par>天啊, 这个玉指环不是我作为定情信物送给妻子的吗？侠客，请快快告诉我，你是从哪儿得到这个指环的？</par>
-                            <par></par>
-                            <par><event id="npc_where_it_from">是从棉布店的苏白花夫人那得到的。</event></par>
-                        </layout>
-                    ]=])
-                end,
-
-                npc_where_it_from = function(uid, args)
+                npc_where_it_is_from = function(uid, args)
                     uidPostXML(uid, questPath,
                     [=[
                         <layout>
                             <par>白花...！也就是说白花她现在还活着！！！</par>
                             <par></par>
-                            <par><event id="npc_where_it_from">是啊！夫人让我拿这个指环给你看，如果你还没有变心的话就让你去找她！</event></par>
+                            <par><event id="npc_ask_for_ring">是啊！夫人让我拿这个指环给你看，如果你还没有变心的话就让你去找她！</event></par>
                         </layout>
                     ]=])
                 end,
@@ -221,7 +221,7 @@ setQuestFSMTable(
                             <par>曾经的海誓山盟怎么能变...真不知该如何表达我内心对您的感激之情了！</par>
                             <par>啊，可是这个指环您要怎么办呢？这可是我和她的定情信物啊！能还给我吗？</par>
                             <par></par>
-                            <par><event id="npc_where_it_from">当然！</event></par>
+                            <par><event id="npc_give_ring">当然！</event></par>
                         </layout>
                     ]=])
                 end,
@@ -230,12 +230,14 @@ setQuestFSMTable(
                     uidPostXML(uid, questPath,
                     [=[
                         <layout>
-                            <par>真不知该如何表达我内心中对侠客您的感激之情了！啊，收下这个吧！这本来是我们家族的传家之宝，但现在已经家门零落还要这传家宝又有什么用呢？别谦让，请收下吧！</par>
+                            <par>真是太感谢了！啊，收下这个吧！这本来是我们家族的传家之宝，但现在已经家门零落还要这传家宝又有什么用呢？别谦让，请收下吧！</par>
                             <par>我收拾一下马上就去！</par>
                             <par></par>
-                            <par><event id="%s">当然！</event></par>
+                            <par><event id="%s">结束</event></par>
                         </layout>
                     ]=], SYS_EXIT)
+
+                    qstapi.setState(questUID, {uid=uid, state=SYS_DONE})
                 end,
             }
         ]])
