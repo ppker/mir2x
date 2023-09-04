@@ -54,8 +54,8 @@ setQuestFSMTable(
                         <layout>
                             <par>啊？就那件事儿？呃...又不是我有钱不想给，我只是没钱而已...</par>
                             <par></par>
-                            <par><event id="npc_criticize">要么去干活偿还，要么就去乞讨来支付住宿费。</event></par>
-                            <par><event id="npc_pay_money">虽然我不知道到底是怎么回事儿，不过你欠下住宿费就由我来付吧！下次可不要再去麻烦别人了啊！</event></par>
+                            <par><event id="npc_criticize_only">要么去干活偿还，要么就去乞讨来支付住宿费。</event></par>
+                            <par><event id="npc_pay_on_behalf">虽然我不知道到底是怎么回事儿，不过你欠下住宿费就由我来付吧！下次可不要再去麻烦别人了啊！</event></par>
                         </layout>
                     ]=])
                 end,
@@ -71,18 +71,11 @@ setQuestFSMTable(
                     ]=], SYS_EXIT)
                 end,
 
-                npc_criticize = function(uid, args)
-                    uidPostXML(uid, questPath,
-                    [=[
-                        <layout>
-                            <par>这...这个无情的世界啊！有了人才有钱，有了钱才有人！</par>
-                            <par></par>
-                            <par><event id="%s">结束</event></par>
-                        </layout>
-                    ]=], SYS_EXIT)
+                npc_criticize_only = function(uid, args)
+                    qstapi.setState(questUID, {uid=uid, state='quest_criticize_only', exitfunc=string.format([=[ runNPCEventHandler(%d, %d, {SYS_EPUID, %s}, SYS_ENTER) ]=], getUID(), uid, asInitString(questName))})
                 end,
 
-                npc_pay_money = function(uid, args)
+                npc_pay_on_behalf = function(uid, args)
                     uidPostXML(uid, questPath,
                     [=[
                         <layout>
@@ -92,13 +85,13 @@ setQuestFSMTable(
                         </layout>
                     ]=], SYS_EXIT)
 
-                    qstapi.setState(questUID, {uid=uid, state='quest_pay_money'})
+                    qstapi.setState(questUID, {uid=uid, state='quest_pay_on_behalf'})
                 end,
             }
         ]])
     end,
 
-    quest_pay_money = function(uid, args)
+    quest_pay_on_behalf = function(uid, args)
         setupNPCQuestBehavior('比奇县_0', '洪气霖_1', uid,
         [[
             return getUID(), getQuestName()
@@ -116,6 +109,83 @@ setQuestFSMTable(
                             <par>虽然我现在落的如此窘境...您却还给我留下最后的自尊，多谢了！</par>
                             <par></par>
                             <par><event id="%s">退出</event></par>
+                        </layout>
+                    ]=], SYS_EXIT)
+                end,
+            }
+        ]])
+
+        setupNPCQuestBehavior('比奇县_0', '客栈店员_1', uid,
+        [[
+            return getQuestName()
+        ]],
+        [[
+            local questName = ...
+            local questPath = {SYS_EPUID, questName}
+
+            return
+            {
+                [SYS_ENTER] = function(uid, args)
+                    uidPostXML(uid, questPath,
+                    [=[
+                        <layout>
+                            <par>见到那个客人了吗？</par>
+                            <par><event id="npc_pay_on_behalf">已经把话跟他转达了，另外欠下的住宿费我来支付吧！</event></par>
+                        </layout>
+                    ]=])
+                end,
+
+                npc_pay_on_behalf = function(uid, args)
+                    uidPostXML(uid, questPath,
+                    [=[
+                        <layout>
+                            <par>嗯...真是近来少见的善心人啊！住宿费一共是1000钱。</par>
+                            <par><event id="npc_give_gift">给您！</event></par>
+                        </layout>
+                    ]=])
+                end,
+
+                npc_give_gift = function(uid, args)
+                    uidPostXML(uid, questPath,
+                    [=[
+                        <layout>
+                            <par>谢谢啦！还有这个略表一下我的谢意吧！</par>
+                            <par><event id="%s">结束</event></par>
+                        </layout>
+                    ]=], SYS_EXIT)
+                end,
+            }
+        ]])
+    end,
+
+    quest_criticize_only = function(uid, args)
+        setupNPCQuestBehavior('比奇县_0', '客栈店员_1', uid,
+        [[
+            return getQuestName()
+        ]],
+        [[
+            local questName = ...
+            local questPath = {SYS_EPUID, questName}
+
+            return
+            {
+                [SYS_ENTER] = function(uid, args)
+                    uidPostXML(uid, questPath,
+                    [=[
+                        <layout>
+                            <par>见到那个客人了吗？</par>
+                            <par><event id="npc_criticize_only">已经把话转达给他了。</event></par>
+                        </layout>
+                    ]=])
+                end,
+
+                npc_criticize_only = function(uid, args)
+                    uidPostXML(uid, questPath,
+                    [=[
+                        <layout>
+                            <par>是吗...那个人要是自觉的话现在应该已经离开旅馆了。那些欠下的住宿费就算了吧！</par>
+                            <par>谢谢啦！还有这个略表一下我的谢意吧！</par>
+                            <par><event id="%s">结束</event></par>
                         </layout>
                     ]=], SYS_EXIT)
                 end,
