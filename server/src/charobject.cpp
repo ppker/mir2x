@@ -20,6 +20,10 @@ CharObject::LuaThreadRunner::LuaThreadRunner(CharObject *charObjectPtr)
     {
         return std::make_tuple(getCO()->X(), getCO()->Y());
     });
+
+    pfrCheck(execRawString(BEGIN_LUAINC(char)
+#include "charobject.lua"
+    END_LUAINC()));
 }
 
 CharObject::CharObject(
