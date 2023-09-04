@@ -1318,6 +1318,53 @@ void ProcessRun::registerLuaExport(ClientLuaModule *luaModulePtr)
         }
     });
 
+    luaModulePtr->bindFunction("makeItem", [this](sol::variadic_args args)
+    {
+        size_t count = 1;
+        uint32_t itemID = 0;
+
+        const std::vector<sol::object> argList(args.begin(), args.end());
+        switch(argList.size()){
+            case 1:
+            case 2:
+                {
+                    if(argList[0].is<lua_Integer>()){
+                        itemID = to_u32(argList[0].as<lua_Integer>());
+                    }
+                    else if(argList[0].is<std::string>()){
+                        itemID = DBCOM_ITEMID(to_u8cstr(argList[0].as<std::string>()));
+                    }
+                    else{
+                        throw fflerror("invalid arguments: makeItem(itemID: [int,string])");
+                    }
+
+                    if(argList.size() == 2){
+                        if(argList[1].is<lua_Integer>()){
+                            count = to_uz(argList[1].as<lua_Integer>());
+                        }
+                        else{
+                            throw fflerror("invalid arguments: makeItem(itemID: [int,string], count: int)");
+                        }
+                    }
+                    break;
+                }
+            default:
+                {
+                    throw fflerror("invalid arguments: makeItem(itemID: [int,string], count: int)");
+                }
+        }
+
+        if(!itemID){
+            throw fflerror("invalid itemID: %llu", to_llu(itemID));
+        }
+
+        if(count <= 0){
+            throw fflerror("invalid count: %llu", to_llu(count));
+        }
+
+        requestMakeItem(itemID, count);
+    });
+
     // register command ``listPlayerInfo"
     // this command call to get a player info table and print to out port
     luaModulePtr->execString(R"#(

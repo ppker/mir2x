@@ -724,7 +724,7 @@ void Player::net_CM_CONSUMEITEM(uint8_t, const uint8_t *buf, size_t)
 void Player::net_CM_MAKEITEM(uint8_t, const uint8_t *buf, size_t)
 {
     const auto cmMI = ClientMsg::conv<CMMakeItem>(buf);
-    fflassert(cmMI.count > 1, cmMI.count);
+    fflassert(cmMI.count >= 1, cmMI.count);
 
     const auto &ir = DBCOM_ITEMRECORD(cmMI.itemID);
     fflassert(ir, cmMI.itemID, cmMI.count);
