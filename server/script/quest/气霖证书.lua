@@ -286,7 +286,10 @@ uidRemoteCall(getNPCharUID('比奇县_0', '世玉_1'), getUID(), getQuestName(),
         end,
 
         [SYS_ENTER] = function(uid, args)
-            qstapi.setState(questUID, {uid=uid, state=SYS_ENTER, exitfunc=string.format([=[ runNPCEventHandler(%d, %d, {SYS_EPUID, %s}, SYS_ENTER) ]=], getUID(), uid, asInitString(questName))})
+            qstapi.setState(questUID, {uid=uid, state=SYS_ENTER, exitargs=table.pack(getUID(), uid, questName), exitfunc=[=[
+                local npcUID, playerUID, questName = ...
+                runNPCEventHandler(npcUID, playerUID, {SYS_EPUID, questName}, SYS_ENTER)
+            ]=]})
         end,
     })
 ]])

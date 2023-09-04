@@ -205,6 +205,12 @@ function setQuestState(fargs)
     assertType(fargs.state, 'string')
     assertType(fargs.exitfunc, 'function', 'string', 'nil')
 
+    if type(fargs.exitfunc) == 'string' then
+        assertType(fargs.exitargs, 'string', 'table', 'nil')
+    else
+        assertType(fargs.exitargs, 'nil')
+    end
+
     local uid   = fargs.uid
     local fsm   = fargs.fsm or SYS_QSTFSM
     local state = fargs.state
@@ -244,7 +250,21 @@ function setQuestState(fargs)
             if type(fargs.exitfunc) == 'function' then
                 runQuestThread(fargs.exitfunc)
             elseif type(fargs.exitfunc) == 'string' then
-                runQuestThread(load(fargs.exitfunc))
+                local exitfunc = load(fargs.exitfunc)
+                local exitargs = (function()
+                    if type(fargs.exitargs) == 'table' then
+                        return fargs.exitargs
+                    elseif type(fargs.exitargs) == 'string' then
+                        return table.pack(load(fargs.exitargs)())
+                    elseif type(fargs.exitargs) == 'nil' then
+                        return table.pack()
+                    else
+                        fatalPrintf('Invalid exitargs type: %s', type(fargs.exitargs))
+                    end
+                end)()
+                runQuestThread(function()
+                    exitfunc(table.unpack(exitargs, 1, exitargs.n))
+                end)
             elseif fargs.exitfunc ~= nil then
                 fatalPrintf('Invalid exitfunc type: %s', type(fargs.exitfunc))
             end
