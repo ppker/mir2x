@@ -108,7 +108,7 @@ setQuestFSMTable(
                     uidPostXML(uid, questPath,
                     [=[
                         <layout>
-                            <par>这...这个无情的世界啊！有了人才有钱，有了钱才有人！</par>
+                            <par>虽然我现在落的如此窘境...您却还给我留下最后的自尊，多谢了！</par>
                             <par><event id="%s">退出</event></par>
                         </layout>
                     ]=], SYS_EXIT)
