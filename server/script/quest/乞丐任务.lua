@@ -41,6 +41,7 @@ setQuestFSMTable(
                     [=[
                         <layout>
                             <par>呃...什么？呃啊呃啊...是不是来这儿嘲弄我来了？呃...</par>
+                            <par></par>
                             <par><event id="npc_start">我受旅馆主人之托而来，听说您在这儿白吃白住了一个多月吧？</event></par>
                             <par><event id="npc_abort">看你醉醺醺的样子，简直就没法儿说话。我还是走吧！</event></par>
                         </layout>
@@ -52,6 +53,7 @@ setQuestFSMTable(
                     [=[
                         <layout>
                             <par>啊？就那件事儿？呃...又不是我有钱不想给，我只是没钱而已...</par>
+                            <par></par>
                             <par><event id="npc_criticize">要么去干活偿还，要么就去乞讨来支付住宿费。</event></par>
                             <par><event id="npc_pay_money">虽然我不知道到底是怎么回事儿，不过你欠下住宿费就由我来付吧！下次可不要再去麻烦别人了啊！</event></par>
                         </layout>
@@ -63,6 +65,7 @@ setQuestFSMTable(
                     [=[
                         <layout>
                             <par>是啊，滚！叫你滚啊！ 呃...全给我滚开！呼...呃...</par>
+                            <par></par>
                             <par><event id="%s">结束</event></par>
                         </layout>
                     ]=], SYS_EXIT)
@@ -73,6 +76,7 @@ setQuestFSMTable(
                     [=[
                         <layout>
                             <par>这...这个无情的世界啊！有了人才有钱，有了钱才有人！</par>
+                            <par></par>
                             <par><event id="%s">结束</event></par>
                         </layout>
                     ]=], SYS_EXIT)
@@ -83,6 +87,7 @@ setQuestFSMTable(
                     [=[
                         <layout>
                             <par>呃...真是太感谢了！我落的如此惨状，过去我也曾是堂堂的商坛主人呢！我不能如此厚颜地接受别人的帮助...请收下这个吧！只要看到这个，几个还记得我的比奇省商人们会照应你的！</par>
+                            <par></par>
                             <par><event id="%s">结束</event></par>
                         </layout>
                     ]=], SYS_EXIT)
@@ -109,6 +114,7 @@ setQuestFSMTable(
                     [=[
                         <layout>
                             <par>虽然我现在落的如此窘境...您却还给我留下最后的自尊，多谢了！</par>
+                            <par></par>
                             <par><event id="%s">退出</event></par>
                         </layout>
                     ]=], SYS_EXIT)
@@ -138,6 +144,7 @@ uidRemoteCall(getNPCharUID('比奇县_0', '客栈店员_1'), getUID(), getQuestN
             [=[
                 <layout>
                     <par>唉...真是担心啊！论人情吧！又不能把他赶走。要是谁来替我让那个客人走就好了...</par>
+                    <par></par>
                     <par><event id="npc_ask">什么事啊？</event></par>
                 </layout>
             ]=])
@@ -148,6 +155,7 @@ uidRemoteCall(getNPCharUID('比奇县_0', '客栈店员_1'), getUID(), getQuestN
             [=[
                 <layout>
                     <par>啊！这位侠客，拜托您一件事。有个客人在我们旅馆白吃白住了一个多月，您能不能先替他垫上这笔钱或者干脆帮我把他赶出去呢？</par>
+                    <par></par>
                     <par><event id="npc_accept">让我跟他说说吧！</event></par>
                     <par><event id="npc_refuse">我实在是没这个闲工夫啊！</event></par>
                 </layout>
@@ -159,6 +167,7 @@ uidRemoteCall(getNPCharUID('比奇县_0', '客栈店员_1'), getUID(), getQuestN
             [=[
                 <layout>
                     <par>那就太谢谢了！那个客人白天时一般在酒摊儿附近喝的烂醉！</par>
+                    <par></par>
                     <par><event id="%s">结束</event></par>
                 </layout>
             ]=], SYS_EXIT)
@@ -171,6 +180,7 @@ uidRemoteCall(getNPCharUID('比奇县_0', '客栈店员_1'), getUID(), getQuestN
             [=[
                 <layout>
                     <par>是吗？嗯...这真是郁闷啊，真愁人啊！</par>
+                    <par></par>
                     <par><event id="%s">结束</event></par>
                 </layout>
             ]=], SYS_EXIT)
