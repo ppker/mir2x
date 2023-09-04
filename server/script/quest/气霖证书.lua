@@ -30,7 +30,7 @@ setQuestFSMTable(
                             <par></par>
                             <par><event id="npc_who_accept">那这证书怎么办？</event></par>
                         </layout>
-                    ]=], SYS_EXIT)
+                    ]=])
                 end,
 
                 npc_who_accept = function(uid, args)
@@ -78,7 +78,7 @@ setQuestFSMTable(
                         <layout>
                             <par>这个...我知道的就只有这些了。唉...人世艰辛啊！前不久我们店里也来过一个失魂落魄的女子，据说她在逃难时失去了丈夫要靠自己来混口饭吃。那个人好像有什么难言之隐，一直少言寡语。我们商店因为人手够，所以介绍她去棉布店工作了。不过依我看那个女子好像和洪气霖是从一个地方来的！</par>
                             <par></par>
-                            <par><event id="npc_who_accept">结束</event></par>
+                            <par><event id="%s">结束</event></par>
                         </layout>
                     ]=], SYS_EXIT)
 
@@ -130,7 +130,7 @@ setQuestFSMTable(
                             <par></par>
                             <par><event id="npc_ask">您见过的字体吗？</event></par>
                         </layout>
-                    ]=], SYS_EXIT)
+                    ]=])
                 end,
 
                 npc_ask = function(uid, args)
