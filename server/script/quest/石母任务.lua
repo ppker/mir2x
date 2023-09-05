@@ -10,7 +10,7 @@ uidRemoteCall(getNPCharUID('比奇县_0_003', '石母_1'), getUID(), getQuestNam
             [=[
                 <layout>
                     <par>这到底是怎么回事？那就是说女人回来了？</par>
-                    <par><event id="%s">退出</event></par>
+                    <par><event id="%s">问一下这个来路不明的女人</event></par>
                 </layout>
             ]=], SYS_EXIT)
         end,
