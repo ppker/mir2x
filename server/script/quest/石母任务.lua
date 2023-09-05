@@ -6,7 +6,7 @@ uidRemoteCall(getNPCharUID('比奇县_0_003', '石母_1'), getUID(), getQuestNam
     setQuestHandler(questName,
     {
         [SYS_ENTER] = function(uid, args)
-            uidPostXML(playerUID, questPath,
+            uidPostXML(uid, questPath,
             [=[
                 <layout>
                     <par>这到底是怎么回事？那就是说女人回来了？</par>
