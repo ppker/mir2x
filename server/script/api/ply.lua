@@ -98,6 +98,11 @@ function ply.hasItem(uid, item, arg1, arg2)
     elseif math.type(arg1) == 'integer' and arg2 == nil then
         seq = 0
         count = arg1
+    elseif arg1 == nil and arg2 == nil then
+        seq = 0
+        count = 1
+    else
+        fatalPrintf('Invalid arguments: %s, %s', type(arg1), type(arg2))
     end
 
     assert(seq >= 0)

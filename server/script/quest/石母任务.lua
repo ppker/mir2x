@@ -25,10 +25,10 @@ setQuestFSMTable(
 
         setupNPCQuestBehavior('比奇县_0', '老生_1', uid,
         [[
-            return getQuestName()
+            return getUID(), getQuestName()
         ]],
         [[
-            local questName = ...
+            local questUID, questName = ...
             local questPath = {SYS_EPUID, questName}
 
             return
@@ -53,7 +53,7 @@ setQuestFSMTable(
                         </layout>
                     ]=], SYS_EXIT)
 
-                    qstapi.setState(uid, {uid=uid, state='quest_ask_book_store'})
+                    qstapi.setState(questUID, {uid=uid, state='quest_ask_book_store'})
                 end,
             }
         ]])
@@ -84,10 +84,10 @@ setQuestFSMTable(
 
         setupNPCQuestBehavior('比奇县_0', '店员_1', uid,
         [[
-            return getQuestName()
+            return getUID(), getQuestName()
         ]],
         [[
-            local questName = ...
+            local questUID, questName = ...
             local questPath = {SYS_EPUID, questName}
 
             return
@@ -98,25 +98,25 @@ setQuestFSMTable(
                         <layout>
                             <par>关于那个夜市商人嘛...唔...</par>
                             <par>好像除了最近得到一个奇特的寿石之外就没有什么特别的消息了！那块寿石倒是蛮稀有的，据说是童子模样的呢！</par>
-                            <par><event id="npc_tell_stone_mon">这好像真有点不着边际啊！不管还是要赶快去告诉那个妇人吧！</event></par>
+                            <par><event id="npc_tell_mom">这好像真有点不着边际啊！不管还是要赶快去告诉那个妇人吧！</event></par>
                         </layout>
                     ]=])
                 end,
 
-                npc_tell_stone_mom = function(uid, args)
-                    qstapi.setState(uid, {uid=uid, state='quest_tell_stone_mom'})
+                npc_tell_mom = function(uid, args)
+                    qstapi.setState(questUID, {uid=uid, state='quest_tell_mom'})
                 end,
             }
         ]])
     end,
 
-    quest_tell_stone_mom = function(uid, args)
+    quest_tell_mom = function(uid, args)
         setupNPCQuestBehavior('比奇县_0_003', '石母_1', uid,
         [[
-            return getQuestName()
+            return getUID(), getQuestName()
         ]],
         [[
-            local questName = ...
+            local questUID, questName = ...
             local questPath = {SYS_EPUID, questName}
 
             return
@@ -192,10 +192,10 @@ setQuestFSMTable(
 
         setupNPCQuestBehavior('比奇县_0', '老生_1', uid,
         [[
-            return getQuestName()
+            return getUID(), getQuestName()
         ]],
         [[
-            local questName = ...
+            local questUID, questName = ...
             local questPath = {SYS_EPUID, questName}
 
             return
@@ -218,6 +218,11 @@ setQuestFSMTable(
                             <par>哦，原来如此。那你好好看看吧！都是稀罕玩意儿...</par>
                             <par>种类多着呢！这些东西商店里都不卖，而且一旦卖出去了，我就不会再进第二次货。你好好想想再买吧。</par>
                             <par>这些都是为了得到了又失去的人准备的...你就算现在买了也没什么用...</par>
+
+                            <par></par>
+                            <par><event id="npc_ask_for_purchase_kid_statue">童子像</event></par>
+                            <par></par>
+
                             <par><event id="%s">结束</event></par>
                         </layout>
                     ]=], SYS_EXIT)
@@ -244,7 +249,7 @@ setQuestFSMTable(
                 end,
 
                 npc_check_exchange = function(uid, args)
-                    if plyapi.hasItem('制魔宝玉') then
+                    if plyapi.hasItem(uid, '制魔宝玉') then
                         uidPostXML(uid, questPath,
                         [=[
                             <layout>
@@ -291,12 +296,34 @@ setQuestFSMTable(
     end,
 
     quest_got_kid_statue = function(uid, args)
-        setupNPCQuestBehavior('比奇县_0_003', '石母_1', uid,
+        setupNPCQuestBehavior('比奇县_0', '老生_1', uid,
         [[
-            return getQuestName()
+            return getUID(), getQuestName()
         ]],
         [[
-            local questName = ...
+            local questUID, questName = ...
+            local questPath = {SYS_EPUID, questName}
+
+            return
+            {
+                [SYS_ENTER] = function(uid, args)
+                    uidPostXML(uid, questPath,
+                    [=[
+                        <layout>
+                            <par>怎么还是你！你要是不买东西就赶快走！</par>
+                            <par><event id="%s">结束</event></par>
+                        </layout>
+                    ]=], SYS_EXIT)
+                end,
+            }
+        ]])
+
+        setupNPCQuestBehavior('比奇县_0_003', '石母_1', uid,
+        [[
+            return getUID(), getQuestName()
+        ]],
+        [[
+            local questUID, questName = ...
             local questPath = {SYS_EPUID, questName}
 
             return
