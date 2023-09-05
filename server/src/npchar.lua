@@ -591,6 +591,7 @@ end
 
 function runEventHandler(uid, ...)
     assertType(uid, 'integer')
+    assert(isPlayer(uid))
 
     local args  = table.pack(...)
     local path  = nil
