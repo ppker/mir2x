@@ -64,6 +64,10 @@ NPCFrameGfxSeq ClientNPC::getFrameGfxSeq(int motion, int direction) const
             {
                 return {.count = 12};
             }
+        case 59: // 母子石像
+            {
+                return {.count = 1};
+            }
         default:
             {
                 // TODO many motions are not included here
