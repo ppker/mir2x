@@ -65,6 +65,8 @@ NPCFrameGfxSeq ClientNPC::getFrameGfxSeq(int motion, int direction) const
                 return {.count = 12};
             }
         case 59: // 母子石像
+        case 64: // 雪人
+        case 65: // 雪人带树枝
             {
                 return {.count = 1};
             }
