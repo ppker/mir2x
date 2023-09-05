@@ -641,6 +641,24 @@ function runEventHandler(uid, ...)
     _RSVD_NAME_npc_main(uid, pathStr, event, value)
 end
 
+function getNPCharUID(mapName, npcName)
+    local mapUID = _RSVD_NAME_callFuncCoop('loadMap', mapName)
+    assertType(mapUID, 'integer', 'nil')
+
+    if not mapUID then
+        return nil
+    end
+
+    local npcUID = uidRemoteCall(mapUID, npcName,
+    [[
+        local npcName = ...
+        return getNPCharUID(npcName)
+    ]])
+
+    assertType(npcUID, 'integer', 'nil')
+    return npcUID
+end
+
 function getNPCMapLocXML(tag, fargs)
     assertType(tag, 'string')
     assertType(fargs, 'table', 'nil')
