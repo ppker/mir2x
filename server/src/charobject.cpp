@@ -16,6 +16,11 @@ extern MonoServer *g_monoServer;
 CharObject::LuaThreadRunner::LuaThreadRunner(CharObject *charObjectPtr)
     : ServerObject::LuaThreadRunner(charObjectPtr)
 {
+    bindFunction("getMap", [this]()
+    {
+        return getCO()->mapID();
+    });
+
     bindFunction("getMapLoc", [this]()
     {
         return std::make_tuple(getCO()->X(), getCO()->Y());
