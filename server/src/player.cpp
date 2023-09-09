@@ -1125,6 +1125,13 @@ void Player::onCMActionMine(CMAction stCMA)
                     .aimX = stCMA.action.aimX,
                     .aimY = stCMA.action.aimY,
                 });
+
+                addInventoryItem(SDItem
+                {
+                    .itemID = DBCOM_ITEMID(u8"黑铁"),
+                    .seqID  = 1,
+                    .count  = 1,
+                }, false);
                 return;
             }
         case 1:
