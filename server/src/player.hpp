@@ -231,6 +231,7 @@ class Player final: public BattleObject
 
     protected:
         void onCMActionMove    (CMAction);
+        void onCMActionMine    (CMAction);
         void onCMActionStand   (CMAction);
         void onCMActionSpell   (CMAction);
         void onCMActionSpinKick(CMAction);

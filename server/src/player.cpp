@@ -1106,6 +1106,48 @@ void Player::onCMActionMove(CMAction stCMA)
     }
 }
 
+void Player::onCMActionMine(CMAction stCMA)
+{
+    // server won't do any path finding
+    // client should sent action with only one-hop movement
+
+    int nX0 = stCMA.action.x;
+    int nY0 = stCMA.action.y;
+
+    switch(estimateHop(nX0, nY0)){
+        case 0:
+            {
+                dispatchAction(ActionMine
+                {
+                    .speed = stCMA.action.speed,
+                    .x = stCMA.action.x,
+                    .y = stCMA.action.y,
+                    .aimX = stCMA.action.aimX,
+                    .aimY = stCMA.action.aimY,
+                });
+                return;
+            }
+        case 1:
+            {
+                requestMove(nX0, nY0, SYS_MAXSPEED, false, false, [this, stCMA]()
+                {
+                    dbUpdateMapGLoc();
+                    onCMActionMine(stCMA);
+                },
+                [this]()
+                {
+                    reportStand();
+                });
+                return;
+            }
+        default:
+            {
+                reportStand();
+                return;
+            }
+    }
+}
+
 void Player::onCMActionAttack(CMAction stCMA)
 {
     getCOLocation(stCMA.action.aimUID, [this, stCMA](const COLocation &rstLocation)
