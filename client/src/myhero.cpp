@@ -266,6 +266,125 @@ bool MyHero::decompActionMove()
     }
 }
 
+bool MyHero::decompActionMine()
+{
+    fflassert(!m_actionQueue.empty() && m_actionQueue.front().type == ACTION_MINE);
+
+    const auto currAction = m_actionQueue.front();
+    m_actionQueue.pop_front();
+
+    // when parsing ActionMine
+    // we don't use ActionAttack::X/Y
+
+    // this X/Y is used to send to the server
+    // for location verification only
+
+    auto nX0 = m_currMotion->endX;
+    auto nY0 = m_currMotion->endY;
+
+    // use if need to keep the mine node
+    // we use m_currMotion->endX/y instead of rstAction.x/y
+
+    const ActionMine mine
+    {
+        .speed = currAction.speed,
+        .x = nX0,
+        .y = nY0,
+        .aimX = currAction.aimX,
+        .aimY = currAction.aimY,
+    };
+
+    const auto nX1 = currAction.aimX;
+    const auto nY1 = currAction.aimY;
+
+    switch(mathf::LDistance2<int>(nX0, nY0, nX1, nY1)){
+        case 0:
+            {
+                g_log->addLog(LOGTYPE_WARNING, "Invalid mine location (%d, %d) -> (%d, %d)", nX0, nY0, nX1, nY1);
+                m_actionQueue.clear();
+                return false;
+            }
+        case 1:
+        case 2:
+            {
+                m_actionQueue.emplace_front(mine);
+                return true;
+            }
+        default:
+            {
+                // not close enough for the PLAIN_PHY_ATTACK
+                // need to schedule a path to move closer and then mine
+
+                int nXt = -1;
+                int nYt = -1;
+
+                if(decompMove(true, 1, true, nX0, nY0, nX1, nY1, &nXt, &nYt)){
+
+                    // decompse the move
+                    // but need to check if it's one step distance
+
+                    switch(mathf::LDistance2<int>(nXt, nYt, nX1, nY1)){
+                        case 0:
+                            {
+                                // one hop we can reach the mine location
+                                // but we know step size between (nX0, nY0) and (nX1, nY1) > 1
+
+                                std::tie(nXt, nYt) = pathf::getFrontGLoc(nX0, nY0, pathf::getOffDir(nX0, nY0, nX1, nY1), 1);
+                                break;
+                            }
+                        default:
+                            {
+                                break;
+                            }
+                    }
+
+                    m_actionQueue.emplace_front(ActionMine
+                    {
+                        .speed = currAction.speed,
+                        .x = nXt,
+                        .y = nYt,
+                        .aimX = currAction.aimX,
+                        .aimY = currAction.aimY,
+                    });
+
+                    m_actionQueue.emplace_front(ActionMove
+                    {
+                        .speed = SYS_DEFSPEED,
+                        .x = nX0,
+                        .y = nY0,
+                        .aimX = nXt,
+                        .aimY = nYt,
+                        .onHorse = onHorse(),
+                    });
+                    return true;
+                }
+                else{
+
+                    // decompse failed, why it failed?
+                    // if can't reach we need to reject current action
+                    // if caused by occupied grids of creatures, we need to keep it
+
+                    if(decompMove(true, 0, false, nX0, nY0, nX1, nY1, nullptr, nullptr)){
+                        // keep it
+                        // can reach but not now
+                        m_actionQueue.emplace_front(mine);
+                    }
+                    else{
+                        m_actionQueue.clear();
+                    }
+
+                    // decompse failed
+                    // the head of the action queue is not simple
+                    return false;
+                }
+            }
+    }
+
+    // we can't get the UID
+    // remove the mine node and return false
+    return false;
+}
+
 bool MyHero::decompActionAttack()
 {
     if(m_actionQueue.empty() || m_actionQueue.front().type != ACTION_ATTACK){
@@ -493,6 +612,13 @@ bool MyHero::parseActionQueue()
         case ACTION_ATTACK:
             {
                 if(!decompActionAttack()){
+                    return false;
+                }
+                break;
+            }
+        case ACTION_MINE:
+            {
+                if(!decompActionMine()){
                     return false;
                 }
                 break;

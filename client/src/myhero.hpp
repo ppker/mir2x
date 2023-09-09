@@ -58,6 +58,7 @@ class MyHero: public Hero
 
     protected:
         bool decompActionMove();
+        bool decompActionMine();
         bool decompActionSpell();
         bool decompActionAttack();
 

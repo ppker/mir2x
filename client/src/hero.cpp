@@ -555,6 +555,7 @@ bool Hero::parseAction(const ActionNode &action)
                 break;
             }
         case ACTION_MOVE:
+        case ACTION_MINE:
         case ACTION_STAND:
         case ACTION_SPELL:
         case ACTION_ATTACK:
@@ -638,6 +639,25 @@ bool Hero::parseAction(const ActionNode &action)
                 else{
                     return false;
                 }
+                break;
+            }
+        case ACTION_MINE:
+            {
+                m_motionQueue.push_back(std::unique_ptr<MotionNode>(new MotionNode
+                {
+                    .type = MOTION_TWOVSWING,
+                    .direction = [this]()
+                    {
+                        if(m_motionQueue.empty()){
+                            return m_currMotion->direction;
+                        }
+                        else{
+                            return m_motionQueue.back()->direction;
+                        }
+                    }(),
+                    .x = action.x,
+                    .y = action.y,
+                }));
                 break;
             }
         case ACTION_SPACEMOVE:

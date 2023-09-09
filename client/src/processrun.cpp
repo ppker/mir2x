@@ -587,6 +587,17 @@ void ProcessRun::processEvent(const SDL_Event &event)
                                 requestDropItem(grabbedItem.itemID, grabbedItem.seqID, grabbedItem.count);
                             }
 
+                            else if(m_mir2xMapData.cell(mouseGridX, mouseGridY).land.canMine()){
+                                getMyHero()->emplaceAction(ActionMine
+                                {
+                                    .speed = SYS_DEFSPEED,
+                                    .x = getMyHero()->currMotion()->endX,
+                                    .y = getMyHero()->currMotion()->endY,
+                                    .aimX = mouseGridX,
+                                    .aimY = mouseGridY,
+                                });
+                            }
+
                             else if(m_mir2xMapData.validC(mouseGridX, mouseGridY) && !getGroundItemIDList(mouseGridX, mouseGridY).empty()){
                                 // for small map becasue hero may be forced to put in center
                                 // then there are some grid on screen are actually invalid, skip them

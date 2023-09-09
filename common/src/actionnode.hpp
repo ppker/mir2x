@@ -20,6 +20,7 @@ enum ActionType: int
     ACTION_HITTED,
     ACTION_SPINKICK,
     ACTION_DIE,
+    ACTION_MINE,
     ACTION_END,
 };
 
@@ -487,6 +488,33 @@ struct ActionHitted
     }
 };
 
+struct ActionMine
+{
+    const int speed = SYS_DEFSPEED;
+
+    const int x = -1;
+    const int y = -1;
+
+    const int aimX = -1;
+    const int aimY = -1;
+
+    operator ActionNode () const
+    {
+        ActionNode node;
+        std::memset(&node, 0, sizeof(node));
+
+        node.type = ACTION_MINE;
+        node.speed  = speed;
+
+        node.x = x;
+        node.y = y;
+
+        node.aimX = aimX;
+        node.aimY = aimY;
+        return node;
+    }
+};
+
 inline bool actionValid(int type)
 {
     return type >= ACTION_BEGIN && type < ACTION_END;
@@ -514,6 +542,7 @@ inline const char *actionName(int type)
         _add_action_type_case(ACTION_HITTED   )
         _add_action_type_case(ACTION_SPINKICK )
         _add_action_type_case(ACTION_DIE      )
+        _add_action_type_case(ACTION_MINE     )
         default: return "ACTION_UNKNOWN";
     }
 #undef _add_action_type_case

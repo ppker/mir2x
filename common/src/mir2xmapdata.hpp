@@ -119,6 +119,11 @@ class Mir2xMapData final
             {
                 return canWalk || canFly;
             }
+
+            bool canMine() const
+            {
+                return true;
+            }
         };
 
         // every obj can have 4 types
