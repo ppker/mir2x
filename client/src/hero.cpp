@@ -643,21 +643,46 @@ bool Hero::parseAction(const ActionNode &action)
             }
         case ACTION_MINE:
             {
+                const auto standDir = [&action, this]()
+                {
+                    if(m_motionQueue.empty()){
+                        return pathf::getDir8(action.aimX - m_currMotion->endX, action.aimY - m_currMotion->endY) + DIR_BEGIN;
+                    }
+                    else{
+                        return m_motionQueue.back()->direction;
+                    }
+                }();
+
                 m_motionQueue.push_back(std::unique_ptr<MotionNode>(new MotionNode
                 {
                     .type = MOTION_TWOVSWING,
-                    .direction = [&action, this]()
-                    {
-                        if(m_motionQueue.empty()){
-                            return pathf::getDir8(action.aimX - m_currMotion->endX, action.aimY - m_currMotion->endY) + DIR_BEGIN;
-                        }
-                        else{
-                            return m_motionQueue.back()->direction;
-                        }
-                    }(),
+                    .direction = standDir,
                     .x = action.x,
                     .y = action.y,
                 }));
+
+                m_motionQueue.push_back(std::unique_ptr<MotionNode>(new MotionNode
+                {
+                    .type = MOTION_ATTACKMODE,
+                    .direction = standDir,
+                    .x = action.x,
+                    .y = action.y,
+                }));
+
+                if(UID() == m_processRun->getMyHeroUID()){
+                    m_motionQueue.back()->addTrigger(false, [&action, this](MotionNode *)
+                    {
+                        m_processRun->getMyHero()->emplaceAction(ActionMine
+                        {
+                            .speed = action.speed,
+                            .x = m_currMotion->endX,
+                            .y = m_currMotion->endY,
+                            .aimX = action.aimX,
+                            .aimY = action.aimY,
+                        });
+                        return true;
+                    });
+                }
                 break;
             }
         case ACTION_SPACEMOVE:
