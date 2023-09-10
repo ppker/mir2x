@@ -460,12 +460,9 @@ bool Hero::motionValid(const std::unique_ptr<MotionNode> &motionPtr) const
                     return false;
                 }
             case MOTION_ATTACKMODE:
-                {
-                    return !onHorse() && (nLDistance2 == 0);
-                }
             case MOTION_CUT:
                 {
-                    return false;
+                    return !onHorse() && (nLDistance2 == 0);
                 }
             case MOTION_ONEVSWING:
             case MOTION_TWOVSWING:
@@ -1676,4 +1673,9 @@ void Hero::queryName() const
 
     cmQPN.uid = UID();
     g_client->send(CM_QUERYPLAYERNAME, cmQPN);
+}
+
+bool Hero::isMyHero() const
+{
+    return UID() == m_processRun->getMyHeroUID();
 }

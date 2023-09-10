@@ -190,4 +190,7 @@ class Hero: public CreatureMovable
         {
             return false;
         }
+
+    public:
+        bool isMyHero() const;
 };
