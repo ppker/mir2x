@@ -670,7 +670,7 @@ bool Hero::parseAction(const ActionNode &action)
                 }));
 
                 if(UID() == m_processRun->getMyHeroUID()){
-                    m_motionQueue.back()->addTrigger(false, [&action, this](MotionNode *)
+                    m_motionQueue.back()->addTrigger(false, [action, this](MotionNode *)
                     {
                         m_processRun->getMyHero()->emplaceAction(ActionMine
                         {
