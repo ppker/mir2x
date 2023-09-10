@@ -170,17 +170,6 @@ void ProcessRun::update(double fUpdateTime)
         }
     }
 
-    if(auto p = findUID(getFocusUID(FOCUS_ATTACK))){
-        if(p->alive()){
-            trackAttack(false, getFocusUID(FOCUS_ATTACK));
-        }
-        else{
-            setFocusUID(FOCUS_ATTACK, 0);
-        }
-    }else{
-        setFocusUID(FOCUS_ATTACK, 0);
-    }
-
     if(true){
         centerMyHero();
     }

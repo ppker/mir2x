@@ -286,7 +286,7 @@ class ProcessRun: public Process
     public:
         ClientCreature *findUID(uint64_t, bool checkVisible = true) const;
 
-    private:
+    public:
         bool trackAttack(bool, uint64_t);
 
     public:

@@ -1136,6 +1136,16 @@ bool Hero::parseAction(const ActionNode &action)
                             .x = action.x,
                             .y = action.y,
                         }));
+
+                        if(UID() == m_processRun->getMyHeroUID()){
+                            m_motionQueue.back()->addTrigger(false, [aimUID = action.aimUID, this](MotionNode *)
+                            {
+                                if(auto p = m_processRun->findUID(aimUID); p && p->alive()){
+                                    m_processRun->trackAttack(false, aimUID);
+                                }
+                                return true;
+                            });
+                        }
                     }
                 }
                 else{
