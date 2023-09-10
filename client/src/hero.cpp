@@ -646,10 +646,10 @@ bool Hero::parseAction(const ActionNode &action)
                 m_motionQueue.push_back(std::unique_ptr<MotionNode>(new MotionNode
                 {
                     .type = MOTION_TWOVSWING,
-                    .direction = [this]()
+                    .direction = [&action, this]()
                     {
                         if(m_motionQueue.empty()){
-                            return m_currMotion->direction;
+                            return pathf::getDir8(action.aimX - m_currMotion->endX, action.aimY - m_currMotion->endY) + DIR_BEGIN;
                         }
                         else{
                             return m_motionQueue.back()->direction;
