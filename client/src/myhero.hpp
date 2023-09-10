@@ -61,6 +61,7 @@ class MyHero: public Hero
         bool decompActionMine();
         bool decompActionSpell();
         bool decompActionAttack();
+        bool decompActionPickUp();
 
     public:
         bool parseActionQueue();

@@ -15,6 +15,7 @@ enum ActionType: int
     ACTION_PUSHMOVE,
     ACTION_SPACEMOVE,
     ACTION_ATTACK,
+    ACTION_PICKUP,
     ACTION_SPELL,
     ACTION_TRANSF,
     ACTION_HITTED,
@@ -168,7 +169,6 @@ struct ActionNode
 
     struct ExtParamMove
     {
-        uint8_t pickUp  : 1;
         uint8_t onHorse : 1;
     };
 
@@ -403,7 +403,6 @@ struct ActionMove
         node.aimX = aimX;
         node.aimY = aimY;
 
-        node.extParam.move.pickUp = pickUp;
         node.extParam.move.onHorse = onHorse;
         return node;
     }
@@ -459,6 +458,28 @@ struct ActionAttack
         node.aimUID = aimUID;
         node.extParam.attack.magicID = magicID;
         node.extParam.attack.modifierID = modifierID;
+        return node;
+    }
+};
+
+struct ActionPickUp
+{
+    const int speed = SYS_DEFSPEED;
+
+    const int x = -1;
+    const int y = -1;
+
+    operator ActionNode () const
+    {
+        ActionNode node;
+        std::memset(&node, 0, sizeof(node));
+
+        node.type = ACTION_PICKUP;
+        node.speed = speed;
+
+        node.x = x;
+        node.y = y;
+
         return node;
     }
 };

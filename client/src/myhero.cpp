@@ -218,7 +218,6 @@ bool MyHero::decompActionMove()
                                     .y = nYm,
                                     .aimX = currAction.aimX,
                                     .aimY = currAction.aimY,
-                                    .pickUp = (bool)(currAction.extParam.move.pickUp),
                                     .onHorse = (bool)(currAction.extParam.move.onHorse),
                                 });
 
@@ -229,7 +228,6 @@ bool MyHero::decompActionMove()
                                     .y = currAction.y,
                                     .aimX = nXm,
                                     .aimY = nYm,
-                                    .pickUp = false,
                                     .onHorse = (bool)(currAction.extParam.move.onHorse),
                                 });
                                 return true;
@@ -508,6 +506,91 @@ bool MyHero::decompActionAttack()
     return false;
 }
 
+bool MyHero::decompActionPickUp()
+{
+    fflassert(!m_actionQueue.empty() && m_actionQueue.front().type == ACTION_PICKUP);
+
+    const auto currAction = m_actionQueue.front();
+    m_actionQueue.pop_front();
+
+    int nX0 = currAction.x;
+    int nY0 = currAction.y;
+    int nX1 = currAction.aimX;
+    int nY1 = currAction.aimY;
+
+    if(!m_processRun->canMove(true, 0, nX0, nY0)){
+        g_log->addLog(LOGTYPE_WARNING, "Motion start from invalid grid (%d, %d)", nX0, nY0);
+        m_actionQueue.clear();
+        return false;
+    }
+
+    switch(mathf::LDistance2(nX0, nY0, nX1, nY1)){
+        case 0:
+            {
+                m_actionQueue.emplace_front(currAction);
+                return true;
+            }
+        default:
+            {
+                const auto fnaddHop = [this, currAction](int nXm, int nYm) -> bool
+                {
+                    switch(mathf::LDistance2<int>(currAction.aimX, currAction.aimY, nXm, nYm)){
+                        case 0:
+                            {
+                                m_actionQueue.emplace_front(currAction);
+                                return true;
+                            }
+                        default:
+                            {
+                                m_actionQueue.emplace_front(ActionPickUp
+                                {
+                                    .speed = currAction.speed,
+                                    .x = currAction.aimX,
+                                    .y = currAction.aimY,
+                                });
+
+                                m_actionQueue.emplace_front(ActionMove
+                                {
+                                    .speed = currAction.speed,
+                                    .x = currAction.x,
+                                    .y = currAction.y,
+                                    .aimX = nXm,
+                                    .aimY = nYm,
+                                });
+                                return true;
+                            }
+                    }
+                };
+
+                int nXm = -1;
+                int nYm = -1;
+
+                bool bCheckGround = m_processRun->canMove(true, 0, nX1, nY1);
+                if(decompMove(bCheckGround, 1, true, nX0, nY0, nX1, nY1, &nXm, &nYm)){
+                    return fnaddHop(nXm, nYm);
+                }
+                else{
+                    if(bCheckGround){
+                        // means there is no such way to there
+                        // move as much as possible
+                        if(decompMove(false, 1, true, nX0, nY0, nX1, nY1, &nXm, &nYm)){
+                            return fnaddHop(nXm, nYm);
+                        }
+                        else{
+                            // won't check the ground but failed
+                            // only one possibility: the first step is not legal
+                            return false;
+                        }
+                    }
+                    else{
+                        return false;
+                    }
+                }
+            }
+            break;
+    }
+}
+
 bool MyHero::decompActionSpell()
 {
     if(m_actionQueue.empty() || m_actionQueue.front().type != ACTION_SPELL){
@@ -630,6 +713,13 @@ bool MyHero::parseActionQueue()
                 }
                 break;
             }
+        case ACTION_PICKUP:
+            {
+                if(!decompActionPickUp()){
+                    return false;
+                }
+                break;
+            }
         default:
             {
                 break;
@@ -717,7 +807,7 @@ void MyHero::brakeMove()
                 // getGLoc(GLOC_R) uses std::lround while getGLoc(GLOC_C) uses std::ceil(), if different means done less half (ratio < n.5)
 
                 const auto motionType = onHorse() ? MOTION_ONHORSEWALK : MOTION_WALK;
-                const auto startFrame = getFrameCountEx(motionType, m_currMotion->direction) / 2;
+                const auto startFrame = getFrameCountEx(m_currMotion.get()) / 2;
 
                 m_currMotion.reset(new MotionNode
                 {

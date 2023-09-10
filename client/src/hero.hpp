@@ -74,9 +74,14 @@ class Hero: public CreatureMovable
         HeroFrameGfxSeq getFrameGfxSeq(int, int) const;
 
     public:
-        int getFrameCount(int motion, int direction) const override
+        int getFrameCount(const MotionNode *motionPtr) const override
         {
-            return getFrameGfxSeq(motion, direction).count;
+            if(motionPtr->type == MOTION_EXT_COMBINED){
+                return motionPtr->extParam.combined.frames.size();
+            }
+            else{
+                return getFrameGfxSeq(motionPtr->type, motionPtr->direction).count;
+            }
         }
 
     public:

@@ -106,7 +106,7 @@ void HeroSpellMagicEffect::update(double ms)
 
     if(m_hero->checkUpdate(ms)){
         const int effectEndFrame = frameCount() - 1;
-        const int motionEndFrame = m_hero->getFrameCountEx(m_motion->type, m_motion->direction) - 1;
+        const int motionEndFrame = m_hero->getFrameCountEx(m_motion) - 1;
         const int motionSyncFrameCount = [this]() -> int
         {
             if(m_motion->type == MOTION_SPELL0){
@@ -139,7 +139,7 @@ int MotionAlignedEffect::absFrame() const
     const auto fspeed = [this]() -> double
     {
         if(m_useMotionSpeed){
-            return to_df(m_motion->speed * m_gfxEntry->frameCount) / to_df(m_creature->getFrameCountEx(m_motion->type, m_motion->direction));
+            return to_df(m_motion->speed * m_gfxEntry->frameCount) / to_df(m_creature->getFrameCountEx(m_motion));
         }
         return to_df(m_gfxEntry->speed);
     }();
@@ -184,7 +184,7 @@ int MotionSyncEffect::gfxFrame() const
 
 int MotionSyncEffect::frameCount() const
 {
-    return std::min<int>(MotionEffect::frameCount() + m_lagFrame, m_creature->getFrameCountEx(m_motion->type, m_motion->direction));
+    return std::min<int>(MotionEffect::frameCount() + m_lagFrame, m_creature->getFrameCountEx(m_motion));
 }
 
 void MotionSyncEffect::update(double ms)

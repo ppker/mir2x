@@ -208,7 +208,7 @@ bool ClientMonster::update(double ms)
             }
         case MOTION_MON_DIE:
             {
-                const auto frameCount = getFrameCount(m_currMotion->type, m_currMotion->direction);
+                const auto frameCount = getFrameCount(m_currMotion.get());
                 if(frameCount <= 0){
                     return false;
                 }
@@ -650,7 +650,7 @@ bool ClientMonster::motionValid(const std::unique_ptr<MotionNode> &motionPtr) co
             && motionPtr->speed <= SYS_MAXSPEED
 
             && motionPtr->frame >= 0
-            && motionPtr->frame <  getFrameCount(motionPtr->type, motionPtr->direction)){
+            && motionPtr->frame <  getFrameCount(motionPtr.get())){
 
         const auto nLDistance2 = mathf::LDistance2(motionPtr->x, motionPtr->y, motionPtr->endX, motionPtr->endY);
         switch(motionPtr->type){

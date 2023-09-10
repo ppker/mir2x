@@ -62,6 +62,12 @@ enum MotionType: int
     MOTION_NPC_ACT,
     MOTION_NPC_ACTEXT,
     MOTION_NPC_END,
+
+    //===================================
+    MOTION_EXT_NONE,
+    MOTION_EXT_BEGIN = MOTION_EXT_NONE + 1,
+    MOTION_EXT_COMBINED,
+    MOTION_EXT_END,
 };
 
 inline const char *motionName(int type)

@@ -1333,6 +1333,12 @@ void Player::onCMActionSpinKick(CMAction cmA)
     dispatchAction(cmA.action);
 }
 
+void Player::onCMActionPickUp(CMAction cmA)
+{
+    fflassert(cmA.action.type == ACTION_PICKUP);
+    dispatchAction(cmA.action);
+}
+
 void Player::onCMActionSpell(CMAction cmA)
 {
     fflassert(cmA.action.type == ACTION_SPELL);

@@ -23,7 +23,7 @@ extern SoundEffectDB *g_seffDB;
 
 bool ClientCreature::advanceMotionFrame()
 {
-    m_currMotion->frame = (m_currMotion->frame + 1) % getFrameCountEx(m_currMotion->type, m_currMotion->direction);
+    m_currMotion->frame = (m_currMotion->frame + 1) % getFrameCountEx(m_currMotion.get());
     return true;
 }
 
@@ -99,7 +99,7 @@ bool ClientCreature::active() const
         case MOTION_DIE:
         case MOTION_MON_DIE:
             {
-                return (m_currMotion->frame + 1) < getFrameCountEx(m_currMotion->type, m_currMotion->direction);
+                return (m_currMotion->frame + 1) < getFrameCountEx(m_currMotion.get());
             }
         default:
             {
@@ -115,7 +115,7 @@ bool ClientCreature::visible() const
         case MOTION_DIE:
             {
                 fflassert(type() == UID_PLY);
-                return ((m_currMotion->frame + 1) < getFrameCountEx(m_currMotion->type, m_currMotion->direction)) || (m_currMotion->extParam.die.fadeOut < 255);
+                return ((m_currMotion->frame + 1) < getFrameCountEx(m_currMotion.get())) || (m_currMotion->extParam.die.fadeOut < 255);
             }
         case MOTION_MON_DIE:
             {
@@ -123,7 +123,7 @@ bool ClientCreature::visible() const
                 // because ClientCreature::update() guarantees frame < frmeCount always true
 
                 fflassert(type() == UID_MON);
-                if((m_currMotion->frame + 1) < getFrameCountEx(m_currMotion->type, m_currMotion->direction)){
+                if((m_currMotion->frame + 1) < getFrameCountEx(m_currMotion.get())){
                     return true;
                 }
 

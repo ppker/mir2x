@@ -37,9 +37,9 @@ class ClientNPC: public ClientCreature
         NPCFrameGfxSeq getFrameGfxSeq(int, int) const;
 
     public:
-        int getFrameCount(int motion, int direction) const override
+        int getFrameCount(const MotionNode *motionPtr) const override
         {
-            return getFrameGfxSeq(motion, direction).count;
+            return getFrameGfxSeq(motionPtr->type, motionPtr->direction).count;
         }
 
     public:

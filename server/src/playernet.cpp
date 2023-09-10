@@ -25,6 +25,7 @@ void Player::net_CM_ACTION(uint8_t, const uint8_t *pBuf, size_t)
             case ACTION_MINE    : onCMActionMine    (cmA); return;
             case ACTION_ATTACK  : onCMActionAttack  (cmA); return;
             case ACTION_SPELL   : onCMActionSpell   (cmA); return;
+            case ACTION_PICKUP  : onCMActionPickUp  (cmA); return;
             case ACTION_SPINKICK: onCMActionSpinKick(cmA); return;
             default             :                          return;
         }

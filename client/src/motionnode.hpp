@@ -62,6 +62,12 @@ struct MotionNode final
             const uint32_t magicID = 0;
         }
         swing{};
+
+        struct MotionCombined
+        {
+            std::vector<std::pair<int, int>> frames;
+        }
+        combined{};
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -112,7 +118,8 @@ struct MotionNode final
         return false
             || ((type >= MOTION_BEGIN)     && (type < MOTION_END))
             || ((type >= MOTION_MON_BEGIN) && (type < MOTION_MON_END))
-            || ((type >= MOTION_NPC_BEGIN) && (type < MOTION_NPC_END));
+            || ((type >= MOTION_NPC_BEGIN) && (type < MOTION_NPC_END))
+            || ((type >= MOTION_EXT_BEGIN) && (type < MOTION_EXT_END));
     }
 
     void runTrigger()
@@ -167,5 +174,25 @@ struct MotionNode final
     uint64_t getSeqFrameID() const
     {
         return (to_u64(this->type) << 48) | (to_u64(m_seq) << 16) | to_u64(this->frame);
+    }
+
+    int gfxType(std::optional<int> frameOpt = {}) const
+    {
+        if(type == MOTION_EXT_COMBINED){
+            return extParam.combined.frames.at(frameOpt.value_or(this->frame)).first;
+        }
+        else{
+            return type;
+        }
+    }
+
+    int gfxFrame(std::optional<int> frameOpt = {}) const
+    {
+        if(type == MOTION_EXT_COMBINED){
+            return extParam.combined.frames.at(frameOpt.value_or(this->frame)).second;
+        }
+        else{
+            return frameOpt.value_or(frame);
+        }
     }
 };

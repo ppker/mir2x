@@ -233,7 +233,7 @@ bool ClientNPC::update(double ms)
 
     const bool doneCurrMotion = [this]()
     {
-        return m_currMotion->frame + 1 == getFrameCount(m_currMotion->type, m_currMotion->direction);
+        return m_currMotion->frame + 1 == getFrameCount(m_currMotion.get());
     }();
 
     switch(m_currMotion->type){

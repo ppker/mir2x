@@ -58,12 +58,12 @@ void Hero::drawFrame(int viewX, int viewY, int, int frame, bool)
         // 21 - 14 :    weapon : max = 256 : +----> gfxWeaponID
         //      22 :    gender :
         //      23 :    shadow :
-        const auto nGfxWeaponID = gfxWeaponID(DBCOM_ITEMRECORD(getWLItem(WLG_WEAPON).itemID).shape, m_currMotion->type, m_currMotion->direction);
+        const auto nGfxWeaponID = gfxWeaponID(DBCOM_ITEMRECORD(getWLItem(WLG_WEAPON).itemID).shape, m_currMotion->gfxType(frame), m_currMotion->direction);
         if(!nGfxWeaponID.has_value()){
             return;
         }
 
-        const uint32_t weaponKey = ((to_u32(shadow ? 1 : 0)) << 23) + (to_u32(gender()) << 22) + ((nGfxWeaponID.value() & 0X01FFFF) << 5) + frame;
+        const uint32_t weaponKey = ((to_u32(shadow ? 1 : 0)) << 23) + (to_u32(gender()) << 22) + ((nGfxWeaponID.value() & 0X01FFFF) << 5) + m_currMotion->gfxFrame(frame);
         const auto [weaponFrame, weaponDX, weaponDY] = g_weaponDB->retrieve(weaponKey);
 
         if(weaponFrame && shadow){
@@ -82,7 +82,7 @@ void Hero::drawFrame(int viewX, int viewY, int, int frame, bool)
         return {DRESS_BEGIN, 0XFFFFFFFF}; // naked
     }();
 
-    const auto nGfxDressID = gfxDressID(dressGfxIndex, m_currMotion->type, m_currMotion->direction);
+    const auto nGfxDressID = gfxDressID(dressGfxIndex, m_currMotion->gfxType(frame), m_currMotion->direction);
     if(!nGfxDressID.has_value()){
         m_currMotion->print([](const std::string &s)
         {
@@ -99,8 +99,8 @@ void Hero::drawFrame(int viewX, int viewY, int, int frame, bool)
     //      22 :       sex :
     //      23 :    shadow :
     //      24 :     layer :
-    const uint32_t   bodyKey = (to_u32(0) << 23) + (to_u32(gender()) << 22) + ((to_u32(nGfxDressID.value() & 0X01FFFF)) << 5) + frame;
-    const uint32_t shadowKey = (to_u32(1) << 23) + (to_u32(gender()) << 22) + ((to_u32(nGfxDressID.value() & 0X01FFFF)) << 5) + frame;
+    const uint32_t   bodyKey = (to_u32(0) << 23) + (to_u32(gender()) << 22) + ((to_u32(nGfxDressID.value() & 0X01FFFF)) << 5) + m_currMotion->gfxFrame(frame);
+    const uint32_t shadowKey = (to_u32(1) << 23) + (to_u32(gender()) << 22) + ((to_u32(nGfxDressID.value() & 0X01FFFF)) << 5) + m_currMotion->gfxFrame(frame);
 
     const auto [ bodyLayer0,  body0DX,  body0DY] = g_heroDB->retrieve(bodyKey);
     const auto [ bodyLayer1,  body1DX,  body1DY] = g_heroDB->retrieve(bodyKey | (to_u32(1) << 24));
@@ -113,7 +113,7 @@ void Hero::drawFrame(int viewX, int viewY, int, int frame, bool)
 
     if(true
             && getWLItem(WLG_WEAPON)
-            && weaponOrder(m_currMotion->type, m_currMotion->direction, frame).value_or(-1) == 1){
+            && weaponOrder(m_currMotion->gfxType(frame), m_currMotion->direction, m_currMotion->gfxFrame(frame)).value_or(-1) == 1){
         fnDrawWeapon(false);
     }
 
@@ -139,16 +139,16 @@ void Hero::drawFrame(int viewX, int viewY, int, int frame, bool)
     }
 
     if(getWLItem(WLG_HELMET)){
-        if(const auto nHelmetGfxID = gfxHelmetID(DBCOM_ITEMRECORD(getWLItem(WLG_HELMET).itemID).shape, m_currMotion->type, m_currMotion->direction); nHelmetGfxID.has_value()){
-            const uint32_t nHelmetKey = (to_u32(gender()) << 22) + ((to_u32(nHelmetGfxID.value() & 0X01FFFF)) << 5) + frame;
+        if(const auto nHelmetGfxID = gfxHelmetID(DBCOM_ITEMRECORD(getWLItem(WLG_HELMET).itemID).shape, m_currMotion->gfxType(frame), m_currMotion->direction); nHelmetGfxID.has_value()){
+            const uint32_t nHelmetKey = (to_u32(gender()) << 22) + ((to_u32(nHelmetGfxID.value() & 0X01FFFF)) << 5) + m_currMotion->gfxFrame(frame);
             if(auto [texPtr, dx, dy] = g_helmetDB->retrieve(nHelmetKey); texPtr){
                 g_sdlDevice->drawTexture(texPtr, startX + dx, startY + dy);
             }
         }
     }
     else{
-        if(const auto nHairGfxID = gfxHairID(m_sdWLDesp.hair, m_currMotion->type, m_currMotion->direction); nHairGfxID.has_value()){
-            const uint32_t nHairKey = (to_u32(gender()) << 22) + ((to_u32(nHairGfxID.value() & 0X01FFFF)) << 5) + frame;
+        if(const auto nHairGfxID = gfxHairID(m_sdWLDesp.hair, m_currMotion->gfxType(frame), m_currMotion->direction); nHairGfxID.has_value()){
+            const uint32_t nHairKey = (to_u32(gender()) << 22) + ((to_u32(nHairGfxID.value() & 0X01FFFF)) << 5) + m_currMotion->gfxFrame(frame);
             if(auto [texPtr, dx, dy] = g_hairDB->retrieve(nHairKey); texPtr){
                 SDLDeviceHelper::EnableTextureModColor enableColor(texPtr, m_sdWLDesp.hairColor);
                 g_sdlDevice->drawTexture(texPtr, startX + dx, startY + dy);
@@ -158,7 +158,7 @@ void Hero::drawFrame(int viewX, int viewY, int, int frame, bool)
 
     if(true
             && getWLItem(WLG_WEAPON)
-            && weaponOrder(m_currMotion->type, m_currMotion->direction, frame).value_or(-1) == 0){
+            && weaponOrder(m_currMotion->gfxType(frame), m_currMotion->direction, m_currMotion->gfxFrame(frame)).value_or(-1) == 0){
         fnDrawWeapon(false);
     }
 
@@ -213,7 +213,7 @@ void Hero::drawFrame(int viewX, int viewY, int, int frame, bool)
 
     // draw HP bar
     // if current m_HPMqx is zero we draw full bar
-    if(m_currMotion->type != MOTION_DIE && g_clientArgParser->drawHPBar){
+    if(m_currMotion->gfxType(frame) != MOTION_DIE && g_clientArgParser->drawHPBar){
         auto bar0Ptr = g_progUseDB->retrieve(0X00000014);
         auto bar1Ptr = g_progUseDB->retrieve(0X00000015);
 
@@ -439,7 +439,7 @@ bool Hero::motionValid(const std::unique_ptr<MotionNode> &motionPtr) const
             && motionPtr->speed <= SYS_MAXSPEED
 
             && motionPtr->frame >= 0
-            && motionPtr->frame <  getFrameCount(motionPtr->type, motionPtr->direction)){
+            && motionPtr->frame <  getFrameCount(motionPtr.get())){
 
         const auto nLDistance2 = mathf::LDistance2(motionPtr->x, motionPtr->y, motionPtr->endX, motionPtr->endY);
         switch(motionPtr->type){
@@ -556,6 +556,7 @@ bool Hero::parseAction(const ActionNode &action)
         case ACTION_STAND:
         case ACTION_SPELL:
         case ACTION_ATTACK:
+        case ACTION_PICKUP:
         case ACTION_SPINKICK:
             {
                 m_motionQueue = makeWalkMotionQueue(endX, endY, action.x, action.y, SYS_MAXSPEED);
@@ -617,21 +618,6 @@ bool Hero::parseAction(const ActionNode &action)
             {
                 if(auto moveNode = makeWalkMotion(action.x, action.y, action.aimX, action.aimY, action.speed)){
                     m_motionQueue.push_back(std::move(moveNode));
-                    if(action.extParam.move.pickUp){
-                        if(UID() != m_processRun->getMyHeroUID()){
-                            throw fflerror("invalid UID to trigger pickUp action: uid = %llu", to_llu(UID()));
-                        }
-
-                        m_motionQueue.back()->addTrigger(false, [this](MotionNode *motionPtr) -> bool
-                        {
-                            if(motionPtr->frame < 4){
-                                return false;
-                            }
-
-                            m_processRun->requestPickUp();
-                            return true;
-                        });
-                    }
                 }
                 else{
                     return false;
@@ -1174,6 +1160,45 @@ bool Hero::parseAction(const ActionNode &action)
                     return false;
                 }
 
+                break;
+            }
+        case ACTION_PICKUP:
+            {
+                m_motionQueue.push_back(std::unique_ptr<MotionNode>(new MotionNode
+                {
+                    .type = MOTION_EXT_COMBINED,
+                    .direction = [&action, this]()
+                    {
+                        if(m_motionQueue.empty()){
+                            return m_currMotion->direction;
+                        }
+                        else{
+                            return m_motionQueue.back()->direction;
+                        }
+                    }(),
+
+                    .x = action.x,
+                    .y = action.y,
+                    .extParam
+                    {
+                        .combined
+                        {
+                            .frames
+                            {
+                                {MOTION_CUT  , 0},
+                                {MOTION_STAND, 3},
+                            },
+                        },
+                    },
+                }));
+
+                if(isMyHero()){
+                    m_motionQueue.back()->addTrigger(false, [this](MotionNode *) -> bool
+                    {
+                        m_processRun->requestPickUp();
+                        return true;
+                    });
+                }
                 break;
             }
         case ACTION_HITTED:

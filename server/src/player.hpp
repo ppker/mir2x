@@ -236,6 +236,7 @@ class Player final: public BattleObject
         void onCMActionSpell   (CMAction);
         void onCMActionSpinKick(CMAction);
         void onCMActionAttack  (CMAction);
+        void onCMActionPickUp  (CMAction);
 
     private:
         void postNetMessage(uint8_t, const void *, size_t);

@@ -579,15 +579,11 @@ void ProcessRun::processEvent(const SDL_Event &event)
                             else if(m_mir2xMapData.validC(mouseGridX, mouseGridY) && !getGroundItemIDList(mouseGridX, mouseGridY).empty()){
                                 // for small map becasue hero may be forced to put in center
                                 // then there are some grid on screen are actually invalid, skip them
-                                getMyHero()->emplaceAction(ActionMove
+                                getMyHero()->emplaceAction(ActionPickUp
                                 {
                                     .speed = SYS_DEFSPEED,
-                                    .x = getMyHero()->currMotion()->endX,
-                                    .y = getMyHero()->currMotion()->endY,
-                                    .aimX = mouseGridX,
-                                    .aimY = mouseGridY,
-                                    .pickUp = true,
-                                    .onHorse = getMyHero()->onHorse(),
+                                    .x = mouseGridX,
+                                    .y = mouseGridY,
                                 });
                             }
 
@@ -1512,7 +1508,7 @@ void ProcessRun::centerMyHero()
     const auto nX          = getMyHero()->currMotion()->x;
     const auto nY          = getMyHero()->currMotion()->y;
     const auto currFrame   = getMyHero()->currMotion()->frame;
-    const auto frameCount = getMyHero()->getFrameCount(nMotion, nDirection);
+    const auto frameCount  = getMyHero()->getFrameCount(getMyHero()->currMotion());
 
     if(frameCount <= 0){
         throw fflerror("invalid frame count: %d", frameCount);
