@@ -357,35 +357,16 @@ bool MyHero::decompActionMine()
 
 bool MyHero::decompActionAttack()
 {
-    if(m_actionQueue.empty() || m_actionQueue.front().type != ACTION_ATTACK){
-        throw fflreach();
-    }
+    fflassert(!m_actionQueue.empty());
+    fflassert(m_actionQueue.front().type == ACTION_ATTACK);
 
-    const auto currAction = m_actionQueue.front();
+    const ActionAttack attack = m_actionQueue.front();
     m_actionQueue.pop_front();
-
-    // when parsing ActionAttack
-    // we don't use ActionAttack::X/Y
-
-    // this X/Y is used to send to the server
-    // for location verification only
 
     auto nX0 = m_currMotion->endX;
     auto nY0 = m_currMotion->endY;
 
-    // use if need to keep the attack node
-    // we use m_currMotion->endX/y instead of rstAction.x/y
-
-    const ActionAttack attack
-    {
-        .speed = currAction.speed,
-        .x = nX0,
-        .y = nY0,
-        .aimUID = currAction.aimUID,
-        .extParam = currAction.extParam.attack,
-    };
-
-    if(auto coPtr = m_processRun->findUID(currAction.aimUID)){
+    if(auto coPtr = m_processRun->findUID(attack.aimUID)){
         const auto nX1 = coPtr->x();
         const auto nY1 = coPtr->y();
 
@@ -432,11 +413,11 @@ bool MyHero::decompActionAttack()
 
                         m_actionQueue.emplace_front(ActionAttack
                         {
-                            .speed = currAction.speed,
+                            .speed = attack.speed,
                             .x = nXt,
                             .y = nYt,
-                            .aimUID = currAction.aimUID,
-                            .extParam = currAction.extParam.attack,
+                            .aimUID = attack.aimUID,
+                            .extParam = attack.extParam,
                         });
 
                         m_actionQueue.emplace_front(ActionMove
