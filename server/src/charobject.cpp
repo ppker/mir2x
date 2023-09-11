@@ -226,9 +226,9 @@ ActionNode CharObject::makeActionStand() const
 {
     ActionNode stand = ActionStand
     {
+        .direction = Direction(),
         .x = X(),
         .y = Y(),
-        .direction = Direction(),
     };
 
     switch(uidf::getUIDType(UID())){

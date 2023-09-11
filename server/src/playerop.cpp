@@ -207,17 +207,17 @@ void Player::on_AM_ATTACK(const ActorMsgPack &mpk)
 
     dispatchAction(ActionHitted
     {
+        .direction = Direction(),
         .x = X(),
         .y = Y(),
-        .direction = Direction(),
         .fromUID = amA.UID,
     });
     struckDamage(amA.UID, amA.damage);
     reportAction(UID(), mapID(), ActionHitted
     {
+        .direction = Direction(),
         .x = X(),
         .y = Y(),
-        .direction = Direction(),
         .fromUID = amA.UID,
     });
 }

@@ -1117,15 +1117,7 @@ void Player::onCMActionMine(CMAction stCMA)
     switch(estimateHop(nX0, nY0)){
         case 0:
             {
-                dispatchAction(ActionMine
-                {
-                    .speed = stCMA.action.speed,
-                    .x = stCMA.action.x,
-                    .y = stCMA.action.y,
-                    .aimX = stCMA.action.aimX,
-                    .aimY = stCMA.action.aimY,
-                });
-
+                dispatchAction(stCMA.action);
                 addInventoryItem(SDItem
                 {
                     .itemID = DBCOM_ITEMID(u8"黑铁"),
@@ -1204,16 +1196,19 @@ void Player::onCMActionAttack(CMAction stCMA)
                                                 .x = stCMA.action.x,
                                                 .y = stCMA.action.y,
                                                 .aimUID = stCMA.action.aimUID,
-                                                .magicID = [nDCType, this]() -> uint32_t
+                                                .extParam
                                                 {
-                                                    if(to_u32(nDCType) == DBCOM_MAGICID(u8"攻杀剑术") && !m_nextStrike){
-                                                        return DBCOM_MAGICID(u8"物理攻击");
-                                                    }
-                                                    else{
-                                                        return nDCType;
-                                                    }
-                                                }(),
-                                                .modifierID = to_u32(modifierID),
+                                                    .magicID = [nDCType, this]() -> uint32_t
+                                                    {
+                                                        if(to_u32(nDCType) == DBCOM_MAGICID(u8"攻杀剑术") && !m_nextStrike){
+                                                            return DBCOM_MAGICID(u8"物理攻击");
+                                                        }
+                                                        else{
+                                                            return nDCType;
+                                                        }
+                                                    }(),
+                                                    .modifierID = to_u32(modifierID),
+                                                },
                                             });
 
                                             std::vector<uint64_t> aimUIDList;

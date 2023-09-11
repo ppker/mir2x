@@ -40,9 +40,9 @@ void ProcessRun::net_STARTGAMESCENE(const uint8_t *buf, size_t bufSize)
 
     getMyHero()->parseAction(ActionStand
     {
+        .direction = DIR_DOWN,
         .x = sdSGS.x,
         .y = sdSGS.y,
-        .direction = DIR_DOWN,
     });
 
     getMyHero()->setName(to_cstr(sdSGS.name), sdSGS.nameColor);

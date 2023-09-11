@@ -17,9 +17,9 @@ class ServerMonsterTree final: public Monster
         {
             return ActionStand
             {
+                .direction = DIR_BEGIN,
                 .x = X(),
                 .y = Y(),
-                .direction = DIR_BEGIN,
             };
         }
 };

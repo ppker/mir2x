@@ -218,7 +218,7 @@ bool MyHero::decompActionMove()
                                     .y = nYm,
                                     .aimX = currAction.aimX,
                                     .aimY = currAction.aimY,
-                                    .onHorse = (bool)(currAction.extParam.move.onHorse),
+                                    .extParam = currAction.extParam.move,
                                 });
 
                                 m_actionQueue.emplace_front(ActionMove
@@ -228,7 +228,7 @@ bool MyHero::decompActionMove()
                                     .y = currAction.y,
                                     .aimX = nXm,
                                     .aimY = nYm,
-                                    .onHorse = (bool)(currAction.extParam.move.onHorse),
+                                    .extParam = currAction.extParam.move,
                                 });
                                 return true;
                             }
@@ -268,32 +268,14 @@ bool MyHero::decompActionMine()
 {
     fflassert(!m_actionQueue.empty() && m_actionQueue.front().type == ACTION_MINE);
 
-    const auto currAction = m_actionQueue.front();
+    const ActionMine mine = m_actionQueue.front();
     m_actionQueue.pop_front();
 
-    // when parsing ActionMine
-    // we don't use ActionAttack::X/Y
+    const auto nX0 = m_currMotion->endX;
+    const auto nY0 = m_currMotion->endY;
 
-    // this X/Y is used to send to the server
-    // for location verification only
-
-    auto nX0 = m_currMotion->endX;
-    auto nY0 = m_currMotion->endY;
-
-    // use if need to keep the mine node
-    // we use m_currMotion->endX/y instead of rstAction.x/y
-
-    const ActionMine mine
-    {
-        .speed = currAction.speed,
-        .x = nX0,
-        .y = nY0,
-        .aimX = currAction.aimX,
-        .aimY = currAction.aimY,
-    };
-
-    const auto nX1 = currAction.aimX;
-    const auto nY1 = currAction.aimY;
+    const auto nX1 = mine.x;
+    const auto nY1 = mine.y;
 
     switch(mathf::LDistance2<int>(nX0, nY0, nX1, nY1)){
         case 0:
@@ -310,9 +292,6 @@ bool MyHero::decompActionMine()
             }
         default:
             {
-                // not close enough for the PLAIN_PHY_ATTACK
-                // need to schedule a path to move closer and then mine
-
                 int nXt = -1;
                 int nYt = -1;
 
@@ -336,15 +315,7 @@ bool MyHero::decompActionMine()
                             }
                     }
 
-                    m_actionQueue.emplace_front(ActionMine
-                    {
-                        .speed = currAction.speed,
-                        .x = nXt,
-                        .y = nYt,
-                        .aimX = currAction.aimX,
-                        .aimY = currAction.aimY,
-                    });
-
+                    m_actionQueue.emplace_front(mine);
                     m_actionQueue.emplace_front(ActionMove
                     {
                         .speed = SYS_DEFSPEED,
@@ -352,7 +323,10 @@ bool MyHero::decompActionMine()
                         .y = nY0,
                         .aimX = nXt,
                         .aimY = nYt,
-                        .onHorse = onHorse(),
+                        .extParam
+                        {
+                            .onHorse = onHorse(),
+                        },
                     });
                     return true;
                 }
@@ -410,7 +384,7 @@ bool MyHero::decompActionAttack()
         .x = nX0,
         .y = nY0,
         .aimUID = currAction.aimUID,
-        .magicID = currAction.extParam.attack.magicID,
+        .extParam = currAction.extParam.attack,
     };
 
     if(auto coPtr = m_processRun->findUID(currAction.aimUID)){
@@ -464,7 +438,7 @@ bool MyHero::decompActionAttack()
                             .x = nXt,
                             .y = nYt,
                             .aimUID = currAction.aimUID,
-                            .magicID = currAction.extParam.attack.magicID,
+                            .extParam = currAction.extParam.attack,
                         });
 
                         m_actionQueue.emplace_front(ActionMove
@@ -474,7 +448,10 @@ bool MyHero::decompActionAttack()
                             .y = nY0,
                             .aimX = nXt,
                             .aimY = nYt,
-                            .onHorse = onHorse(),
+                            .extParam
+                            {
+                                .onHorse = onHorse(),
+                            },
                         });
                         return true;
                     }
@@ -634,9 +611,9 @@ bool MyHero::decompActionSpell()
     if(pathf::dirValid(standDir) && m_currMotion->direction != standDir){
         m_actionQueue.emplace_front(ActionStand
         {
+            .direction = standDir,
             .x = currAction.x,
             .y = currAction.y,
-            .direction = standDir,
         });
     }
 

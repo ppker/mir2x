@@ -658,10 +658,8 @@ bool Hero::parseAction(const ActionNode &action)
                         m_processRun->getMyHero()->emplaceAction(ActionMine
                         {
                             .speed = action.speed,
-                            .x = m_currMotion->endX,
-                            .y = m_currMotion->endY,
-                            .aimX = action.aimX,
-                            .aimY = action.aimY,
+                            .x = action.aimX,
+                            .y = action.aimY,
                         });
                         return true;
                     });

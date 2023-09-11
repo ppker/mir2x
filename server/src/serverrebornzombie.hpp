@@ -20,9 +20,9 @@ class ServerRebornZombie final: public Monster
         {
             return ActionStand
             {
+                .direction = Direction(),
                 .x = X(),
                 .y = Y(),
-                .direction = Direction(),
                 .extParam
                 {
                     .rebornZombie
@@ -39,10 +39,9 @@ class ServerRebornZombie final: public Monster
                 m_standMode = standMode;
                 dispatchAction(ActionTransf
                 {
+                    .direction = Direction(),
                     .x = X(),
                     .y = Y(),
-
-                    .direction = Direction(),
                     .extParam
                     {
                         .rebornZombie

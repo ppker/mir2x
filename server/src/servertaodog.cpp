@@ -94,8 +94,11 @@ void ServerTaoDog::attackUID(uint64_t targetUID, int dcType, std::function<void(
             .x = X(),
             .y = Y(),
             .aimUID = targetUID,
-            .magicID = to_u32(dcType),
-            .modifierID = to_u32(modifierID),
+            .extParam
+            {
+                .magicID = to_u32(dcType),
+                .modifierID = to_u32(modifierID),
+            },
         });
 
         if(buffID){

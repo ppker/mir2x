@@ -21,9 +21,9 @@ class ServerZumaTaurus final: public Monster
                 m_standMode = standMode;
                 dispatchAction(ActionTransf
                 {
+                    .direction = Direction(),
                     .x = X(),
                     .y = Y(),
-                    .direction = Direction(),
                     .extParam
                     {
                         .zumaTaurus
@@ -46,9 +46,9 @@ class ServerZumaTaurus final: public Monster
         {
             return ActionStand
             {
+                .direction = Direction(),
                 .x = X(),
                 .y = Y(),
-                .direction = Direction(),
                 .extParam
                 {
                     .zumaTaurus

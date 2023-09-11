@@ -120,9 +120,9 @@ class BattleObject: public CharObject
             ServerObject::onActivate();
             dispatchAction(ActionSpawn
             {
+                .direction = Direction(),
                 .x = X(),
                 .y = Y(),
-                .direction = Direction(),
             });
         }
 

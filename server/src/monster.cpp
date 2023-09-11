@@ -208,8 +208,11 @@ void Monster::attackUID(uint64_t uid, int magicID, std::function<void()> onOK, s
             .x = X(),
             .y = Y(),
             .aimUID = uid,
-            .magicID = to_u32(magicID),
-            .modifierID = to_u32(modifierID),
+            .extParam
+            {
+                .magicID = to_u32(magicID),
+                .modifierID = to_u32(modifierID),
+            },
         });
 
         if(buffID){
@@ -1596,9 +1599,9 @@ void Monster::onAMAttack(const ActorMsgPack &mpk)
                     addOffenderDamage(amA.UID, amA.damage);
                     dispatchAction(ActionHitted
                     {
+                        .direction = Direction(),
                         .x = X(),
                         .y = Y(),
-                        .direction = Direction(),
                         .fromUID = amA.UID,
                     });
 

@@ -115,7 +115,11 @@ void ServerZumaTaurus::attackUID(uint64_t targetUID, int dcType, std::function<v
             .x = X(),
             .y = Y(),
             .aimUID = targetUID,
-            .magicID = to_u32(dcType),
+            .extParam
+            {
+                .magicID = to_u32(dcType),
+                .modifierID = 0,
+            },
         });
 
         addDelay(550, [dcType, coLoc, this]()

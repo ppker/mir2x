@@ -19,9 +19,9 @@ class ServerTaoDog final: public ServerTaoSummon
                 m_standMode = standMode;
                 dispatchAction(ActionTransf
                 {
+                    .direction = Direction(),
                     .x = X(),
                     .y = Y(),
-                    .direction = Direction(),
                     .extParam
                     {
                         .dog
@@ -41,9 +41,9 @@ class ServerTaoDog final: public ServerTaoSummon
         {
             return ActionStand
             {
+                .direction = Direction(),
                 .x = X(),
                 .y = Y(),
-                .direction = Direction(),
                 .extParam
                 {
                     .dog

@@ -20,10 +20,9 @@ class ServerEvilCentipede final: public Monster
         {
             return ActionStand
             {
+                .direction = DIR_BEGIN,
                 .x = X(),
                 .y = Y(),
-
-                .direction = DIR_BEGIN,
                 .extParam
                 {
                     .evilCentipede
@@ -40,10 +39,9 @@ class ServerEvilCentipede final: public Monster
                 m_standMode = standMode;
                 dispatchAction(ActionTransf
                 {
+                    .direction = DIR_BEGIN,
                     .x = X(),
                     .y = Y(),
-
-                    .direction = DIR_BEGIN,
                     .extParam
                     {
                         .evilCentipede

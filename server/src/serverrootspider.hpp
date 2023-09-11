@@ -25,9 +25,9 @@ class ServerRootSpider final: public Monster
         {
             return ActionStand
             {
+                .direction = Direction(),
                 .x = X(),
                 .y = Y(),
-                .direction = Direction(),
             };
         }
 

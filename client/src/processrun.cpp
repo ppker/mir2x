@@ -58,9 +58,9 @@ ProcessRun::ProcessRun(const SMOnlineOK &smOOK)
         this,
         ActionStand
         {
+            .direction = DIR_DOWN,
             .x = smOOK.action.x,
             .y = smOOK.action.y,
-            .direction = DIR_DOWN,
         },
     }));
     RegisterUserCommand();
@@ -591,10 +591,8 @@ void ProcessRun::processEvent(const SDL_Event &event)
                                 getMyHero()->emplaceAction(ActionMine
                                 {
                                     .speed = SYS_DEFSPEED,
-                                    .x = getMyHero()->currMotion()->endX,
-                                    .y = getMyHero()->currMotion()->endY,
-                                    .aimX = mouseGridX,
-                                    .aimY = mouseGridY,
+                                    .x = mouseGridX,
+                                    .y = mouseGridY,
                                 });
                             }
                             break;
@@ -636,7 +634,10 @@ void ProcessRun::processEvent(const SDL_Event &event)
                                                 .y = getMyHero()->currMotion()->endY,
                                                 .aimX = mouseGridX,
                                                 .aimY = mouseGridY,
-                                                .onHorse = getMyHero()->onHorse(),
+                                                .extParam
+                                                {
+                                                    .onHorse = getMyHero()->onHorse(),
+                                                },
                                             });
                                         }
                                         break;
@@ -1462,34 +1463,38 @@ bool ProcessRun::trackAttack(bool bForce, uint64_t nUID)
                 .x = getMyHero()->currMotion()->endX,
                 .y = getMyHero()->currMotion()->endY,
                 .aimUID = nUID,
-                .magicID = [this]() -> uint32_t
+                .extParam
                 {
-                    if(getMyHero()->getNextStrike()){
-                        getMyHero()->setNextStrike(false);
-                        return DBCOM_MAGICID(u8"攻杀剑术");
-                    }
-                    else if(getMyHero()->hasSwingMagic(DBCOM_MAGICID(u8"莲月剑法"))){
-                        getMyHero()->toggleSwingMagic(DBCOM_MAGICID(u8"莲月剑法"), false);
-                        return DBCOM_MAGICID(u8"莲月剑法");
-                    }
-                    else if(getMyHero()->hasSwingMagic(DBCOM_MAGICID(u8"翔空剑法"))){
-                        getMyHero()->toggleSwingMagic(DBCOM_MAGICID(u8"翔空剑法"), false);
-                        return DBCOM_MAGICID(u8"翔空剑法");
-                    }
-                    else if(getMyHero()->hasSwingMagic(DBCOM_MAGICID(u8"烈火剑法"))){
-                        getMyHero()->toggleSwingMagic(DBCOM_MAGICID(u8"烈火剑法"), false);
-                        return DBCOM_MAGICID(u8"烈火剑法");
-                    }
-                    else if(getMyHero()->hasSwingMagic(DBCOM_MAGICID(u8"十方斩"))){
-                        return DBCOM_MAGICID(u8"十方斩");
-                    }
-                    else if(getMyHero()->hasSwingMagic(DBCOM_MAGICID(u8"半月弯刀"))){
-                        return DBCOM_MAGICID(u8"半月弯刀");
-                    }
-                    else{
-                        return DBCOM_MAGICID(u8"物理攻击");
-                    }
-                }(),
+                    .magicID = [this]() -> uint32_t
+                    {
+                        if(getMyHero()->getNextStrike()){
+                            getMyHero()->setNextStrike(false);
+                            return DBCOM_MAGICID(u8"攻杀剑术");
+                        }
+                        else if(getMyHero()->hasSwingMagic(DBCOM_MAGICID(u8"莲月剑法"))){
+                            getMyHero()->toggleSwingMagic(DBCOM_MAGICID(u8"莲月剑法"), false);
+                            return DBCOM_MAGICID(u8"莲月剑法");
+                        }
+                        else if(getMyHero()->hasSwingMagic(DBCOM_MAGICID(u8"翔空剑法"))){
+                            getMyHero()->toggleSwingMagic(DBCOM_MAGICID(u8"翔空剑法"), false);
+                            return DBCOM_MAGICID(u8"翔空剑法");
+                        }
+                        else if(getMyHero()->hasSwingMagic(DBCOM_MAGICID(u8"烈火剑法"))){
+                            getMyHero()->toggleSwingMagic(DBCOM_MAGICID(u8"烈火剑法"), false);
+                            return DBCOM_MAGICID(u8"烈火剑法");
+                        }
+                        else if(getMyHero()->hasSwingMagic(DBCOM_MAGICID(u8"十方斩"))){
+                            return DBCOM_MAGICID(u8"十方斩");
+                        }
+                        else if(getMyHero()->hasSwingMagic(DBCOM_MAGICID(u8"半月弯刀"))){
+                            return DBCOM_MAGICID(u8"半月弯刀");
+                        }
+                        else{
+                            return DBCOM_MAGICID(u8"物理攻击");
+                        }
+                    }(),
+                    .modifierID = 0,
+                },
             });
         }
     }
@@ -1726,9 +1731,9 @@ void ProcessRun::onActionSpawn(uint64_t uid, const ActionNode &action)
 
                     m_coList[uid].reset(new ClientTaoSkeleton(uid, this, ActionStand
                     {
+                        .direction = DIR_DOWNLEFT,
                         .x = action.x,
                         .y = action.y,
-                        .direction = DIR_DOWNLEFT,
                     }));
 
                     m_actionBlocker.erase(uid);
@@ -1758,9 +1763,9 @@ void ProcessRun::onActionSpawn(uint64_t uid, const ActionNode &action)
 
                     m_coList[uid].reset(new ClientTaoSkeletonExt(uid, this, ActionStand
                     {
+                        .direction = DIR_DOWNLEFT,
                         .x = action.x,
                         .y = action.y,
-                        .direction = DIR_DOWNLEFT,
                     }));
 
                     m_actionBlocker.erase(uid);
@@ -2136,7 +2141,11 @@ void ProcessRun::checkMagicSpell(const SDL_Event &event)
                         .x = getMyHero()->currMotion()->endX,
                         .y = getMyHero()->currMotion()->endY,
                         .aimUID = uid,
-                        .magicID = magicID,
+                        .extParam
+                        {
+                            .magicID = magicID,
+                            .modifierID = 0,
+                        },
                     });
                 }
                 else{
@@ -2150,7 +2159,11 @@ void ProcessRun::checkMagicSpell(const SDL_Event &event)
                         .y = getMyHero()->currMotion()->endY,
                         .aimX = aimX,
                         .aimY = aimY,
-                        .magicID = magicID,
+                        .extParam
+                        {
+                            .magicID = magicID,
+                            .modifierID = 0,
+                        },
                     });
                 }
                 break;
@@ -2173,7 +2186,11 @@ void ProcessRun::checkMagicSpell(const SDL_Event &event)
                     .y = getMyHero()->currMotion()->endY,
                     .aimX = aimX,
                     .aimY = aimY,
-                    .magicID = magicID,
+                    .extParam
+                    {
+                        .magicID = magicID,
+                        .modifierID = 0,
+                    }
                 });
                 break;
             }
@@ -2195,7 +2212,11 @@ void ProcessRun::checkMagicSpell(const SDL_Event &event)
                     .x = getMyHero()->currMotion()->endX,
                     .y = getMyHero()->currMotion()->endY,
                     .aimUID = getMyHero()->UID(),
-                    .magicID = magicID,
+                    .extParam
+                    {
+                        .magicID = magicID,
+                        .modifierID = 0,
+                    },
                 });
                 break;
             }

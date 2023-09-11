@@ -159,9 +159,9 @@ bool BattleObject::requestJump(int nX, int nY, int nDirection, std::function<voi
                     amJOK.mapID = mapID();
                     amJOK.action = ActionJump
                     {
+                        .direction = Direction(),
                         .x = X(),
                         .y = Y(),
-                        .direction = Direction(),
                     };
 
                     m_actorPod->forward(rmpk.from(), {AM_JUMPOK, amJOK}, rmpk.seqID());
@@ -414,11 +414,11 @@ bool BattleObject::requestSpaceMove(int locX, int locY, bool strictMove, std::fu
                     amSMOK.mapID = mapID();
                     amSMOK.action = ActionSpaceMove
                     {
+                        .direction = Direction(),
                         .x = oldX,
                         .y = oldY,
                         .aimX = X(),
                         .aimY = Y(),
-                        .direction = Direction(),
                     };
 
                     m_actorPod->forward(rmpk.from(), {AM_SPACEMOVEOK, amSMOK}, rmpk.seqID());

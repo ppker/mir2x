@@ -94,9 +94,9 @@ class CharObject: public ServerObject
             ServerObject::onActivate();
             dispatchAction(ActionSpawn
             {
+                .direction = Direction(),
                 .x = X(),
                 .y = Y(),
-                .direction = Direction(),
             });
         }
 
