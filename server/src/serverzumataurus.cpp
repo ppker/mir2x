@@ -118,7 +118,6 @@ void ServerZumaTaurus::attackUID(uint64_t targetUID, int dcType, std::function<v
             .extParam
             {
                 .magicID = to_u32(dcType),
-                .modifierID = 0,
             },
         });
 

@@ -33,7 +33,6 @@ void ServerAntHealer::sendHeal(uint64_t uid)
                 .extParam
                 {
                     .magicID = to_u32(magicID),
-                    .modifierID = 0,
                 },
             });
         }
@@ -53,7 +52,6 @@ corof::eval_poller ServerAntHealer::updateCoroFunc()
                 .extParam
                 {
                     .magicID = to_u32(DBCOM_MAGICID(u8"蚂蚁道士_治疗")),
-                    .modifierID = 0,
                 },
             });
 

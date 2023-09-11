@@ -1493,7 +1493,6 @@ bool ProcessRun::trackAttack(bool bForce, uint64_t nUID)
                             return DBCOM_MAGICID(u8"物理攻击");
                         }
                     }(),
-                    .modifierID = 0,
                 },
             });
         }
@@ -2144,7 +2143,6 @@ void ProcessRun::checkMagicSpell(const SDL_Event &event)
                         .extParam
                         {
                             .magicID = magicID,
-                            .modifierID = 0,
                         },
                     });
                 }
@@ -2162,7 +2160,6 @@ void ProcessRun::checkMagicSpell(const SDL_Event &event)
                         .extParam
                         {
                             .magicID = magicID,
-                            .modifierID = 0,
                         },
                     });
                 }
@@ -2189,7 +2186,6 @@ void ProcessRun::checkMagicSpell(const SDL_Event &event)
                     .extParam
                     {
                         .magicID = magicID,
-                        .modifierID = 0,
                     }
                 });
                 break;
@@ -2215,7 +2211,6 @@ void ProcessRun::checkMagicSpell(const SDL_Event &event)
                     .extParam
                     {
                         .magicID = magicID,
-                        .modifierID = 0,
                     },
                 });
                 break;

@@ -34,7 +34,7 @@ IF(WIN32 AND MSVC)
 ELSE()
     ADD_COMPILE_OPTIONS(-fcoroutines)
     ADD_COMPILE_OPTIONS(-fno-strict-aliasing)
-    ADD_COMPILE_OPTIONS(-Wall -Wfatal-errors -Wextra -Wunused -Werror)
+    ADD_COMPILE_OPTIONS(-Wall -Wfatal-errors -Wextra -Wunused -Werror -Wno-missing-field-initializers)
 
     STRING(APPEND CMAKE_CXX_FLAGS_DEBUG " $ENV{CXXFLAGS}")
     STRING(APPEND CMAKE_CXX_FLAGS_DEBUG " -O0")
