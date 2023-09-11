@@ -266,14 +266,14 @@ bool MyHero::decompActionMove()
 
 bool MyHero::decompActionMine()
 {
-    fflassert(!m_actionQueue.empty() && m_actionQueue.front().type == ACTION_MINE);
+    fflassert(!m_actionQueue.empty());
+    fflassert(m_actionQueue.front().type == ACTION_MINE);
 
     const ActionMine mine = m_actionQueue.front();
     m_actionQueue.pop_front();
 
     const auto nX0 = m_currMotion->endX;
     const auto nY0 = m_currMotion->endY;
-
     const auto nX1 = mine.x;
     const auto nY1 = mine.y;
 
