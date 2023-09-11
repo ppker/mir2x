@@ -540,11 +540,10 @@ bool MyHero::decompActionPickUp()
 
 bool MyHero::decompActionSpell()
 {
-    if(m_actionQueue.empty() || m_actionQueue.front().type != ACTION_SPELL){
-        throw fflreach();
-    }
+    fflassert(!m_actionQueue.empty());
+    fflassert(m_actionQueue.front().type == ACTION_SPELL);
 
-    const auto currAction = m_actionQueue.front();
+    const ActionSpell spell = m_actionQueue.front();
     m_actionQueue.pop_front();
 
     const auto fnGetSpellDir = [this](int nX0, int nY0, int nX1, int nY1) -> int
@@ -561,15 +560,15 @@ bool MyHero::decompActionSpell()
         }
     };
 
-    const auto standDir = [&fnGetSpellDir, &currAction, this]() -> int
+    const auto standDir = [&fnGetSpellDir, &spell, this]() -> int
     {
-        if(currAction.aimUID){
-            if(auto coPtr = m_processRun->findUID(currAction.aimUID)){
-                return fnGetSpellDir(currAction.x, currAction.y, coPtr->x(), coPtr->y());
+        if(spell.aimUID){
+            if(auto coPtr = m_processRun->findUID(spell.aimUID)){
+                return fnGetSpellDir(spell.x, spell.y, coPtr->x(), coPtr->y());
             }
         }
-        else if(m_processRun->canMove(true, 0, currAction.aimX, currAction.aimY)){
-            return fnGetSpellDir(currAction.x, currAction.y, currAction.aimX, currAction.aimY);
+        else if(m_processRun->canMove(true, 0, spell.aimX, spell.aimY)){
+            return fnGetSpellDir(spell.x, spell.y, spell.aimX, spell.aimY);
         }
         return DIR_NONE;
     }();
@@ -582,15 +581,15 @@ bool MyHero::decompActionSpell()
         m_actionQueue.emplace_front(ActionStand
         {
             .direction = standDir,
-            .x = currAction.x,
-            .y = currAction.y,
+            .x = spell.x,
+            .y = spell.y,
         });
     }
 
     // TODO like dual axe
     // some magic it has a attack distance
 
-    m_actionQueue.emplace_front(currAction);
+    m_actionQueue.emplace_front(spell);
     return true;
 }
 
