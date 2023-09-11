@@ -556,7 +556,6 @@ bool Hero::parseAction(const ActionNode &action)
                 break;
             }
         case ACTION_MOVE:
-        case ACTION_MINE:
         case ACTION_STAND:
         case ACTION_SPELL:
         case ACTION_ATTACK:
@@ -630,41 +629,29 @@ bool Hero::parseAction(const ActionNode &action)
             }
         case ACTION_MINE:
             {
-                const auto standDir = [&action, this]()
-                {
-                    if(m_motionQueue.empty()){
-                        return pathf::getDir8(action.aimX - m_currMotion->endX, action.aimY - m_currMotion->endY) + DIR_BEGIN;
-                    }
-                    else{
-                        return m_motionQueue.back()->direction;
-                    }
-                }();
+                const ActionMine mine = action;
+                const auto standDir = pathf::getDir8(mine.x - endX, mine.y - endY) + DIR_BEGIN;
 
                 m_motionQueue.push_back(std::unique_ptr<MotionNode>(new MotionNode
                 {
                     .type = MOTION_TWOVSWING,
                     .direction = standDir,
-                    .x = action.x,
-                    .y = action.y,
+                    .x = endX,
+                    .y = endY,
                 }));
 
                 m_motionQueue.push_back(std::unique_ptr<MotionNode>(new MotionNode
                 {
                     .type = MOTION_ATTACKMODE,
                     .direction = standDir,
-                    .x = action.x,
-                    .y = action.y,
+                    .x = endX,
+                    .y = endY,
                 }));
 
-                if(UID() == m_processRun->getMyHeroUID()){
-                    m_motionQueue.back()->addTrigger(false, [action, this](MotionNode *)
+                if(isMyHero()){
+                    m_motionQueue.back()->addTrigger(false, [mine, this](MotionNode *)
                     {
-                        m_processRun->getMyHero()->emplaceAction(ActionMine
-                        {
-                            .speed = action.speed,
-                            .x = action.aimX,
-                            .y = action.aimY,
-                        });
+                        m_processRun->getMyHero()->emplaceAction(mine);
                         return true;
                     });
                 }
