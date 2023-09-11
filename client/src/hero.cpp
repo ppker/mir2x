@@ -425,8 +425,8 @@ bool Hero::motionValid(const std::unique_ptr<MotionNode> &motionPtr) const
 {
     if(true
             && motionPtr
-            && motionPtr->type >= MOTION_BEGIN
-            && motionPtr->type <  MOTION_END
+
+            && ((motionPtr->type >= MOTION_BEGIN && motionPtr->type <  MOTION_END) || (motionPtr->type == MOTION_EXT_COMBINED))
 
             && motionPtr->direction >= DIR_BEGIN
             && motionPtr->direction <  DIR_END
@@ -517,6 +517,10 @@ bool Hero::motionValid(const std::unique_ptr<MotionNode> &motionPtr) const
             case MOTION_ONHORSEHITTED:
                 {
                     return onHorse() && (nLDistance2 == 0);
+                }
+            case MOTION_EXT_COMBINED:
+                {
+                    return true;
                 }
             default:
                 {

@@ -485,73 +485,64 @@ bool MyHero::decompActionAttack()
 
 bool MyHero::decompActionPickUp()
 {
-    fflassert(!m_actionQueue.empty() && m_actionQueue.front().type == ACTION_PICKUP);
+    fflassert(!m_actionQueue.empty());
+    fflassert(m_actionQueue.front().type == ACTION_PICKUP);
 
-    const auto currAction = m_actionQueue.front();
+    const ActionPickUp pickUp = m_actionQueue.front();
     m_actionQueue.pop_front();
 
-    int nX0 = currAction.x;
-    int nY0 = currAction.y;
-    int nX1 = currAction.aimX;
-    int nY1 = currAction.aimY;
-
-    if(!m_processRun->canMove(true, 0, nX0, nY0)){
-        g_log->addLog(LOGTYPE_WARNING, "Motion start from invalid grid (%d, %d)", nX0, nY0);
-        m_actionQueue.clear();
-        return false;
-    }
+    const auto nX0 = m_currMotion->endX;
+    const auto nY0 = m_currMotion->endY;
+    const auto nX1 = pickUp.x;
+    const auto nY1 = pickUp.y;
 
     switch(mathf::LDistance2(nX0, nY0, nX1, nY1)){
         case 0:
             {
-                m_actionQueue.emplace_front(currAction);
+                m_actionQueue.emplace_front(pickUp);
                 return true;
             }
         default:
             {
-                const auto fnaddHop = [this, currAction](int nXm, int nYm) -> bool
-                {
-                    switch(mathf::LDistance2<int>(currAction.aimX, currAction.aimY, nXm, nYm)){
-                        case 0:
-                            {
-                                m_actionQueue.emplace_front(currAction);
-                                return true;
-                            }
-                        default:
-                            {
-                                m_actionQueue.emplace_front(ActionPickUp
-                                {
-                                    .speed = currAction.speed,
-                                    .x = currAction.aimX,
-                                    .y = currAction.aimY,
-                                });
-
-                                m_actionQueue.emplace_front(ActionMove
-                                {
-                                    .speed = currAction.speed,
-                                    .x = currAction.x,
-                                    .y = currAction.y,
-                                    .aimX = nXm,
-                                    .aimY = nYm,
-                                });
-                                return true;
-                            }
-                    }
-                };
-
                 int nXm = -1;
                 int nYm = -1;
 
                 bool bCheckGround = m_processRun->canMove(true, 0, nX1, nY1);
                 if(decompMove(bCheckGround, 1, true, nX0, nY0, nX1, nY1, &nXm, &nYm)){
-                    return fnaddHop(nXm, nYm);
+                    m_actionQueue.emplace_front(pickUp);
+                    m_actionQueue.emplace_front(ActionMove
+                    {
+                        .speed = SYS_DEFSPEED,
+                        .x = nX0,
+                        .y = nY0,
+                        .aimX = nXm,
+                        .aimY = nYm,
+                        .extParam
+                        {
+                            .onHorse = onHorse(),
+                        },
+                    });
+                    return true;
                 }
                 else{
                     if(bCheckGround){
                         // means there is no such way to there
                         // move as much as possible
                         if(decompMove(false, 1, true, nX0, nY0, nX1, nY1, &nXm, &nYm)){
-                            return fnaddHop(nXm, nYm);
+                            m_actionQueue.emplace_front(pickUp);
+                            m_actionQueue.emplace_front(ActionMove
+                            {
+                                .speed = SYS_DEFSPEED,
+                                .x = nX0,
+                                .y = nY0,
+                                .aimX = nXm,
+                                .aimY = nYm,
+                                .extParam
+                                {
+                                    .onHorse = onHorse(),
+                                },
+                            });
+                            return true;
                         }
                         else{
                             // won't check the ground but failed
