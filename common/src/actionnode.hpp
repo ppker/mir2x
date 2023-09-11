@@ -272,7 +272,7 @@ struct ActionStand
     const int direction = DIR_NONE;
     const int x = -1;
     const int y = -1;
-    ActionNode::ExtParamStand extParam = {};
+    const ActionNode::ExtParamStand extParam {};
 
     operator ActionNode () const
     {
@@ -307,7 +307,7 @@ struct ActionMove
     const int y = -1;
     const int aimX = -1;
     const int aimY = -1;
-    const ActionNode::ExtParamMove extParam = {};
+    const ActionNode::ExtParamMove extParam {};
 
     operator ActionNode () const
     {
@@ -479,7 +479,7 @@ struct ActionSpell
     const int aimX = x;
     const int aimY = y;
     const uint64_t aimUID = 0;
-    const ActionNode::ExtParamSpell extParam = {};
+    const ActionNode::ExtParamSpell extParam {};
 
     operator ActionNode () const
     {
@@ -518,7 +518,7 @@ struct ActionTransf
     const int direction = DIR_NONE;
     const int x = -1;
     const int y = -1;
-    const ActionNode::ExtParamTransf extParam = {};
+    const ActionNode::ExtParamTransf extParam {};
 
     operator ActionNode () const
     {
@@ -552,7 +552,7 @@ struct ActionHitted
     const int x = -1;
     const int y = -1;
     const uint64_t fromUID = 0;
-    const ActionNode::ExtParamHitted extParam = {};
+    const ActionNode::ExtParamHitted extParam {};
 
     operator ActionNode () const
     {
@@ -625,7 +625,7 @@ struct ActionDie
 {
     const int x = -1;
     const int y = -1;
-    const ActionNode::ExtParamDie extParam = {};
+    const ActionNode::ExtParamDie extParam {};
 
     operator ActionNode () const
     {
