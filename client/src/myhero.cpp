@@ -172,13 +172,13 @@ bool MyHero::decompActionMove()
     fflassert(!m_actionQueue.empty());
     fflassert(m_actionQueue.front().type == ACTION_MOVE);
 
-    const auto currAction = m_actionQueue.front();
+    const ActionMove move = m_actionQueue.front();
     m_actionQueue.pop_front();
 
-    int nX0 = currAction.x;
-    int nY0 = currAction.y;
-    int nX1 = currAction.aimX;
-    int nY1 = currAction.aimY;
+    int nX0 = move.x;
+    int nY0 = move.y;
+    int nX1 = move.aimX;
+    int nY1 = move.aimY;
 
     if(!m_processRun->canMove(true, 0, nX0, nY0)){
         g_log->addLog(LOGTYPE_WARNING, "Motion start from invalid grid (%d, %d)", nX0, nY0);
@@ -189,7 +189,6 @@ bool MyHero::decompActionMove()
     switch(mathf::LDistance2(nX0, nY0, nX1, nY1)){
         case 0:
             {
-                // pickup is done in Hero::parseAction()
                 g_log->addLog(LOGTYPE_WARNING, "Motion invalid (%d, %d) -> (%d, %d)", nX0, nY0, nX1, nY1);
 
                 // I have to clear all pending actions
@@ -200,34 +199,34 @@ bool MyHero::decompActionMove()
             }
         default:
             {
-                const auto fnaddHop = [this, currAction](int nXm, int nYm) -> bool
+                const auto fnaddHop = [this, move](int nXm, int nYm) -> bool
                 {
-                    switch(mathf::LDistance2<int>(currAction.aimX, currAction.aimY, nXm, nYm)){
+                    switch(mathf::LDistance2<int>(nXm, nYm, move.aimX, move.aimY)){
                         case 0:
                             {
-                                m_actionQueue.emplace_front(currAction);
+                                m_actionQueue.emplace_front(move);
                                 return true;
                             }
                         default:
                             {
                                 m_actionQueue.emplace_front(ActionMove
                                 {
-                                    .speed = currAction.speed,
+                                    .speed = move.speed,
                                     .x = nXm,
                                     .y = nYm,
-                                    .aimX = currAction.aimX,
-                                    .aimY = currAction.aimY,
-                                    .extParam = currAction.extParam.move,
+                                    .aimX = move.aimX,
+                                    .aimY = move.aimY,
+                                    .extParam = move.extParam,
                                 });
 
                                 m_actionQueue.emplace_front(ActionMove
                                 {
-                                    .speed = currAction.speed,
-                                    .x = currAction.x,
-                                    .y = currAction.y,
+                                    .speed = move.speed,
+                                    .x = move.x,
+                                    .y = move.y,
                                     .aimX = nXm,
                                     .aimY = nYm,
-                                    .extParam = currAction.extParam.move,
+                                    .extParam = move.extParam,
                                 });
                                 return true;
                             }
