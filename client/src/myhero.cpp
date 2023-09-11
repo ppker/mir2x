@@ -169,9 +169,8 @@ bool MyHero::decompMove(bool bCheckGround, int nCheckCreature, bool bCheckMove, 
 
 bool MyHero::decompActionMove()
 {
-    if(m_actionQueue.empty() || m_actionQueue.front().type != ACTION_MOVE){
-        throw fflreach();
-    }
+    fflassert(!m_actionQueue.empty());
+    fflassert(m_actionQueue.front().type == ACTION_MOVE);
 
     const auto currAction = m_actionQueue.front();
     m_actionQueue.pop_front();
