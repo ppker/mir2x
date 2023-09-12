@@ -1111,13 +1111,16 @@ void Player::onCMActionMine(CMAction stCMA)
     // server won't do any path finding
     // client should sent action with only one-hop movement
 
-    int nX0 = stCMA.action.x;
-    int nY0 = stCMA.action.y;
-
-    switch(estimateHop(nX0, nY0)){
+    const ActionMine mine = stCMA.action;
+    switch(mathf::LDistance2(mine.x, mine.y, X(), Y())){
         case 0:
             {
-                dispatchAction(stCMA.action);
+                return;
+            }
+        case 1:
+        case 2:
+            {
+                dispatchAction(mine);
                 addInventoryItem(SDItem
                 {
                     .itemID = DBCOM_ITEMID(u8"黑铁"),
@@ -1126,22 +1129,8 @@ void Player::onCMActionMine(CMAction stCMA)
                 }, false);
                 return;
             }
-        case 1:
-            {
-                requestMove(nX0, nY0, SYS_MAXSPEED, false, false, [this, stCMA]()
-                {
-                    dbUpdateMapGLoc();
-                    onCMActionMine(stCMA);
-                },
-                [this]()
-                {
-                    reportStand();
-                });
-                return;
-            }
         default:
             {
-                reportStand();
                 return;
             }
     }
