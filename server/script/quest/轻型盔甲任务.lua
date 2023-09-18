@@ -118,7 +118,7 @@ uidRemoteCall(getNPCharUID('比奇县_0', '怡美_1'), getUID(), getQuestName(),
                         </layout>
                     ]=], plyapi.getName(uid))
 
-                elif string.match(dressName, '布衣.+') then
+                elseif string.match(dressName, '布衣.+') then
                     uidPostXML(uid, questPath,
                     [=[
                         <layout>
@@ -130,7 +130,7 @@ uidRemoteCall(getNPCharUID('比奇县_0', '怡美_1'), getUID(), getQuestName(),
                         </layout>
                     ]=], plyapi.getName(uid))
 
-                elif string.match(dressName, '轻型盔甲.+') then
+                elseif string.match(dressName, '轻型盔甲.+') then
                     uidPostXML(uid, questPath,
                     [=[
                         <layout>
@@ -216,7 +216,7 @@ uidRemoteCall(getNPCharUID('比奇县_0', '怡美_1'), getUID(), getQuestName(),
         end,
 
         npc_accept_quest = function(uid, args)
-            qstapi.setState(questUID, [uid=uid, state=SYS_ENTER])
+            qstapi.setState(questUID, {uid=uid, state=SYS_ENTER})
         end,
     })
 ]])
