@@ -3,6 +3,18 @@ _G.minQuestLevel = 11
 setQuestFSMTable(
 {
     [SYS_ENTER] = function(uid, args)
+        uidRemoteCall(uid, uid, getUID(),
+        [[
+            local playerUID, questUID = ...
+            addTrigger(SYS_ON_GAINITEM, function(itemID, seqID)
+                if hasItem(getItemID('铁矿'), 0, 5) then
+                    postString('已经收集到5块铁矿了，快回去找怡美吧！')
+                    qstapi.setState(questUID, {uid=playerUID, state='quest_got_iron'})
+                    return true
+                end
+            end)
+        ]])
+
         setupNPCQuestBehavior('比奇县_0', '怡美_1', uid,
         [[
             return getQuestName()
@@ -20,9 +32,9 @@ setQuestFSMTable(
                             <par>还没有带来我要的铁矿啊！</par>
                             <par></par>
                             <par><event id="npc_where_to_get_iron">去哪儿才能找到铁矿呢？</event></par>
-                            <par><event id="%s">请再给我一些时间。</event></par>
+                            <par><event id="npc_patience">请再给我一些时间。</event></par>
                         </layout>
-                    ]=], SYS_EXIT)
+                    ]=])
                 end,
 
                 npc_where_to_get_iron = function(uid, args)
