@@ -45,7 +45,7 @@ Player::LuaThreadRunner::LuaThreadRunner(Player *playerPtr)
 
     bindFunction("getWLItem", [this](int wlType, sol::this_state s) -> sol::object
     {
-        if(const auto &item = m_sdItemStorage.wear.getWLItem(wlType)){
+        if(const auto &item = getPlayer()->m_sdItemStorage.wear.getWLItem(wlType)){
             return luaf::buildLuaObj(sol::state_view(s), luaf::luaVar(item));
         }
         else{
