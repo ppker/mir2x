@@ -355,7 +355,7 @@ struct SDItem
         return {};
     }
 
-    operator luaf::luaVar() const
+    luaf::luaVar asLuaVar() const
     {
         return luaf::buildLuaVar(std::unordered_map<std::string, luaf::luaVar>
         {
