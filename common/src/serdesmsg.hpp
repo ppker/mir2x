@@ -354,6 +354,15 @@ struct SDItem
         }
         return {};
     }
+
+    operator luaf::luaVar() const
+    {
+        return luaf::buildLuaVar(std::unordered_map<std::string, luaf::luaVar>
+        {
+            {"itemID", itemID},
+            { "seqID",  seqID},
+        });
+    }
 };
 
 struct SDDropItem

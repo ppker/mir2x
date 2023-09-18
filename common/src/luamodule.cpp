@@ -112,6 +112,18 @@ LuaModule::LuaModule()
     execString("DIR_LEFT      = %d", DIR_LEFT     );
     execString("DIR_UPLEFT    = %d", DIR_UPLEFT   );
 
+    execString("WLG_DRESS     = %d", WLG_DRESS   );
+    execString("WLG_HELMET    = %d", WLG_HELMET  );
+    execString("WLG_WEAPON    = %d", WLG_WEAPON  );
+    execString("WLG_SHOES     = %d", WLG_SHOES   );
+    execString("WLG_NECKLACE  = %d", WLG_NECKLACE);
+    execString("WLG_ARMRING0  = %d", WLG_ARMRING0);
+    execString("WLG_ARMRING1  = %d", WLG_ARMRING1);
+    execString("WLG_RING0     = %d", WLG_RING0   );
+    execString("WLG_RING1     = %d", WLG_RING1   );
+    execString("WLG_TORCH     = %d", WLG_TORCH   );
+    execString("WLG_CHARM     = %d", WLG_CHARM   );
+
     execString("SYS_DEBUG = %s", to_boolcstr(SYS_DEBUG));
     execString("SYS_GOLDNAME = %s", luaf::quotedLuaString(SYS_GOLDNAME).c_str());
 

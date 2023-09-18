@@ -12,6 +12,8 @@ function ply.dbHasFlag   (uid, flag) return uidRemoteCall(uid, flag, [[ return d
 function ply.dbAddFlag   (uid, flag) return uidRemoteCall(uid, flag, [[ return dbAddFlag   (...) ]]) end
 function ply.dbRemoveFlag(uid, flag) return uidRemoteCall(uid, flag, [[ return dbRemoveFlag(...) ]]) end
 
+function ply.getWLItem(uid, wlType) return uidRemoteCall(uid, wlType, [[ return getWLItem(...)]]) end
+
 function ply.postString(uid, msg, ...)
     local args = table.pack(...)
     uidRemoteCall(uid, msg, args,

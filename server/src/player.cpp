@@ -43,6 +43,16 @@ Player::LuaThreadRunner::LuaThreadRunner(Player *playerPtr)
         return getPlayer()->name();
     });
 
+    bindFunction("getWLItem", [this](int wlType, sol::this_state s) -> sol::object
+    {
+        if(const auto &item = m_sdItemStorage.wear.getWLItem(wlType)){
+            return luaf::buildLuaObj(sol::state_view(s), luaf::luaVar(item));
+        }
+        else{
+            return sol::make_object(sol::state_view(s), sol::nil);
+        }
+    });
+
     bindFunction("getTeamLeader", [this](sol::this_state s) -> sol::object
     {
         sol::state_view sv(s);
