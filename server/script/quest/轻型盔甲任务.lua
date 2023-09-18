@@ -105,7 +105,7 @@ uidRemoteCall(getNPCharUID('比奇县_0', '怡美_1'), getUID(), getQuestName(),
                 ]=], plyapi.getName(uid), minQuestLevel, SYS_EXIT)
 
             else
-                local dressName = getItemName(plyapi.getWLItem(uid, WLG_DRESS))
+                local dressName = getItemName((plyapi.getWLItem(uid, WLG_DRESS) or {}).itemID)
                 if not dressName then
                     uidPostXML(uid, questPath,
                     [=[
