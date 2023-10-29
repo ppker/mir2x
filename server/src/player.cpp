@@ -1130,13 +1130,15 @@ void Player::onCMActionMine(CMAction stCMA)
         case 1:
         case 2:
             {
-                dispatchAction(mine);
-                addInventoryItem(SDItem
-                {
-                    .itemID = DBCOM_ITEMID(u8"黑铁"),
-                    .seqID  = 1,
-                    .count  = 1,
-                }, false);
+                if(DBCOM_ITEMRECORD(m_sdItemStorage.wear.getWLItem(WLG_WEAPON)).equip.weapon.mine){
+                    dispatchAction(mine);
+                    addInventoryItem(SDItem
+                    {
+                        .itemID = DBCOM_ITEMID(u8"黑铁"),
+                        .seqID  = 1,
+                        .count  = 1,
+                    }, false);
+                }
                 return;
             }
         default:

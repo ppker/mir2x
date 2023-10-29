@@ -587,7 +587,7 @@ void ProcessRun::processEvent(const SDL_Event &event)
                                 });
                             }
 
-                            else if(m_mir2xMapData.cell(mouseGridX, mouseGridY).land.canMine()){
+                            else if(m_mir2xMapData.cell(mouseGridX, mouseGridY).land.canMine() && DBCOM_ITEMRECORD(getMyHero()->getWLItem(WLG_WEAPON).itemID).equip.weapon.mine){
                                 getMyHero()->emplaceAction(ActionMine
                                 {
                                     .speed = SYS_DEFSPEED,
