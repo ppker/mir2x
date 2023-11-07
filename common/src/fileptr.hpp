@@ -122,6 +122,20 @@ template<typename C> C read_fileptr(fileptr_t &fptr, size_t size)
     return c;
 }
 
+template<typename C> C read_fileptr(fileptr_t &fptr)
+{
+    fflassert(fptr);
+    const auto size = size_fileptr(fptr);
+
+    if(size % sizeof(typename C::value_type)){
+        throw fflerror("file size alignment error: file size %zu, element size %zu", size, sizeof(C::value_type));
+    }
+
+    C c;
+    read_fileptr<C>(fptr, c, size / sizeof(typename C::value_type));
+    return c;
+}
+
 inline void write_fileptr(fileptr_t &fptr, const void *data, size_t size)
 {
     fflassert(fptr);
