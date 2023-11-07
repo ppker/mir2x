@@ -18,8 +18,6 @@ struct Bitmap
     }
 };
 
-#pragma pack(push, 1)
-
 struct MImageHeader
 {
     int16_t TWidth;
@@ -34,8 +32,6 @@ struct MImageHeader
     char    TShadow;
 };
 
-#pragma pack(pop)
-
 struct MImage
 {
     MImageHeader THeader;
@@ -44,19 +40,24 @@ struct MImage
     MImageHeader OHeader;
     Bitmap Overlay;
 
-    public MImage(BinaryReader bReader)
+    MImage(fileptr_t &fptr)
     {
-        TWidth = bReader.ReadInt16();
-        THeight = bReader.ReadInt16();
-        TOffSetX = bReader.ReadInt16();
-        TOffSetY = bReader.ReadInt16();
-        TShadowX = bReader.ReadInt16();
-        TShadowY = bReader.ReadInt16();
-        TLength = bReader.ReadByte() | bReader.ReadByte() << 8 | bReader.ReadByte() << 16;
-        TShadow = bReader.ReadByte();
+        readHeader(fptr, THeader);
     }
 
-    public unsafe void CreateTexture(BinaryReader bReader)
+    void readHeader(fileptr_t &fptr, MImageHeader &header)
+    {
+        read_fileptr(fptr, &header.TWidth  , 2);
+        read_fileptr(fptr, &header.THeight , 2);
+        read_fileptr(fptr, &header.TOffSetX, 2);
+        read_fileptr(fptr, &header.TOffSetY, 2);
+        read_fileptr(fptr, &header.TShadowX, 2);
+        read_fileptr(fptr, &header.TShadowY, 2);
+        read_fileptr(fptr, &header.TLength , 3);
+        read_fileptr(fptr, &header.TShadow , 1);
+    }
+
+    void CreateTexture(fileptr &fptr)
     {
         const int size = 8;
         var countList = new List<byte>();
