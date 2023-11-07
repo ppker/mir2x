@@ -2,6 +2,22 @@
 #include <string>
 #include "fileptr.hpp"
 
+struct Bitmap
+{
+    size_t width = 0;
+    std::vector<uint32_t> data;
+
+    Bitmap(size_t argW, size_t argH)
+        : width(argW)
+        , data(argW * argH)
+    {}
+
+    uint32_t &getPixel(size_t w, size_t h)
+    {
+        return data[h * width + w];
+    }
+};
+
 struct MImage
 {
     short TWidth;
