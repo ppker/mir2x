@@ -20,3 +20,5 @@ ADD_SUBDIRECTORY(rawbufmaker)
 ADD_SUBDIRECTORY(followuidmagiceditor)
 ADD_SUBDIRECTORY(soundlistdecoder)
 ADD_SUBDIRECTORY(bgmlistdecoder)
+
+ADD_SUBDIRECTORY(wtldecoder)
