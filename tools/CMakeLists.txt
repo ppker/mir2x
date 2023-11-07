@@ -21,4 +21,6 @@ ADD_SUBDIRECTORY(followuidmagiceditor)
 ADD_SUBDIRECTORY(soundlistdecoder)
 ADD_SUBDIRECTORY(bgmlistdecoder)
 
-ADD_SUBDIRECTORY(wtldecoder)
+IF(MIR2X_ENABLE_WTLDECODER)
+    ADD_SUBDIRECTORY(wtldecoder)
+ENDIF()
