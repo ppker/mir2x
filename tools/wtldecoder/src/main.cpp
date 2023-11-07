@@ -18,31 +18,32 @@ struct Bitmap
     }
 };
 
-struct MImage
-{
-    short TWidth;
-    short THeight;
+#pragma pack(push, 1)
 
-    short TOffSetX;
-    short TOffSetY;
-    short TShadowX;
-    short TShadowY;
+struct MImageHeader
+{
+    int16_t TWidth;
+    int16_t THeight;
+
+    int16_t TOffSetX;
+    int16_t TOffSetY;
+    int16_t TShadowX;
+    int16_t TShadowY;
 
     int32_t TLength;
     char    TShadow;
+};
 
-    public Bitmap Texture;
+#pragma pack(pop)
 
-    public short OHeight;
-    public int OLength;
-    public short OOffSetX;
-    public short OOffSetY;
-    public byte OShadow;
-    public short OShadowX;
-    public short OShadowY;
-    public short OWidth;
+struct MImage
+{
+    MImageHeader THeader;
+    Bitmap Texture;
 
-    public Bitmap Overlay;
+    MImageHeader OHeader;
+    Bitmap Overlay;
+
     public MImage(BinaryReader bReader)
     {
         TWidth = bReader.ReadInt16();
