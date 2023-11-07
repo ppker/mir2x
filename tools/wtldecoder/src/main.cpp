@@ -1,143 +1,19 @@
 #include <iostream>
+#include <string>
+#include "fileptr.hpp"
 
-struct WTLLibrary
+struct MImage
 {
-    private readonly string _fileName;
+    short TWidth;
+    short THeight;
 
-    public MImage[] Images;
+    short TOffSetX;
+    short TOffSetY;
+    short TShadowX;
+    short TShadowY;
 
-    private BinaryReader _bReader;
-    private int _count;
-    private FileStream _fStream;
-    private int[] _indexList;
-    private bool _initialized;
-
-    public WTLLibrary(string filename)
-    {
-        _fileName = filename;
-        Initialize();
-    }
-
-    public void Initialize()
-    {
-        _initialized = true;
-        _fStream = new FileStream(_fileName, FileMode.Open, FileAccess.ReadWrite);
-        _bReader = new BinaryReader(_fStream);
-
-        _fStream.Seek(28, SeekOrigin.Begin);
-
-        _count = _bReader.ReadInt32();
-        Images = new MImage[_count];
-        _indexList = new int[_count];
-
-        for (int i = 0; i < _count; i++)
-            _indexList[i] = _bReader.ReadInt32();
-
-         for (int i = 0; i < Images.Length; i++)
-           CheckImage(i);
-    }
-    public void Close()
-    {
-        _fStream?.Dispose();
-        _bReader?.Dispose();
-    }
-
-    public void CheckImage(int index)
-    {
-        if (!_initialized) Initialize();
-        if (Images == null || index < 0 || index >= Images.Length || _indexList[index] <= 0) return;
-
-        if (Images[index] == null)
-        {
-            _fStream.Position = _indexList[index];
-            Images[index] = new MImage(_bReader);
-        }
-
-        if (Images[index].Texture == null)
-        {
-            _fStream.Position = _indexList[index] + 16;
-            Images[index].CreateTexture(_bReader);
-        }
-
-        long max = _fStream.Length;
-        for (int i = index + 1; i < Images.Length; i++)
-        {
-            if (_indexList[i] == 0) continue;
-
-            max = _indexList[i];
-            break;
-        }
-
-        if (_indexList[index] + 16 + Images[index].TLength < max)
-        {
-            _fStream.Position = _indexList[index] + 16 + Images[index].TLength;
-            Images[index].CreateOverlayTexture(_bReader);
-        }
-    }
-
-    public bool HasImage(int index)
-    {
-        return Images != null && index >= 0 && index < Images.Length && Images[index]?.Texture != null;
-    }
-
-    public void Dispose()
-    {
-
-        _indexList = null;
-        _bReader?.Dispose();
-        _bReader = null;
-        _fStream?.Dispose();
-        _fStream = null;
-
-        for (int i = 0; i < Images.Length; i++)
-        {
-            if (Images[i] != null)
-                Images[i].Dispose();
-        }
-
-        Images = null;
-    }
-
-
-    public Mir3Library Convert()
-    {
-        string shadowPath = _fileName.Replace(".wtl", "_S.wtl");
-
-        WTLLibrary shadowLibrary = null;
-        if (File.Exists(shadowPath))
-            shadowLibrary = new WTLLibrary(shadowPath);
-
-        Mir3Library lib = new Mir3Library
-        {
-            Images = new Mir3Image[Images.Length]
-        };
-
-        for (int i = 0; i < Images.Length; i++)
-        {
-            MImage image = Images[i];
-            if (image?.Texture == null) continue;
-
-            lib.Images[i] = image.Convert(shadowLibrary, i);
-
-        }
-
-        shadowLibrary?.Dispose();
-
-        return lib;
-    }
-}
-
-public class MImage : IDisposable
-{
-    //Own Palette
-    public readonly short THeight;
-    public readonly int TLength;
-    public readonly short TOffSetX;
-    public readonly short TOffSetY;
-    public readonly byte TShadow;
-    public readonly short TShadowX;
-    public readonly short TShadowY;
-    public readonly short TWidth;
+    int32_t TLength;
+    char    TShadow;
 
     public Bitmap Texture;
 
@@ -587,3 +463,131 @@ public class MImage : IDisposable
         return bytes;
     }
 }
+
+struct WTLLibrary
+{
+    std::string _fileName;
+
+    public MImage[] Images;
+
+    private BinaryReader _bReader;
+    private int _count;
+    private FileStream _fStream;
+    private int[] _indexList;
+    private bool _initialized;
+
+    public WTLLibrary(std::string filename)
+    {
+        _fileName = filename;
+        Initialize();
+    }
+
+    public void Initialize()
+    {
+        _initialized = true;
+        _fStream = new FileStream(_fileName, FileMode.Open, FileAccess.ReadWrite);
+        _bReader = new BinaryReader(_fStream);
+
+        _fStream.Seek(28, SeekOrigin.Begin);
+
+        _count = _bReader.ReadInt32();
+        Images = new MImage[_count];
+        _indexList = new int[_count];
+
+        for (int i = 0; i < _count; i++)
+            _indexList[i] = _bReader.ReadInt32();
+
+         for (int i = 0; i < Images.Length; i++)
+           CheckImage(i);
+    }
+    public void Close()
+    {
+        _fStream?.Dispose();
+        _bReader?.Dispose();
+    }
+
+    public void CheckImage(int index)
+    {
+        if (!_initialized) Initialize();
+        if (Images == null || index < 0 || index >= Images.Length || _indexList[index] <= 0) return;
+
+        if (Images[index] == null)
+        {
+            _fStream.Position = _indexList[index];
+            Images[index] = new MImage(_bReader);
+        }
+
+        if (Images[index].Texture == null)
+        {
+            _fStream.Position = _indexList[index] + 16;
+            Images[index].CreateTexture(_bReader);
+        }
+
+        long max = _fStream.Length;
+        for (int i = index + 1; i < Images.Length; i++)
+        {
+            if (_indexList[i] == 0) continue;
+
+            max = _indexList[i];
+            break;
+        }
+
+        if (_indexList[index] + 16 + Images[index].TLength < max)
+        {
+            _fStream.Position = _indexList[index] + 16 + Images[index].TLength;
+            Images[index].CreateOverlayTexture(_bReader);
+        }
+    }
+
+    public bool HasImage(int index)
+    {
+        return Images != null && index >= 0 && index < Images.Length && Images[index]?.Texture != null;
+    }
+
+    public void Dispose()
+    {
+
+        _indexList = null;
+        _bReader?.Dispose();
+        _bReader = null;
+        _fStream?.Dispose();
+        _fStream = null;
+
+        for (int i = 0; i < Images.Length; i++)
+        {
+            if (Images[i] != null)
+                Images[i].Dispose();
+        }
+
+        Images = null;
+    }
+
+
+    public Mir3Library Convert()
+    {
+        std::string shadowPath = _fileName.Replace(".wtl", "_S.wtl");
+
+        WTLLibrary shadowLibrary = null;
+        if (File.Exists(shadowPath))
+            shadowLibrary = new WTLLibrary(shadowPath);
+
+        Mir3Library lib = new Mir3Library
+        {
+            Images = new Mir3Image[Images.Length]
+        };
+
+        for (int i = 0; i < Images.Length; i++)
+        {
+            MImage image = Images[i];
+            if (image?.Texture == null) continue;
+
+            lib.Images[i] = image.Convert(shadowLibrary, i);
+
+        }
+
+        shadowLibrary?.Dispose();
+
+        return lib;
+    }
+}
+
