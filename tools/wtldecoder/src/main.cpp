@@ -57,7 +57,7 @@ struct MImage
         read_fileptr(fptr, &header.TShadow , 1);
     }
 
-    void CreateTexture(fileptr &fptr)
+    void CreateTexture(fileptr_t &fptr)
     {
         const int size = 8;
         var countList = new List<byte>();
