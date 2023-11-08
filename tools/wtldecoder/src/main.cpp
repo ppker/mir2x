@@ -132,22 +132,22 @@ struct MImage
                     uint8_t newPixels[64];
                     DecompressBlock(newPixels, block);
 
-                    int pixelOffSet = 0;
+                    int blockx = blockOffset % (tWidth / 4);
+                    int blocky = blockOffset / (tWidth / 4);
+
                     for (int py = 0; py < 4; py++)
                     {
+                        int y = blocky * 4 + py;
+                        if(y >= THeader.height)
+                            break;
+
                         for (int px = 0; px < 4; px++)
                         {
-                            int blockx = blockOffset % (tWidth / 4);
-                            int blocky = blockOffset / (tWidth / 4);
-
                             int x = blockx * 4 + px;
-                            int y = blocky * 4 + py;
-
-                            if(x >= THeader.width || y >= THeader.height)
+                            if(x >= THeader.width)
                                 break;
 
-                            std::memcpy(pixels + (y * THeader.width + x) * 4, newPixels + pixelOffSet, 4);
-                            pixelOffSet += 4;
+                            std::memcpy(pixels + (y * THeader.width + x) * 4, newPixels + (py * 4 + px) * 4, 4);
                         }
                     }
                     blockOffset++;
