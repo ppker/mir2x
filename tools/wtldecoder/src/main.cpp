@@ -90,7 +90,6 @@ struct MImage
 
     void CreateTexture(fileptr_t &fptr)
     {
-        constexpr int size = 8;
         std::vector<uint8_t> countList;
         int tWidth = 2;
 
@@ -128,11 +127,11 @@ struct MImage
                         break;
 
                     uint8_t newPixels[64];
-                    uint8_t block[size];
+                    uint8_t block[8];
 
-                    std::memcpy(block + 0, fBytes.data() + blockOffSet, size);
+                    std::memcpy(block + 0, fBytes.data() + blockOffSet, 8);
 
-                    blockOffSet += size;
+                    blockOffSet += 8;
                     DecompressBlock(newPixels, block);
 
                     int pixelOffSet = 0;
@@ -168,7 +167,6 @@ struct MImage
 
     void CreateOverlayTexture(fileptr_t &fptr)
     {
-        constexpr int size = 8;
         std::vector<uint8_t> countList;
         int tWidth = 2;
 
@@ -207,10 +205,10 @@ struct MImage
                         break;
 
                     auto newPixels = new uint8_t[64];
-                    auto block = new uint8_t[size];
+                    auto block = new uint8_t[8];
 
-                    std::memcpy(block + 0, fBytes.data() + blockOffSet, size);
-                    blockOffSet += size;
+                    std::memcpy(block + 0, fBytes.data() + blockOffSet, 8);
+                    blockOffSet += 8;
                     DecompressBlock(newPixels, block);
 
                     int pixelOffSet = 0;
