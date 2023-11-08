@@ -387,19 +387,12 @@ struct WTLLibrary
     int32_t _count;
 
     std::vector<int32_t> _indexList;
-    bool _initialized;
 
     WTLLibrary(std::string filename)
         : _fileName(filename)
         , _fStream(make_fileptr(_fileName.c_str(), "rb"))
     {
         seek_fileptr(_fStream, 28, SEEK_SET);
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        _initialized = true;
         read_fileptr(_fStream, &_count, 4);
 
         Images.resize(_count);
@@ -414,7 +407,6 @@ struct WTLLibrary
 
     void CheckImage(int index)
     {
-        if (!_initialized) Initialize();
         if (Images.empty() || index < 0 || index >= (int)Images.size() || _indexList[index] <= 0) return;
 
         if (Images[index] == nullptr)
