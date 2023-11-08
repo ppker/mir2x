@@ -189,6 +189,7 @@ struct MImage
             countList.clear();
             for (int i = 0; i < 8; i++)
                 countList.push_back(fBytes[blockOffSet++]);
+
             for (int i = 0; i < (int)countList.size(); i++)
             {
                 int count = countList[i];
