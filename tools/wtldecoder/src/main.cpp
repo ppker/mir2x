@@ -33,6 +33,13 @@ struct Bitmap
     {
         return width == 0;
     }
+
+    void toARGB()
+    {
+        for(auto &pixel: data){
+            pixel = ((pixel & 0xFF00FF00) | ((pixel & 0x00FF0000) >> 16) | ((pixel & 0x000000FF) << 16));
+        }
+    }
 };
 
 struct MImageHeader
@@ -428,6 +435,7 @@ struct WTLLibrary
             seek_fileptr(_fStream, _indexList[index] + 16, SEEK_SET);
             Images[index]->CreateTexture(_fStream);
 
+            Images[index]->Texture.toARGB();
             imgf::saveImageBuffer(Images[index]->Texture.data.data(), Images[index]->THeader.width, Images[index]->THeader.height, str_printf("%d.png", index).c_str());
         }
 
@@ -445,6 +453,7 @@ struct WTLLibrary
             seek_fileptr(_fStream, _indexList[index] + 16 + Images[index]->THeader.length, SEEK_SET);
             Images[index]->CreateOverlayTexture(_fStream);
 
+            Images[index]->Overlay.toARGB();
             imgf::saveImageBuffer(Images[index]->Overlay.data.data(), Images[index]->OHeader.width, Images[index]->OHeader.height, str_printf("%d_overlay.png", index).c_str());
         }
     }
