@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include "imgf.hpp"
 #include "fileptr.hpp"
 
 struct Bitmap
@@ -426,6 +427,8 @@ struct WTLLibrary
         {
             seek_fileptr(_fStream, _indexList[index] + 16, SEEK_SET);
             Images[index]->CreateTexture(_fStream);
+
+            imgf::saveImageBuffer(Images[index]->Texture.data.data(), Images[index]->THeader.width, Images[index]->THeader.height, str_printf("%d.png", index).c_str());
         }
 
         long max = size_fileptr(_fStream);
