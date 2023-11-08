@@ -155,8 +155,7 @@ struct MImage
                             if (destPixel + 4 > cap)
                                 break;
 
-                            for (int pc = 0; pc < 4; pc++)
-                                pixels[destPixel + pc] = sourcePixel[pc];
+                            std::memcpy(pixels + destPixel, sourcePixel, 4);
                         }
                     }
                     blockOffset++;
