@@ -445,3 +445,10 @@ struct WTLLibrary
         }
     }
 };
+
+int main(int, char **argv)
+{
+    WTLLibrary lib(argv[1]);
+    std::cout << lib.Images.size() << std::endl;
+    return 0;
+}
