@@ -103,13 +103,13 @@ struct MImage
         auto pixels = (uint8_t*)Texture.data.data();
         int cap = THeader.width * THeader.height * 4;
 
-        int offset = 0, blockOffSet = 0;
+        int blockOffset = 0, dataOffset = 0;
 
-        while (blockOffSet < THeader.length)
+        while (dataOffset < THeader.length)
         {
             countList.clear();
             for (int i = 0; i < 8; i++)
-                countList.push_back(fBytes[blockOffSet++]);
+                countList.push_back(fBytes[dataOffset++]);
 
             for (int i = 0; i < (int)countList.size(); i++)
             {
@@ -117,21 +117,21 @@ struct MImage
 
                 if (i % 2 == 0)
                 {
-                    offset += count;
+                    blockOffset += count;
                     continue;
                 }
 
                 for (int c = 0; c < count; c++)
                 {
-                    if (blockOffSet >= (int)fBytes.size())
+                    if (dataOffset >= (int)fBytes.size())
                         break;
 
                     uint8_t newPixels[64];
                     uint8_t block[8];
 
-                    std::memcpy(block + 0, fBytes.data() + blockOffSet, 8);
+                    std::memcpy(block + 0, fBytes.data() + dataOffset, 8);
 
-                    blockOffSet += 8;
+                    dataOffset += 8;
                     DecompressBlock(newPixels, block);
 
                     int pixelOffSet = 0;
@@ -141,8 +141,8 @@ struct MImage
                     {
                         for (int px = 0; px < 4; px++)
                         {
-                            int blockx = offset % (tWidth / 4);
-                            int blocky = offset / (tWidth / 4);
+                            int blockx = blockOffset % (tWidth / 4);
+                            int blocky = blockOffset / (tWidth / 4);
 
                             int x = blockx * 4;
                             int y = blocky * 4;
@@ -159,7 +159,7 @@ struct MImage
                                 pixels[destPixel + pc] = sourcePixel[pc];
                         }
                     }
-                    offset++;
+                    blockOffset++;
                 }
             }
         }
@@ -182,13 +182,13 @@ struct MImage
         auto pixels = (uint8_t*)Overlay.data.data();
         int cap = OHeader.width * OHeader.height * 4;
 
-        int offset = 0, blockOffSet = 0;
+        int offset = 0, dataOffset = 0;
 
-        while (blockOffSet < (int)fBytes.size())
+        while (dataOffset < (int)fBytes.size())
         {
             countList.clear();
             for (int i = 0; i < 8; i++)
-                countList.push_back(fBytes[blockOffSet++]);
+                countList.push_back(fBytes[dataOffset++]);
 
             for (int i = 0; i < (int)countList.size(); i++)
             {
@@ -202,14 +202,14 @@ struct MImage
 
                 for (int c = 0; c < count; c++)
                 {
-                    if (blockOffSet >= (int)fBytes.size())
+                    if (dataOffset >= (int)fBytes.size())
                         break;
 
                     uint8_t newPixels[64];
                     uint8_t block[8];
 
-                    std::memcpy(block + 0, fBytes.data() + blockOffSet, 8);
-                    blockOffSet += 8;
+                    std::memcpy(block + 0, fBytes.data() + dataOffset, 8);
+                    dataOffset += 8;
                     DecompressBlock(newPixels, block);
 
                     int pixelOffSet = 0;
@@ -241,11 +241,11 @@ struct MImage
                 }
             }
         }
-        /*while (blockOffSet < fBytes.Length)
+        /*while (dataOffset < fBytes.Length)
          {
              countList.Clear();
              for (int i = 0; i < 8; i++)
-                 countList.Add(fBytes[blockOffSet++]);
+                 countList.Add(fBytes[dataOffset++]);
 
              for (int i = 0; i < countList.Count; i++)
              {
@@ -271,14 +271,14 @@ struct MImage
 
                  for (int c = 0; c < count; c++)
                  {
-                     if (blockOffSet >= fBytes.Length)
+                     if (dataOffset >= fBytes.Length)
                          break;
 
                      auto newPixels = new uint8_t[64];
                      auto block = new uint8_t[size];
 
-                     Array.Copy(fBytes, blockOffSet, block, 0, size);
-                     blockOffSet += size;
+                     Array.Copy(fBytes, dataOffset, block, 0, size);
+                     dataOffset += size;
                      DecompressBlock(newPixels, block);
 
                      int pixelOffSet = 0;
