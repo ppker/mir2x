@@ -126,12 +126,11 @@ struct MImage
                     if (dataOffset >= (int)fBytes.size())
                         break;
 
-                    uint8_t newPixels[64];
                     uint8_t block[8];
-
                     std::memcpy(block + 0, fBytes.data() + dataOffset, 8);
-
                     dataOffset += 8;
+
+                    uint8_t newPixels[64];
                     DecompressBlock(newPixels, block);
 
                     int pixelOffSet = 0;
