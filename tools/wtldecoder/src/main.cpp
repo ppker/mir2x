@@ -444,6 +444,8 @@ struct WTLLibrary
         {
             seek_fileptr(_fStream, _indexList[index] + 16 + Images[index]->THeader.length, SEEK_SET);
             Images[index]->CreateOverlayTexture(_fStream);
+
+            imgf::saveImageBuffer(Images[index]->Overlay.data.data(), Images[index]->OHeader.width, Images[index]->OHeader.height, str_printf("%d_overlay.png", index).c_str());
         }
     }
 };
