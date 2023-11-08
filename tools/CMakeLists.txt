@@ -23,4 +23,5 @@ ADD_SUBDIRECTORY(bgmlistdecoder)
 
 IF(MIR2X_ENABLE_WTLDECODER)
     ADD_SUBDIRECTORY(wtldecoder)
+    ADD_SUBDIRECTORY(wtldecoder_newversion)
 ENDIF()
