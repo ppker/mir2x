@@ -204,8 +204,8 @@ struct MImage
                     if (blockOffSet >= (int)fBytes.size())
                         break;
 
-                    auto newPixels = new uint8_t[64];
-                    auto block = new uint8_t[8];
+                    uint8_t newPixels[64];
+                    uint8_t block[8];
 
                     std::memcpy(block + 0, fBytes.data() + blockOffSet, 8);
                     blockOffSet += 8;
