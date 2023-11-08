@@ -101,7 +101,6 @@ struct MImage
         Texture.resize(THeader.width, THeader.height);
 
         auto pixels = (uint8_t*)Texture.data.data();
-        int cap = THeader.width * THeader.height * 4;
 
         int blockOffset = 0, dataOffset = 0;
 
@@ -134,8 +133,6 @@ struct MImage
                     DecompressBlock(newPixels, block);
 
                     int pixelOffSet = 0;
-                    uint8_t sourcePixel[4];
-
                     for (int py = 0; py < 4; py++)
                     {
                         for (int px = 0; px < 4; px++)
@@ -149,15 +146,8 @@ struct MImage
                             if(x >= THeader.width || y >= THeader.height)
                                 break;
 
-                            int destPixel = (y * THeader.width + x) * 4;
-
-                            std::memcpy(sourcePixel + 0, newPixels + pixelOffSet, 4);
+                            std::memcpy(pixels + (y * THeader.width + x) * 4, newPixels + pixelOffSet, 4);
                             pixelOffSet += 4;
-
-                            if (destPixel + 4 > cap)
-                                break;
-
-                            std::memcpy(pixels + destPixel, sourcePixel, 4);
                         }
                     }
                     blockOffset++;
