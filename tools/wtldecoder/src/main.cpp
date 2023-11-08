@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <memory>
 #include "fileptr.hpp"
 
 struct Bitmap
@@ -12,24 +13,39 @@ struct Bitmap
         , data(argW * argH)
     {}
 
+    Bitmap()
+        : Bitmap(0, 0)
+    {}
+
     uint32_t &getPixel(size_t w, size_t h)
     {
         return data[h * width + w];
+    }
+
+    void resize(size_t argW, size_t argH)
+    {
+        width = argW;
+        data.resize(argW * argH);
+    }
+
+    bool empty() const
+    {
+        return width == 0;
     }
 };
 
 struct MImageHeader
 {
-    int16_t TWidth;
-    int16_t THeight;
+    int16_t width;
+    int16_t height;
 
-    int16_t TOffSetX;
-    int16_t TOffSetY;
-    int16_t TShadowX;
-    int16_t TShadowY;
+    int16_t offsetX;
+    int16_t offsetY;
+    int16_t shadowX;
+    int16_t shadowY;
 
-    int32_t TLength;
-    char    TShadow;
+    int32_t length;
+    char    shadow;
 };
 
 struct MImage
@@ -47,42 +63,41 @@ struct MImage
 
     void readHeader(fileptr_t &fptr, MImageHeader &header)
     {
-        read_fileptr(fptr, &header.TWidth  , 2);
-        read_fileptr(fptr, &header.THeight , 2);
-        read_fileptr(fptr, &header.TOffSetX, 2);
-        read_fileptr(fptr, &header.TOffSetY, 2);
-        read_fileptr(fptr, &header.TShadowX, 2);
-        read_fileptr(fptr, &header.TShadowY, 2);
-        read_fileptr(fptr, &header.TLength , 3);
-        read_fileptr(fptr, &header.TShadow , 1);
+        read_fileptr(fptr, &header.width  , 2);
+        read_fileptr(fptr, &header.height , 2);
+        read_fileptr(fptr, &header.offsetX, 2);
+        read_fileptr(fptr, &header.offsetY, 2);
+        read_fileptr(fptr, &header.shadowX, 2);
+        read_fileptr(fptr, &header.shadowY, 2);
+        read_fileptr(fptr, &header.length , 3);
+        read_fileptr(fptr, &header.shadow , 1);
     }
 
     void CreateTexture(fileptr_t &fptr)
     {
-        const int size = 8;
-        var countList = new List<byte>();
+        constexpr int size = 8;
+        std::vector<uint8_t> countList;
         int tWidth = 2;
 
-        while (tWidth < TWidth)
+        while (tWidth < THeader.width)
             tWidth *= 2;
 
-        byte[] fBytes = bReader.ReadBytes(TLength);
+        auto fBytes = read_fileptr<std::vector<uint8_t>>(fptr, THeader.length);
 
-        Texture = new Bitmap(TWidth, THeight);
-        BitmapData textureData = Texture.LockBits(new Rectangle(0, 0, TWidth, THeight), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+        Texture.resize(THeader.width, THeader.height);
 
-        var pixels = (byte*)textureData.Scan0;
-        int cap = TWidth * THeight * 4;
+        auto pixels = (uint8_t*)Texture.data.data();
+        int cap = THeader.width * THeader.height * 4;
 
         int offset = 0, blockOffSet = 0;
 
-        while (blockOffSet < TLength)
+        while (blockOffSet < THeader.length)
         {
-            countList.Clear();
+            countList.clear();
             for (int i = 0; i < 8; i++)
-                countList.Add(fBytes[blockOffSet++]);
+                countList.push_back(fBytes[blockOffSet++]);
 
-            for (int i = 0; i < countList.Count; i++)
+            for (int i = 0; i < (int)countList.size(); i++)
             {
                 int count = countList[i];
 
@@ -94,18 +109,19 @@ struct MImage
 
                 for (int c = 0; c < count; c++)
                 {
-                    if (blockOffSet >= fBytes.Length)
+                    if (blockOffSet >= (int)fBytes.size())
                         break;
 
-                    var newPixels = new byte[64];
-                    var block = new byte[size];
+                    uint8_t newPixels[64];
+                    uint8_t block[size];
 
-                    Array.Copy(fBytes, blockOffSet, block, 0, size);
+                    std::memcpy(block + 0, fBytes.data() + blockOffSet, size);
+
                     blockOffSet += size;
                     DecompressBlock(newPixels, block);
 
                     int pixelOffSet = 0;
-                    var sourcePixel = new byte[4];
+                    uint8_t sourcePixel[4];
 
                     for (int py = 0; py < 4; py++)
                     {
@@ -117,13 +133,14 @@ struct MImage
                             int x = blockx * 4;
                             int y = blocky * 4;
 
-                            int destPixel = ((y + py) * TWidth) * 4 + (x + px) * 4;
+                            int destPixel = ((y + py) * THeader.width) * 4 + (x + px) * 4;
 
-                            Array.Copy(newPixels, pixelOffSet, sourcePixel, 0, 4);
+                            std::memcpy(sourcePixel + 0, newPixels + pixelOffSet, 4);
                             pixelOffSet += 4;
 
                             if (destPixel + 4 > cap)
                                 break;
+
                             for (int pc = 0; pc < 4; pc++)
                                 pixels[destPixel + pc] = sourcePixel[pc];
                         }
@@ -132,43 +149,34 @@ struct MImage
                 }
             }
         }
-
-        Texture.UnlockBits(textureData);
     }
-    public unsafe void CreateOverlayTexture(BinaryReader bReader)
+
+    void CreateOverlayTexture(fileptr_t &fptr)
     {
-        const int size = 8;
-        var countList = new List<byte>();
+        constexpr int size = 8;
+        std::vector<uint8_t> countList;
         int tWidth = 2;
 
-        OWidth = bReader.ReadInt16();
-        OHeight = bReader.ReadInt16();
-        OOffSetX = bReader.ReadInt16();
-        OOffSetY = bReader.ReadInt16();
-        OShadowX = bReader.ReadInt16();
-        OShadowY = bReader.ReadInt16();
-        OLength = bReader.ReadByte() | bReader.ReadByte() << 8 | bReader.ReadByte() << 16;
-        OShadow = bReader.ReadByte();
+        readHeader(fptr, OHeader);
 
-        while (tWidth < OWidth)
+        while (tWidth < OHeader.width)
             tWidth *= 2;
 
-        byte[] fBytes = bReader.ReadBytes(OLength);
+        auto fBytes = read_fileptr<std::vector<uint8_t>>(fptr, OHeader.length);
 
-        Overlay = new Bitmap(OWidth, OHeight);
-        BitmapData textureData = Overlay.LockBits(new Rectangle(0, 0, OWidth, OHeight), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+        Overlay.resize(OHeader.width, OHeader.height);
 
-        var pixels = (byte*)textureData.Scan0;
-        int cap = OWidth * OHeight * 4;
+        auto pixels = (uint8_t*)Overlay.data.data();
+        int cap = OHeader.width * OHeader.height * 4;
 
         int offset = 0, blockOffSet = 0;
 
-        while (blockOffSet < fBytes.Length)
+        while (blockOffSet < (int)fBytes.size())
         {
-            countList.Clear();
+            countList.clear();
             for (int i = 0; i < 8; i++)
-                countList.Add(fBytes[blockOffSet++]);
-            for (int i = 0; i < countList.Count; i++)
+                countList.push_back(fBytes[blockOffSet++]);
+            for (int i = 0; i < (int)countList.size(); i++)
             {
                 int count = countList[i];
 
@@ -180,18 +188,18 @@ struct MImage
 
                 for (int c = 0; c < count; c++)
                 {
-                    if (blockOffSet >= fBytes.Length)
+                    if (blockOffSet >= (int)fBytes.size())
                         break;
 
-                    var newPixels = new byte[64];
-                    var block = new byte[size];
+                    auto newPixels = new uint8_t[64];
+                    auto block = new uint8_t[size];
 
-                    Array.Copy(fBytes, blockOffSet, block, 0, size);
+                    std::memcpy(block + 0, fBytes.data() + blockOffSet, size);
                     blockOffSet += size;
                     DecompressBlock(newPixels, block);
 
                     int pixelOffSet = 0;
-                    var sourcePixel = new byte[4];
+                    uint8_t sourcePixel[4];
 
                     for (int py = 0; py < 4; py++)
                     {
@@ -203,9 +211,9 @@ struct MImage
                             int x = blockx * 4;
                             int y = blocky * 4;
 
-                            int destPixel = ((y + py) * OWidth) * 4 + (x + px) * 4;
+                            int destPixel = ((y + py) * OHeader.width) * 4 + (x + px) * 4;
 
-                            Array.Copy(newPixels, pixelOffSet, sourcePixel, 0, 4);
+                            std::memcpy(sourcePixel + 0, newPixels + pixelOffSet, 4);
                             pixelOffSet += 4;
 
                             if (destPixel + 4 > cap)
@@ -236,7 +244,7 @@ struct MImage
 
                      for (int off = 0; off < count; off++)
                      {
-                         if (currentx < OWidth)
+                         if (currentx < OHeader.width)
                              offset++;
 
                          currentx += 4;
@@ -252,27 +260,27 @@ struct MImage
                      if (blockOffSet >= fBytes.Length)
                          break;
 
-                     var newPixels = new byte[64];
-                     var block = new byte[size];
+                     auto newPixels = new uint8_t[64];
+                     auto block = new uint8_t[size];
 
                      Array.Copy(fBytes, blockOffSet, block, 0, size);
                      blockOffSet += size;
                      DecompressBlock(newPixels, block);
 
                      int pixelOffSet = 0;
-                     var sourcePixel = new byte[4];
+                     auto sourcePixel = new uint8_t[4];
 
                      for (int py = 0; py < 4; py++)
                      {
                          for (int px = 0; px < 4; px++)
                          {
-                             int blockx = offset % (OWidth / 4);
-                             int blocky = offset / (OWidth / 4);
+                             int blockx = offset % (OHeader.width / 4);
+                             int blocky = offset / (OHeader.width / 4);
 
                              int x = blockx * 4;
                              int y = blocky * 4;
 
-                             int destPixel = ((y + py) * OWidth) * 4 + (x + px) * 4;
+                             int destPixel = ((y + py) * OHeader.width) * 4 + (x + px) * 4;
 
                              Array.Copy(newPixels, pixelOffSet, sourcePixel, 0, 4);
                              pixelOffSet += 4;
@@ -284,22 +292,21 @@ struct MImage
                          }
                      }
                      offset++;
-                     if (currentx >= OWidth)
-                         currentx -= OWidth;
+                     if (currentx >= OHeader.width)
+                         currentx -= OHeader.width;
                      currentx += 4;
                  }
              }
          }
          */
-        Overlay.UnlockBits(textureData);
     }
 
-    private static void DecompressBlock(IList<byte> newPixels, byte[] block)
+    void DecompressBlock(uint8_t *newPixels, uint8_t *block)
     {
-        var colours = new byte[8];
-        Array.Copy(block, 0, colours, 0, 8);
+        uint8_t colours[8];
+        std::memcpy(colours + 0, block + 0, 8);
 
-        var codes = new byte[16];
+        uint8_t codes[16];
 
         int a = Unpack(block, 0, codes, 0);
         int b = Unpack(block, 2, codes, 4);
@@ -311,18 +318,18 @@ struct MImage
 
             if (a <= b)
             {
-                codes[8 + i] = (byte)((c + d) / 2);
+                codes[8 + i] = (uint8_t)((c + d) / 2);
                 codes[12 + i] = 0;
             }
             else
             {
-                codes[8 + i] = (byte)((2 * c + d) / 3);
-                codes[12 + i] = (byte)((c + 2 * d) / 3);
+                codes[8 + i] = (uint8_t)((2 * c + d) / 3);
+                codes[12 + i] = (uint8_t)((c + 2 * d) / 3);
             }
         }
 
         codes[8 + 3] = 255;
-        codes[12 + 3] = (a <= b) ? (byte)0 : (byte)255;
+        codes[12 + 3] = (a <= b) ? (uint8_t)0 : (uint8_t)255;
         for (int i = 0; i < 4; i++)
         {
             if ((codes[i * 4] == 0) && (codes[(i * 4) + 1] == 0) && (codes[(i * 4) + 2] == 0) && (codes[(i * 4) + 3] == 255))
@@ -333,216 +340,97 @@ struct MImage
             }
         }
 
-        var indices = new byte[16];
+        uint8_t indices[16];
         for (int i = 0; i < 4; i++)
         {
-            byte packed = block[4 + i];
+            uint8_t packed = block[4 + i];
 
-            indices[0 + i * 4] = (byte)(packed & 0x3);
-            indices[1 + i * 4] = (byte)((packed >> 2) & 0x3);
-            indices[2 + i * 4] = (byte)((packed >> 4) & 0x3);
-            indices[3 + i * 4] = (byte)((packed >> 6) & 0x3);
+            indices[0 + i * 4] = (uint8_t)(packed & 0x3);
+            indices[1 + i * 4] = (uint8_t)((packed >> 2) & 0x3);
+            indices[2 + i * 4] = (uint8_t)((packed >> 4) & 0x3);
+            indices[3 + i * 4] = (uint8_t)((packed >> 6) & 0x3);
         }
 
         for (int i = 0; i < 16; i++)
         {
-            var offset = (byte)(4 * indices[i]);
+            auto offset = (uint8_t)(4 * indices[i]);
             for (int j = 0; j < 4; j++)
                 newPixels[4 * i + j] = codes[offset + j];
         }
     }
 
-    private static int Unpack(IList<byte> packed, int srcOffset, IList<byte> colour, int dstOffSet)
+    int Unpack(uint8_t *packed, int srcOffset, uint8_t *colour, int dstOffSet)
     {
         int value = packed[0 + srcOffset] | (packed[1 + srcOffset] << 8);
 
         // get components in the stored range
-        var blue = (byte)((value >> 11) & 0x1F);
-        var green = (byte)((value >> 5) & 0x3F);
-        var red = (byte)(value & 0x1F);
+        auto blue = (uint8_t)((value >> 11) & 0x1F);
+        auto green = (uint8_t)((value >> 5) & 0x3F);
+        auto red = (uint8_t)(value & 0x1F);
 
         // Scale up to 8 Bit
-        colour[0 + dstOffSet] = (byte)((red << 3) | (red >> 2));
-        colour[1 + dstOffSet] = (byte)((green << 2) | (green >> 4));
-        colour[2 + dstOffSet] = (byte)((blue << 3) | (blue >> 2));
+        colour[0 + dstOffSet] = (uint8_t)((red << 3) | (red >> 2));
+        colour[1 + dstOffSet] = (uint8_t)((green << 2) | (green >> 4));
+        colour[2 + dstOffSet] = (uint8_t)((blue << 3) | (blue >> 2));
         colour[3 + dstOffSet] = 255;
 
         return value;
     }
-
-    public void Dispose()
-    {
-        Texture?.Dispose();
-        Texture = null;
-
-        Overlay?.Dispose();
-        Overlay = null;
-    }
-
-    public Mir3Image Convert(WTLLibrary shadowLibrary, int index)
-    {
-        Mir3Image image = new Mir3Image
-        {
-            Width = TWidth,
-            Height = THeight,
-            OffSetX = TOffSetX,
-            OffSetY = TOffSetY,
-            ShadowType = TShadow,
-            Data = GetBytes(Texture),
-            ShadowOffSetX = TShadowX,
-            ShadowOffSetY = TShadowY
-        };
-
-        if (shadowLibrary != null && shadowLibrary.HasImage(index))
-        {
-            MImage sImage = shadowLibrary.Images[index];
-
-            image.ShadowWidth = sImage.TWidth;
-            image.ShadowHeight = sImage.THeight;
-            image.ShadowOffSetX = sImage.TOffSetX;
-            image.ShadowOffSetY = sImage.TOffSetY;
-            image.ShadowData = GetBytes(sImage.Texture);
-        }
-
-        if (Overlay != null)
-        {
-            image.OverlayWidth = OWidth;
-            image.OverlayHeight = OHeight;
-
-
-            image.OverLayData = GetBytes(Overlay);
-        }
-
-        return image;
-    }
-
-
-    public static unsafe byte[] GetBytes(Bitmap image)
-    {
-        if (image == null) return null;
-
-        Size Size = new Size(image.Width, image.Height);
-
-        int w = Size.Width + (4 - Size.Width % 4) % 4;
-        int h = Size.Height + (4 - Size.Height % 4) % 4;
-
-        //const int pureBlack = 255 << 24, almostBlack = 255 << 24 | 4 << 8;
-
-        Bitmap temp = new Bitmap(w, h);
-        BitmapData tempdata = temp.LockBits(new Rectangle(0, 0, w, h), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
-        BitmapData imagedata = image.LockBits(new Rectangle(0, 0, Size.Width, Size.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-
-        int* tempPixels = (int*)tempdata.Scan0;
-        int* imagePixels = (int*)imagedata.Scan0;
-
-        for (int y = 0; y < Size.Height; y++)
-            for (int x = 0; x < Size.Width; x++)
-            {
-                //if (imagePixels[y * Size.Width + x] == pureBlack)
-                //    tempPixels[y * w + x] = almostBlack;
-                //else
-                tempPixels[y * w + x] = imagePixels[y * Size.Width + x];
-            }
-
-        temp.UnlockBits(tempdata);
-        image.UnlockBits(imagedata);
-
-        BitmapData data = temp.LockBits(new Rectangle(0, 0, w, h), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-
-        byte[] pixels = new byte[temp.Width * temp.Height * 4];
-
-
-        Marshal.Copy(data.Scan0, pixels, 0, pixels.Length);
-        temp.UnlockBits(data);
-
-        for (int i = 0; i < pixels.Length; i += 4)
-        {
-            //Reverse Red/Blue
-            byte b = pixels[i];
-            pixels[i] = pixels[i + 2];
-            pixels[i + 2] = b;
-
-            if (pixels[i] == 0 && pixels[i + 1] == 0 && pixels[i + 2] == 0)
-                pixels[i + 3] = 0; //Make Transparent
-
-        }
-
-        int count = Squish.GetStorageRequirements(w, h, SquishFlags.Dxt1);
-
-        byte[] bytes = new byte[count];
-        fixed (byte* dest = bytes)
-        fixed (byte* source = pixels)
-        {
-            Squish.CompressImage((IntPtr)source, w, h, (IntPtr)dest, SquishFlags.Dxt1);
-        }
-
-        temp.Dispose();
-
-        return bytes;
-    }
-}
+};
 
 struct WTLLibrary
 {
     std::string _fileName;
+    fileptr_t _fStream;
 
-    public MImage[] Images;
+    std::vector<std::unique_ptr<MImage>> Images;
+    int32_t _count;
 
-    private BinaryReader _bReader;
-    private int _count;
-    private FileStream _fStream;
-    private int[] _indexList;
-    private bool _initialized;
+    std::vector<int32_t> _indexList;
+    bool _initialized;
 
-    public WTLLibrary(std::string filename)
+    WTLLibrary(std::string filename)
+        : _fileName(filename)
+        , _fStream(make_fileptr(_fileName.c_str(), "rb"))
     {
-        _fileName = filename;
+        seek_fileptr(_fStream, 28, SEEK_SET);
         Initialize();
     }
 
-    public void Initialize()
+    void Initialize()
     {
         _initialized = true;
-        _fStream = new FileStream(_fileName, FileMode.Open, FileAccess.ReadWrite);
-        _bReader = new BinaryReader(_fStream);
+        read_fileptr(_fStream, &_count, 4);
 
-        _fStream.Seek(28, SeekOrigin.Begin);
-
-        _count = _bReader.ReadInt32();
-        Images = new MImage[_count];
-        _indexList = new int[_count];
+        Images.resize(_count);
+        _indexList.resize(_count);
 
         for (int i = 0; i < _count; i++)
-            _indexList[i] = _bReader.ReadInt32();
+            read_fileptr(_fStream, &_indexList[i], 4);
 
-         for (int i = 0; i < Images.Length; i++)
+         for (int i = 0; i < (int)Images.size(); i++)
            CheckImage(i);
     }
-    public void Close()
-    {
-        _fStream?.Dispose();
-        _bReader?.Dispose();
-    }
 
-    public void CheckImage(int index)
+    void CheckImage(int index)
     {
         if (!_initialized) Initialize();
-        if (Images == null || index < 0 || index >= Images.Length || _indexList[index] <= 0) return;
+        if (Images.empty() || index < 0 || index >= (int)Images.size() || _indexList[index] <= 0) return;
 
-        if (Images[index] == null)
+        if (Images[index] == nullptr)
         {
-            _fStream.Position = _indexList[index];
-            Images[index] = new MImage(_bReader);
+            seek_fileptr(_fStream, _indexList[index], SEEK_SET);
+            Images[index].reset(new MImage(_fStream));
         }
 
-        if (Images[index].Texture == null)
+        if (Images[index]->Texture.empty())
         {
-            _fStream.Position = _indexList[index] + 16;
-            Images[index].CreateTexture(_bReader);
+            seek_fileptr(_fStream, _indexList[index] + 16, SEEK_SET);
+            Images[index]->CreateTexture(_fStream);
         }
 
-        long max = _fStream.Length;
-        for (int i = index + 1; i < Images.Length; i++)
+        long max = size_fileptr(_fStream);
+        for (int i = index + 1; i < (int)Images.size(); i++)
         {
             if (_indexList[i] == 0) continue;
 
@@ -550,62 +438,10 @@ struct WTLLibrary
             break;
         }
 
-        if (_indexList[index] + 16 + Images[index].TLength < max)
+        if (_indexList[index] + 16 + Images[index]->THeader.length < max)
         {
-            _fStream.Position = _indexList[index] + 16 + Images[index].TLength;
-            Images[index].CreateOverlayTexture(_bReader);
+            seek_fileptr(_fStream, _indexList[index] + 16 + Images[index]->THeader.length, SEEK_SET);
+            Images[index]->CreateOverlayTexture(_fStream);
         }
     }
-
-    public bool HasImage(int index)
-    {
-        return Images != null && index >= 0 && index < Images.Length && Images[index]?.Texture != null;
-    }
-
-    public void Dispose()
-    {
-
-        _indexList = null;
-        _bReader?.Dispose();
-        _bReader = null;
-        _fStream?.Dispose();
-        _fStream = null;
-
-        for (int i = 0; i < Images.Length; i++)
-        {
-            if (Images[i] != null)
-                Images[i].Dispose();
-        }
-
-        Images = null;
-    }
-
-
-    public Mir3Library Convert()
-    {
-        std::string shadowPath = _fileName.Replace(".wtl", "_S.wtl");
-
-        WTLLibrary shadowLibrary = null;
-        if (File.Exists(shadowPath))
-            shadowLibrary = new WTLLibrary(shadowPath);
-
-        Mir3Library lib = new Mir3Library
-        {
-            Images = new Mir3Image[Images.Length]
-        };
-
-        for (int i = 0; i < Images.Length; i++)
-        {
-            MImage image = Images[i];
-            if (image?.Texture == null) continue;
-
-            lib.Images[i] = image.Convert(shadowLibrary, i);
-
-        }
-
-        shadowLibrary?.Dispose();
-
-        return lib;
-    }
-}
-
+};
