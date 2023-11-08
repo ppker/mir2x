@@ -70,14 +70,13 @@ struct MImage
         read_fileptr(fptr, &header.shadowX, 2);
         read_fileptr(fptr, &header.shadowY, 2);
 
-        uint8_t a, b, c;
+        uint32_t a, b, c;
         read_fileptr(fptr, &a, 1);
         read_fileptr(fptr, &b, 1);
         read_fileptr(fptr, &c, 1);
 
-        header.length = (int32_t)(a) | ((int32_t)(b) << 8) | ((int32_t)(c) << 16);
+        header.length = a | (b << 8) | (c << 16);
 
-        read_fileptr(fptr, &header.length , 3);
         read_fileptr(fptr, &header.shadow , 1);
     }
 
