@@ -143,10 +143,13 @@ struct MImage
                             int blockx = blockOffset % (tWidth / 4);
                             int blocky = blockOffset / (tWidth / 4);
 
-                            int x = blockx * 4;
-                            int y = blocky * 4;
+                            int x = blockx * 4 + px;
+                            int y = blocky * 4 + py;
 
-                            int destPixel = ((y + py) * THeader.width) * 4 + (x + px) * 4;
+                            if(x >= THeader.width || y >= THeader.height)
+                                break;
+
+                            int destPixel = (y * THeader.width + x) * 4;
 
                             std::memcpy(sourcePixel + 0, newPixels + pixelOffSet, 4);
                             pixelOffSet += 4;
