@@ -520,8 +520,7 @@ struct WTLLibrary
         if (Images[index]->Texture.empty())
         {
             seek_fileptr(_fStream, _indexList[index] + 16, SEEK_SET);
-            // Images[index]->CreateTexture(_fStream);
-            Images[index]->DecompressV1Texture(_fStream);
+            Images[index]->CreateTexture(_fStream);
 
             Images[index]->Texture.toARGB();
             imgf::saveImageBuffer(Images[index]->Texture.data.data(), Images[index]->THeader.width, Images[index]->THeader.height, str_printf("%d.png", index).c_str());
