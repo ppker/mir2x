@@ -88,6 +88,98 @@ struct MImage
         read_fileptr(fptr, &header.shadow , 1);
     }
 
+    void DecompressV1Texture(fileptr_t &fptr)
+    {
+        constexpr int size = 8;
+        int blockOffset = 0, dataOffset = 0;
+        std::vector<uint8_t> countList;
+
+        int tWidth = 2;
+        while (tWidth < THeader.width)
+            tWidth *= 2;
+
+        auto _fBytes = read_fileptr<std::vector<uint8_t>>(fptr, THeader.length);
+
+        Texture.resize(THeader.width, THeader.height);
+
+        auto pixels = (uint8_t*)Texture.data.data();
+
+        int cap = THeader.width * THeader.height * 4;
+        int currentx = 0;
+
+        while (dataOffset < THeader.length)
+        {
+            countList.clear();
+            for (int i = 0; i < 8; i++)
+                countList.push_back(_fBytes[dataOffset++]);
+
+            for (int i = 0; i < (int)countList.size(); i++)
+            {
+                int count = countList[i];
+
+                if (i % 2 == 0)
+                {
+                    if (currentx >= tWidth)
+                        currentx -= tWidth;
+
+                    for (int off = 0; off < count; off++)
+                    {
+                        if (currentx < THeader.width)
+                            blockOffset++;
+
+                        currentx += 4;
+
+                        if (currentx >= tWidth)
+                            currentx -= tWidth;
+                    }
+                    continue;
+                }
+
+                for (int c = 0; c < count; c++)
+                {
+                    if (dataOffset >= (int)_fBytes.size())
+                        break;
+
+                    uint8_t newPixels[64];
+                    uint8_t block[8];
+
+                    std::memcpy(block + 0, _fBytes.data() + dataOffset, 8);
+                    dataOffset += size;
+                    DecompressBlock(newPixels, block);
+
+                    int pixelOffSet = 0;
+                    uint8_t sourcePixel[4];
+
+                    for (int py = 0; py < 4; py++)
+                    {
+                        for (int px = 0; px < 4; px++)
+                        {
+                            int blockx = blockOffset % (THeader.width / 4);
+                            int blocky = blockOffset / (THeader.width / 4);
+
+                            int x = blockx * 4;
+                            int y = blocky * 4;
+
+                            int destPixel = ((y + py) * THeader.width) * 4 + (x + px) * 4;
+
+                            std::memcpy(sourcePixel, newPixels + pixelOffSet, 4);
+                            pixelOffSet += 4;
+
+                            if (destPixel + 4 > cap)
+                                break;
+                            for (int pc = 0; pc < 4; pc++)
+                                pixels[destPixel + pc] = sourcePixel[pc];
+                        }
+                    }
+                    blockOffset++;
+                    if (currentx >= THeader.width)
+                        currentx -= THeader.width;
+                    currentx += 4;
+                }
+            }
+        }
+    }
+
     void CreateTexture(fileptr_t &fptr)
     {
         std::vector<uint8_t> countList;
@@ -428,7 +520,8 @@ struct WTLLibrary
         if (Images[index]->Texture.empty())
         {
             seek_fileptr(_fStream, _indexList[index] + 16, SEEK_SET);
-            Images[index]->CreateTexture(_fStream);
+            // Images[index]->CreateTexture(_fStream);
+            Images[index]->DecompressV1Texture(_fStream);
 
             Images[index]->Texture.toARGB();
             imgf::saveImageBuffer(Images[index]->Texture.data.data(), Images[index]->THeader.width, Images[index]->THeader.height, str_printf("%d.png", index).c_str());
