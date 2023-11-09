@@ -489,6 +489,10 @@ struct WTLLibrary
         : _fileName(filename)
         , _fStream(make_fileptr(_fileName.c_str(), "rb"))
     {
+        seek_fileptr(_fStream, 2, SEEK_SET);
+        const auto version = read_fileptr<std::string>(_fStream, 20);
+        std::cout << version.c_str() << std::endl;
+
         seek_fileptr(_fStream, 28, SEEK_SET);
         read_fileptr(_fStream, &_count, 4);
 
