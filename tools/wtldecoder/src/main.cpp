@@ -393,7 +393,7 @@ struct WTLLibrary
 
     std::vector<int32_t> _indexList;
 
-    WTLLibrary(std::string filename)
+    WTLLibrary(std::string filename, int index)
         : _fileName(filename)
         , _fStream(make_fileptr(_fileName.c_str(), "rb"))
     {
@@ -406,8 +406,13 @@ struct WTLLibrary
         for (int i = 0; i < _count; i++)
             read_fileptr(_fStream, &_indexList[i], 4);
 
-         for (int i = 0; i < (int)Images.size(); i++)
-           CheckImage(i);
+        if (index >= 0) {
+            CheckImage(index);
+        }
+        else {
+            for (int i = 0; i < (int)Images.size(); i++)
+                CheckImage(i);
+        }
     }
 
     void CheckImage(int index)
@@ -449,9 +454,14 @@ struct WTLLibrary
     }
 };
 
-int main(int, char **argv)
+int main(int argc, char **argv)
 {
-    WTLLibrary lib(argv[1]);
+    int index = -1;
+    if(argc >= 3){
+        index = std::atoi(argv[2]);
+    }
+
+    WTLLibrary lib(argv[1], index);
     std::cout << lib.Images.size() << std::endl;
     return 0;
 }
