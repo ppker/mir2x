@@ -557,6 +557,8 @@ int main(int argc, char **argv)
         index = std::atoi(argv[2]);
     }
 
+    std::cout << "WARNING: still can not decode all WTL images..." << std::endl;
+
     WTLLibrary lib(argv[1], index);
     std::cout << lib.Images.size() << std::endl;
     return 0;
