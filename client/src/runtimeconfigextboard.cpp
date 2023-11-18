@@ -184,7 +184,7 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, ProcessRun *pro
 
 void RuntimeConfigExtBoard::drawEx(int dstX, int dstY, int, int, int, int) const
 {
-    g_sdlDevice->drawTexture(g_progUseDB->retrieve(0X00000100), dstX, dstY);
+    g_sdlDevice->drawTexture(g_progUseDB->retrieve(0X00000450), dstX, dstY);
     drawEntryTitle(u8"【游戏设置】", 255, 35);
     m_closeButton.draw();
 
