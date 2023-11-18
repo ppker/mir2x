@@ -6,14 +6,13 @@
 #include "soundeffectdb.hpp"
 #include "processrun.hpp"
 #include "inventoryboard.hpp"
-#include "runtimeconfigboard.hpp"
 
 extern Client *g_client;
 extern IMEBoard *g_imeBoard;
 extern PNGTexDB *g_progUseDB;
 extern SDLDevice *g_sdlDevice;
 
-RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, ProcessRun *proc, Widget *widgetPtr, bool autoDelete)
+RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, ProcessRun *proc, Widget *widgetPtr, bool autoDelete)
     : Widget(DIR_UPLEFT, argX, argY, 0, 0, widgetPtr, autoDelete)
     , m_closeButton
       {
@@ -183,7 +182,7 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, ProcessRun *proc, Wid
     }
 }
 
-void RuntimeConfigBoard::drawEx(int dstX, int dstY, int, int, int, int) const
+void RuntimeConfigExtBoard::drawEx(int dstX, int dstY, int, int, int, int) const
 {
     g_sdlDevice->drawTexture(g_progUseDB->retrieve(0X00000100), dstX, dstY);
     drawEntryTitle(u8"【游戏设置】", 255, 35);
@@ -218,7 +217,7 @@ void RuntimeConfigBoard::drawEx(int dstX, int dstY, int, int, int, int) const
     }
 }
 
-bool RuntimeConfigBoard::processEvent(const SDL_Event &event, bool valid)
+bool RuntimeConfigExtBoard::processEvent(const SDL_Event &event, bool valid)
 {
     if(!valid){
         return consumeFocus(false);
@@ -288,7 +287,7 @@ bool RuntimeConfigBoard::processEvent(const SDL_Event &event, bool valid)
     }
 }
 
-void RuntimeConfigBoard::drawEntryTitle(const char8_t *info, int dstCenterX, int dstCenterY) const
+void RuntimeConfigExtBoard::drawEntryTitle(const char8_t *info, int dstCenterX, int dstCenterY) const
 {
     const LabelBoard titleBoard
     {
@@ -306,7 +305,7 @@ void RuntimeConfigBoard::drawEntryTitle(const char8_t *info, int dstCenterX, int
     titleBoard.drawAt(DIR_NONE, x() + dstCenterX, y() + dstCenterY);
 }
 
-std::tuple<int, int, int, int> RuntimeConfigBoard::getEntryPLoc(size_t entry)
+std::tuple<int, int, int, int> RuntimeConfigExtBoard::getEntryPLoc(size_t entry)
 {
     if(entry < 12){
         return {100, 67 + entry * 30, 186, 55 + entry * 30};
@@ -319,7 +318,7 @@ std::tuple<int, int, int, int> RuntimeConfigBoard::getEntryPLoc(size_t entry)
     }
 }
 
-void RuntimeConfigBoard::setConfig(SDRuntimeConfig config)
+void RuntimeConfigExtBoard::setConfig(SDRuntimeConfig config)
 {
     m_sdRuntimeConfig = std::move(config);
 
@@ -338,7 +337,7 @@ void RuntimeConfigBoard::setConfig(SDRuntimeConfig config)
     }
 }
 
-void RuntimeConfigBoard::reportRuntimeConfig()
+void RuntimeConfigExtBoard::reportRuntimeConfig()
 {
     CMSetRuntimeConfig cmSRC;
     std::memset(&cmSRC, 0, sizeof(cmSRC));

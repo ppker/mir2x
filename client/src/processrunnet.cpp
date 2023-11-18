@@ -70,7 +70,7 @@ void ProcessRun::net_STARTGAMESCENE(const uint8_t *buf, size_t bufSize)
 void ProcessRun::net_PLAYERCONFIG(const uint8_t *buf, size_t bufSize)
 {
     const auto sdPC = cerealf::deserialize<SDPlayerConfig>(buf, bufSize);
-    dynamic_cast<RuntimeConfigBoard *>(getWidget("RuntimeConfigBoard"))->setConfig(sdPC.runtimeConfig);
+    dynamic_cast<RuntimeConfigExtBoard *>(getWidget("RuntimeConfigBoard"))->setConfig(sdPC.runtimeConfig);
 
     for(const auto &[magicID, key]: sdPC.magicKeyList.keyList){
         dynamic_cast<SkillBoard *>(getWidget("SkillBoard"))->getConfig().setMagicKey(magicID, key);
