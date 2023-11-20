@@ -6,6 +6,7 @@
 #include "labelboard.hpp"
 #include "texslider.hpp"
 #include "tritexbutton.hpp"
+#include "resizableframeboard.hpp"
 
 class ProcessRun;
 class RuntimeConfigExtBoard: public Widget
@@ -173,7 +174,7 @@ class RuntimeConfigExtBoard: public Widget
         };
 
     private:
-        TritexButton m_closeButton;
+        ResizableFrameBoard m_frameBoard;
 
     private:
         SDRuntimeConfig m_sdRuntimeConfig;
@@ -196,7 +197,7 @@ class RuntimeConfigExtBoard: public Widget
         ProcessRun *m_processRun;
 
     public:
-        RuntimeConfigExtBoard(int, int, ProcessRun *, Widget * = nullptr, bool = false);
+        RuntimeConfigExtBoard(int, int, int, int, ProcessRun *, Widget * = nullptr, bool = false);
 
     public:
         void drawEx(int, int, int, int, int, int) const override;

@@ -463,7 +463,7 @@ namespace mathf
         return false;
     }
 
-    inline bool ROICrop(
+    inline bool cropROI(
             int *pSrcX, int *pSrcY,  // the default parameters we used in Widget::drawEx
             int *pSrcW, int *pSrcH,  // ...
             int *pDstX, int *pDstY,  // ...
@@ -526,6 +526,50 @@ namespace mathf
         *pDstX += (*pSrcX - nBkupSrcX);
         *pDstY += (*pSrcY - nBkupSrcY);
 
+        return true;
+    }
+
+    inline bool cropChildROI(
+            int *pSrcX, int *pSrcY,  // the default parameters we used in Widget::drawEx, output child->drawEx
+            int *pSrcW, int *pSrcH,  // ...
+            int *pDstX, int *pDstY,  // ...
+
+            int parentW,         // full size of the parent widget
+            int parentH,         // ...
+
+            int childDx,
+            int childDy,
+            int childW,
+            int childH,
+
+            int nDstRegionX = 0, int nDstRegionY = 0, int nDstRegionW = -1, int nDstRegionH = -1)  // ROI of canvas, by default uses fully
+    {
+        fflassert(pSrcX);
+        fflassert(pSrcY);
+        fflassert(pSrcW);
+        fflassert(pSrcH);
+        fflassert(pDstX);
+        fflassert(pDstY);
+
+        if(!mathf::cropROI(
+                    pSrcX, pSrcY,
+                    pSrcW, pSrcH,
+                    pDstX, pDstY,
+
+                    parentW,
+                    parentH,
+
+                    childDx,
+                    childDy,
+                    childW,
+                    childH,
+
+                    nDstRegionX, nDstRegionY, nDstRegionW, nDstRegionH)){
+            return false;
+        }
+
+        *pSrcX -= childDx;
+        *pSrcY -= childDy;
         return true;
     }
 

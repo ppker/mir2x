@@ -12,35 +12,18 @@ extern IMEBoard *g_imeBoard;
 extern PNGTexDB *g_progUseDB;
 extern SDLDevice *g_sdlDevice;
 
-RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, ProcessRun *proc, Widget *widgetPtr, bool autoDelete)
-    : Widget(DIR_UPLEFT, argX, argY, 0, 0, widgetPtr, autoDelete)
-    , m_closeButton
+RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int argH, ProcessRun *proc, Widget *widgetPtr, bool autoDelete)
+    : Widget(DIR_UPLEFT, argX, argY, argW, argH, widgetPtr, autoDelete)
+    , m_frameBoard
       {
           DIR_UPLEFT,
-          449,
-          415,
-          {SYS_U32NIL, 0X0000001C, 0X0000001D},
-          {
-              SYS_U32NIL,
-              SYS_U32NIL,
-              0X01020000 + 105,
-          },
+          0,
+          0,
+          argW,
+          argH,
 
-          nullptr,
-          nullptr,
-          [this]()
-          {
-              setShow(false);
-          },
-
-          0,
-          0,
-          0,
-          0,
-
-          true,
-          true,
           this,
+          false,
       }
 
     , m_musicSwitch
@@ -139,10 +122,6 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, ProcessRun *pro
     m_soundEffectSlider.setValue(to_f(SDRuntimeConfig().soundEffValue) / 100.0, false);
 
     setShow(false);
-    auto texPtr = g_progUseDB->retrieve(0X0000001B);
-
-    fflassert(texPtr);
-    std::tie(m_w, m_h) = SDLDeviceHelper::getTextureSize(texPtr);
 
     m_switchList.reserve(m_entryProtoList.size());
     for(auto &[titleList, valueRef, valueOffset, onSwitch]: m_entryProtoList){
@@ -182,11 +161,11 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, ProcessRun *pro
     }
 }
 
-void RuntimeConfigExtBoard::drawEx(int dstX, int dstY, int, int, int, int) const
+void RuntimeConfigExtBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
 {
-    g_sdlDevice->drawTexture(g_progUseDB->retrieve(0X00000450), dstX, dstY);
+    m_frameBoard.drawEx(dstX, dstY, srcX, srcY, srcW, srcH);
+
     drawEntryTitle(u8"【游戏设置】", 255, 35);
-    m_closeButton.draw();
 
     drawEntryTitle(u8"背景音乐", 345,  97);
     drawEntryTitle(u8"音效",     345, 157);
@@ -229,7 +208,7 @@ bool RuntimeConfigExtBoard::processEvent(const SDL_Event &event, bool valid)
 
     for(auto widgetPtr:
     {
-        static_cast<Widget *>(&m_closeButton),
+        static_cast<Widget *>(&m_frameBoard),
         static_cast<Widget *>(&m_musicSwitch),
         static_cast<Widget *>(&m_soundEffectSwitch),
     }){

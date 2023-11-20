@@ -118,7 +118,7 @@ class Widget
             int srcWCrop = w();
             int srcHCrop = h();
 
-            if(mathf::ROICrop(
+            if(mathf::cropROI(
                         &srcXCrop, &srcYCrop,
                         &srcWCrop, &srcHCrop,
                         &dstXCrop, &dstYCrop,
@@ -430,7 +430,7 @@ class WidgetContainer: public Widget
                 int srcWCrop = srcW;
                 int srcHCrop = srcH;
 
-                if(!mathf::ROICrop(
+                if(!mathf::cropChildROI(
                             &srcXCrop, &srcYCrop,
                             &srcWCrop, &srcHCrop,
                             &dstXCrop, &dstYCrop,
@@ -438,10 +438,13 @@ class WidgetContainer: public Widget
                             w(),
                             h(),
 
-                            p->first->dx(), p->first->dy(), p->first->w(), p->first->h())){
+                            p->first->dx(),
+                            p->first->dy(),
+                            p->first-> w(),
+                            p->first-> h())){
                     continue;
                 }
-                p->first->drawEx(dstXCrop, dstYCrop, srcXCrop - p->first->dx(), srcYCrop - p->first->dy(), srcWCrop, srcHCrop);
+                p->first->drawEx(dstXCrop, dstYCrop, srcXCrop, srcYCrop, srcWCrop, srcHCrop);
             }
         }
 

@@ -39,7 +39,7 @@ void ImageBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int sr
         return;
     }
 
-    if(!mathf::ROICrop(&srcX, &srcY, &srcW, &srcH, &dstX, &dstY, w(), h())){
+    if(!mathf::cropROI(&srcX, &srcY, &srcW, &srcH, &dstX, &dstY, w(), h())){
         return;
     }
 

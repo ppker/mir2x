@@ -220,7 +220,7 @@ void SkillBoard::SkillPage::drawEx(int dstX, int dstY, int srcX, int srcY, int s
         int srcHCrop = srcH;
 
         const auto [texW, texH] = SDLDeviceHelper::getTextureSize(texPtr);
-        if(mathf::ROICrop(
+        if(mathf::cropROI(
                     &srcXCrop, &srcYCrop,
                     &srcWCrop, &srcHCrop,
                     &dstXCrop, &dstYCrop,

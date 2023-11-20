@@ -244,7 +244,7 @@ void LayoutBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int s
         int srcWCrop = srcW;
         int srcHCrop = srcH;
 
-        if(!mathf::ROICrop(
+        if(!mathf::cropROI(
                     &srcXCrop, &srcYCrop,
                     &srcWCrop, &srcHCrop,
                     &dstXCrop, &dstYCrop,

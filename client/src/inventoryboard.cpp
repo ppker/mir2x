@@ -160,7 +160,7 @@ void InventoryBoard::drawItem(int dstX, int dstY, size_t startRow, const PackBin
             int drawSrcW = itemPW;
             int drawSrcH = itemPH;
 
-            if(mathf::ROICrop(
+            if(mathf::cropROI(
                         &drawSrcX, &drawSrcY,
                         &drawSrcW, &drawSrcH,
                         &drawDstX, &drawDstY,
