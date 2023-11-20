@@ -102,8 +102,9 @@ bool CheckBox::processEvent(const SDL_Event &event, bool valid)
             {
                 if(in(event.button.x, event.button.y)){
                     m_valRef = !m_valRef;
+                    return consumeFocus(true);
                 }
-                return consumeFocus(true);
+                return consumeFocus(false);
             }
         default:
             {
