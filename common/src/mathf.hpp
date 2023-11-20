@@ -474,9 +474,15 @@ namespace mathf
             int nSrcRegionX = 0, int nSrcRegionY = 0, int nSrcRegionW = -1, int nSrcRegionH = -1,  // ROI of source, by default uses fully
             int nDstRegionX = 0, int nDstRegionY = 0, int nDstRegionW = -1, int nDstRegionH = -1)  // ROI of canvas, by default uses fully
     {
-        if(!(pSrcX && pSrcY && pSrcW && pSrcH && pDstX && pDstY && (nSrcOriginW >= 0) && (nSrcOriginH >= 0))){
-            throw fflerror("invalid argument: ROPCrop(...)");
-        }
+        fflassert(pSrcX);
+        fflassert(pSrcY);
+        fflassert(pSrcW);
+        fflassert(pSrcH);
+        fflassert(pDstX);
+        fflassert(pDstY);
+
+        fflassert(nSrcOriginW >= 0, nSrcOriginW);
+        fflassert(nSrcOriginH >= 0, nSrcOriginH);
 
         if(nSrcRegionW < 0){
             nSrcRegionW = nSrcOriginW - nSrcRegionX;

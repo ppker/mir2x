@@ -3,6 +3,7 @@
 #include <string>
 #include "mathf.hpp"
 #include "widget.hpp"
+#include "checkbox.hpp"
 #include "labelboard.hpp"
 #include "texslider.hpp"
 #include "tritexbutton.hpp"
@@ -174,10 +175,13 @@ class RuntimeConfigExtBoard: public Widget
         };
 
     private:
+        SDRuntimeConfig m_sdRuntimeConfig;
+
+    private:
         ResizableFrameBoard m_frameBoard;
 
     private:
-        SDRuntimeConfig m_sdRuntimeConfig;
+        CheckBox m_checkBox;
 
     private:
         OnOffButton m_musicSwitch;

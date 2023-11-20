@@ -26,6 +26,18 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
           false,
       }
 
+    , m_checkBox
+      {
+          DIR_UPLEFT,
+          50,
+          50,
+
+          m_sdRuntimeConfig.ime,
+
+          this,
+          false,
+      }
+
     , m_musicSwitch
       {
           DIR_UPLEFT,
@@ -164,6 +176,31 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
 void RuntimeConfigExtBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
 {
     m_frameBoard.drawEx(dstX, dstY, srcX, srcY, srcW, srcH);
+
+    {
+        auto drawSrcX = srcX;
+        auto drawSrcY = srcY;
+        auto drawSrcW = srcW;
+        auto drawSrcH = srcH;
+        auto drawDstX = dstX;
+        auto drawDstY = dstY;
+
+        if(mathf::cropChildROI(
+                    &drawSrcX, &drawSrcY,
+                    &drawSrcW, &drawSrcH,
+                    &drawDstX, &drawDstY,
+
+                    w(),
+                    h(),
+
+                    m_checkBox.dx(),
+                    m_checkBox.dy(),
+                    m_checkBox. w(),
+                    m_checkBox. h())){
+            m_checkBox.drawEx(drawDstX, drawDstY, drawSrcX, drawSrcY, drawSrcW, drawSrcH);
+        }
+    }
+
 
     drawEntryTitle(u8"【游戏设置】", 255, 35);
 

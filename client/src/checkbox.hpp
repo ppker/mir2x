@@ -1,38 +1,33 @@
 #pragma once
-#include <functional>
 #include "widget.hpp"
-#include "bevent.hpp"
 #include "sdldevice.hpp"
+#include "imageboard.hpp"
 
-class ProcessRun;
-class LevelBox: public Widget
+class CheckBox: public Widget
 {
     private:
-        ProcessRun *m_processRun;
+        int &m_valRef;
 
     private:
-        int m_state = BEVENT_OFF;
-
-    private:
-        std::function<void(int)> m_onDrag;
-        std::function<void(   )> m_onDoubleClick;
+        ImageBoard m_checkImage;
 
     public:
-        LevelBox(
-                dir8_t dir,
+        CheckBox(
+                dir8_t,
                 int,
                 int,
 
-                ProcessRun *,
-                const std::function<void(int)> &, // drag
-                const std::function<void(   )> &, // double-click
+                int &,
 
                 Widget * = nullptr, // parent
                 bool     = false);  // auto-delete
 
-    public:
-        bool processEvent(const SDL_Event &, bool);
+    // public:
+    //     bool processEvent(const SDL_Event &, bool) override;
 
     public:
         void drawEx(int, int, int, int, int, int) const override;
+
+    private:
+        static SDL_Texture *loadFunc(const ImageBoard *);
 };
