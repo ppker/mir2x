@@ -15,7 +15,7 @@ namespace mathf
 #ifdef M_PI
     constexpr double pi = M_PI;
 #else
-    constexpr double pi = 3.1415926535;
+    constexpr double pi = 3.141592653589793;
 #endif
 
     template<std::integral T> T rand(T min, T max)
