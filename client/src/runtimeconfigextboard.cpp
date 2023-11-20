@@ -245,6 +245,7 @@ bool RuntimeConfigExtBoard::processEvent(const SDL_Event &event, bool valid)
 
     for(auto widgetPtr:
     {
+        static_cast<Widget *>(&m_checkBox),
         static_cast<Widget *>(&m_frameBoard),
         static_cast<Widget *>(&m_musicSwitch),
         static_cast<Widget *>(&m_soundEffectSwitch),

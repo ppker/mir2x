@@ -87,6 +87,31 @@ void CheckBox::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH
     fnCropDrawLine(w(), 0  , w(), h());
 }
 
+bool CheckBox::processEvent(const SDL_Event &event, bool valid)
+{
+    if(!valid){
+        return false;
+    }
+
+    if(!show()){
+        return false;
+    }
+
+    switch(event.type){
+        case SDL_MOUSEBUTTONDOWN:
+            {
+                if(in(event.button.x, event.button.y)){
+                    m_valRef = !m_valRef;
+                }
+                return consumeFocus(true);
+            }
+        default:
+            {
+                return false;
+            }
+    }
+}
+
 SDL_Texture *CheckBox::loadFunc(const ImageBoard *)
 {
     return g_progUseDB->retrieve(0X00000480);

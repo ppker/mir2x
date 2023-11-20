@@ -28,6 +28,10 @@ class CheckBox: public Widget
     public:
         void drawEx(int, int, int, int, int, int) const override;
 
+    public:
+        bool processEvent(const SDL_Event &, bool) override;
+
+
     private:
         static SDL_Texture *loadFunc(const ImageBoard *);
 };
