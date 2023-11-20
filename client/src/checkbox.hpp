@@ -22,9 +22,6 @@ class CheckBox: public Widget
                 Widget * = nullptr, // parent
                 bool     = false);  // auto-delete
 
-    // public:
-    //     bool processEvent(const SDL_Event &, bool) override;
-
     public:
         void drawEx(int, int, int, int, int, int) const override;
 
