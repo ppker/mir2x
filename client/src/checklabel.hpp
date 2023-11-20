@@ -1,23 +1,23 @@
 #pragma once
 #include "widget.hpp"
 #include "sdldevice.hpp"
-#include "imageboard.hpp"
+#include "checkbox.hpp"
+#include "labelboard.hpp"
 
-class CheckBox: public Widget
+class CheckLabel: public Widget
 {
     private:
-        int &m_valRef;
-
-    private:
-        ImageBoard m_checkImage;
+        CheckBox m_checkBox;
+        LabelBoard m_labelBoard;
 
     public:
-        CheckBox(
+        CheckLabel(
                 dir8_t,
                 int,
                 int,
 
                 int &,
+                const char8_t *,
 
                 Widget * = nullptr, // parent
                 bool     = false);  // auto-delete
@@ -27,7 +27,4 @@ class CheckBox: public Widget
 
     public:
         bool processEvent(const SDL_Event &, bool) override;
-
-    private:
-        static SDL_Texture *loadFunc(const ImageBoard *);
 };
