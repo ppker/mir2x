@@ -92,8 +92,8 @@ void CheckBox::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH
     fnCropDrawLine(colorf::RGBA(231, 231, 189, 128), w() - 1,       0, w() - 1, h() - 1); // 2
     fnCropDrawLine(colorf::RGBA(231, 231, 189, 128),       0, h() - 1, w() - 1, h() - 1); // 3
     fnCropDrawLine(colorf::RGBA(231, 231, 189, 128),       0,       0,       0, h() - 1); // 4
-    fnCropDrawLine(colorf::RGBA(231, 231, 189,  80), w() - 2,       0, w() - 2, h() - 2); // 5
-    fnCropDrawLine(colorf::RGBA(231, 231, 189,  80),       0, h() - 2, w() - 2, h() - 2); // 6
+    fnCropDrawLine(colorf::RGBA(231, 231, 189,  64), w() - 2,       0, w() - 2, h() - 2); // 5
+    fnCropDrawLine(colorf::RGBA(231, 231, 189,  64),       0, h() - 2, w() - 2, h() - 2); // 6
 }
 
 bool CheckBox::processEvent(const SDL_Event &event, bool valid)
