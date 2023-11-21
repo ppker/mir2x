@@ -26,13 +26,14 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
           false,
       }
 
-    , m_checkBox
+    , m_checkLabel
       {
           DIR_UPLEFT,
           50,
-          50,
+          130,
 
           m_sdRuntimeConfig.ime,
+          u8"拼音输入法",
 
           this,
           false,
@@ -193,11 +194,11 @@ void RuntimeConfigExtBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int s
                     w(),
                     h(),
 
-                    m_checkBox.dx(),
-                    m_checkBox.dy(),
-                    m_checkBox. w(),
-                    m_checkBox. h())){
-            m_checkBox.drawEx(drawDstX, drawDstY, drawSrcX, drawSrcY, drawSrcW, drawSrcH);
+                    m_checkLabel.dx(),
+                    m_checkLabel.dy(),
+                    m_checkLabel. w(),
+                    m_checkLabel. h())){
+            m_checkLabel.drawEx(drawDstX, drawDstY, drawSrcX, drawSrcY, drawSrcW, drawSrcH);
         }
     }
 
@@ -245,7 +246,7 @@ bool RuntimeConfigExtBoard::processEvent(const SDL_Event &event, bool valid)
 
     for(auto widgetPtr:
     {
-        static_cast<Widget *>(&m_checkBox),
+        static_cast<Widget *>(&m_checkLabel),
         static_cast<Widget *>(&m_frameBoard),
         static_cast<Widget *>(&m_musicSwitch),
         static_cast<Widget *>(&m_soundEffectSwitch),

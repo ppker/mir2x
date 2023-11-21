@@ -3,7 +3,7 @@
 #include <string>
 #include "mathf.hpp"
 #include "widget.hpp"
-#include "checkbox.hpp"
+#include "checklabel.hpp"
 #include "labelboard.hpp"
 #include "texslider.hpp"
 #include "tritexbutton.hpp"
@@ -181,7 +181,7 @@ class RuntimeConfigExtBoard: public Widget
         ResizableFrameBoard m_frameBoard;
 
     private:
-        CheckBox m_checkBox;
+        CheckLabel m_checkLabel;
 
     private:
         OnOffButton m_musicSwitch;
