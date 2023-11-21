@@ -56,7 +56,7 @@ void CheckBox::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH
         }
     }
 
-    const auto fnCropDrawLine = [dstX, dstY, srcX, srcY, srcW, srcH, this](int startX, int startY, int endX, int endY)
+    const auto fnCropDrawLine = [dstX, dstY, srcX, srcY, srcW, srcH, this](uint32_t color, int startX, int startY, int endX, int endY)
     {
         int drawSrcX = srcX;
         int drawSrcY = srcY;
@@ -77,14 +77,23 @@ void CheckBox::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH
                     startY,
                     endX - startX + 1,
                     endY - startY + 1)){
-            g_sdlDevice->drawLine(colorf::RED + colorf::A_SHF(255), drawDstX, drawDstY, drawDstX + drawSrcW - 1, drawDstY + drawSrcH - 1);
+            g_sdlDevice->drawLine(color, drawDstX, drawDstY, drawDstX + drawSrcW - 1, drawDstY + drawSrcH - 1);
         }
     };
 
-    fnCropDrawLine(0  , 0  , w(), 0  );
-    fnCropDrawLine(0  , 0  , 0  , h());
-    fnCropDrawLine(0  , h(), w(), h());
-    fnCropDrawLine(w(), 0  , w(), h());
+    // +----1----+
+    // |        ||
+    // 4        52
+    // |        ||
+    // |----6---+|
+    // +----3----+
+
+    fnCropDrawLine(colorf::RGBA(231, 231, 189, 128),       0,       0, w() - 1,       0); // 1
+    fnCropDrawLine(colorf::RGBA(231, 231, 189, 128), w() - 1,       0, w() - 1, h() - 1); // 2
+    fnCropDrawLine(colorf::RGBA(231, 231, 189, 128),       0, h() - 1, w() - 1, h() - 1); // 3
+    fnCropDrawLine(colorf::RGBA(231, 231, 189, 128),       0,       0,       0, h() - 1); // 4
+    fnCropDrawLine(colorf::RGBA(231, 231, 189,  80), w() - 2,       0, w() - 2, h() - 2); // 5
+    fnCropDrawLine(colorf::RGBA(231, 231, 189,  80),       0, h() - 2, w() - 2, h() - 2); // 6
 }
 
 bool CheckBox::processEvent(const SDL_Event &event, bool valid)
