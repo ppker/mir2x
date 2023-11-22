@@ -15,8 +15,8 @@ TexSliderBar::TexSliderBar(dir8_t argDir, int argX, int argY, int argSize, bool 
           argX,
           argY,
 
-          /* argW */  hslider ? argSize : SDLDeviceHelper::getTextureWidth(g_progUseDB->retrieve(0X00000460)),
-          /* argH */ !hslider ? argSize : SDLDeviceHelper::getTextureWidth(g_progUseDB->retrieve(0X00000460)),
+          /* argW */  hslider ? argSize : SDLDeviceHelper::getTextureHeight(g_progUseDB->retrieve(0X00000460)),
+          /* argH */ !hslider ? argSize : SDLDeviceHelper::getTextureHeight(g_progUseDB->retrieve(0X00000460)),
 
           hslider,
           sliderIndex,
@@ -32,7 +32,7 @@ void TexSliderBar::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int 
 {
     if(auto slotTexPtr = g_progUseDB->retrieve(0X00000460)){
         if(hslider()){
-            g_sdlDevice->drawTexture(slotTexPtr, dstX, dstY);//, srcX, srcY, srcW, srcH);
+            g_sdlDevice->drawTexture(slotTexPtr, dstX, dstY, srcX, srcY, srcW, srcH);
         }
         else{
 
@@ -41,7 +41,7 @@ void TexSliderBar::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int 
 
     if(auto barTexPtr = g_progUseDB->retrieve(0X00000470)){
         if(hslider()){
-            g_sdlDevice->drawTexture(barTexPtr, dstX, dstY);//, srcX, srcY, srcW, srcH);
+            g_sdlDevice->drawTexture(barTexPtr, dstX, dstY, srcX, srcY, srcW, srcH);
         }
         else{
 
