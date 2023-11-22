@@ -40,6 +40,11 @@ class CheckBox: public Widget
             m_color = color;
         }
 
+        uint32_t getColor() const
+        {
+            return m_color;
+        }
+
     private:
         static SDL_Texture *loadFunc(const ImageBoard *);
 };
