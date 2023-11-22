@@ -49,6 +49,22 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
           false,
       }
 
+    , m_texSliderBar
+      {
+          DIR_UPLEFT,
+          50,
+          200,
+
+          100,
+          true,
+
+          1,
+          [](float){},
+
+          this,
+          false,
+      }
+
     , m_musicSwitch
       {
           DIR_UPLEFT,
@@ -212,6 +228,29 @@ void RuntimeConfigExtBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int s
         }
     }
 
+    {
+        auto drawSrcX = srcX;
+        auto drawSrcY = srcY;
+        auto drawSrcW = srcW;
+        auto drawSrcH = srcH;
+        auto drawDstX = dstX;
+        auto drawDstY = dstY;
+
+        if(mathf::cropChildROI(
+                    &drawSrcX, &drawSrcY,
+                    &drawSrcW, &drawSrcH,
+                    &drawDstX, &drawDstY,
+
+                    w(),
+                    h(),
+
+                    m_texSliderBar.dx(),
+                    m_texSliderBar.dy(),
+                    m_texSliderBar. w(),
+                    m_texSliderBar. h())){
+            m_texSliderBar.drawEx(drawDstX, drawDstY, drawSrcX, drawSrcY, drawSrcW, drawSrcH);
+        }
+    }
 
     drawEntryTitle(u8"【游戏设置】", 255, 35);
 
@@ -258,6 +297,7 @@ bool RuntimeConfigExtBoard::processEvent(const SDL_Event &event, bool valid)
     {
         static_cast<Widget *>(&m_checkLabel),
         static_cast<Widget *>(&m_frameBoard),
+        static_cast<Widget *>(&m_texSliderBar),
         static_cast<Widget *>(&m_musicSwitch),
         static_cast<Widget *>(&m_soundEffectSwitch),
     }){

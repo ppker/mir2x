@@ -7,6 +7,7 @@
 #include "labelboard.hpp"
 #include "texslider.hpp"
 #include "tritexbutton.hpp"
+#include "texsliderbar.hpp"
 #include "resizableframeboard.hpp"
 
 class ProcessRun;
@@ -182,6 +183,7 @@ class RuntimeConfigExtBoard: public Widget
 
     private:
         CheckLabel m_checkLabel;
+        TexSliderBar m_texSliderBar;
 
     private:
         OnOffButton m_musicSwitch;

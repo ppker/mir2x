@@ -93,4 +93,9 @@ class Slider: public Widget
                 m_sliderH,
             };
         }
+
+        bool hslider() const
+        {
+            return m_hslider;
+        }
 };
