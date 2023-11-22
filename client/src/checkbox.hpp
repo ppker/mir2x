@@ -40,9 +40,10 @@ class CheckBox: public Widget
             m_color = color;
         }
 
-        uint32_t getColor() const
+    public:
+        void toggle()
         {
-            return m_color;
+            m_valRef = !m_valRef;
         }
 
     private:

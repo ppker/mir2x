@@ -117,7 +117,7 @@ bool CheckBox::processEvent(const SDL_Event &event, bool valid)
         case SDL_MOUSEBUTTONDOWN:
             {
                 if(in(event.button.x, event.button.y)){
-                    m_valRef = !m_valRef;
+                    toggle();
                     return consumeFocus(true);
                 }
                 return consumeFocus(false);

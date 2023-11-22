@@ -23,6 +23,9 @@ CheckLabel::CheckLabel(
         Widget *argParent,
         bool argAutoDelete)
     : Widget(argDir, argX, argY, 0, 0, argParent, argAutoDelete)
+    , m_checkBoxColor(argBoxColor)
+    , m_labelBoardColor(argFontColor)
+
     , m_checkBox
       {
           DIR_UPLEFT,
@@ -63,19 +66,36 @@ CheckLabel::CheckLabel(
 
 bool CheckLabel::processEvent(const SDL_Event &event, bool valid)
 {
+    const auto fnOnColor = [this](bool on)
+    {
+        if(on){
+            m_checkBox.setColor(colorf::modRGBA(m_checkBoxColor, colorf::RGBA(0XFF, 0, 0, 0XFF)));
+            m_labelBoard.setFontColor(colorf::modRGBA(m_labelBoardColor, colorf::RGBA(0XFF, 0, 0, 0XFF)));
+        }
+        else{
+            m_checkBox.setColor(m_checkBoxColor);
+            m_labelBoard.setFontColor(m_labelBoardColor);
+        }
+    };
+
     if(!valid){
-        return false;
+        fnOnColor(false);
+        return consumeFocus(false);
     }
 
     if(!show()){
         return false;
     }
 
-    if(!m_checkBox.show()){
-        return false;
+    if(event.type == SDL_MOUSEMOTION){
+        fnOnColor(in(event.motion.x, event.motion.y));
     }
 
     if(!m_checkBox.processEvent(event, valid)){
+        if(event.type == SDL_MOUSEBUTTONDOWN && in(event.button.x, event.button.y)){
+            m_checkBox.toggle();
+            return consumeFocus(true);
+        }
         return false;
     }
 

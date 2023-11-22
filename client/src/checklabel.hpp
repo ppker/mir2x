@@ -7,6 +7,10 @@
 class CheckLabel: public Widget
 {
     private:
+        const uint32_t m_checkBoxColor;
+        const uint32_t m_labelBoardColor;
+
+    private:
         CheckBox m_checkBox;
         LabelBoard m_labelBoard;
 
