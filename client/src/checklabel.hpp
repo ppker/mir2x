@@ -16,8 +16,18 @@ class CheckLabel: public Widget
                 int,
                 int,
 
+                uint32_t,
+                int,
+                int,
                 int &,
+
+                int,
+
                 const char8_t *,
+                uint8_t,
+                uint8_t,
+                uint8_t,
+                uint32_t,
 
                 Widget * = nullptr, // parent
                 bool     = false);  // auto-delete

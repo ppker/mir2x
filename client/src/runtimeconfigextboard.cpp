@@ -32,8 +32,18 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
           50,
           130,
 
+          colorf::RGBA(231, 231, 189, 128),
+          16,
+          16,
           m_sdRuntimeConfig.ime,
+
+          8,
+
           u8"拼音输入法",
+          1,
+          12,
+          0,
+          colorf::WHITE + colorf::A_SHF(255),
 
           this,
           false,

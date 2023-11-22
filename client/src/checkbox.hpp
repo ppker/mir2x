@@ -6,6 +6,9 @@
 class CheckBox: public Widget
 {
     private:
+        uint32_t m_color;
+
+    private:
         int &m_valRef;
 
     private:
@@ -16,7 +19,10 @@ class CheckBox: public Widget
                 dir8_t,
                 int,
                 int,
+                int,
+                int,
 
+                uint32_t,
                 int &,
 
                 Widget * = nullptr, // parent
@@ -27,6 +33,12 @@ class CheckBox: public Widget
 
     public:
         bool processEvent(const SDL_Event &, bool) override;
+
+    public:
+        void setColor(uint32_t color)
+        {
+            m_color = color;
+        }
 
     private:
         static SDL_Texture *loadFunc(const ImageBoard *);

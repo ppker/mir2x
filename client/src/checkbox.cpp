@@ -7,12 +7,16 @@ extern SDLDevice *g_sdlDevice;
 CheckBox::CheckBox(dir8_t argDir,
         int argX,
         int argY,
+        int argW,
+        int argH,
 
+        uint32_t argColor,
         int &argValRef,
 
         Widget *argParent,
         bool    argAutoDelete)
-    : Widget(argDir, argX, argY, 16, 16, argParent, argAutoDelete)
+    : Widget(argDir, argX, argY, argW, argH, argParent, argAutoDelete)
+    , m_color(argColor)
     , m_valRef(argValRef)
     , m_checkImage
       {
@@ -88,12 +92,15 @@ void CheckBox::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH
     // |----6---+|
     // +----3----+
 
-    fnCropDrawLine(colorf::RGBA(231, 231, 189, 128),       0,       0, w() - 1,       0); // 1
-    fnCropDrawLine(colorf::RGBA(231, 231, 189, 128), w() - 1,       0, w() - 1, h() - 1); // 2
-    fnCropDrawLine(colorf::RGBA(231, 231, 189, 128),       0, h() - 1, w() - 1, h() - 1); // 3
-    fnCropDrawLine(colorf::RGBA(231, 231, 189, 128),       0,       0,       0, h() - 1); // 4
-    fnCropDrawLine(colorf::RGBA(231, 231, 189,  64), w() - 2,       0, w() - 2, h() - 2); // 5
-    fnCropDrawLine(colorf::RGBA(231, 231, 189,  64),       0, h() - 2, w() - 2, h() - 2); // 6
+    const auto  solidColor = m_color;
+    const auto shadowColor = colorf::maskRGB(m_color) + colorf::A_SHF(colorf::A(m_color) / 2);
+
+    fnCropDrawLine( solidColor,       0,       0, w() - 1,       0); // 1
+    fnCropDrawLine( solidColor, w() - 1,       0, w() - 1, h() - 1); // 2
+    fnCropDrawLine( solidColor,       0, h() - 1, w() - 1, h() - 1); // 3
+    fnCropDrawLine( solidColor,       0,       0,       0, h() - 1); // 4
+    fnCropDrawLine(shadowColor, w() - 2,       0, w() - 2, h() - 2); // 5
+    fnCropDrawLine(shadowColor,       0, h() - 2, w() - 2, h() - 2); // 6
 }
 
 bool CheckBox::processEvent(const SDL_Event &event, bool valid)

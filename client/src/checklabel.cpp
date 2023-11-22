@@ -7,8 +7,18 @@ CheckLabel::CheckLabel(
         int argX,
         int argY,
 
-        int &argRef,
+        uint32_t argBoxColor,
+        int argBoxW,
+        int argBoxH,
+        int &argBoxRef,
+
+        int argGap,
+
         const char8_t *argLabel,
+        uint8_t  argFont,
+        uint8_t  argFontSize,
+        uint8_t  argFontStyle,
+        uint32_t argFontColor,
 
         Widget *argParent,
         bool argAutoDelete)
@@ -18,8 +28,11 @@ CheckLabel::CheckLabel(
           DIR_UPLEFT,
           0,
           0,
+          argBoxW,
+          argBoxH,
 
-          argRef,
+          argBoxColor,
+          argBoxRef,
 
           this,
           false,
@@ -32,24 +45,20 @@ CheckLabel::CheckLabel(
           0,
 
           argLabel,
-
-          1,
-          12,
-
-          0,
-          colorf::WHITE + colorf::A_SHF(255),
+          argFont,
+          argFontSize,
+          argFontStyle,
+          argFontColor,
 
           this,
           false,
       }
 {
-    constexpr int gap = 5;
-
-    m_w = m_checkBox.w() + gap + m_labelBoard.w();
+    m_w = m_checkBox.w() + std::max<int>(argGap, 0) + m_labelBoard.w();
     m_h = std::max<int>(m_checkBox.h(), m_labelBoard.h());
 
-    m_checkBox.moveTo(0, (m_h - m_checkBox.h()) / 2);
-    m_labelBoard.moveTo(m_checkBox.w() + gap, (m_h - m_labelBoard.h()) / 2);
+    m_checkBox  .moveAt(DIR_LEFT ,   0, m_h / 2);
+    m_labelBoard.moveAt(DIR_RIGHT, m_w, m_h / 2);
 }
 
 bool CheckLabel::processEvent(const SDL_Event &event, bool valid)
