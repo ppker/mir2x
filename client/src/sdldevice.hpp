@@ -250,6 +250,24 @@ class SDLDevice final
            SDL_RenderDrawLine(m_renderer, x, y - to_d(r), x, y + to_d(r));
        }
 
+       void drawLinef(float nX0, float nY0, float nX1, float nY1)
+       {
+           SDL_RenderDrawLine(m_renderer, nX0, nY0, nX1, nY1);
+       }
+
+       void drawLinef(uint32_t color, float nX0, float nY0, float nX1, float nY1)
+       {
+           SDLDeviceHelper::EnableRenderColor enableColor(color, this);
+           SDL_RenderDrawLine(m_renderer, nX0, nY0, nX1, nY1);
+       }
+
+       void drawCrossf(uint32_t color, float x, float y, float r)
+       {
+           SDLDeviceHelper::EnableRenderColor enableColor(color, this);
+           SDL_RenderDrawLine(m_renderer, x - r, y, x + r, y);
+           SDL_RenderDrawLine(m_renderer, x, y - r, x, y + r);
+       }
+
        void setColor(uint8_t nR, uint8_t nG, uint8_t nB, uint8_t nA)
        {
            SDL_SetRenderDrawColor(m_renderer, nR, nG, nB, nA);

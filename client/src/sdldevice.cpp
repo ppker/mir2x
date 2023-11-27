@@ -700,8 +700,57 @@ void SDLDevice::drawTextureEx(
         SDL_Rect src {srcX, srcY, srcW, srcH};
         SDL_Rect dst {dstX, dstY, dstW, dstH};
         SDL_Point center {centerDstOffX, centerDstOffY};
-        if(SDL_RenderCopyEx(m_renderer, texPtr, &src, &dst, 1.00 * (rotateDegree % 360), &center, flip)){
+        const double angle = 1.00 * (rotateDegree % 360);
+        if(SDL_RenderCopyEx(m_renderer, texPtr, &src, &dst, angle, &center, flip)){
             throw fflerror("SDL_RenderCopyEx(%p) failed: %s", to_cvptr(m_renderer), SDL_GetError());
+        }
+
+        if(g_clientArgParser->debugDrawTexture){
+            const double radian = -1.0 * angle / 180.0 * mathf::pi;
+
+            // not very accurate, because rotation center is not at pixel
+            // take following 4-pixel-image as example
+            //
+            //     +-+-+
+            //     |a|b|
+            //     +-*-+
+            //     |d|c|
+            //     +-+-+
+            //
+            // drawTextureEx(tex,
+            //          0, 0, 2, 2,
+            //          0, 0, 2, 2,
+            //
+            //          1,
+            //          1,
+            //          90,
+            //
+            //          SDL_FLIP_NONE);
+            //
+            // above call actually means rotate at the star (*) position
+            // not at pixel (1, 1)
+
+            const auto fnRotatePoint = [x0 = dstX + centerDstOffX, y0 = dstY + centerDstOffY, radian](double x, double y) -> std::pair<double, double>
+            {
+                const double dx =  x - x0;
+                const double dy = -y + y0;
+
+                return
+                {
+                    x0 + (std::cos(radian) * dx - std::sin(radian) * dy),
+                    y0 - (std::sin(radian) * dx + std::cos(radian) * dy),
+                };
+            };
+
+            const auto rp0 = fnRotatePoint(dstX            + 0.5, dstY            + 0.5);
+            const auto rp1 = fnRotatePoint(dstX + dstW - 1 + 0.5, dstY            + 0.5);
+            const auto rp2 = fnRotatePoint(dstX + dstW - 1 + 0.5, dstY + dstH - 1 + 0.5);
+            const auto rp3 = fnRotatePoint(dstX            + 0.5, dstY + dstH - 1 + 0.5);
+
+            drawLinef(colorf::BLUE + colorf::A_SHF(128), rp0.first, rp0.second, rp1.first, rp1.second);
+            drawLinef(colorf::BLUE + colorf::A_SHF(128), rp1.first, rp1.second, rp2.first, rp2.second);
+            drawLinef(colorf::BLUE + colorf::A_SHF(128), rp2.first, rp2.second, rp3.first, rp3.second);
+            drawLinef(colorf::BLUE + colorf::A_SHF(128), rp3.first, rp3.second, rp0.first, rp0.second);
         }
     }
 }
