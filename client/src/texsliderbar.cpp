@@ -142,11 +142,11 @@ TexSliderBar::TexSliderBar(
       {
           DIR_UPLEFT,
 
-          /* x */  argHSlider ? 3 : 0,
-          /* y */ !argHSlider ? 3 : 0,
+          /* x */  argHSlider ? 3 : 2,
+          /* y */ !argHSlider ? 3 : 2,
 
-          /* w */  argHSlider ? w() - 6 : w(),
-          /* h */ !argHSlider ? h() - 6 : h(),
+          /* w */  argHSlider ? w() - 6 : m_barImage.w(),
+          /* h */ !argHSlider ? h() - 6 : m_barImage.h(),
 
           &m_barCrop,
 
