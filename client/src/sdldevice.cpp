@@ -690,8 +690,8 @@ void SDLDevice::drawTextureEx(
         int dstX, int dstY,
         int dstW, int dstH,
 
-        int centerSrcX,
-        int centerSrcY,
+        int centerDstOffX,
+        int centerDstOffY,
 
         int rotateDegree,
         SDL_RendererFlip flip)
@@ -699,7 +699,7 @@ void SDLDevice::drawTextureEx(
     if(texPtr){
         SDL_Rect src {srcX, srcY, srcW, srcH};
         SDL_Rect dst {dstX, dstY, dstW, dstH};
-        SDL_Point center {centerSrcX, centerSrcY};
+        SDL_Point center {centerDstOffX, centerDstOffY};
         if(SDL_RenderCopyEx(m_renderer, texPtr, &src, &dst, 1.00 * (rotateDegree % 360), &center, flip)){
             throw fflerror("SDL_RenderCopyEx(%p) failed: %s", to_cvptr(m_renderer), SDL_GetError());
         }
