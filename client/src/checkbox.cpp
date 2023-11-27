@@ -23,10 +23,16 @@ CheckBox::CheckBox(dir8_t argDir,
           DIR_NONE,
           w() / 2,
           h() / 2,
-          0,
-          0,
+
+          {},
+          {},
 
           loadFunc,
+
+          false,
+          false,
+          0,
+
           colorf::WHITE + colorf::A_SHF(0XFF),
 
           this,

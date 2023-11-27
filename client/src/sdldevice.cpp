@@ -681,11 +681,18 @@ void SDLDevice::createMainWindow()
     }
 }
 
-void SDLDevice::drawTextureExt(SDL_Texture *texPtr,
-        int srcX, int srcY, int srcW, int srcH,
-        int dstX, int dstY, int dstW, int dstH,
+void SDLDevice::drawTextureEx(
+        SDL_Texture *texPtr,
+
+        int srcX, int srcY,
+        int srcW, int srcH,
+
+        int dstX, int dstY,
+        int dstW, int dstH,
+
         int centerSrcX,
         int centerSrcY,
+
         int rotateDegree,
         SDL_RendererFlip flip)
 {

@@ -195,18 +195,17 @@ class SDLDevice final
        void drawTexture(SDL_Texture *, int, int, int, int, int, int, int, int);
 
     public:
-       void drawTextureExt(SDL_Texture *,
-               int,     // x on src
-               int,     // y on src
-               int,     // w on src
-               int,     // h on src
-               int,     // x on dst
-               int,     // y on dst
-               int,     // w on dst
-               int,     // h on dst
-               int,     // center x on dst
-               int,     // center y on dst
-               int,     // rotate in 360-degree on dst
+       void drawTextureEx(SDL_Texture *,
+               int, int,
+               int, int, // src region
+
+               int, int,
+               int, int, // dst region
+
+               int, // center x on dst
+               int, // center y on dst
+
+               int, // rotate in 360-degree on dst
                SDL_RendererFlip = SDL_FLIP_NONE);
 
     public:

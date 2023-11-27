@@ -1362,19 +1362,25 @@ void ControlBoard::drawRatioBar(int x, int y, double r) const
     ImageBoard barImage
     {
         DIR_DOWN,
-        x,
-        y,
+        0,
+        0,
+
+        {},
+        {},
 
         [](const ImageBoard *)
         {
             return g_progUseDB->retrieve(0X000000A0);
         },
 
+        false,
+        false,
+        0,
+
         colorf::RGBA(to_u8(255 * r), to_u8(255 * (1 - r)), 0, 255),
     };
 
-    barImage.setSizeRatio({}, r);
-    barImage.draw();
+    barImage.drawEx(x, y, 0, 0, barImage.w(), barImage.h() * r);
 }
 
 void ControlBoard::drawFocusFace() const

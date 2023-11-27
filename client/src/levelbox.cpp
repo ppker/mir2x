@@ -132,10 +132,17 @@ void LevelBox::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH
                       w() / 2,
                       h() / 2,
 
+                      {},
+                      {},
+
                       [](const ImageBoard *)
                       {
                           return g_sdlDevice->getCover(8, 360);
                       },
+
+                      false,
+                      false,
+                      0,
 
                       color,
                       this,

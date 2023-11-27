@@ -37,8 +37,9 @@ ModalStringBoard::ModalStringBoard()
           DIR_UPLEFT,
           0,
           0,
-          0,
-          0,
+
+          {},
+          {},
 
           [](const ImageBoard *) -> SDL_Texture *
           {

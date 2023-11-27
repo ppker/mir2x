@@ -4,60 +4,53 @@
 #include "widget.hpp"
 #include "colorf.hpp"
 
+// 1. crop
+// 2. flip the small cropped image, not the full image
+// 3. rotate, positive means clockwise
+
+//      ---H-->
+//
+//    x--y | y--x
+//    |  | | |  |    |    Vflip = Hflip + 180
+//    +--+ | +--+    |    Hflip = Vflip + 180
+// --------+-------  V    Hflip + Vflip = 180
+//    +--+ | +--+    |
+//    |  | | |  |    v
+//    x--y | y--x
+
 class ImageBoard: public Widget
 {
     private:
         std::function<SDL_Texture *(const ImageBoard *)> m_loadFunc;
 
     private:
+        std::pair<bool, int> m_xformPair;
+
+    private:
+        bool &m_hflip  = m_xformPair.first;
+        int  &m_rotate = m_xformPair.second;
+
+    private:
         uint32_t m_color;
 
     public:
-        ImageBoard(
-                dir8_t dir,
-                int x,
-                int y,
-                int w,
-                int h,
+        ImageBoard(dir8_t,
+                int,
+                int,
 
-                std::function<SDL_Texture *(const ImageBoard *)> loadFunc,
+                std::optional<int>,
+                std::optional<int>,
 
-                uint32_t color     = colorf::WHITE + colorf::A_SHF(0XFF),
-                Widget *parent     = nullptr,
-                bool    autoDelete = false)
-            : Widget(dir, x, y, w, h, parent, autoDelete)
-            , m_loadFunc(std::move(loadFunc))
-            , m_color(color)
-        {
-            if(!m_loadFunc){
-                throw fflerror("invalid texture load function");
-            }
+                std::function<SDL_Texture *(const ImageBoard *)>,
 
-            if(auto texPtr = m_loadFunc(this)){
-                const auto [texW, texH] = SDLDeviceHelper::getTextureSize(texPtr);
-                if(m_w <= 0){
-                    m_w = texW;
-                }
+                bool = false,
+                bool = false,
+                int  = 0,
 
-                if(m_h <= 0){
-                    m_h = texH;
-                }
-            }
-        }
+                uint32_t = colorf::WHITE + colorf::A_SHF(0XFF),
 
-    public:
-        ImageBoard(
-                dir8_t dir,
-                int x,
-                int y,
-
-                std::function<SDL_Texture *(const ImageBoard *)> loadFunc,
-
-                uint32_t color     = colorf::WHITE + colorf::A_SHF(0XFF),
-                Widget *parent     = nullptr,
-                bool    autoDelete = false)
-            : ImageBoard(dir, x, y, 0, 0, std::move(loadFunc), color, parent, autoDelete)
-        {}
+                Widget * = nullptr,
+                bool     = false);
 
     public:
         void drawEx(int, int, int, int, int, int) const override;
@@ -68,7 +61,23 @@ class ImageBoard: public Widget
             m_color = color;
         }
 
+        void setLoadFunc(std::function<SDL_Texture *(const ImageBoard *)> func)
+        {
+            m_loadFunc = std::move(func);
+        }
+
     public:
-        void setSize     (std::optional<int  >, std::optional<int  >);
-        void setSizeRatio(std::optional<float>, std::optional<float>);
+        void setFlipRotate(bool hflip, bool vflip, int rotate)
+        {
+            m_xformPair = getHFlipRotatePair(hflip, vflip, rotate);
+        }
+
+    private:
+        static std::pair<bool, int> getHFlipRotatePair(bool hflip, bool vflip, int rotate)
+        {
+            if     (hflip && vflip) return {false, (((rotate + 2) % 4) + 4) % 4};
+            else if(hflip         ) return { true, (((rotate    ) % 4) + 4) % 4};
+            else if(         vflip) return { true, (((rotate + 2) % 4) + 4) % 4};
+            else                    return {false, (((rotate    ) % 4) + 4) % 4};
+        }
 };
