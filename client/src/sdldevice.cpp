@@ -696,6 +696,13 @@ void SDLDevice::drawTextureEx(
         int rotateDegree,
         SDL_RendererFlip flip)
 {
+    // how SDL_RenderCopyEx works
+    //
+    //   1. crop image
+    //   2. flip the small cropped image, not the full image
+    //   3. draw cropped and flipped image to given destionation
+    //   4. rotate using offset to destionation, positive means clockwise
+
     if(texPtr){
         SDL_Rect src {srcX, srcY, srcW, srcH};
         SDL_Rect dst {dstX, dstY, dstW, dstH};

@@ -3,18 +3,7 @@
 #include <SDL2/SDL.h>
 #include "widget.hpp"
 #include "colorf.hpp"
-
-// check drawTextureEx comments for how image flip/rotation works
-//
-//      ---H-->
-//
-//    x--y | y--x
-//    |  | | |  |    |    Vflip = Hflip + 180
-//    +--+ | +--+    |    Hflip = Vflip + 180
-// --------+-------  V    Hflip + Vflip = 180
-//    +--+ | +--+    |
-//    |  | | |  |    v
-//    x--y | y--x
+#include "imageboard.hpp"
 
 class ImageBoard: public Widget
 {
