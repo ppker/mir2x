@@ -1,12 +1,31 @@
 #pragma once
 #include <cstdint>
-#include <SDL2/SDL.h>
-#include "totype.hpp"
 #include "widget.hpp"
 #include "texslider.hpp"
+#include "imageboard.hpp"
+#include "imagecropboard.hpp"
+#include "imagecropdupboard.hpp"
 
-class TexSliderBar: public TexSlider
+class TexSliderBar: public WidgetContainer
 {
+    private:
+        ImageBoard m_slotImage;
+        ImageBoard m_barImage;
+
+    private:
+        ImageCropBoard m_barCrop;
+
+    private:
+        ImageCropBoard m_slotCropFirst;
+        ImageCropBoard m_slotCropSecond;
+
+    private:
+        ImageCropDupBoard m_barCropDup;
+        ImageCropDupBoard m_slotMidCropDup;
+
+    private:
+        TexSlider m_slider;
+
     public:
         TexSliderBar(dir8_t,
                 int,
@@ -19,8 +38,5 @@ class TexSliderBar: public TexSlider
                 std::function<void(float)>,
 
                 Widget * = nullptr,
-                bool  = false);
-
-    public:
-        void drawEx(int, int, int, int, int, int) const override;
+                bool     = false);
 };

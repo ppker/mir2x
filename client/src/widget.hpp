@@ -418,6 +418,10 @@ class WidgetContainer: public Widget
     public:
         void drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const override
         {
+            if(!show()){
+                return;
+            }
+
             for(auto p = m_childList.rbegin(); p != m_childList.rend(); ++p){
                 if(!p->first->show()){
                     continue;

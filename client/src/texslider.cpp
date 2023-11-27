@@ -8,7 +8,19 @@ extern PNGTexDB *g_progUseDB;
 extern SDLDevice *g_sdlDevice;
 extern ClientArgParser *g_clientArgParser;
 
-TexSlider::TexSlider(dir8_t argDir, int argX, int argY, int argW, int argH, bool hslider, int sliderIndex, std::function<void(float)> onChanged, Widget *parent, bool autoDelete)
+TexSlider::TexSlider(dir8_t argDir,
+        int argX,
+        int argY,
+        int argW,
+        int argH,
+
+        bool argHSlider,
+        int argSliderIndex,
+
+        std::function<void(float)> argOnChanged,
+
+        Widget *argParent,
+        bool argAutoDelete)
     : Slider
       {
           argDir,
@@ -17,17 +29,17 @@ TexSlider::TexSlider(dir8_t argDir, int argX, int argY, int argW, int argH, bool
           argW,
           argH,
 
-          hslider,
-          getSliderTexInfo(sliderIndex).w,
-          getSliderTexInfo(sliderIndex).h,
+          argHSlider,
+          getSliderTexInfo(argSliderIndex).w,
+          getSliderTexInfo(argSliderIndex).h,
 
-          std::move(onChanged),
+          std::move(argOnChanged),
 
-          parent,
-          autoDelete,
+          argParent,
+          argAutoDelete,
       }
 
-    , m_sliderTexInfo(getSliderTexInfo(sliderIndex))
+    , m_sliderTexInfo(getSliderTexInfo(argSliderIndex))
 {
     fflassert(w() > 0);
     fflassert(h() > 0);
