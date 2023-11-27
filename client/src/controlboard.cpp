@@ -871,8 +871,8 @@ void ControlBoard::drawLeft() const
     m_buttonMinize.draw();
     m_buttonQuickAccess.draw();
 
-    drawRatioBar(153, nY0 + 115, m_processRun->getMyHero()->getLevelRatio());
-    drawRatioBar(166, nY0 + 115, m_processRun->getMyHero()->getInventoryRatio());
+    drawRatioBar(152, nY0 + 115, m_processRun->getMyHero()->getLevelRatio());
+    drawRatioBar(165, nY0 + 115, m_processRun->getMyHero()->getInventoryRatio());
 }
 
 void ControlBoard::drawRight() const
@@ -1380,7 +1380,7 @@ void ControlBoard::drawRatioBar(int x, int y, double r) const
         colorf::RGBA(to_u8(255 * r), to_u8(255 * (1 - r)), 0, 255),
     };
 
-    barImage.drawEx(x, y, 0, 0, barImage.w(), barImage.h() * r);
+    barImage.drawEx(x, y - std::lround(barImage.h() * r), 0, 0, barImage.w(), std::lround(barImage.h() * r));
 }
 
 void ControlBoard::drawFocusFace() const
