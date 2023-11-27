@@ -77,12 +77,11 @@ TexSliderBar::TexSliderBar(
           m_barImage.h(),
       }
 
-    , m_slotCropFirst
+    , m_slotCropLeft
       {
-          argHSlider ? DIR_LEFT : DIR_UP,
-
-          /* x */  argHSlider ? 0 : w() / 2,
-          /* y */ !argHSlider ? 0 : h() / 2,
+          DIR_UPLEFT,
+          0,
+          0,
 
           &m_slotImage,
 
@@ -90,7 +89,7 @@ TexSliderBar::TexSliderBar(
           0,
 
           /* brdCropW */  argHSlider ? 3 : m_slotImage.w(),
-          /* brdCropW */ !argHSlider ? 3 : m_slotImage.h(),
+          /* brdCropH */ !argHSlider ? 3 : m_slotImage.h(),
 
           0,
           0,
@@ -101,12 +100,26 @@ TexSliderBar::TexSliderBar(
           false,
       }
 
-    , m_slotCropSecond
+    , m_slotCropMiddle
       {
-          argHSlider ? DIR_RIGHT : DIR_DOWN,
+          DIR_UPLEFT,
+          0,
+          0,
 
-          /* x */  argHSlider ? w() : w() / 2,
-          /* y */ !argHSlider ? h() : h() / 2,
+          &m_slotImage,
+
+          /* brdCropX */  argHSlider ? 3 : 0,
+          /* brdCropY */ !argHSlider ? 3 : 0,
+
+          /* brdCropW */  argHSlider ? m_slotImage.w() - 6 : m_slotImage.w(),
+          /* brdCropH */ !argHSlider ? m_slotImage.h() - 6 : m_slotImage.h(),
+      }
+
+    , m_slotCropRight
+      {
+          DIR_DOWNRIGHT,
+          w(),
+          h(),
 
           &m_slotImage,
 
@@ -127,13 +140,13 @@ TexSliderBar::TexSliderBar(
 
     , m_barCropDup
       {
-          argHSlider ? DIR_LEFT : DIR_UP,
+          DIR_UPLEFT,
 
           /* x */  argHSlider ? 3 : 0,
           /* y */ !argHSlider ? 3 : 0,
 
-          /* w */  argHSlider ? m_barCrop.w() - 6 : m_barCrop.w(),
-          /* h */ !argHSlider ? m_barCrop.h() - 6 : m_barCrop.h(),
+          /* w */  argHSlider ? w() - 6 : w(),
+          /* h */ !argHSlider ? h() - 6 : h(),
 
           &m_barCrop,
 
@@ -143,15 +156,15 @@ TexSliderBar::TexSliderBar(
 
     , m_slotMidCropDup
       {
-          argHSlider ? DIR_LEFT : DIR_UP,
+          DIR_UPLEFT,
 
           /* x */  argHSlider ? 3 : 0,
           /* y */ !argHSlider ? 3 : 0,
 
-          /* w */  argHSlider ? m_slotImage.w() - 6 : m_slotImage.w(),
-          /* h */ !argHSlider ? m_slotImage.h() - 6 : m_slotImage.h(),
+          /* w */  argHSlider ? w() - 6 : w(),
+          /* h */ !argHSlider ? h() - 6 : h(),
 
-          &m_barCrop,
+          &m_slotCropMiddle,
 
           this,
           false,
