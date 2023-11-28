@@ -36,8 +36,8 @@ TexSliderBar::TexSliderBar(
           w() / 2,
           h() / 2,
 
-          w(),
-          h(),
+          w() - 6,
+          h() - 6,
 
           argHSlider,
           argSliderIndex,
@@ -169,8 +169,8 @@ TexSliderBar::TexSliderBar(
           /* x */  argHSlider ? 3 : 2,
           /* y */ !argHSlider ? 3 : 2,
 
-          /* w */  argHSlider ? w() - 6 : m_barImage.w(),
-          /* h */ !argHSlider ? h() - 6 : m_barImage.h(),
+          /* w */  argHSlider ? to_d(std::lround((w() - 6) * m_slider.getValue())) : m_barImage.w(),
+          /* h */ !argHSlider ? to_d(std::lround((h() - 6) * m_slider.getValue())) : m_barImage.h(),
 
           &m_barCrop,
 
