@@ -3,6 +3,7 @@
 
 #pragma once
 #include <list>
+#include <tuple>
 #include <array>
 #include <cstdint>
 #include <optional>
@@ -35,19 +36,39 @@ class Widget
         int m_h;
 
     protected:
-        std::list<std::pair<Widget *, bool>> m_childList;
+        // <0> child widget pointer
+        // <1> automatically delete child widget
+        // <2> automatically draw child widget in this->drawEx()
+        //
+        // when autoDraw is false
+        // processEvent and x()/y() still works in same way
+        // but need to manually draw child widget in this->drawEx()
+        //
+        // an alternative way is to define a new class for child class and override drawEx()
+        // but which requires a new class definition
+        std::list<std::tuple<Widget *, bool, bool>> m_childList;
 
     public:
-        Widget(dir8_t dir, int x, int y, int w = 0, int h = 0, Widget *parent = nullptr, bool autoDelete = false)
-            : m_parent(parent)
-            , m_dir(dir)
-            , m_x(x)
-            , m_y(y)
-            , m_w(w)
-            , m_h(h)
+        Widget(dir8_t argDir,
+
+                int argX,
+                int argY,
+                int argW = 0,
+                int argH = 0,
+
+                Widget *argParent     = nullptr,
+                bool    argAutoDelete = false,
+                bool    argAutoDraw   = true)
+
+            : m_parent(argParent)
+            , m_dir(argDir)
+            , m_x(argX)
+            , m_y(argY)
+            , m_w(argW)
+            , m_h(argH)
         {
             if(m_parent){
-                m_parent->m_childList.emplace_back(this, autoDelete);
+                m_parent->m_childList.emplace_back(this, argAutoDelete, argAutoDraw);
             }
 
             fflassert(m_w >= 0, m_w, m_h);
@@ -57,9 +78,9 @@ class Widget
     public:
         virtual ~Widget()
         {
-            for(auto &[child, autoDelete]: m_childList){
-                if(autoDelete){
-                    delete child;
+            for(auto &p: m_childList){
+                if(std::get<1>(p)){
+                    delete std::get<0>(p);
                 }
             }
             m_childList.clear();
@@ -81,7 +102,7 @@ class Widget
             }
 
             for(auto p = m_childList.rbegin(); p != m_childList.rend(); ++p){
-                if(!p->first->show()){
+                if(!(std::get<2>(*p) && std::get<0>(*p)->show())){
                     continue;
                 }
 
@@ -100,13 +121,13 @@ class Widget
                             w(),
                             h(),
 
-                            p->first->dx(),
-                            p->first->dy(),
-                            p->first-> w(),
-                            p->first-> h())){
+                            std::get<0>(*p)->dx(),
+                            std::get<0>(*p)->dy(),
+                            std::get<0>(*p)-> w(),
+                            std::get<0>(*p)-> h())){
                     continue;
                 }
-                p->first->drawEx(dstXCrop, dstYCrop, srcXCrop, srcYCrop, srcWCrop, srcHCrop);
+                std::get<0>(*p)->drawEx(dstXCrop, dstYCrop, srcXCrop, srcYCrop, srcWCrop, srcHCrop);
             }
         }
 
@@ -125,15 +146,15 @@ class Widget
             const auto [dstUpLeftX, dstUpLeftY] = [dir, dstX, dstY, this]() -> std::array<int, 2>
             {
                 switch(dir){
-                    case DIR_UPLEFT   : return {dstX          , dstY          };
-                    case DIR_UP       : return {dstX - w() / 2, dstY          };
-                    case DIR_UPRIGHT  : return {dstX - w()    , dstY          };
-                    case DIR_RIGHT    : return {dstX - w()    , dstY - h() / 2};
-                    case DIR_DOWNRIGHT: return {dstX - w()    , dstY - h()    };
-                    case DIR_DOWN     : return {dstX - w() / 2, dstY - h()    };
-                    case DIR_DOWNLEFT : return {dstX          , dstY - h()    };
-                    case DIR_LEFT     : return {dstX          , dstY - h() / 2};
-                    default           : return {dstX - w() / 2, dstY - h() / 2};
+                    case DIR_UPLEFT   : return {dstX                , dstY                };
+                    case DIR_UP       : return {dstX - (w() - 1) / 2, dstY                };
+                    case DIR_UPRIGHT  : return {dstX - (w() - 1)    , dstY                };
+                    case DIR_RIGHT    : return {dstX - (w() - 1)    , dstY - (h() - 1) / 2};
+                    case DIR_DOWNRIGHT: return {dstX - (w() - 1)    , dstY - (h() - 1)    };
+                    case DIR_DOWN     : return {dstX - (w() - 1) / 2, dstY - (h() - 1)    };
+                    case DIR_DOWNLEFT : return {dstX                , dstY - (h() - 1)    };
+                    case DIR_LEFT     : return {dstX                , dstY - (h() - 1) / 2};
+                    default           : return {dstX - (w() - 1) / 2, dstY - (h() - 1) / 2};
                 }
             }();
 
@@ -161,8 +182,8 @@ class Widget
     public:
         virtual void update(double fUpdateTime)
         {
-            for(auto &[child, autoDelete]: m_childList){
-                child->update(fUpdateTime);
+            for(auto &t: m_childList){
+                std::get<0>(t)->update(fUpdateTime);
             }
         }
 
@@ -183,12 +204,12 @@ class Widget
             auto focusedNode = m_childList.end();
 
             for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
-                if(!p->first->show()){
+                if(!std::get<0>(*p)->show()){
                     continue;
                 }
 
-                took |= p->first->processEvent(event, valid && !took);
-                if(focusedNode == m_childList.end() && p->first->focus()){
+                took |= std::get<0>(*p)->processEvent(event, valid && !took);
+                if(focusedNode == m_childList.end() && std::get<0>(*p)->focus()){
                     focusedNode = p;
                 }
             }
@@ -215,14 +236,14 @@ class Widget
 
             switch(m_dir){
                 case DIR_UPLEFT   : return anchorX;
-                case DIR_UP       : return anchorX - w() / 2;
-                case DIR_UPRIGHT  : return anchorX - w();
-                case DIR_RIGHT    : return anchorX - w();
-                case DIR_DOWNRIGHT: return anchorX - w();
-                case DIR_DOWN     : return anchorX - w() / 2;
+                case DIR_UP       : return anchorX - (w() - 1) / 2;
+                case DIR_UPRIGHT  : return anchorX - (w() - 1);
+                case DIR_RIGHT    : return anchorX - (w() - 1);
+                case DIR_DOWNRIGHT: return anchorX - (w() - 1);
+                case DIR_DOWN     : return anchorX - (w() - 1) / 2;
                 case DIR_DOWNLEFT : return anchorX;
                 case DIR_LEFT     : return anchorX;
-                default           : return anchorX - w() / 2;
+                default           : return anchorX - (w() - 1) / 2;
             }
         }
 
@@ -242,12 +263,12 @@ class Widget
                 case DIR_UPLEFT   : return anchorY;
                 case DIR_UP       : return anchorY;
                 case DIR_UPRIGHT  : return anchorY;
-                case DIR_RIGHT    : return anchorY - h() / 2;
-                case DIR_DOWNRIGHT: return anchorY - h();
-                case DIR_DOWN     : return anchorY - h();
-                case DIR_DOWNLEFT : return anchorY - h();
-                case DIR_LEFT     : return anchorY - h() / 2;
-                default           : return anchorY - h() / 2;
+                case DIR_RIGHT    : return anchorY - (h() - 1) / 2;
+                case DIR_DOWNRIGHT: return anchorY - (h() - 1);
+                case DIR_DOWN     : return anchorY - (h() - 1);
+                case DIR_DOWNLEFT : return anchorY - (h() - 1);
+                case DIR_LEFT     : return anchorY - (h() - 1) / 2;
+                default           : return anchorY - (h() - 1) / 2;
             }
         }
 
@@ -391,23 +412,4 @@ class Widget
             const auto [argW, argH] = t;
             setSize(argW, argH);
         }
-
-    private:
-        template<typename F> std::optional<std::pair<int, int>> getVarRange(const F &f) const
-        {
-            if(m_childList.empty()){
-                return {};
-            }
-
-            const auto pr = std::minmax_element(m_childList.begin(), m_childList.end(), [&f](const auto &x, const auto &y)
-            {
-                return f(x) < f(y);
-            });
-
-            return std::make_pair(f(*pr.first), f(*pr.second));
-        }
-
-    public:
-        std::optional<std::pair<int, int>> dxRange() const { return getVarRange([](const auto &node) { return node.first->dx(); }); }
-        std::optional<std::pair<int, int>> dyRange() const { return getVarRange([](const auto &node) { return node.first->dy(); }); }
 };
