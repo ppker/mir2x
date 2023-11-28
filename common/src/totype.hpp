@@ -1,4 +1,5 @@
 #pragma once
+#include <cmath>
 #include <string>
 #include <cstdint>
 #include <cstring>
@@ -23,6 +24,11 @@ inline auto to_u16  (auto x){ return static_cast<          uint16_t>(x); }
 inline auto to_u32  (auto x){ return static_cast<          uint32_t>(x); }
 inline auto to_u64  (auto x){ return static_cast<          uint64_t>(x); }
 inline auto to_cvptr(auto x){ return static_cast<      const void *>(x); }
+
+std::floating_point auto to_dround(std::floating_point auto x)
+{
+    return to_d(std::round(x));
+}
 
 template<typename T> T as_type(const void *buf)
 {
