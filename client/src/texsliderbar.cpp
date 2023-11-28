@@ -87,20 +87,6 @@ TexSliderBar::TexSliderBar(
           argHSlider ? 0 : 1,
       }
 
-    , m_barCrop
-      {
-          DIR_UPLEFT,
-          0,
-          0,
-
-          &m_barImage,
-
-          0,
-          0,
-          m_barImage.w(),
-          m_barImage.h(),
-      }
-
     , m_slotCropLeft
       {
           DIR_UPLEFT,
@@ -172,7 +158,7 @@ TexSliderBar::TexSliderBar(
           /* w */  argHSlider ? to_dround((w() - 6) * m_slider.getValue()) : m_barImage.w(),
           /* h */ !argHSlider ? to_dround((h() - 6) * m_slider.getValue()) : m_barImage.h(),
 
-          &m_barCrop,
+          &m_barImage,
 
           this,
           false,

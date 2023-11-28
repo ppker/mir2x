@@ -16,9 +16,6 @@ class TexSliderBar: public Widget
         ImageBoard m_barImage;
 
     private:
-        ImageCropBoard m_barCrop;
-
-    private:
         ImageCropBoard m_slotCropLeft;
         ImageCropBoard m_slotCropMiddle;
         ImageCropBoard m_slotCropRight;
