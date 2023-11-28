@@ -35,9 +35,6 @@ class Widget
         int m_h;
 
     protected:
-        int m_dz = 0;
-
-    protected:
         std::list<std::pair<Widget *, bool>> m_childList;
 
     public:
@@ -242,11 +239,6 @@ class Widget
             return y() - (m_parent ? m_parent->y() : 0);
         }
 
-        int dz() const
-        {
-            return m_dz;
-        }
-
     public:
         bool in(int pixelX, int pixelY) const
         {
@@ -339,11 +331,6 @@ class Widget
         }
 
     public:
-        void setDz(int dzArg)
-        {
-            m_dz = dzArg;
-        }
-
         void setSize(std::optional<int> argW, std::optional<int> argH)
         {
             const int newW = argW.value_or(m_w);
@@ -473,5 +460,4 @@ class WidgetContainer: public Widget
     public:
         std::optional<std::pair<int, int>> dxRange() const { return getVarRange([](const auto &node) { return node.first->dx(); }); }
         std::optional<std::pair<int, int>> dyRange() const { return getVarRange([](const auto &node) { return node.first->dy(); }); }
-        std::optional<std::pair<int, int>> dzRange() const { return getVarRange([](const auto &node) { return node.first->dz(); }); }
 };
