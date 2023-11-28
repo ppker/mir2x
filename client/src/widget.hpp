@@ -74,12 +74,41 @@ class Widget
         }
 
     public:
-        virtual void drawEx(int,            // dst x on the screen coordinate
-                            int,            // dst y on the screen coordinate
-                            int,            // src x on the widget, take top-left as origin
-                            int,            // src y on the widget, take top-left as origin
-                            int,            // size to draw
-                            int) const = 0; // size to draw
+        virtual void drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
+        {
+            if(!show()){
+                return;
+            }
+
+            for(auto p = m_childList.rbegin(); p != m_childList.rend(); ++p){
+                if(!p->first->show()){
+                    continue;
+                }
+
+                int srcXCrop = srcX;
+                int srcYCrop = srcY;
+                int dstXCrop = dstX;
+                int dstYCrop = dstY;
+                int srcWCrop = srcW;
+                int srcHCrop = srcH;
+
+                if(!mathf::cropChildROI(
+                            &srcXCrop, &srcYCrop,
+                            &srcWCrop, &srcHCrop,
+                            &dstXCrop, &dstYCrop,
+
+                            w(),
+                            h(),
+
+                            p->first->dx(),
+                            p->first->dy(),
+                            p->first-> w(),
+                            p->first-> h())){
+                    continue;
+                }
+                p->first->drawEx(dstXCrop, dstYCrop, srcXCrop, srcYCrop, srcWCrop, srcHCrop);
+            }
+        }
 
     public:
         void drawAt(
@@ -412,42 +441,5 @@ class WidgetContainer: public Widget
                 m_childList.erase(focusedNode);
             }
             return took;
-        }
-
-    public:
-        void drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const override
-        {
-            if(!show()){
-                return;
-            }
-
-            for(auto p = m_childList.rbegin(); p != m_childList.rend(); ++p){
-                if(!p->first->show()){
-                    continue;
-                }
-
-                int srcXCrop = srcX;
-                int srcYCrop = srcY;
-                int dstXCrop = dstX;
-                int dstYCrop = dstY;
-                int srcWCrop = srcW;
-                int srcHCrop = srcH;
-
-                if(!mathf::cropChildROI(
-                            &srcXCrop, &srcYCrop,
-                            &srcWCrop, &srcHCrop,
-                            &dstXCrop, &dstYCrop,
-
-                            w(),
-                            h(),
-
-                            p->first->dx(),
-                            p->first->dy(),
-                            p->first-> w(),
-                            p->first-> h())){
-                    continue;
-                }
-                p->first->drawEx(dstXCrop, dstYCrop, srcXCrop, srcYCrop, srcWCrop, srcHCrop);
-            }
         }
 };
