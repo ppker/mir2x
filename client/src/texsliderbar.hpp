@@ -9,6 +9,9 @@
 class TexSliderBar: public WidgetContainer
 {
     private:
+        TexSlider m_slider;
+
+    private:
         ImageBoard m_slotImage;
         ImageBoard m_barImage;
 
@@ -23,9 +26,6 @@ class TexSliderBar: public WidgetContainer
     private:
         ImageCropDupBoard m_barCropDup;
         ImageCropDupBoard m_slotMidCropDup;
-
-    private:
-        TexSlider m_slider;
 
     public:
         TexSliderBar(dir8_t,

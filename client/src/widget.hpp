@@ -344,13 +344,16 @@ class Widget
             m_dz = dzArg;
         }
 
-        void setSize(int argW, int argH)
+        void setSize(std::optional<int> argW, std::optional<int> argH)
         {
-            fflassert(argW >= 0, argW, argH);
-            fflassert(argH >= 0, argW, argH);
+            const int newW = argW.value_or(m_w);
+            const int newH = argH.value_or(m_h);
 
-            m_w = argW;
-            m_h = argH;
+            fflassert(newW >= 0, newW, newH);
+            fflassert(newH >= 0, newW, newH);
+
+            m_w = newW;
+            m_h = newH;
         }
 
         template<typename T> void setSize(const T &t)

@@ -30,6 +30,30 @@ TexSliderBar::TexSliderBar(
           argAutoDelete,
       }
 
+    , m_slider
+      {
+          DIR_NONE,
+          w() / 2,
+          h() / 2,
+
+          w(),
+          h(),
+
+          argHSlider,
+          argSliderIndex,
+
+          [argHSlider, argOnChanged = std::move(argOnChanged), this](float val)
+          {
+              argOnChanged(val);
+              m_barCropDup.setSize(
+                      /* w */  argHSlider ? std::make_optional<int>(std::lround(val * (w() - 6))) : std::nullopt,
+                      /* h */ !argHSlider ? std::make_optional<int>(std::lround(val * (h() - 6))) : std::nullopt);
+          },
+
+          this,
+          false,
+      }
+
     , m_slotImage
       {
           DIR_UPLEFT,
@@ -165,24 +189,6 @@ TexSliderBar::TexSliderBar(
           /* h */ !argHSlider ? h() - 6 : h(),
 
           &m_slotCropMiddle,
-
-          this,
-          false,
-      }
-
-    , m_slider
-      {
-          DIR_NONE,
-          w() / 2,
-          h() / 2,
-
-          w(),
-          h(),
-
-          argHSlider,
-          argSliderIndex,
-
-          std::move(argOnChanged),
 
           this,
           false,
