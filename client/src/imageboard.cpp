@@ -220,8 +220,8 @@ void ImageBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int sr
 
     const auto [texW, texH] = SDLDeviceHelper::getTextureSize(texPtr);
 
-    const auto  widthRatio = to_f(texW) / w();
-    const auto heightRatio = to_f(texH) / h();
+    const auto  widthRatio = to_f(texW) / ((m_rotate % 2 == 0) ? w() : h());
+    const auto heightRatio = to_f(texH) / ((m_rotate % 2 == 0) ? h() : w());
 
     // imgSrcX
     // size and position cropped from original image, no resize, well defined

@@ -184,6 +184,7 @@ class RuntimeConfigExtBoard: public Widget
     private:
         CheckLabel m_checkLabel;
         TexSliderBar m_texSliderBar;
+        TexSliderBar m_texSliderBarVertical;
 
     private:
         OnOffButton m_musicSwitch;
