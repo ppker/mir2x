@@ -348,6 +348,25 @@ class Widget
             const auto [argW, argH] = t;
             setSize(argW, argH);
         }
+
+    private:
+        template<typename F> std::optional<std::pair<int, int>> getVarRange(const F &f) const
+        {
+            if(m_childList.empty()){
+                return {};
+            }
+
+            const auto pr = std::minmax_element(m_childList.begin(), m_childList.end(), [&f](const auto &x, const auto &y)
+            {
+                return f(x) < f(y);
+            });
+
+            return std::make_pair(f(*pr.first), f(*pr.second));
+        }
+
+    public:
+        std::optional<std::pair<int, int>> dxRange() const { return getVarRange([](const auto &node) { return node.first->dx(); }); }
+        std::optional<std::pair<int, int>> dyRange() const { return getVarRange([](const auto &node) { return node.first->dy(); }); }
 };
 
 // simple *tiling* widget group
@@ -359,20 +378,10 @@ class Widget
 
 class WidgetContainer: public Widget
 {
-    private:
-        mutable std::vector<const Widget *> m_childWidgetPtrList;
-
     public:
         WidgetContainer(dir8_t dir, int x, int y, int w, int h, Widget *parent = nullptr, bool autoDelete = false)
             : Widget(dir, x, y, w, h, parent, autoDelete)
         {}
-
-    public:
-        virtual bool processUnhandledEvent(const SDL_Event &)
-        {
-            // valid event but not consumed by any child widget
-            return false;
-        }
 
     public:
         bool processEvent(const SDL_Event &event, bool valid) override
@@ -441,23 +450,4 @@ class WidgetContainer: public Widget
                 p->first->drawEx(dstXCrop, dstYCrop, srcXCrop, srcYCrop, srcWCrop, srcHCrop);
             }
         }
-
-    private:
-        template<typename F> std::optional<std::pair<int, int>> getVarRange(const F &f) const
-        {
-            if(m_childList.empty()){
-                return {};
-            }
-
-            const auto pr = std::minmax_element(m_childList.begin(), m_childList.end(), [&f](const auto &x, const auto &y)
-            {
-                return f(x) < f(y);
-            });
-
-            return std::make_pair(f(*pr.first), f(*pr.second));
-        }
-
-    public:
-        std::optional<std::pair<int, int>> dxRange() const { return getVarRange([](const auto &node) { return node.first->dx(); }); }
-        std::optional<std::pair<int, int>> dyRange() const { return getVarRange([](const auto &node) { return node.first->dy(); }); }
 };
