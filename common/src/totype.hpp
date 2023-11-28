@@ -25,9 +25,18 @@ inline auto to_u32  (auto x){ return static_cast<          uint32_t>(x); }
 inline auto to_u64  (auto x){ return static_cast<          uint64_t>(x); }
 inline auto to_cvptr(auto x){ return static_cast<      const void *>(x); }
 
-std::floating_point auto to_dround(std::floating_point auto x)
+template<typename T, typename F> static T check_cast(F from)
 {
-    return to_d(std::round(x));
+    auto to = static_cast<T>(from);
+    if(static_cast<F>(to) != from){
+        throw std::runtime_error("cast fails to preserve original value");
+    }
+    return to;
+}
+
+int to_dround(std::floating_point auto x)
+{
+    return check_cast<int>(std::lround(x));
 }
 
 template<typename T> T as_type(const void *buf)
@@ -196,11 +205,3 @@ inline bool to_bool(const std::string_view &s)
     return to_bool(s.data());
 }
 
-template<typename T, typename F> static T check_cast(F from)
-{
-    auto to = static_cast<T>(from);
-    if(static_cast<F>(to) != from){
-        throw std::runtime_error("cast fails to preserve original value");
-    }
-    return to;
-}
