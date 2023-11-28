@@ -85,7 +85,7 @@ class SkillBoard: public Widget
         };
 
     private:
-        class MagicIconButton: public WidgetContainer
+        class MagicIconButton: public Widget
         {
             // +-+-----+
             // |A|     |
@@ -127,7 +127,7 @@ class SkillBoard: public Widget
                 }
         };
 
-        class SkillPage: public WidgetContainer
+        class SkillPage: public Widget
         {
             private:
                 SkillBoardConfig * const m_config;

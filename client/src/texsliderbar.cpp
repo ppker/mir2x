@@ -17,7 +17,7 @@ TexSliderBar::TexSliderBar(
         Widget *argParent,
         bool    argAutoDelete)
 
-    : WidgetContainer
+    : Widget
       {
           argDir,
           argX,

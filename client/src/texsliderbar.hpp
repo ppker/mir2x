@@ -6,7 +6,7 @@
 #include "imagecropboard.hpp"
 #include "imagecropdupboard.hpp"
 
-class TexSliderBar: public WidgetContainer
+class TexSliderBar: public Widget
 {
     private:
         TexSlider m_slider;

@@ -1,4 +1,4 @@
-// class Widget has no resize()
+// class Widget has no resize(), only setSize()
 // widget has no box concept like gtk, it can't calculate size in parent
 
 #pragma once
@@ -172,16 +172,30 @@ class Widget
         //         always return false if given event has been take by previous widget
         virtual bool processEvent(const SDL_Event &event, bool valid)
         {
+            // this function alters the draw order
+            // if a widget has children having overlapping then be careful
+
             if(!show()){
                 return false;
             }
 
             bool took = false;
-            for(auto &[child, autoDelete]: m_childList){
-                if(!child->show()){
+            auto focusedNode = m_childList.end();
+
+            for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
+                if(!p->first->show()){
                     continue;
                 }
-                took |= child->processEvent(event, valid && !took);
+
+                took |= p->first->processEvent(event, valid && !took);
+                if(focusedNode == m_childList.end() && p->first->focus()){
+                    focusedNode = p;
+                }
+            }
+
+            if(focusedNode != m_childList.end()){
+                m_childList.push_front(*focusedNode);
+                m_childList.erase(focusedNode);
             }
             return took;
         }
@@ -396,50 +410,4 @@ class Widget
     public:
         std::optional<std::pair<int, int>> dxRange() const { return getVarRange([](const auto &node) { return node.first->dx(); }); }
         std::optional<std::pair<int, int>> dyRange() const { return getVarRange([](const auto &node) { return node.first->dy(); }); }
-};
-
-// simple *tiling* widget group
-// this class won't handle widget overlapping
-
-// when to use Widget, when to use WidgetContainer:
-// when you are implement a widget from scratch, define how to draw every element, then use Widget
-// if your widget is a composition of other widgets, has many child widgets inside, then you should use WidgetContainer
-
-class WidgetContainer: public Widget
-{
-    public:
-        WidgetContainer(dir8_t dir, int x, int y, int w, int h, Widget *parent = nullptr, bool autoDelete = false)
-            : Widget(dir, x, y, w, h, parent, autoDelete)
-        {}
-
-    public:
-        bool processEvent(const SDL_Event &event, bool valid) override
-        {
-            // this function alters the draw order
-            // if a WidgetContainer has children having overlapping then be careful
-
-            if(!show()){
-                return false;
-            }
-
-            bool took = false;
-            auto focusedNode = m_childList.end();
-
-            for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
-                if(!p->first->show()){
-                    continue;
-                }
-
-                took |= p->first->processEvent(event, valid && !took);
-                if(focusedNode == m_childList.end() && p->first->focus()){
-                    focusedNode = p;
-                }
-            }
-
-            if(focusedNode != m_childList.end()){
-                m_childList.push_front(*focusedNode);
-                m_childList.erase(focusedNode);
-            }
-            return took;
-        }
 };

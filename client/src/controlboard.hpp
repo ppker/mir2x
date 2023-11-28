@@ -28,11 +28,11 @@ class ProcessRun;
 class ControlBoard: public Widget
 {
     private:
-        class WidgetMiddleGroup: public WidgetContainer
+        class WidgetMiddleGroup: public Widget
         {
             public:
                 WidgetMiddleGroup(int x, int y, int w, int h, Widget *parent = nullptr, bool autoDelete = false)
-                    : WidgetContainer(DIR_UPLEFT, x, y, w, h, parent, autoDelete)
+                    : Widget(DIR_UPLEFT, x, y, w, h, parent, autoDelete)
                 {}
 
             public:
@@ -55,8 +55,8 @@ class ControlBoard: public Widget
     private:
         // define group for widget moving
         // but will not call widgetGroup::drawEx, we still draw manually
-        WidgetContainer m_left;
-        WidgetContainer m_right;
+        Widget m_left;
+        Widget m_right;
 
     private:
         WidgetMiddleGroup m_middle;
