@@ -1,10 +1,11 @@
 #pragma once
-#include "imageboard.hpp"
+#include "mathf.hpp"
+#include "widget.hpp"
 
 class ImageCropBoard: public Widget
 {
     private:
-        const ImageBoard * const m_imgBoard;
+        const Widget * const m_widget;
 
     private:
         const int m_brdCropX;
@@ -25,7 +26,7 @@ class ImageCropBoard: public Widget
                 int argX,
                 int argY,
 
-                const ImageBoard *argImgBoard,
+                const Widget *argWidget,
 
                 int argBrdCropX, // crop on final board, not on original image
                 int argBrdCropY, // ...
@@ -38,7 +39,8 @@ class ImageCropBoard: public Widget
                 size_t argMarginRight = 0,
 
                 Widget *argParent     = nullptr,
-                bool    argAutoDelete = false)
+                bool    argAutoDelete = false,
+                bool    argAutoDraw   = true)
 
             : Widget
               {
@@ -50,9 +52,10 @@ class ImageCropBoard: public Widget
 
                   argParent,
                   argAutoDelete,
+                  argAutoDraw,
               }
 
-            , m_imgBoard([argImgBoard]{ fflassert(argImgBoard); return argImgBoard; }())
+            , m_widget([argWidget]{ fflassert(argWidget); return argWidget; }())
 
             , m_brdCropX(argBrdCropX)
             , m_brdCropY(argBrdCropY)
@@ -81,7 +84,7 @@ class ImageCropBoard: public Widget
             int brdCropW = m_brdCropW;
             int brdCropH = m_brdCropH;
 
-            if(!mathf::rectangleOverlapRegion<int>(0, 0, m_imgBoard->w(), m_imgBoard->h(), brdCropX, brdCropY, brdCropW, brdCropH)){
+            if(!mathf::rectangleOverlapRegion<int>(0, 0, m_widget->w(), m_widget->h(), brdCropX, brdCropY, brdCropW, brdCropH)){
                 return;
             }
 
@@ -108,6 +111,6 @@ class ImageCropBoard: public Widget
                 return;
             }
 
-            m_imgBoard->drawEx(drawDstX, drawDstY, drawSrcX + brdCropX, drawSrcY + brdCropY, drawSrcW, drawSrcH);
+            m_widget->drawEx(drawDstX, drawDstY, drawSrcX + brdCropX, drawSrcY + brdCropY, drawSrcW, drawSrcH);
         }
 };

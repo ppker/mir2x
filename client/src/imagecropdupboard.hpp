@@ -1,10 +1,11 @@
 #pragma once
-#include "imagecropboard.hpp"
+#include "mathf.hpp"
+#include "widget.hpp"
 
 class ImageCropDupBoard: public Widget
 {
     private:
-        const ImageCropBoard * const m_imgCropBoard;
+        const Widget * const m_widget;
 
     public:
         ImageCropDupBoard(
@@ -15,10 +16,11 @@ class ImageCropDupBoard: public Widget
                 int argW,
                 int argH,
 
-                const ImageCropBoard *argImgCropBoard,
+                const Widget *argWidget,
 
                 Widget *argParent     = nullptr,
-                bool    argAutoDelete = false)
+                bool    argAutoDelete = false,
+                bool    argAutoDraw   = true)
 
             : Widget
               {
@@ -30,9 +32,10 @@ class ImageCropDupBoard: public Widget
 
                   argParent,
                   argAutoDelete,
+                  argAutoDraw,
               }
 
-            , m_imgCropBoard([argImgCropBoard]{ fflassert(argImgCropBoard); return argImgCropBoard; }())
+            , m_widget([argWidget]{ fflassert(argWidget); return argWidget; }())
         {}
 
     public:
@@ -51,11 +54,11 @@ class ImageCropDupBoard: public Widget
                             &onScreenX,
                             &onScreenY,
 
-                            m_imgCropBoard->w(),
-                            m_imgCropBoard->h(),
+                            m_widget->w(),
+                            m_widget->h(),
 
                             0, 0, -1, -1, dstX, dstY, srcW, srcH)){
-                    m_imgCropBoard->drawEx(onScreenX, onScreenY, onCropBrdX, onCropBrdY, onCropBrdW, onCropBrdH);
+                    m_widget->drawEx(onScreenX, onScreenY, onCropBrdX, onCropBrdY, onCropBrdW, onCropBrdH);
                 }
             };
 
@@ -64,10 +67,10 @@ class ImageCropDupBoard: public Widget
 
             int doneDrawWidth = 0;
             while(doneDrawWidth < w()){
-                const int drawWidth = std::min<int>(m_imgCropBoard->w(), w() - doneDrawWidth);
+                const int drawWidth = std::min<int>(m_widget->w(), w() - doneDrawWidth);
                 int doneDrawHeight = 0;
                 while(doneDrawHeight < h()){
-                    const int drawHeight = std::min<int>(m_imgCropBoard->h(), h() - doneDrawHeight);
+                    const int drawHeight = std::min<int>(m_widget->h(), h() - doneDrawHeight);
                     fnCropDraw(0, 0, drawWidth, drawHeight, extendedDstX + doneDrawWidth, extendedDstY + doneDrawHeight);
                     doneDrawHeight += drawHeight;
                 }
