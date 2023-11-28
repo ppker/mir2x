@@ -50,5 +50,8 @@ class TexSliderBar: public WidgetContainer
         void setValue(float val, bool triggerCallback)
         {
             m_slider.setValue(val, triggerCallback);
+            m_barCropDup.setSize(
+                    /* w */  m_slider.hslider() ? std::make_optional<int>(std::lround(val * (w() - 6))) : std::nullopt,
+                    /* h */ !m_slider.hslider() ? std::make_optional<int>(std::lround(val * (h() - 6))) : std::nullopt);
         }
 };
