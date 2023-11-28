@@ -190,8 +190,8 @@ class RuntimeConfigExtBoard: public Widget
         OnOffButton m_soundEffectSwitch;
 
     private:
-        TexSlider m_musicSlider;
-        TexSlider m_soundEffectSlider;
+        TexSliderBar m_musicSlider;
+        TexSliderBar m_soundEffectSlider;
 
     private:
         const std::vector<std::tuple<std::vector<std::u8string>, std::reference_wrapper<int>, int, std::function<void(int)>>> m_entryProtoList;

@@ -105,7 +105,6 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
           280,
           124,
           194,
-          6,
 
           true,
           1,
@@ -124,7 +123,6 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
           280,
           184,
           194,
-          6,
 
           true,
           1,

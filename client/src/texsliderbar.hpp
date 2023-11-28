@@ -40,4 +40,15 @@ class TexSliderBar: public WidgetContainer
 
                 Widget * = nullptr,
                 bool     = false);
+
+    public:
+        float getValue() const
+        {
+            return m_slider.getValue();
+        }
+
+        void setValue(float val, bool triggerCallback)
+        {
+            m_slider.setValue(val, triggerCallback);
+        }
 };
