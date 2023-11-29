@@ -41,9 +41,8 @@ class Widget
         // autoDelete: automatically delete child widget
         // autoDraw  : automatically draw child widget in this->drawEx()
         //
-        // when autoDraw is false
-        // processEvent() and x()/y() still works in same way
-        // but need to manually draw child widget in this->drawEx()
+        // when autoDraw is false, x()/y() still works in same way
+        // but need to explicitly call child->processEvent() and child->drawEx()
         //
         // alternative way is to define a new class for child class and override its drawEx()
         // but which requires a new class definition
@@ -213,7 +212,7 @@ class Widget
             auto focusedNode = m_childList.end();
 
             for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
-                if(!p->widget->show()){
+                if(!(p->autoDraw && p->widget->show())){
                     continue;
                 }
 
