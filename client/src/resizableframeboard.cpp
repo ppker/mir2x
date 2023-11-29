@@ -50,12 +50,6 @@ ResizableFrameBoard::ResizableFrameBoard(
     fflassert(argH >= m_cornerSize * 2);
 }
 
-void ResizableFrameBoard::setSize(std::optional<int> newWidth, std::optional<int> newHeight)
-{
-    m_w = newWidth .value_or(m_w);
-    m_h = newHeight.value_or(m_h);
-}
-
 void ResizableFrameBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
 {
     auto texPtr = g_progUseDB->retrieve(m_frameTexID);

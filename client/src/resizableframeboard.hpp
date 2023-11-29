@@ -41,7 +41,4 @@ class ResizableFrameBoard: public Widget
     public:
         void update(double) override;
         bool processEvent(const SDL_Event &, bool);
-
-    public:
-        void setSize(std::optional<int>, std::optional<int>);
 };
