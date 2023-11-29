@@ -36,17 +36,25 @@ class Widget
         int m_h;
 
     protected:
-        // <0> child widget pointer
-        // <1> automatically delete child widget
-        // <2> automatically draw child widget in this->drawEx()
+        // widget    : child widget pointer
+        // autoDelete: automatically delete child widget
+        // autoDraw  : automatically draw child widget in this->drawEx()
         //
         // when autoDraw is false
-        // processEvent and x()/y() still works in same way
+        // processEvent() and x()/y() still works in same way
         // but need to manually draw child widget in this->drawEx()
         //
-        // an alternative way is to define a new class for child class and override drawEx()
+        // alternative way is to define a new class for child class and override its drawEx()
         // but which requires a new class definition
-        std::list<std::tuple<Widget *, bool, bool>> m_childList;
+
+        struct ChildWidgetElement
+        {
+            Widget *widget     = nullptr;
+            bool    autoDelete = false;
+            bool    autoDraw   = true;
+        };
+
+        std::list<ChildWidgetElement> m_childList;
 
     public:
         Widget(dir8_t argDir,
@@ -78,9 +86,9 @@ class Widget
     public:
         virtual ~Widget()
         {
-            for(auto &p: m_childList){
-                if(std::get<1>(p)){
-                    delete std::get<0>(p);
+            for(auto &child: m_childList){
+                if(child.autoDelete){
+                    delete child.widget;
                 }
             }
             m_childList.clear();
@@ -102,7 +110,7 @@ class Widget
             }
 
             for(auto p = m_childList.rbegin(); p != m_childList.rend(); ++p){
-                if(!(std::get<2>(*p) && std::get<0>(*p)->show())){
+                if(!(p->autoDraw && p->widget->show())){
                     continue;
                 }
 
@@ -121,13 +129,13 @@ class Widget
                             w(),
                             h(),
 
-                            std::get<0>(*p)->dx(),
-                            std::get<0>(*p)->dy(),
-                            std::get<0>(*p)-> w(),
-                            std::get<0>(*p)-> h())){
+                            p->widget->dx(),
+                            p->widget->dy(),
+                            p->widget-> w(),
+                            p->widget-> h())){
                     continue;
                 }
-                std::get<0>(*p)->drawEx(dstXCrop, dstYCrop, srcXCrop, srcYCrop, srcWCrop, srcHCrop);
+                p->widget->drawEx(dstXCrop, dstYCrop, srcXCrop, srcYCrop, srcWCrop, srcHCrop);
             }
         }
 
@@ -182,8 +190,8 @@ class Widget
     public:
         virtual void update(double fUpdateTime)
         {
-            for(auto &t: m_childList){
-                std::get<0>(t)->update(fUpdateTime);
+            for(auto &child: m_childList){
+                child.widget->update(fUpdateTime);
             }
         }
 
@@ -204,12 +212,12 @@ class Widget
             auto focusedNode = m_childList.end();
 
             for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
-                if(!std::get<0>(*p)->show()){
+                if(!p->widget->show()){
                     continue;
                 }
 
-                took |= std::get<0>(*p)->processEvent(event, valid && !took);
-                if(focusedNode == m_childList.end() && std::get<0>(*p)->focus()){
+                took |= p->widget->processEvent(event, valid && !took);
+                if(focusedNode == m_childList.end() && p->widget->focus()){
                     focusedNode = p;
                 }
             }
