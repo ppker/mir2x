@@ -7,6 +7,7 @@
 #include <array>
 #include <cstdint>
 #include <optional>
+#include <initializer_list>
 #include <SDL2/SDL.h>
 #include "mathf.hpp"
 #include "lalign.hpp"
@@ -227,6 +228,16 @@ class Widget
                 m_childList.erase(focusedNode);
             }
             return took;
+        }
+
+    public:
+        static void handleEvent(const SDL_Event &event, bool &valid, std::initializer_list<Widget *> widgetList)
+        {
+            bool tookEvent = false;
+            for(auto &w: widgetList){
+                tookEvent |= w->processEvent(event, valid && !tookEvent);
+            }
+            valid = valid && !tookEvent;
         }
 
     public:
