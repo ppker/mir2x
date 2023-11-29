@@ -37,8 +37,4 @@ class ResizableFrameBoard: public Widget
 
     public:
         void drawEx(int, int, int, int, int, int) const override;
-
-    public:
-        void update(double) override;
-        bool processEvent(const SDL_Event &, bool);
 };
