@@ -28,21 +28,6 @@ class ProcessRun;
 class ControlBoard: public Widget
 {
     private:
-        class WidgetMiddleGroup: public Widget
-        {
-            public:
-                WidgetMiddleGroup(int x, int y, int w, int h, Widget *parent = nullptr, bool autoDelete = false)
-                    : Widget(DIR_UPLEFT, x, y, w, h, parent, autoDelete)
-                {}
-
-            public:
-                void resetWidth(int width)
-                {
-                    m_w = width;
-                }
-        };
-
-    private:
         ProcessRun *m_processRun;
 
     private:
@@ -53,13 +38,9 @@ class ControlBoard: public Widget
         const int m_stretchHMin = 196; // only can get bigger than original frame
 
     private:
-        // define group for widget moving
-        // but will not call widgetGroup::drawEx, we still draw manually
         Widget m_left;
+        Widget m_middle;
         Widget m_right;
-
-    private:
-        WidgetMiddleGroup m_middle;
 
     private:
         TritexButton m_buttonQuickAccess;
