@@ -357,6 +357,19 @@ class Widget
             return nullptr;
         }
 
+        void setFocusChild(Widget *widget)
+        {
+            if(widget){
+                for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
+                    if(p->widget == widget){
+                        m_childList.push_front(*p);
+                        m_childList.erase(p);
+                        return;
+                    }
+                }
+            }
+        }
+
     public:
         void setShow(bool argShow)
         {

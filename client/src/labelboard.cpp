@@ -36,11 +36,9 @@ bool LabelBoard::processEvent(const SDL_Event &event, bool valid)
     switch(event.type){
         case SDL_MOUSEMOTION:
             {
-                if(in(event.motion.x, event.motion.y) || focus()){
-                    return consumeFocus(true);
-                }
-                return consumeFocus(false);
+                return consumeFocus(in(event.motion.x, event.motion.y));
             }
+        case SDL_MOUSEBUTTONUP:
         case SDL_MOUSEBUTTONDOWN:
             {
                 return consumeFocus(in(event.button.x, event.button.y));

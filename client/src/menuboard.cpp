@@ -99,6 +99,46 @@ void MenuBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int src
     g_sdlDevice->drawRectangle(colorf::WHITE + colorf::A_SHF(128), dstX, dstY, srcW, srcH);
 }
 
+bool MenuBoard::processEvent(const SDL_Event &event, bool valid)
+{
+    if(!valid){
+        return consumeFocus(false);
+    }
+
+    if(!show()){
+        return consumeFocus(false);
+    }
+
+    if(Widget::processEvent(event, valid)){
+        return consumeFocus(true);
+    }
+
+    switch(event.type){
+        case SDL_MOUSEMOTION:
+        case SDL_MOUSEBUTTONDOWN:
+            {
+                const auto [eventX, eventY] = SDLDeviceHelper::getEventPLoc(event).value();
+                if(!in(eventX, eventY)){
+                    return consumeFocus(false);
+                }
+
+                for(auto &p: m_childList){
+                    if(mathf::pointInRectangle(eventX, eventY, p.widget->x(), p.widget->y() - m_itemSpace / 2, w() - m_margin[2] - m_margin[3], h() + m_itemSpace)){
+                        p.widget->setFocus(true);
+                        setFocusChild(p.widget);
+                        return consumeFocus(true);
+                    }
+                }
+
+                return consumeFocus(false);
+            }
+        default:
+            {
+                return consumeFocus(false);
+            }
+    }
+}
+
 Widget *MenuBoard::getSeparator()
 {
     static Widget separator
