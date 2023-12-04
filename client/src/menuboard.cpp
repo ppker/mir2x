@@ -125,7 +125,6 @@ bool MenuBoard::processEvent(const SDL_Event &event, bool valid)
                 for(auto &p: m_childList){
                     if(mathf::pointInRectangle(eventX, eventY, p.widget->x(), p.widget->y() - m_itemSpace / 2, w() - m_margin[2] - m_margin[3], h() + m_itemSpace)){
                         p.widget->setFocus(true);
-                        setFocusChild(p.widget);
                         return consumeFocus(true);
                     }
                 }

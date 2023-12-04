@@ -228,7 +228,7 @@ class Widget
         }
 
     public:
-        int x() const
+        virtual int x() const
         {
             const auto anchorX = [this]() -> int
             {
@@ -253,7 +253,7 @@ class Widget
             }
         }
 
-        int y() const
+        virtual int y() const
         {
             const auto anchorY = [this]() -> int
             {
@@ -278,12 +278,12 @@ class Widget
             }
         }
 
-        int w() const
+        virtual int w() const
         {
             return m_w;
         }
 
-        int h() const
+        virtual int h() const
         {
             return m_h;
         }
@@ -299,30 +299,83 @@ class Widget
         }
 
     public:
-        int dx() const
+        virtual int dx() const
         {
             return x() - (m_parent ? m_parent->x() : 0);
         }
 
-        int dy() const
+        virtual int dy() const
         {
             return y() - (m_parent ? m_parent->y() : 0);
         }
 
     public:
-        bool in(int pixelX, int pixelY) const
+        virtual bool in(int pixelX, int pixelY) const
         {
-            return (pixelX >= x() && pixelX < x() + w()) && (pixelY >= y() && pixelY < y() + h());
+            return mathf::pointInRectangle<int>(pixelX, pixelY, x(), y(), w(), h());
         }
 
     public:
-        void setFocus(bool argFocus)
+        virtual void setFocus(bool argFocus)
         {
-            m_focus = argFocus;
+            if(argFocus == focus()){
+                return;
+            }
+
+            if(!m_parent){
+                m_focus = argFocus;
+                return;
+            }
+
+            if(argFocus){
+                // set current widget focus to true
+                // in a widget tree, only one widget can be focused
+
+                // so if current widget has child
+                // and we are trying to setup current widget focus to true
+                // we shall setup all child widget focus to false, like when clicking on margin
+
+                for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
+                    p->widget->setFocus(false);
+                }
+
+                // also setup parent widget focus to false
+                // as current widget is the unique widget focused in the tree
+                m_focus = true;
+                m_parent->m_focus = false;
+
+                auto thisNode = m_parent->m_childList.end();
+                for(auto p = m_parent->m_childList.begin(); p != m_parent->m_childList.end(); ++p){
+                    if(p->widget == this){
+                        thisNode = p;
+                    }
+                    else{
+                        p->widget->setFocus(false);
+                    }
+                }
+
+                if(thisNode == m_parent->m_childList.end()){
+                    throw fflerror("widget is not a child of its parent");
+                }
+
+                m_parent->m_childList.push_front(*thisNode);
+                m_parent->m_childList.erase(thisNode);
+            }
+            else{
+                m_focus = false;
+                for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
+                    p->widget->setFocus(false);
+                }
+            }
         }
 
-        bool focus() const
+        virtual bool focus() const
         {
+            for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
+                if(p->widget->focus()){
+                    return true;
+                }
+            }
             return m_focus;
         }
 
@@ -357,49 +410,36 @@ class Widget
             return nullptr;
         }
 
-        void setFocusChild(Widget *widget)
-        {
-            if(widget){
-                for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
-                    if(p->widget == widget){
-                        m_childList.push_front(*p);
-                        m_childList.erase(p);
-                        return;
-                    }
-                }
-            }
-        }
-
     public:
-        void setShow(bool argShow)
+        virtual void setShow(bool argShow)
         {
             m_show = argShow;
         }
 
-        bool show() const
+        virtual bool show() const
         {
             return m_show;
         }
 
         void flipShow()
         {
-            setShow(!m_show);
+            setShow(!show());
         }
 
     public:
-        void setActive(bool argActive)
+        virtual void setActive(bool argActive)
         {
             m_active = argActive;
         }
 
-        bool active() const
+        virtual bool active() const
         {
             return m_active;
         }
 
         void flipActive()
         {
-            setActive(!m_active);
+            setActive(!active());
         }
 
     public:
