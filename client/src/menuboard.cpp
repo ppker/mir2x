@@ -86,8 +86,8 @@ void MenuBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int src
                     &drawSrcW, &drawSrcH,
                     &drawDstX, &drawDstY,
 
-                    w() - m_margin[2] - m_margin[3],
-                    h() - m_margin[0] - m_margin[1],
+                    w(),
+                    h(),
 
                     p->dx(),
                     p->dy() - m_itemSpace / 2,
