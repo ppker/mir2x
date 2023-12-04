@@ -217,8 +217,12 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
 void RuntimeConfigExtBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
 {
     m_frameBoard.drawEx(dstX, dstY, srcX, srcY, srcW, srcH);
-
+    for(auto p:
     {
+        static_cast<const Widget *>(&m_checkLabel),
+        static_cast<const Widget *>(&m_texSliderBar),
+        static_cast<const Widget *>(&m_texSliderBarVertical),
+    }){
         auto drawSrcX = srcX;
         auto drawSrcY = srcY;
         auto drawSrcW = srcW;
@@ -234,59 +238,11 @@ void RuntimeConfigExtBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int s
                     w(),
                     h(),
 
-                    m_checkLabel.dx(),
-                    m_checkLabel.dy(),
-                    m_checkLabel. w(),
-                    m_checkLabel. h())){
-            m_checkLabel.drawEx(drawDstX, drawDstY, drawSrcX, drawSrcY, drawSrcW, drawSrcH);
-        }
-    }
-
-    {
-        auto drawSrcX = srcX;
-        auto drawSrcY = srcY;
-        auto drawSrcW = srcW;
-        auto drawSrcH = srcH;
-        auto drawDstX = dstX;
-        auto drawDstY = dstY;
-
-        if(mathf::cropChildROI(
-                    &drawSrcX, &drawSrcY,
-                    &drawSrcW, &drawSrcH,
-                    &drawDstX, &drawDstY,
-
-                    w(),
-                    h(),
-
-                    m_texSliderBar.dx(),
-                    m_texSliderBar.dy(),
-                    m_texSliderBar. w(),
-                    m_texSliderBar. h())){
-            m_texSliderBar.drawEx(drawDstX, drawDstY, drawSrcX, drawSrcY, drawSrcW, drawSrcH);
-        }
-    }
-
-    {
-        auto drawSrcX = srcX;
-        auto drawSrcY = srcY;
-        auto drawSrcW = srcW;
-        auto drawSrcH = srcH;
-        auto drawDstX = dstX;
-        auto drawDstY = dstY;
-
-        if(mathf::cropChildROI(
-                    &drawSrcX, &drawSrcY,
-                    &drawSrcW, &drawSrcH,
-                    &drawDstX, &drawDstY,
-
-                    w(),
-                    h(),
-
-                    m_texSliderBarVertical.dx(),
-                    m_texSliderBarVertical.dy(),
-                    m_texSliderBarVertical. w(),
-                    m_texSliderBarVertical. h())){
-            m_texSliderBarVertical.drawEx(drawDstX, drawDstY, drawSrcX, drawSrcY, drawSrcW, drawSrcH);
+                    p->dx(),
+                    p->dy(),
+                    p-> w(),
+                    p-> h())){
+            p->drawEx(drawDstX, drawDstY, drawSrcX, drawSrcY, drawSrcW, drawSrcH);
         }
     }
 
