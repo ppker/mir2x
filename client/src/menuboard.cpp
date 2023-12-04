@@ -54,14 +54,10 @@ MenuBoard::MenuBoard(dir8_t argDir,
 void MenuBoard::addChild(Widget *widget, bool autoDelete)
 {
     if(widget){
-        if(widget->parent()){
-            widget->parent()->removeChild(widget, false);
-        }
-
-        widget->moveAt(DIR_UPLEFT, 0, h() + m_itemSpace);
         Widget::addChild(widget, autoDelete);
+        widget->moveAt(DIR_UPLEFT, 0, h() + (m_childList.size() > 1 ? m_itemSpace : 0));
 
-        m_h = widget->y() + widget->h();
+        m_h = widget->dy() + widget->h();
 
         if(!m_wOpt.has_value()){
             m_w = std::max<int>(m_w, widget->w());
