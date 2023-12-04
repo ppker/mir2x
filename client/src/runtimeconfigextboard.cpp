@@ -183,7 +183,7 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
               {&m_item2, false},
           },
 
-          {},
+          {10, 10, 10, 10},
 
           this,
           false,
