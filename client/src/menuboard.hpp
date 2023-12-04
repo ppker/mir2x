@@ -33,4 +33,10 @@ class MenuBoard: public Widget
 
     public:
         void addChild(Widget *, bool) override;
+
+    public:
+        void drawEx(int, int, int, int, int, int) const override;
+
+    public:
+        static Widget *getSeparator();
 };

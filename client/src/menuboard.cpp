@@ -1,4 +1,8 @@
+#include "colorf.hpp"
+#include "sdldevice.hpp"
 #include "menuboard.hpp"
+
+extern SDLDevice *g_sdlDevice;
 
 MenuBoard::MenuBoard(dir8_t argDir,
         int argX,
@@ -63,4 +67,22 @@ void MenuBoard::addChild(Widget *widget, bool autoDelete)
             m_w = std::max<int>(m_w, widget->w());
         }
     }
+}
+
+void MenuBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
+{
+    g_sdlDevice->fillRectangle(colorf::BLACK + colorf::A_SHF(128), dstX, dstY, srcW, srcH);
+    Widget::drawEx(dstX, dstY, srcX, srcY, srcW, srcH);
+    g_sdlDevice->drawRectangle(colorf::WHITE + colorf::A_SHF(128), dstX, dstY, srcW, srcH);
+}
+
+Widget *MenuBoard::getSeparator()
+{
+    static Widget separator
+    {
+        DIR_UPLEFT,
+        0,
+        0,
+    };
+    return &separator;
 }
