@@ -198,6 +198,7 @@ class RuntimeConfigExtBoard: public Widget
     private:
         LabelBoard m_item1;
         LabelBoard m_item2;
+        CheckLabel m_itemCheckLabel;
 
         MenuBoard m_menuBoard;
 

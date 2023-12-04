@@ -167,6 +167,26 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
           u8"天气很好",
       }
 
+    , m_itemCheckLabel
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          colorf::RGBA(231, 231, 189, 128),
+          16,
+          16,
+          m_sdRuntimeConfig.ime,
+
+          8,
+
+          u8"拼音输入法",
+          1,
+          12,
+          0,
+          colorf::WHITE + colorf::A_SHF(255),
+      }
+
     , m_menuBoard
       {
           DIR_UPLEFT,
@@ -181,6 +201,7 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
           {
               {&m_item1, false},
               {&m_item2, false},
+              {&m_itemCheckLabel, false},
           },
 
           {10, 10, 10, 10},
