@@ -101,10 +101,7 @@ TexSliderBar::TexSliderBar(
           /* brdCropW */  argHSlider ? 3 : m_slotImage.w(),
           /* brdCropH */ !argHSlider ? 3 : m_slotImage.h(),
 
-          0,
-          0,
-          0,
-          0,
+          {},
 
           this,
           false,
@@ -139,10 +136,7 @@ TexSliderBar::TexSliderBar(
           /* brdCropW */  argHSlider ? 3 : m_slotImage.w(),
           /* brdCropW */ !argHSlider ? 3 : m_slotImage.h(),
 
-          0,
-          0,
-          0,
-          0,
+          {},
 
           this,
           false,

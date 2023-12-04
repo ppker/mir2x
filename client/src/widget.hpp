@@ -18,7 +18,7 @@
 class Widget
 {
     protected:
-        Widget * const m_parent;
+        Widget * m_parent;
 
     protected:
         bool m_show   = true;
@@ -37,21 +37,10 @@ class Widget
         int m_h;
 
     protected:
-        // widget    : child widget pointer
-        // autoDelete: automatically delete child widget
-        // autoDraw  : automatically draw child widget in this->drawEx()
-        //
-        // when autoDraw is false, x()/y() still works in same way
-        // but need to explicitly call child->processEvent() and child->drawEx()
-        //
-        // alternative way is to define a new class for child class and override its drawEx()
-        // but which requires a new class definition
-
         struct ChildWidgetElement
         {
             Widget *widget     = nullptr;
             bool    autoDelete = false;
-            bool    autoDraw   = true;
         };
 
         std::list<ChildWidgetElement> m_childList;
@@ -65,8 +54,7 @@ class Widget
                 int argH = 0,
 
                 Widget *argParent     = nullptr,
-                bool    argAutoDelete = false,
-                bool    argAutoDraw   = true)
+                bool    argAutoDelete = false)
 
             : m_parent(argParent)
             , m_dir(argDir)
@@ -76,7 +64,7 @@ class Widget
             , m_h(argH)
         {
             if(m_parent){
-                m_parent->m_childList.emplace_back(this, argAutoDelete, argAutoDraw);
+                m_parent->addChild(this, argAutoDelete);
             }
 
             fflassert(m_w >= 0, m_w, m_h);
@@ -110,7 +98,7 @@ class Widget
             }
 
             for(auto p = m_childList.rbegin(); p != m_childList.rend(); ++p){
-                if(!(p->autoDraw && p->widget->show())){
+                if(!p->widget->show()){
                     continue;
                 }
 
@@ -212,7 +200,7 @@ class Widget
             auto focusedNode = m_childList.end();
 
             for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
-                if(!(p->autoDraw && p->widget->show())){
+                if(!p->widget->show()){
                     continue;
                 }
 
@@ -429,5 +417,25 @@ class Widget
         {
             const auto [argW, argH] = t;
             setSize(argW, argH);
+        }
+
+    public:
+        virtual void addChild(Widget *widget, bool autoDelete)
+        {
+            m_childList.emplace_back(widget, autoDelete);
+        }
+
+        virtual void removeChild(Widget *widget, bool triggerDelete)
+        {
+            for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
+                if(p->widget == widget){
+                    if(triggerDelete && p->autoDelete){
+                        delete p->widget;
+                    }
+
+                    m_childList.erase(p);
+                    return;
+                }
+            }
         }
 };

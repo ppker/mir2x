@@ -14,10 +14,7 @@ class ImageCropBoard: public Widget
         const int m_brdCropH;
 
     private:
-        const int m_marginUp;
-        const int m_marginDown;
-        const int m_marginLeft;
-        const int m_marginRight;
+        const std::array<int, 4> m_margin;
 
     public:
         ImageCropBoard(
@@ -33,14 +30,10 @@ class ImageCropBoard: public Widget
                 int argBrdCropW, // ...
                 int argBrdCropH, // ...
 
-                size_t argMarginUp    = 0,
-                size_t argMarginDown  = 0,
-                size_t argMarginLeft  = 0,
-                size_t argMarginRight = 0,
+                std::array<int, 4> argMargin = {0, 0, 0, 0},
 
                 Widget *argParent     = nullptr,
-                bool    argAutoDelete = false,
-                bool    argAutoDraw   = true)
+                bool    argAutoDelete = false)
 
             : Widget
               {
@@ -52,7 +45,6 @@ class ImageCropBoard: public Widget
 
                   argParent,
                   argAutoDelete,
-                  argAutoDraw,
               }
 
             , m_widget([argWidget]{ fflassert(argWidget); return argWidget; }())
@@ -62,14 +54,11 @@ class ImageCropBoard: public Widget
             , m_brdCropW([argBrdCropW]{ fflassert(argBrdCropW >= 0); return argBrdCropW; }())
             , m_brdCropH([argBrdCropH]{ fflassert(argBrdCropH >= 0); return argBrdCropH; }())
 
-            , m_marginUp   (argMarginUp   )
-            , m_marginDown (argMarginDown )
-            , m_marginLeft (argMarginLeft )
-            , m_marginRight(argMarginRight)
+            , m_margin(argMargin)
         {
             setSize(
-                    m_brdCropW + m_marginLeft + m_marginRight, // respect blank space by over-cropping
-                    m_brdCropH + m_marginUp   + m_marginDown);
+                    m_brdCropW + m_margin[2] + m_margin[3], // respect blank space by over-cropping
+                    m_brdCropH + m_margin[0] + m_margin[1]);
         }
 
     public:
@@ -103,8 +92,8 @@ class ImageCropBoard: public Widget
                         w(),
                         h(),
 
-                        m_marginLeft + brdCropX - m_brdCropX,
-                        m_marginUp   + brdCropY - m_brdCropY,
+                        m_margin[2] + brdCropX - m_brdCropX,
+                        m_margin[0] + brdCropY - m_brdCropY,
 
                         brdCropW,
                         brdCropH)){

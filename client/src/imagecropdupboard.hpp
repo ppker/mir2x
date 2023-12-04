@@ -19,8 +19,7 @@ class ImageCropDupBoard: public Widget
                 const Widget *argWidget,
 
                 Widget *argParent     = nullptr,
-                bool    argAutoDelete = false,
-                bool    argAutoDraw   = true)
+                bool    argAutoDelete = false)
 
             : Widget
               {
@@ -32,7 +31,6 @@ class ImageCropDupBoard: public Widget
 
                   argParent,
                   argAutoDelete,
-                  argAutoDraw,
               }
 
             , m_widget([argWidget]{ fflassert(argWidget); return argWidget; }())
