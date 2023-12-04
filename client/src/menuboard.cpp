@@ -73,6 +73,30 @@ void MenuBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int src
 {
     g_sdlDevice->fillRectangle(colorf::BLACK + colorf::A_SHF(128), dstX, dstY, srcW, srcH);
     Widget::drawEx(dstX, dstY, srcX, srcY, srcW, srcH);
+
+    if(auto p = focusedChild()){
+        auto drawSrcX = srcX;
+        auto drawSrcY = srcY;
+        auto drawSrcW = srcW;
+        auto drawSrcH = srcH;
+        auto drawDstX = dstX;
+        auto drawDstY = dstY;
+
+        if(mathf::cropChildROI(
+                    &drawSrcX, &drawSrcY,
+                    &drawSrcW, &drawSrcH,
+                    &drawDstX, &drawDstY,
+
+                    w(),
+                    h(),
+
+                    p->dx(),
+                    p->dy(),
+                    p-> w(),
+                    p-> h())){
+            g_sdlDevice->fillRectangle(colorf::WHITE + colorf::A_SHF(128), drawDstX, drawDstY, drawSrcW, drawSrcH);
+        }
+    }
     g_sdlDevice->drawRectangle(colorf::WHITE + colorf::A_SHF(128), dstX, dstY, srcW, srcH);
 }
 

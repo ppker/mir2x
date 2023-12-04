@@ -104,4 +104,7 @@ class LabelBoard: public Widget
         {
             return m_tpset.empty();
         }
+
+    public:
+        bool processEvent(const SDL_Event &, bool) override;
 };

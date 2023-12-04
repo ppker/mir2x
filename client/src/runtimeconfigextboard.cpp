@@ -328,6 +328,7 @@ bool RuntimeConfigExtBoard::processEvent(const SDL_Event &event, bool valid)
 
     for(auto widgetPtr:
     {
+        static_cast<Widget *>(&m_menuBoard),
         static_cast<Widget *>(&m_checkLabel),
         static_cast<Widget *>(&m_frameBoard),
         static_cast<Widget *>(&m_texSliderBar),

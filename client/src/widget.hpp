@@ -349,6 +349,15 @@ class Widget
         }
 
     public:
+        Widget *focusedChild() const
+        {
+            if(!m_childList.empty() && m_childList.front().widget->focus()){
+                return m_childList.front().widget;
+            }
+            return nullptr;
+        }
+
+    public:
         void setShow(bool argShow)
         {
             m_show = argShow;
@@ -422,6 +431,11 @@ class Widget
     public:
         virtual void addChild(Widget *widget, bool autoDelete)
         {
+            if(widget->m_parent){
+                widget->m_parent->removeChild(widget, false);
+            }
+
+            widget->m_parent = this;
             m_childList.emplace_back(widget, autoDelete);
         }
 
@@ -429,6 +443,7 @@ class Widget
         {
             for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
                 if(p->widget == widget){
+                    p->widget->m_parent = nullptr;
                     if(triggerDelete && p->autoDelete){
                         delete p->widget;
                     }
