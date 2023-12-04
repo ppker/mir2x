@@ -853,6 +853,10 @@ SDL_Texture *SDLDevice::getCover(int r, int angle)
 
 void SDLDevice::fillRectangle(int nX, int nY, int nW, int nH, int nRad)
 {
+    if(!(nW > 0 && nH > 0)){
+        return;
+    }
+
     Uint8 r = 0;
     Uint8 g = 0;
     Uint8 b = 0;
@@ -866,13 +870,17 @@ void SDLDevice::fillRectangle(int nX, int nY, int nW, int nH, int nRad)
         return;
     }
 
-    if(roundedBoxRGBA(getRenderer(), nX, nY, nX + nW, nY + nH, nRad, r, g, b, a)){
+    if(roundedBoxRGBA(getRenderer(), nX, nY, nX + nW - 1, nY + nH - 1, nRad, r, g, b, a)){
         throw fflerror("roundedRectangleRGBA() failed");
     }
 }
 
 void SDLDevice::fillRectangle(uint32_t nRGBA, int nX, int nY, int nW, int nH, int nRad)
 {
+    if(!(nW > 0 && nH > 0)){
+        return;
+    }
+
     if(colorf::A(nRGBA)){
         SDLDeviceHelper::EnableRenderColor stEnableColor(nRGBA, this);
         SDLDeviceHelper::EnableRenderBlendMode enableBlendMode(SDL_BLENDMODE_BLEND, this);
@@ -882,6 +890,10 @@ void SDLDevice::fillRectangle(uint32_t nRGBA, int nX, int nY, int nW, int nH, in
 
 void SDLDevice::drawRectangle(int nX, int nY, int nW, int nH, int nRad)
 {
+    if(!(nW > 0 && nH > 0)){
+        return;
+    }
+
     Uint8 r = 0;
     Uint8 g = 0;
     Uint8 b = 0;
@@ -895,6 +907,9 @@ void SDLDevice::drawRectangle(int nX, int nY, int nW, int nH, int nRad)
         return;
     }
 
+    // roundedBoxRGBA       uses (nX + nW - 1, nY + nH - 1) as the right-bottom point
+    // roundedRectangleRGBA uses (nX + nW    , nY + nH    ) as the right-bottom point
+
     if(roundedRectangleRGBA(getRenderer(), nX, nY, nX + nW, nY + nH, nRad, r, g, b, a)){
         throw fflerror("roundedRectangleRGBA() failed");
     }
@@ -902,6 +917,10 @@ void SDLDevice::drawRectangle(int nX, int nY, int nW, int nH, int nRad)
 
 void SDLDevice::drawRectangle(uint32_t color, int nX, int nY, int nW, int nH, int nRad)
 {
+    if(!(nW > 0 && nH > 0)){
+        return;
+    }
+
     if(colorf::A(color)){
         SDLDeviceHelper::EnableRenderColor enableColor(color, this);
         SDLDeviceHelper::EnableRenderBlendMode enableBlendMode(SDL_BLENDMODE_BLEND, this);
