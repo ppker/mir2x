@@ -54,7 +54,7 @@ void MenuBoard::addChild(Widget *widget, bool autoDelete)
         Widget::addChild(widget, autoDelete);
 
         if(firstChild){
-            widget->moveAt(DIR_UPLEFT, m_margin[2], m_margin[0]);
+            widget->moveAt(DIR_UPLEFT, m_margin[2], m_margin[0] + m_itemSpace / 2);
         }
         else{
             widget->moveAt(DIR_UPLEFT, m_margin[2], h() - m_margin[1] + m_itemSpace);
@@ -86,12 +86,12 @@ void MenuBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int src
                     &drawSrcW, &drawSrcH,
                     &drawDstX, &drawDstY,
 
-                    w() - m_margin[1] - m_margin[3],
-                    h() - m_margin[0] - m_margin[2],
+                    w() - m_margin[2] - m_margin[3],
+                    h() - m_margin[0] - m_margin[1],
 
                     p->dx(),
                     p->dy() - m_itemSpace / 2,
-                    std::max<int>(w() - m_margin[1] - m_margin[3], p->w()),
+                    w() - m_margin[1] - m_margin[3],
                     p->h() + m_itemSpace)){
             g_sdlDevice->fillRectangle(colorf::WHITE + colorf::A_SHF(128), drawDstX, drawDstY, drawSrcW, drawSrcH);
         }
