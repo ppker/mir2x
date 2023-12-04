@@ -38,13 +38,9 @@ MenuBoard::MenuBoard(dir8_t argDir,
 {
     if(m_wOpt.has_value()){
         fflassert(m_wOpt.value() > 0, m_wOpt);
-        m_w = m_wOpt.value() + m_margin[0] + m_margin[2];
-    }
-    else{
-        m_w = 0;
     }
 
-    m_h = m_margin[1] + m_margin[3];
+    setSize(m_wOpt.value_or(0) + m_margin[2] + m_margin[3], m_margin[0] + m_margin[1]);
 
     for(auto p: argMenuItemList){
         addChild(p.first, p.second);
@@ -64,11 +60,11 @@ void MenuBoard::addChild(Widget *widget, bool autoDelete)
             widget->moveAt(DIR_UPLEFT, m_margin[2], h() - m_margin[1] + m_itemSpace);
         }
 
-        m_h = widget->dy() + widget->h();
-
         if(!m_wOpt.has_value()){
-            m_w = std::max<int>(m_w, widget->w());
+            m_w = std::max<int>(m_w, widget->w() + m_margin[2] + m_margin[3]);
         }
+
+        m_h = widget->dy() + widget->h() + m_margin[1];
     }
 }
 
