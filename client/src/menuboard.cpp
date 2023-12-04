@@ -54,17 +54,17 @@ void MenuBoard::addChild(Widget *widget, bool autoDelete)
         Widget::addChild(widget, autoDelete);
 
         if(firstChild){
-            widget->moveAt(DIR_UPLEFT, m_margin[2], m_margin[0] + m_itemSpace / 2);
+            widget->moveAt(DIR_UPLEFT, m_margin[2],       m_margin[0] + m_itemSpace / 2);
         }
         else{
-            widget->moveAt(DIR_UPLEFT, m_margin[2], h() - m_margin[1] + m_itemSpace);
+            widget->moveAt(DIR_UPLEFT, m_margin[2], h() - m_margin[1] + m_itemSpace / 2);
         }
 
         if(!m_wOpt.has_value()){
             m_w = std::max<int>(m_w, widget->w() + m_margin[2] + m_margin[3]);
         }
 
-        m_h = widget->dy() + widget->h() + m_margin[1];
+        m_h = widget->dy() + widget->h() + (m_itemSpace - m_itemSpace / 2) + m_margin[1];
     }
 }
 
