@@ -3,6 +3,7 @@
 #include <string>
 #include "mathf.hpp"
 #include "widget.hpp"
+#include "menuboard.hpp"
 #include "checklabel.hpp"
 #include "labelboard.hpp"
 #include "texslider.hpp"
@@ -193,6 +194,12 @@ class RuntimeConfigExtBoard: public Widget
     private:
         TexSliderBar m_musicSlider;
         TexSliderBar m_soundEffectSlider;
+
+    private:
+        LabelBoard m_item1;
+        LabelBoard m_item2;
+
+        MenuBoard m_menuBoard;
 
     private:
         const std::vector<std::tuple<std::vector<std::u8string>, std::reference_wrapper<int>, int, std::function<void(int)>>> m_entryProtoList;

@@ -151,6 +151,44 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
           this,
       }
 
+    , m_item1
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+          u8"你好",
+      }
+
+    , m_item2
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+          u8"天气很好",
+      }
+
+    , m_menuBoard
+      {
+          DIR_UPLEFT,
+          200,
+          250,
+
+          {},
+
+          10,
+          50,
+
+          {
+              {&m_item1, false},
+              {&m_item2, false},
+          },
+
+          {},
+
+          this,
+          false,
+      }
+
     , m_entryProtoList
       {
           {{u8"和平攻击", u8"组队攻击", u8"行会攻击", u8"全体攻击"}, std::ref(m_sdRuntimeConfig.attackMode), ATKMODE_BEGIN, [this](int)
@@ -219,6 +257,7 @@ void RuntimeConfigExtBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int s
     m_frameBoard.drawEx(dstX, dstY, srcX, srcY, srcW, srcH);
     for(auto p:
     {
+        static_cast<const Widget *>(&m_menuBoard),
         static_cast<const Widget *>(&m_checkLabel),
         static_cast<const Widget *>(&m_texSliderBar),
         static_cast<const Widget *>(&m_texSliderBarVertical),

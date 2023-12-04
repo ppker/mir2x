@@ -9,7 +9,7 @@ MenuBoard::MenuBoard(dir8_t argDir,
         int argItemSpace,
         int argSeperatorSpace,
 
-        std::initializer_list<std::pair<Widget *, int>> argMenuItemList,
+        std::initializer_list<std::pair<Widget *, bool>> argMenuItemList,
 
         std::array<int, 4> argMargin,
 
@@ -43,7 +43,7 @@ MenuBoard::MenuBoard(dir8_t argDir,
     m_h = m_margin[1] + m_margin[3];
 
     for(auto p: argMenuItemList){
-        addChild(p.first, false);
+        addChild(p.first, p.second);
     }
 }
 

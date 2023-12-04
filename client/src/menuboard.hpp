@@ -24,7 +24,7 @@ class MenuBoard: public Widget
                 int,
                 int,
 
-                std::initializer_list<std::pair<Widget *, int>>,
+                std::initializer_list<std::pair<Widget *, bool>>,
 
                 std::array<int, 4>,
 
