@@ -205,8 +205,13 @@ class Widget
                 }
 
                 took |= p->widget->processEvent(event, valid && !took);
-                if(focusedNode == m_childList.end() && p->widget->focus()){
-                    focusedNode = p;
+                if(p->widget->focus()){
+                    if(focusedNode == m_childList.end()){
+                        focusedNode = p;
+                    }
+                    else{
+                        throw fflerror("multiple widget focused by one event");
+                    }
                 }
             }
 
@@ -318,55 +323,10 @@ class Widget
     public:
         virtual void setFocus(bool argFocus)
         {
-            if(argFocus == focus()){
-                return;
+            for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
+                p->widget->setFocus(false);
             }
-
-            if(!m_parent){
-                m_focus = argFocus;
-                return;
-            }
-
-            if(argFocus){
-                // set current widget focus to true
-                // in a widget tree, only one widget can be focused
-
-                // so if current widget has child
-                // and we are trying to setup current widget focus to true
-                // we shall setup all child widget focus to false, like when clicking on margin
-
-                for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
-                    p->widget->setFocus(false);
-                }
-
-                // also setup parent widget focus to false
-                // as current widget is the unique widget focused in the tree
-                m_focus = true;
-                m_parent->m_focus = false;
-
-                auto thisNode = m_parent->m_childList.end();
-                for(auto p = m_parent->m_childList.begin(); p != m_parent->m_childList.end(); ++p){
-                    if(p->widget == this){
-                        thisNode = p;
-                    }
-                    else{
-                        p->widget->setFocus(false);
-                    }
-                }
-
-                if(thisNode == m_parent->m_childList.end()){
-                    throw fflerror("widget is not a child of its parent");
-                }
-
-                m_parent->m_childList.push_front(*thisNode);
-                m_parent->m_childList.erase(thisNode);
-            }
-            else{
-                m_focus = false;
-                for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
-                    p->widget->setFocus(false);
-                }
-            }
+            p->widget->m_focus = argFocus;
         }
 
         virtual bool focus() const
