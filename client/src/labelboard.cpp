@@ -45,7 +45,7 @@ bool LabelBoard::processEvent(const SDL_Event &event, bool valid)
             }
         default:
             {
-                return consumeFocus(focus());
+                return false;
             }
     }
 }

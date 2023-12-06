@@ -112,14 +112,18 @@ void CheckBox::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH
 bool CheckBox::processEvent(const SDL_Event &event, bool valid)
 {
     if(!valid){
-        return false;
+        return consumeFocus(false);
     }
 
     if(!show()){
-        return false;
+        return consumeFocus(false);
     }
 
     switch(event.type){
+        case SDL_MOUSEBUTTONUP:
+            {
+                return consumeFocus(in(event.button.x, event.button.y));
+            }
         case SDL_MOUSEBUTTONDOWN:
             {
                 if(in(event.button.x, event.button.y)){
@@ -128,9 +132,13 @@ bool CheckBox::processEvent(const SDL_Event &event, bool valid)
                 }
                 return consumeFocus(false);
             }
+        case SDL_MOUSEMOTION:
+            {
+                return consumeFocus(in(event.motion.x, event.motion.y));
+            }
         default:
             {
-                return false;
+                return consumeFocus(false);
             }
     }
 }

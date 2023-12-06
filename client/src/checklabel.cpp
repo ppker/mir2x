@@ -84,22 +84,48 @@ bool CheckLabel::processEvent(const SDL_Event &event, bool valid)
     }
 
     if(!show()){
-        return false;
+        return consumeFocus(false);
     }
 
     if(event.type == SDL_MOUSEMOTION){
         fnOnColor(in(event.motion.x, event.motion.y));
     }
 
-    if(!m_checkBox.processEvent(event, valid)){
-        if(event.type == SDL_MOUSEBUTTONDOWN && in(event.button.x, event.button.y)){
-            m_checkBox.toggle();
-            return consumeFocus(true);
-        }
-        return false;
+    if(m_checkBox.processEvent(event, valid)){
+        return true;
     }
 
-    return consumeFocus(true);
+    switch(event.type){
+        case SDL_MOUSEBUTTONUP:
+            {
+                if(in(event.button.x, event.button.y)){
+                    consumeFocus(false);
+                    return m_checkBox.consumeFocus(true);
+                }
+                return consumeFocus(false);
+            }
+        case SDL_MOUSEBUTTONDOWN:
+            {
+                if(in(event.button.x, event.button.y)){
+                    consumeFocus(false);
+                    m_checkBox.toggle();
+                    return m_checkBox.consumeFocus(true);
+                }
+                return consumeFocus(false);
+            }
+        case SDL_MOUSEMOTION:
+            {
+                if(in(event.button.x, event.button.y)){
+                    consumeFocus(false);
+                    return m_checkBox.consumeFocus(true);
+                }
+                return consumeFocus(false);
+            }
+        default:
+            {
+                return false;
+            }
+    }
 }
 
 void CheckLabel::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
