@@ -358,7 +358,7 @@ bool RuntimeConfigExtBoard::processEvent(const SDL_Event &event, bool valid)
         static_cast<Widget *>(&m_soundEffectSwitch),
     }){
         if(widgetPtr->processEvent(event, valid)){
-            return consumeFocus(true);
+            return true;
         }
     }
 

@@ -326,7 +326,7 @@ class Widget
             for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
                 p->widget->setFocus(false);
             }
-            p->widget->m_focus = argFocus;
+            m_focus = argFocus;
         }
 
         virtual bool focus() const
