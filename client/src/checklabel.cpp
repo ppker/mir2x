@@ -87,8 +87,19 @@ bool CheckLabel::processEvent(const SDL_Event &event, bool valid)
         return consumeFocus(false);
     }
 
-    if(event.type == SDL_MOUSEMOTION){
-        fnOnColor(in(event.motion.x, event.motion.y));
+    switch(event.type){
+        case SDL_MOUSEMOTION:
+        case SDL_MOUSEBUTTONUP:
+        case SDL_MOUSEBUTTONDOWN:
+            {
+                const auto [eventX, eventY] = SDLDeviceHelper::getEventPLoc(event).value();
+                fnOnColor(in(eventX, eventY));
+                break;
+            }
+        default:
+            {
+                break;
+            }
     }
 
     if(m_checkBox.processEvent(event, valid)){
@@ -99,27 +110,54 @@ bool CheckLabel::processEvent(const SDL_Event &event, bool valid)
         case SDL_MOUSEBUTTONUP:
             {
                 if(in(event.button.x, event.button.y)){
-                    consumeFocus(false);
-                    return m_checkBox.consumeFocus(true);
+                    return consumeFocus(true, &m_checkBox);
                 }
-                return consumeFocus(false);
+                else{
+                    return consumeFocus(false);
+                }
             }
         case SDL_MOUSEBUTTONDOWN:
             {
                 if(in(event.button.x, event.button.y)){
-                    consumeFocus(false);
                     m_checkBox.toggle();
-                    return m_checkBox.consumeFocus(true);
+                    return consumeFocus(true, &m_checkBox);
                 }
-                return consumeFocus(false);
+                else{
+                    return consumeFocus(false);
+                }
             }
         case SDL_MOUSEMOTION:
             {
-                if(in(event.button.x, event.button.y)){
-                    consumeFocus(false);
-                    return m_checkBox.consumeFocus(true);
+                if(in(event.motion.x, event.motion.y)){
+                    return consumeFocus(true, &m_checkBox);
                 }
-                return consumeFocus(false);
+                else{
+                    return consumeFocus(false);
+                }
+            }
+        case SDL_KEYUP:
+            {
+                return consumeFocus(focus());
+            }
+        case SDL_KEYDOWN:
+            {
+                if(focus()){
+                    switch(event.key.keysym.sym){
+                        case SDLK_SPACE:
+                        case SDLK_RETURN:
+                            {
+                                m_checkBox.toggle();
+                                return consumeFocus(true, &m_checkBox);
+                            }
+                        default:
+                            {
+                                return true;
+                            }
+                    }
+                }
+                else{
+                    return false;
+                }
             }
         default:
             {
