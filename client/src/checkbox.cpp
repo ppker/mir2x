@@ -130,15 +130,41 @@ bool CheckBox::processEvent(const SDL_Event &event, bool valid)
                     toggle();
                     return consumeFocus(true);
                 }
-                return consumeFocus(false);
+                else{
+                    return consumeFocus(false);
+                }
             }
         case SDL_MOUSEMOTION:
             {
                 return consumeFocus(in(event.motion.x, event.motion.y));
             }
+        case SDL_KEYUP:
+            {
+                return consumeFocus(focus());
+            }
+        case SDL_KEYDOWN:
+            {
+                if(focus()){
+                    switch(event.key.keysym.sym){
+                        case SDLK_SPACE:
+                        case SDLK_RETURN:
+                            {
+                                toggle();
+                                return consumeFocus(true);
+                            }
+                        default:
+                            {
+                                return true;
+                            }
+                    }
+                }
+                else{
+                    return false;
+                }
+            }
         default:
             {
-                return consumeFocus(false);
+                return false;
             }
     }
 }

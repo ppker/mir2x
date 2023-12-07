@@ -339,6 +339,17 @@ class Widget
             return m_focus;
         }
 
+    public:
+        bool hasChild(const Widget *child)
+        {
+            for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
+                if(p->widget == child){
+                    return true;
+                }
+            }
+            return false;
+        }
+
         // focus helper
         // we have tons of code like:
         //
@@ -355,9 +366,30 @@ class Widget
         //
         //     return p->consumeFocus(...)
 
-        bool consumeFocus(bool argFocus)
+        bool consumeFocus(bool argFocus, Widget *child = nullptr)
         {
-            setFocus(argFocus);
+            if(argFocus){
+                if(child){
+                    if(hasChild(child)){
+                        setFocus(false);
+                        child->setFocus(true);
+                    }
+                    else{
+                        throw fflerror("widget has no child: %p", to_cvptr(child));
+                    }
+                }
+                else{
+                    setFocus(true);
+                }
+            }
+            else{
+                if(child){
+                    throw fflerror("unexpected child: %p", to_cvptr(child));
+                }
+                else{
+                    setFocus(false);
+                }
+            }
             return argFocus;
         }
 
