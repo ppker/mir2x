@@ -204,3 +204,11 @@ void CheckLabel::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int sr
         }
     }
 }
+
+void CheckLabel::setFocus(bool argFocus)
+{
+    Widget::setFocus(false);
+    if(argFocus){
+        m_checkBox.setFocus(true);
+    }
+}
