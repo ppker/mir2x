@@ -14,14 +14,17 @@
 // |  Save     CTRL+S  |
 // +-------------------+
 
-class MenuButton: public ButtonBase
+class MenuButton: public Widget
 {
+    private:
+        const std::array<int, 4> m_margin;
+
     private:
         Widget *m_gfxWidget;
         Widget *m_menuBoard;
 
     private:
-        const std::array<int, 4> m_margin;
+        ButtonBase m_button;
 
     public:
         MenuButton(dir8_t,
@@ -36,6 +39,6 @@ class MenuButton: public ButtonBase
                 Widget * = nullptr,
                 bool     = false);
 
-    public:
-        bool processEvent(const SDL_Event&, bool) override;
+    private:
+        void updateMenuButtonSize();
 };

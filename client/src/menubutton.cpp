@@ -12,7 +12,7 @@ MenuButton::MenuButton(dir8_t argDir,
 
         Widget *argParent,
         bool argAutoDelete)
-    : ButtonBase
+    : Widget
       {
           argDir,
           argX,
@@ -20,9 +20,29 @@ MenuButton::MenuButton(dir8_t argDir,
           0,
           0,
 
+          argParent,
+          argAutoDelete,
+      }
+
+    , m_margin(argMargin)
+
+    , m_gfxWidget(argGfxWidget.first)
+    , m_menuBoard(argMenuBoard.first)
+
+    , m_button
+      {
+          DIR_UPLEFT,
+          m_margin[2],
+          m_margin[0],
+          m_gfxWidget->w() + m_margin[2] + m_margin[3],
+          m_gfxWidget->h() + m_margin[0] + m_margin[1],
+
           nullptr,
           nullptr,
-          nullptr,
+          [this](){
+              m_menuBoard->flipShow();
+              updateMenuButtonSize();
+          },
 
           SYS_U32NIL,
           SYS_U32NIL,
@@ -34,13 +54,10 @@ MenuButton::MenuButton(dir8_t argDir,
           1,
 
           false,
-          argParent,
-          argAutoDelete,
-      }
 
-    , m_gfxWidget(argGfxWidget.first)
-    , m_menuBoard(argMenuBoard.first)
-    , m_margin(argMargin)
+          this,
+          false,
+      }
 {
     m_gfxWidget->moveAt(DIR_UPLEFT, m_margin[2], m_margin[0]);
     m_menuBoard->moveAt(DIR_UPLEFT, m_margin[2], m_margin[0] + m_gfxWidget->h());
@@ -48,27 +65,12 @@ MenuButton::MenuButton(dir8_t argDir,
     addChild(argGfxWidget.first, argGfxWidget.second);
     addChild(argMenuBoard.first, argMenuBoard.second);
 
-    setSize(m_margin[2] + std::max<int>(m_gfxWidget->w() + m_margin[3], m_menuBoard->w()),
-            m_margin[0] + m_gfxWidget->h() + std::max<int>(m_margin[1], m_menuBoard->h()));
+    m_menuBoard->setShow(false);
+    updateMenuButtonSize();
 }
 
-bool MenuButton::processEvent(const SDL_Event &event, bool valid)
+void MenuButton::updateMenuButtonSize()
 {
-    if(!valid){
-        return consumeFocus(false);
-    }
-
-    if(!show()){
-        return consumeFocus(false);
-    }
-
-    if(Widget::processEvent(event, valid)){
-        return true;
-    }
-
-    if(ButtonBase::processEvent(event, valid)){
-        return true;
-    }
-
-    return false;
+    setSize(m_margin[2] + std::max<int>(m_gfxWidget->w() + m_margin[3], m_menuBoard->show() ? m_menuBoard->w() : 0),
+            m_margin[0] + m_gfxWidget->h() + std::max<int>(m_margin[1], m_menuBoard->show() ? m_menuBoard->h() : 0));
 }
