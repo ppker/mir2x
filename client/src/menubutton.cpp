@@ -74,3 +74,32 @@ void MenuButton::updateMenuButtonSize()
     setSize(m_margin[2] + std::max<int>(m_gfxWidget->w() + m_margin[3], m_menuBoard->show() ? m_menuBoard->w() : 0),
             m_margin[0] + m_gfxWidget->h() + std::max<int>(m_margin[1], m_menuBoard->show() ? m_menuBoard->h() : 0));
 }
+
+bool MenuButton::processEvent(const SDL_Event &event, bool valid)
+{
+    if(!valid){
+        return consumeFocus(false);
+    }
+
+    if(!show()){
+        return consumeFocus(false);
+    }
+
+    if(Widget::processEvent(event, valid)){
+        return true;
+    }
+
+    switch(event.type){
+        case SDL_MOUSEBUTTONDOWN:
+            {
+                if(m_menuBoard->in(event.button.x, event.button.y)){
+                    m_menuBoard->setShow(false);
+                }
+                return consumeFocus(false);
+            }
+        default:
+            {
+                return false;
+            }
+    }
+}

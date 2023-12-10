@@ -41,4 +41,7 @@ class MenuButton: public Widget
 
     private:
         void updateMenuButtonSize();
+
+    public:
+        bool processEvent(const SDL_Event &, bool) override;
 };
