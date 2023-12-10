@@ -31,11 +31,11 @@ class MenuButton: public ButtonBase
                 std::pair<Widget *, bool>,
                 std::pair<Widget *, bool>,
 
-                std::array<int, 4>,
+                std::array<int, 4> = {},
 
-                Widget *,
-                bool);
+                Widget * = nullptr,
+                bool     = false);
 
-    // public:
-    //     bool processEvent(const SDL_Event &, bool) override;
+    public:
+        bool processEvent(const SDL_Event&, bool) override;
 };

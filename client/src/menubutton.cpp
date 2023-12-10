@@ -51,3 +51,24 @@ MenuButton::MenuButton(dir8_t argDir,
     setSize(m_margin[2] + std::max<int>(m_gfxWidget->w() + m_margin[3], m_menuBoard->w()),
             m_margin[0] + m_gfxWidget->h() + std::max<int>(m_margin[1], m_menuBoard->h()));
 }
+
+bool MenuButton::processEvent(const SDL_Event &event, bool valid)
+{
+    if(!valid){
+        return consumeFocus(false);
+    }
+
+    if(!show()){
+        return consumeFocus(false);
+    }
+
+    if(Widget::processEvent(event, valid)){
+        return true;
+    }
+
+    if(ButtonBase::processEvent(event, valid)){
+        return true;
+    }
+
+    return false;
+}
