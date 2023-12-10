@@ -28,8 +28,8 @@ class MenuBoard: public Widget
 
                 std::array<int, 4>,
 
-                Widget *,
-                bool);
+                Widget * = nullptr,
+                bool     = false);
 
     public:
         void addChild(Widget *, bool) override;

@@ -5,8 +5,8 @@ MenuButton::MenuButton(dir8_t argDir,
         int argX,
         int argY,
 
-        Widget *argGfxWidget,
-        Widget *argMenuBoard,
+        std::pair<Widget *, bool> argGfxWidget,
+        std::pair<Widget *, bool> argMenuBoard,
 
         std::array<int, 4> argMargin,
 
@@ -38,50 +38,16 @@ MenuButton::MenuButton(dir8_t argDir,
           argAutoDelete,
       }
 
-    , m_gfxWidget(argGfxWidget)
-    , m_menuBoard(argMenuBoard)
+    , m_gfxWidget(argGfxWidget.first)
+    , m_menuBoard(argMenuBoard.first)
     , m_margin(argMargin)
 {
+    m_gfxWidget->moveAt(DIR_UPLEFT, m_margin[2], m_margin[0]);
+    m_menuBoard->moveAt(DIR_UPLEFT, m_margin[2], m_margin[0] + m_gfxWidget->h());
+
+    addChild(argGfxWidget.first, argGfxWidget.second);
+    addChild(argMenuBoard.first, argMenuBoard.second);
+
     setSize(m_margin[2] + std::max<int>(m_gfxWidget->w() + m_margin[3], m_menuBoard->w()),
             m_margin[0] + m_gfxWidget->h() + std::max<int>(m_margin[1], m_menuBoard->h()));
-}
-
-void MenuButton::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
-{
-    if(!show()){
-        return;
-    }
-
-    for(const auto &[widget, offX, offY]: std::initializer_list<std::tuple<Widget *, int, int>>
-    {
-        {m_gfxWidget, m_margin[2], m_margin[0]},
-        {m_menuBoard, m_margin[2], m_margin[0] + m_gfxWidget->h()},
-    }){
-        if(!widget->show()){
-            continue;
-        }
-
-        int srcXCrop = srcX;
-        int srcYCrop = srcY;
-        int dstXCrop = dstX;
-        int dstYCrop = dstY;
-        int srcWCrop = srcW;
-        int srcHCrop = srcH;
-
-        if(!mathf::cropChildROI(
-                    &srcXCrop, &srcYCrop,
-                    &srcWCrop, &srcHCrop,
-                    &dstXCrop, &dstYCrop,
-
-                    w(),
-                    h(),
-
-                    offX,
-                    offY,
-                    widget->w(),
-                    widget->h())){
-            continue;
-        }
-        widget->drawEx(dstXCrop, dstYCrop, srcXCrop, srcYCrop, srcWCrop, srcHCrop);
-    }
 }

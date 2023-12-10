@@ -190,8 +190,8 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
     , m_menuBoard
       {
           DIR_UPLEFT,
-          200,
-          250,
+          0,
+          0,
 
           {},
 
@@ -205,9 +205,6 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
           },
 
           {10, 10, 10, 10},
-
-          this,
-          false,
       }
 
     , m_menuButtonGfx
@@ -221,11 +218,11 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
     , m_menuButton
       {
           DIR_UPLEFT,
-          300,
           200,
+          250,
 
-          &m_menuButtonGfx,
-          &m_menuBoard,
+          {&m_menuButtonGfx, false},
+          {&m_menuBoard    , false},
 
           {},
 
@@ -302,7 +299,6 @@ void RuntimeConfigExtBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int s
     for(auto p:
     {
         static_cast<const Widget *>(&m_menuButton),
-        static_cast<const Widget *>(&m_menuBoard),
         static_cast<const Widget *>(&m_checkLabel),
         static_cast<const Widget *>(&m_texSliderBar),
         static_cast<const Widget *>(&m_texSliderBarVertical),
@@ -373,7 +369,7 @@ bool RuntimeConfigExtBoard::processEvent(const SDL_Event &event, bool valid)
 
     for(auto widgetPtr:
     {
-        static_cast<Widget *>(&m_menuBoard),
+        static_cast<Widget *>(&m_menuButton),
         static_cast<Widget *>(&m_checkLabel),
         static_cast<Widget *>(&m_frameBoard),
         static_cast<Widget *>(&m_texSliderBar),
