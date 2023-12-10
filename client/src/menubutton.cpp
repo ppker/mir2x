@@ -42,8 +42,8 @@ MenuButton::MenuButton(dir8_t argDir,
     , m_menuBoard(argMenuBoard)
     , m_margin(argMargin)
 {
-    setSize(m_gfxWidget->w() + argMargin[2] + argMargin[3],
-            m_gfxWidget->h() + argMargin[0] + argMargin[1]);
+    setSize(m_margin[2] + std::max<int>(m_gfxWidget->w() + m_margin[3], m_menuBoard->w()),
+            m_margin[0] + m_gfxWidget->h() + std::max<int>(m_margin[1], m_menuBoard->h()));
 }
 
 void MenuButton::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
@@ -73,8 +73,8 @@ void MenuButton::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int sr
                     &srcWCrop, &srcHCrop,
                     &dstXCrop, &dstYCrop,
 
-                    m_margin[2] + std::max<int>(m_gfxWidget->w() + m_margin[3], m_menuBoard->w()),
-                    m_margin[0] + m_gfxWidget->h() + std::max<int>(m_margin[1], m_menuBoard->h()),
+                    w(),
+                    h(),
 
                     offX,
                     offY,
