@@ -210,6 +210,29 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
           false,
       }
 
+    , m_menuButtonGfx
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+          u8"点击菜单",
+      }
+
+    , m_menuButton
+      {
+          DIR_UPLEFT,
+          300,
+          200,
+
+          &m_menuButtonGfx,
+          &m_menuBoard,
+
+          {},
+
+          this,
+          false,
+      }
+
     , m_entryProtoList
       {
           {{u8"和平攻击", u8"组队攻击", u8"行会攻击", u8"全体攻击"}, std::ref(m_sdRuntimeConfig.attackMode), ATKMODE_BEGIN, [this](int)
@@ -278,6 +301,7 @@ void RuntimeConfigExtBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int s
     m_frameBoard.drawEx(dstX, dstY, srcX, srcY, srcW, srcH);
     for(auto p:
     {
+        static_cast<const Widget *>(&m_menuButton),
         static_cast<const Widget *>(&m_menuBoard),
         static_cast<const Widget *>(&m_checkLabel),
         static_cast<const Widget *>(&m_texSliderBar),

@@ -4,6 +4,7 @@
 #include "mathf.hpp"
 #include "widget.hpp"
 #include "menuboard.hpp"
+#include "menubutton.hpp"
 #include "checklabel.hpp"
 #include "labelboard.hpp"
 #include "texslider.hpp"
@@ -201,6 +202,10 @@ class RuntimeConfigExtBoard: public Widget
         CheckLabel m_itemCheckLabel;
 
         MenuBoard m_menuBoard;
+
+    private:
+        LabelBoard m_menuButtonGfx;
+        MenuButton m_menuButton;
 
     private:
         const std::vector<std::tuple<std::vector<std::u8string>, std::reference_wrapper<int>, int, std::function<void(int)>>> m_entryProtoList;
