@@ -1,5 +1,9 @@
 #include <initializer_list>
+#include "colorf.hpp"
+#include "sdldevice.hpp"
 #include "menubutton.hpp"
+
+extern SDLDevice *g_sdlDevice;
 
 MenuButton::MenuButton(dir8_t argDir,
         int argX,
@@ -73,6 +77,50 @@ void MenuButton::updateMenuButtonSize()
 {
     setSize(m_margin[2] + std::max<int>(m_gfxWidget->w() + m_margin[3], m_menuBoard->show() ? m_menuBoard->w() : 0),
             m_margin[0] + m_gfxWidget->h() + std::max<int>(m_margin[1], m_menuBoard->show() ? m_menuBoard->h() : 0));
+}
+
+void MenuButton::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
+{
+    if(!show()){
+        return;
+    }
+
+    for(auto widget: {m_gfxWidget, m_menuBoard}){
+        if(!widget->show()){
+            continue;
+        }
+
+        int srcXCrop = srcX;
+        int srcYCrop = srcY;
+        int dstXCrop = dstX;
+        int dstYCrop = dstY;
+        int srcWCrop = srcW;
+        int srcHCrop = srcH;
+
+        if(!mathf::cropChildROI(
+                    &srcXCrop, &srcYCrop,
+                    &srcWCrop, &srcHCrop,
+                    &dstXCrop, &dstYCrop,
+
+                    w(),
+                    h(),
+
+                    widget->dx(),
+                    widget->dy(),
+                    widget-> w(),
+                    widget-> h())){
+            continue;
+        }
+
+        widget->drawEx(dstXCrop, dstYCrop, srcXCrop, srcYCrop, srcWCrop, srcHCrop);
+        if(widget == m_gfxWidget){
+            switch(m_button.getState()){
+                case BEVENT_ON  : g_sdlDevice->fillRectangle(colorf::WHITE + colorf::A_SHF(128), dstXCrop, dstYCrop, srcWCrop, srcHCrop); break;
+                case BEVENT_DOWN: g_sdlDevice->fillRectangle(colorf::RED   + colorf::A_SHF(128), dstXCrop, dstYCrop, srcWCrop, srcHCrop); break;
+                default: break;
+            }
+        }
+    }
 }
 
 bool MenuButton::processEvent(const SDL_Event &event, bool valid)

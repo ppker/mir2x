@@ -212,7 +212,11 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
           DIR_UPLEFT,
           0,
           0,
+
           u8"点击菜单",
+          1,
+          12,
+          0,
       }
 
     , m_menuButton
