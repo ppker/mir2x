@@ -62,6 +62,29 @@ SDLDeviceHelper::EnableRenderBlendMode::~EnableRenderBlendMode()
     }
 }
 
+SDLDeviceHelper::EnableRenderClipRectangle::EnableRenderClipRectangle(int x, int y, int w, int h, SDLDevice *devPtr)
+    : m_device(devPtr ? devPtr : g_sdlDevice)
+{
+    SDL_RenderGetClipRect(m_device->getRenderer(), &m_rect);
+
+    SDL_Rect newRect;
+    newRect.x = x;
+    newRect.y = y;
+    newRect.w = w;
+    newRect.h = h;
+
+    if(SDL_RenderSetClipRect(m_device->getRenderer(), &newRect)){
+        throw fflerror("set renderer clip rectangle failed: %s", SDL_GetError());
+    }
+}
+
+SDLDeviceHelper::EnableRenderClipRectangle::~EnableRenderClipRectangle()
+{
+    if(SDL_RenderSetClipRect(m_device->getRenderer(), &m_rect)){
+        g_log->addLog(LOGTYPE_WARNING, "set renderer clip rectangle failed: %s", SDL_GetError());
+    }
+}
+
 SDLDeviceHelper::RenderNewFrame::RenderNewFrame(SDLDevice *devPtr)
     : m_device(devPtr ? devPtr : g_sdlDevice)
 {

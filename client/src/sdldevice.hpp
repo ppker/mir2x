@@ -46,6 +46,19 @@ namespace SDLDeviceHelper
             /* dtor */ ~EnableRenderBlendMode();
     };
 
+    struct EnableRenderClipRectangle
+    {
+        private:
+            SDLDevice *m_device;
+
+        private:
+            SDL_Rect m_rect;
+
+        public:
+            /* ctor */  EnableRenderClipRectangle(int, int, int, int, SDLDevice * = nullptr);
+            /* dtor */ ~EnableRenderClipRectangle();
+    };
+
     class RenderNewFrame final
     {
         private:
