@@ -234,6 +234,36 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
           false,
       }
 
+    , m_selectBoard
+      {
+          DIR_UPLEFT,
+          20,
+          20,
+          50,
+
+          false,
+          {},
+
+          false,
+
+          1,
+          12,
+          0,
+          colorf::WHITE + colorf::A_SHF(255),
+          0,
+
+          LALIGN_LEFT,
+          0,
+          0,
+
+          [](const std::unordered_map<std::string, std::string> &, int, int)
+          {
+          },
+
+          this,
+          false,
+      }
+
     , m_entryProtoList
       {
           {{u8"和平攻击", u8"组队攻击", u8"行会攻击", u8"全体攻击"}, std::ref(m_sdRuntimeConfig.attackMode), ATKMODE_BEGIN, [this](int)
@@ -251,6 +281,16 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
           fflassert(proc); return proc;
       }())
 {
+    m_selectBoard.loadXML(
+        R"###( <layout>            )###""\n"
+        R"###(     <par><event>系统</event></par> )###""\n"
+        R"###(     <par><event>社交</event></par> )###""\n"
+        R"###(     <par><event>网络</event></par> )###""\n"
+        R"###(     <par><event>游戏</event></par> )###""\n"
+        R"###(     <par><event>帮助</event></par> )###""\n"
+        R"###( </layout>           )###""\n"
+    );
+
     // 1.0f -> SDL_MIX_MAXVOLUME
     // SDL_mixer initial sound/music volume is SDL_MIX_MAXVOLUME
 
@@ -302,6 +342,7 @@ void RuntimeConfigExtBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int s
     m_frameBoard.drawEx(dstX, dstY, srcX, srcY, srcW, srcH);
     for(auto p:
     {
+        static_cast<const Widget *>(&m_selectBoard),
         static_cast<const Widget *>(&m_menuButton),
         static_cast<const Widget *>(&m_checkLabel),
         static_cast<const Widget *>(&m_texSliderBar),
@@ -373,6 +414,7 @@ bool RuntimeConfigExtBoard::processEvent(const SDL_Event &event, bool valid)
 
     for(auto widgetPtr:
     {
+        static_cast<Widget *>(&m_selectBoard),
         static_cast<Widget *>(&m_menuButton),
         static_cast<Widget *>(&m_checkLabel),
         static_cast<Widget *>(&m_frameBoard),

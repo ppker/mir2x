@@ -208,6 +208,9 @@ class RuntimeConfigExtBoard: public Widget
         MenuButton m_menuButton;
 
     private:
+        LayoutBoard m_selectBoard;
+
+    private:
         const std::vector<std::tuple<std::vector<std::u8string>, std::reference_wrapper<int>, int, std::function<void(int)>>> m_entryProtoList;
 
     private:
