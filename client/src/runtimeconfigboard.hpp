@@ -10,6 +10,7 @@
 #include "texslider.hpp"
 #include "tritexbutton.hpp"
 #include "texsliderbar.hpp"
+#include "shapeclipboard.hpp"
 #include "resizableframeboard.hpp"
 
 class ProcessRun;
@@ -20,6 +21,9 @@ class RuntimeConfigBoard: public Widget
 
     private:
         ResizableFrameBoard m_frameBoard;
+
+    private:
+        ShapeClipBoard m_leftMenuBackground;
 
     private:
         CheckLabel m_checkLabel;

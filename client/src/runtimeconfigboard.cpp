@@ -27,6 +27,24 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           false,
       }
 
+    , m_leftMenuBackground
+      {
+          DIR_UPLEFT,
+          30,
+          30,
+          80,
+          400,
+
+          [](const Widget *, int drawDstX, int drawDstY)
+          {
+              g_sdlDevice->fillRectangle(colorf::WHITE + colorf::A_SHF(96), drawDstX, drawDstY, 100, 200, 10);
+              g_sdlDevice->drawRectangle(colorf::RED   + colorf::A_SHF(96), drawDstX, drawDstY, 100, 200, 10);
+          },
+
+          this,
+          false,
+      }
+
     , m_checkLabel
       {
           DIR_UPLEFT,
@@ -252,14 +270,9 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
 void RuntimeConfigBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
 {
     m_frameBoard.drawEx(dstX, dstY, srcX, srcY, srcW, srcH);
-    ShapeClipBoard(DIR_UPLEFT, x() + 20, y() + 20, 100, 200, [](const Widget *, int drawDstX, int drawDstY)
-    {
-        g_sdlDevice->fillRectangle(colorf::WHITE + colorf::A_SHF(96), drawDstX, drawDstY, 100, 200, 5);
-        g_sdlDevice->drawRectangle(colorf::RED   + colorf::A_SHF(96), drawDstX, drawDstY, 100, 200, 5);
-    }).drawEx(dstX, dstY, srcX, srcY, srcW, srcH);
-
     for(auto p:
     {
+        static_cast<const Widget *>(&m_leftMenuBackground),
         static_cast<const Widget *>(&m_selectBoard),
         static_cast<const Widget *>(&m_menuButton),
         static_cast<const Widget *>(&m_checkLabel),
