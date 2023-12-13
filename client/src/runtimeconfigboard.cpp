@@ -33,12 +33,11 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           30,
           30,
           80,
-          400,
+          argH - 30 * 2,
 
-          [](const Widget *, int drawDstX, int drawDstY)
+          [](const Widget *widgetPtr, int drawDstX, int drawDstY)
           {
-              g_sdlDevice->fillRectangle(colorf::WHITE + colorf::A_SHF(96), drawDstX, drawDstY, 100, 200, 10);
-              g_sdlDevice->drawRectangle(colorf::RED   + colorf::A_SHF(96), drawDstX, drawDstY, 100, 200, 10);
+              g_sdlDevice->fillRectangle(colorf::A_SHF(128), drawDstX, drawDstY, widgetPtr->w(), widgetPtr->h(), 10);
           },
 
           this,
