@@ -6,76 +6,79 @@
 #include "soundeffectdb.hpp"
 #include "processrun.hpp"
 #include "inventoryboard.hpp"
-#include "runtimeconfigboard.hpp"
 
 extern Client *g_client;
 extern IMEBoard *g_imeBoard;
 extern PNGTexDB *g_progUseDB;
 extern SDLDevice *g_sdlDevice;
 
-RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, ProcessRun *proc, Widget *widgetPtr, bool autoDelete)
-    : Widget(DIR_UPLEFT, argX, argY, 0, 0, widgetPtr, autoDelete)
-    , m_closeButton
+RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, ProcessRun *proc, Widget *widgetPtr, bool autoDelete)
+    : Widget(DIR_UPLEFT, argX, argY, argW, argH, widgetPtr, autoDelete)
+    , m_frameBoard
       {
           DIR_UPLEFT,
-          449,
-          415,
-          {SYS_U32NIL, 0X0000001C, 0X0000001D},
-          {
-              SYS_U32NIL,
-              SYS_U32NIL,
-              0X01020000 + 105,
-          },
+          0,
+          0,
+          argW,
+          argH,
 
-          nullptr,
-          nullptr,
-          [this]()
-          {
-              setShow(false);
-          },
-
-          0,
-          0,
-          0,
-          0,
-
-          true,
-          true,
           this,
+          false,
       }
 
-    , m_musicSwitch
+    , m_checkLabel
       {
           DIR_UPLEFT,
-          431,
-          85,
+          50,
+          130,
 
-          m_sdRuntimeConfig.bgm,
+          colorf::RGBA(231, 231, 189, 128),
+          16,
+          16,
+          m_sdRuntimeConfig.ime,
+
+          8,
+
+          u8"拼音输入法",
+          1,
+          12,
           0,
-          2,
+          colorf::WHITE + colorf::A_SHF(255),
 
-          [this](int)
-          {
-              g_sdlDevice->setBGMVolume(getMusicVolume().value_or(0.0f));
-          },
-          this
+          this,
+          false,
       }
 
-    , m_soundEffectSwitch
+    , m_texSliderBar
       {
           DIR_UPLEFT,
-          431,
-          145,
+          50,
+          200,
 
-          m_sdRuntimeConfig.soundEff,
-          0,
-          2,
+          100,
+          true,
 
-          [this](int)
-          {
-              g_sdlDevice->setSoundEffectVolume(getSoundEffectVolume().value_or(0.0f));
-          },
-          this
+          1,
+          [](float){},
+
+          this,
+          false,
+      }
+
+    , m_texSliderBarVertical
+      {
+          DIR_UPLEFT,
+          50,
+          250,
+
+          100,
+          false,
+
+          1,
+          [](float){},
+
+          this,
+          false,
       }
 
     , m_musicSlider
@@ -84,15 +87,11 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, ProcessRun *proc, Wid
           280,
           124,
           194,
-          6,
 
           true,
           1,
-          [this](float val)
+          [this](float)
           {
-              m_sdRuntimeConfig.bgmValue = std::lround(val * 100.0);
-              g_sdlDevice->setBGMVolume(getMusicVolume().value_or(0.0f));
-              reportRuntimeConfig();
           },
           this,
       }
@@ -103,29 +102,126 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, ProcessRun *proc, Wid
           280,
           184,
           194,
-          6,
 
           true,
           1,
-          [this](float val)
+          [this](float)
           {
-              m_sdRuntimeConfig.soundEffValue = std::lround(val * 100.0);
-              g_sdlDevice->setSoundEffectVolume(getSoundEffectVolume().value_or(0.0f));
-              reportRuntimeConfig();
           },
           this,
       }
 
-    , m_entryProtoList
+    , m_item1
       {
-          {{u8"和平攻击", u8"组队攻击", u8"行会攻击", u8"全体攻击"}, std::ref(m_sdRuntimeConfig.attackMode), ATKMODE_BEGIN, [this](int)
-          {
-          }},
+          DIR_UPLEFT,
+          0,
+          0,
+          u8"你好",
+      }
 
-          {{u8"拼音输入法"}, std::ref(m_sdRuntimeConfig.ime), 0, [this](int state)
+    , m_item2
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+          u8"天气很好",
+      }
+
+    , m_itemCheckLabel
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          colorf::RGBA(231, 231, 189, 128),
+          16,
+          16,
+          m_sdRuntimeConfig.ime,
+
+          8,
+
+          u8"拼音输入法",
+          1,
+          12,
+          0,
+          colorf::WHITE + colorf::A_SHF(255),
+      }
+
+    , m_menuBoard
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          {},
+
+          10,
+          50,
+
           {
-              g_imeBoard->setActive(state);
-          }},
+              {&m_item1, false},
+              {&m_item2, false},
+              {&m_itemCheckLabel, false},
+          },
+
+          {10, 10, 10, 10},
+      }
+
+    , m_menuButtonGfx
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          u8"点击菜单",
+          1,
+          12,
+          0,
+      }
+
+    , m_menuButton
+      {
+          DIR_UPLEFT,
+          200,
+          250,
+
+          {&m_menuButtonGfx, false},
+          {&m_menuBoard    , false},
+
+          {},
+
+          this,
+          false,
+      }
+
+    , m_selectBoard
+      {
+          DIR_UPLEFT,
+          20,
+          20,
+          50,
+
+          false,
+          {},
+
+          false,
+
+          1,
+          12,
+          0,
+          colorf::WHITE + colorf::A_SHF(255),
+          0,
+
+          LALIGN_LEFT,
+          0,
+          0,
+
+          [](const std::unordered_map<std::string, std::string> &, int, int)
+          {
+          },
+
+          this,
+          false,
       }
 
     , m_processRun([proc]()
@@ -133,6 +229,16 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, ProcessRun *proc, Wid
           fflassert(proc); return proc;
       }())
 {
+    m_selectBoard.loadXML(
+        R"###( <layout>            )###""\n"
+        R"###(     <par><event>系统</event></par> )###""\n"
+        R"###(     <par><event>社交</event></par> )###""\n"
+        R"###(     <par><event>网络</event></par> )###""\n"
+        R"###(     <par><event>游戏</event></par> )###""\n"
+        R"###(     <par><event>帮助</event></par> )###""\n"
+        R"###( </layout>           )###""\n"
+    );
+
     // 1.0f -> SDL_MIX_MAXVOLUME
     // SDL_mixer initial sound/music volume is SDL_MIX_MAXVOLUME
 
@@ -140,82 +246,49 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, ProcessRun *proc, Wid
     m_soundEffectSlider.setValue(to_f(SDRuntimeConfig().soundEffValue) / 100.0, false);
 
     setShow(false);
-    auto texPtr = g_progUseDB->retrieve(0X0000001B);
-
-    fflassert(texPtr);
-    std::tie(m_w, m_h) = SDLDeviceHelper::getTextureSize(texPtr);
-
-    m_switchList.reserve(m_entryProtoList.size());
-    for(auto &[titleList, valueRef, valueOffset, onSwitch]: m_entryProtoList){
-        // can not skip invalid entry
-        // m_entryProtoList and m_switch shares indices
-        fflassert(!titleList.empty());
-        const auto [infoX, infoY, buttonX, buttonY] = getEntryPLoc(m_switchList.size());
-
-        if(titleList.size() == 1){
-            m_switchList.push_back(new OnOffButton
-            {
-                DIR_UPLEFT,
-                buttonX,
-                buttonY,
-                valueRef,
-                valueOffset,
-                2,
-                onSwitch,
-                this,
-                true,
-            });
-        }
-        else{
-            m_switchList.push_back(new SwitchNextButton
-            {
-                DIR_UPLEFT,
-                buttonX,
-                buttonY,
-                valueRef,
-                valueOffset,
-                to_d(titleList.size()),
-                onSwitch,
-                this,
-                true,
-            });
-        }
-    }
 }
 
-void RuntimeConfigBoard::drawEx(int dstX, int dstY, int, int, int, int) const
+void RuntimeConfigBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
 {
-    g_sdlDevice->drawTexture(g_progUseDB->retrieve(0X00000100), dstX, dstY);
+    m_frameBoard.drawEx(dstX, dstY, srcX, srcY, srcW, srcH);
+    for(auto p:
+    {
+        static_cast<const Widget *>(&m_selectBoard),
+        static_cast<const Widget *>(&m_menuButton),
+        static_cast<const Widget *>(&m_checkLabel),
+        static_cast<const Widget *>(&m_texSliderBar),
+        static_cast<const Widget *>(&m_texSliderBarVertical),
+    }){
+        auto drawSrcX = srcX;
+        auto drawSrcY = srcY;
+        auto drawSrcW = srcW;
+        auto drawSrcH = srcH;
+        auto drawDstX = dstX;
+        auto drawDstY = dstY;
+
+        if(mathf::cropChildROI(
+                    &drawSrcX, &drawSrcY,
+                    &drawSrcW, &drawSrcH,
+                    &drawDstX, &drawDstY,
+
+                    w(),
+                    h(),
+
+                    p->dx(),
+                    p->dy(),
+                    p-> w(),
+                    p-> h())){
+            p->drawEx(drawDstX, drawDstY, drawSrcX, drawSrcY, drawSrcW, drawSrcH);
+        }
+    }
+
     drawEntryTitle(u8"【游戏设置】", 255, 35);
-    m_closeButton.draw();
 
     drawEntryTitle(u8"背景音乐", 345,  97);
     drawEntryTitle(u8"音效",     345, 157);
 
-    m_musicSwitch.draw();
-    m_soundEffectSwitch.draw();
-
-    if(m_musicSwitch.getValue()){
-        m_musicSlider.draw();
-    }
-
-    if(m_soundEffectSwitch.getValue()){
-        m_soundEffectSlider.draw();
-    }
-
-    for(size_t i = 0; i < m_switchList.size(); ++i){
-        const auto buttonPtr = m_switchList.at(i);
-        const auto &titleList = std::get<0>(m_entryProtoList.at(i));
-        const auto &[infoX, infoY, buttonX, buttonY] = getEntryPLoc(i);
-
-        if(titleList.size() == 1){
-            drawEntryTitle(titleList.front().c_str(), infoX, infoY);
-        }
-        else{
-            drawEntryTitle(titleList.at(buttonPtr->getValue() - buttonPtr->getValueOffset()).c_str(), infoX, infoY);
-        }
-        buttonPtr->draw();
-    }
+    m_musicSlider.draw();
+    m_soundEffectSlider.draw();
 }
 
 bool RuntimeConfigBoard::processEvent(const SDL_Event &event, bool valid)
@@ -230,27 +303,24 @@ bool RuntimeConfigBoard::processEvent(const SDL_Event &event, bool valid)
 
     for(auto widgetPtr:
     {
-        static_cast<Widget *>(&m_closeButton),
-        static_cast<Widget *>(&m_musicSwitch),
-        static_cast<Widget *>(&m_soundEffectSwitch),
+        static_cast<Widget *>(&m_selectBoard),
+        static_cast<Widget *>(&m_menuButton),
+        static_cast<Widget *>(&m_checkLabel),
+        static_cast<Widget *>(&m_frameBoard),
+        static_cast<Widget *>(&m_texSliderBar),
+        static_cast<Widget *>(&m_texSliderBarVertical),
     }){
         if(widgetPtr->processEvent(event, valid)){
-            return consumeFocus(true);
+            return true;
         }
     }
 
-    if(m_musicSwitch.getValue() && m_musicSlider.processEvent(event, valid)){
+    if(m_musicSlider.processEvent(event, valid)){
         return consumeFocus(true);
     }
 
-    if(m_soundEffectSwitch.getValue() && m_soundEffectSlider.processEvent(event, valid)){
+    if(m_soundEffectSlider.processEvent(event, valid)){
         return consumeFocus(true);
-    }
-
-    for(const auto buttonPtr: m_switchList){
-        if(buttonPtr->processEvent(event, valid)){
-            return consumeFocus(true);
-        }
     }
 
     switch(event.type){
@@ -306,36 +376,12 @@ void RuntimeConfigBoard::drawEntryTitle(const char8_t *info, int dstCenterX, int
     titleBoard.drawAt(DIR_NONE, x() + dstCenterX, y() + dstCenterY);
 }
 
-std::tuple<int, int, int, int> RuntimeConfigBoard::getEntryPLoc(size_t entry)
-{
-    if(entry < 12){
-        return {100, 67 + entry * 30, 186, 55 + entry * 30};
-    }
-    else if(entry >= 12 && entry < 19){
-        return {345, 67 + (entry - 7) * 30, 431, 55 + (entry - 7) * 30};
-    }
-    else{
-        throw fflvalue(entry);
-    }
-}
-
 void RuntimeConfigBoard::setConfig(SDRuntimeConfig config)
 {
     m_sdRuntimeConfig = std::move(config);
 
     m_musicSlider.setValue(m_sdRuntimeConfig.bgmValue / 100.0, false);
-    g_sdlDevice->setBGMVolume(getMusicVolume().value_or(0.0f));
-
     m_soundEffectSlider.setValue(m_sdRuntimeConfig.soundEffValue / 100.0, false);
-    g_sdlDevice->setSoundEffectVolume(getSoundEffectVolume().value_or(0.0f));
-
-    for(auto buttonPtr: m_switchList){
-        buttonPtr->triggerCallback();
-    }
-
-    for(auto buttonPtr: {&m_musicSwitch, &m_soundEffectSwitch}){
-        buttonPtr->triggerCallback();
-    }
 }
 
 void RuntimeConfigBoard::reportRuntimeConfig()
