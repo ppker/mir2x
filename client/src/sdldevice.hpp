@@ -52,6 +52,9 @@ namespace SDLDeviceHelper
             SDLDevice *m_device;
 
         private:
+            const bool m_clipped;
+
+        private:
             SDL_Rect m_rect;
 
         public:
