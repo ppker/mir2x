@@ -14,6 +14,8 @@ class ShapeClipBoard: public Widget
                 int,
                 int,
 
+                std::function<void(const Widget *, int, int)>,
+
                 Widget * = nullptr,
                 bool     = false);
 

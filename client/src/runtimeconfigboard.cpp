@@ -6,6 +6,7 @@
 #include "soundeffectdb.hpp"
 #include "processrun.hpp"
 #include "inventoryboard.hpp"
+#include "shapeclipboard.hpp"
 
 extern Client *g_client;
 extern IMEBoard *g_imeBoard;
@@ -251,6 +252,12 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
 void RuntimeConfigBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
 {
     m_frameBoard.drawEx(dstX, dstY, srcX, srcY, srcW, srcH);
+    ShapeClipBoard(DIR_UPLEFT, x() + 20, y() + 20, 100, 200, [](const Widget *, int drawDstX, int drawDstY)
+    {
+        g_sdlDevice->fillRectangle(colorf::WHITE + colorf::A_SHF(96), drawDstX, drawDstY, 100, 200, 5);
+        g_sdlDevice->drawRectangle(colorf::RED   + colorf::A_SHF(96), drawDstX, drawDstY, 100, 200, 5);
+    }).drawEx(dstX, dstY, srcX, srcY, srcW, srcH);
+
     for(auto p:
     {
         static_cast<const Widget *>(&m_selectBoard),
