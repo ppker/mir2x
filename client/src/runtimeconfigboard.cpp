@@ -282,7 +282,7 @@ void RuntimeConfigBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW
         }
     }
 
-    drawEntryTitle(u8"【游戏设置】", 255, 35);
+    drawEntryTitle(u8"【游戏设置】", w() / 2, 35);
 
     drawEntryTitle(u8"背景音乐", 345,  97);
     drawEntryTitle(u8"音效",     345, 157);
