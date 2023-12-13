@@ -81,40 +81,6 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
           false,
       }
 
-    , m_musicSwitch
-      {
-          DIR_UPLEFT,
-          431,
-          85,
-
-          m_sdRuntimeConfig.bgm,
-          0,
-          2,
-
-          [this](int)
-          {
-              g_sdlDevice->setBGMVolume(getMusicVolume().value_or(0.0f));
-          },
-          this
-      }
-
-    , m_soundEffectSwitch
-      {
-          DIR_UPLEFT,
-          431,
-          145,
-
-          m_sdRuntimeConfig.soundEff,
-          0,
-          2,
-
-          [this](int)
-          {
-              g_sdlDevice->setSoundEffectVolume(getSoundEffectVolume().value_or(0.0f));
-          },
-          this
-      }
-
     , m_musicSlider
       {
           DIR_UPLEFT,
@@ -124,11 +90,8 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
 
           true,
           1,
-          [this](float val)
+          [this](float)
           {
-              m_sdRuntimeConfig.bgmValue = std::lround(val * 100.0);
-              g_sdlDevice->setBGMVolume(getMusicVolume().value_or(0.0f));
-              reportRuntimeConfig();
           },
           this,
       }
@@ -142,11 +105,8 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
 
           true,
           1,
-          [this](float val)
+          [this](float)
           {
-              m_sdRuntimeConfig.soundEffValue = std::lround(val * 100.0);
-              g_sdlDevice->setSoundEffectVolume(getSoundEffectVolume().value_or(0.0f));
-              reportRuntimeConfig();
           },
           this,
       }
@@ -264,18 +224,6 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
           false,
       }
 
-    , m_entryProtoList
-      {
-          {{u8"和平攻击", u8"组队攻击", u8"行会攻击", u8"全体攻击"}, std::ref(m_sdRuntimeConfig.attackMode), ATKMODE_BEGIN, [this](int)
-          {
-          }},
-
-          {{u8"拼音输入法"}, std::ref(m_sdRuntimeConfig.ime), 0, [this](int state)
-          {
-              g_imeBoard->setActive(state);
-          }},
-      }
-
     , m_processRun([proc]()
       {
           fflassert(proc); return proc;
@@ -298,43 +246,6 @@ RuntimeConfigExtBoard::RuntimeConfigExtBoard(int argX, int argY, int argW, int a
     m_soundEffectSlider.setValue(to_f(SDRuntimeConfig().soundEffValue) / 100.0, false);
 
     setShow(false);
-
-    m_switchList.reserve(m_entryProtoList.size());
-    for(auto &[titleList, valueRef, valueOffset, onSwitch]: m_entryProtoList){
-        // can not skip invalid entry
-        // m_entryProtoList and m_switch shares indices
-        fflassert(!titleList.empty());
-        const auto [infoX, infoY, buttonX, buttonY] = getEntryPLoc(m_switchList.size());
-
-        if(titleList.size() == 1){
-            m_switchList.push_back(new OnOffButton
-            {
-                DIR_UPLEFT,
-                buttonX,
-                buttonY,
-                valueRef,
-                valueOffset,
-                2,
-                onSwitch,
-                this,
-                true,
-            });
-        }
-        else{
-            m_switchList.push_back(new SwitchNextButton
-            {
-                DIR_UPLEFT,
-                buttonX,
-                buttonY,
-                valueRef,
-                valueOffset,
-                to_d(titleList.size()),
-                onSwitch,
-                this,
-                true,
-            });
-        }
-    }
 }
 
 void RuntimeConfigExtBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
@@ -376,30 +287,8 @@ void RuntimeConfigExtBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int s
     drawEntryTitle(u8"背景音乐", 345,  97);
     drawEntryTitle(u8"音效",     345, 157);
 
-    m_musicSwitch.draw();
-    m_soundEffectSwitch.draw();
-
-    if(m_musicSwitch.getValue()){
-        m_musicSlider.draw();
-    }
-
-    if(m_soundEffectSwitch.getValue()){
-        m_soundEffectSlider.draw();
-    }
-
-    for(size_t i = 0; i < m_switchList.size(); ++i){
-        const auto buttonPtr = m_switchList.at(i);
-        const auto &titleList = std::get<0>(m_entryProtoList.at(i));
-        const auto &[infoX, infoY, buttonX, buttonY] = getEntryPLoc(i);
-
-        if(titleList.size() == 1){
-            drawEntryTitle(titleList.front().c_str(), infoX, infoY);
-        }
-        else{
-            drawEntryTitle(titleList.at(buttonPtr->getValue() - buttonPtr->getValueOffset()).c_str(), infoX, infoY);
-        }
-        buttonPtr->draw();
-    }
+    m_musicSlider.draw();
+    m_soundEffectSlider.draw();
 }
 
 bool RuntimeConfigExtBoard::processEvent(const SDL_Event &event, bool valid)
@@ -420,26 +309,18 @@ bool RuntimeConfigExtBoard::processEvent(const SDL_Event &event, bool valid)
         static_cast<Widget *>(&m_frameBoard),
         static_cast<Widget *>(&m_texSliderBar),
         static_cast<Widget *>(&m_texSliderBarVertical),
-        static_cast<Widget *>(&m_musicSwitch),
-        static_cast<Widget *>(&m_soundEffectSwitch),
     }){
         if(widgetPtr->processEvent(event, valid)){
             return true;
         }
     }
 
-    if(m_musicSwitch.getValue() && m_musicSlider.processEvent(event, valid)){
+    if(m_musicSlider.processEvent(event, valid)){
         return consumeFocus(true);
     }
 
-    if(m_soundEffectSwitch.getValue() && m_soundEffectSlider.processEvent(event, valid)){
+    if(m_soundEffectSlider.processEvent(event, valid)){
         return consumeFocus(true);
-    }
-
-    for(const auto buttonPtr: m_switchList){
-        if(buttonPtr->processEvent(event, valid)){
-            return consumeFocus(true);
-        }
     }
 
     switch(event.type){
@@ -495,36 +376,12 @@ void RuntimeConfigExtBoard::drawEntryTitle(const char8_t *info, int dstCenterX, 
     titleBoard.drawAt(DIR_NONE, x() + dstCenterX, y() + dstCenterY);
 }
 
-std::tuple<int, int, int, int> RuntimeConfigExtBoard::getEntryPLoc(size_t entry)
-{
-    if(entry < 12){
-        return {100, 67 + entry * 30, 186, 55 + entry * 30};
-    }
-    else if(entry >= 12 && entry < 19){
-        return {345, 67 + (entry - 7) * 30, 431, 55 + (entry - 7) * 30};
-    }
-    else{
-        throw fflvalue(entry);
-    }
-}
-
 void RuntimeConfigExtBoard::setConfig(SDRuntimeConfig config)
 {
     m_sdRuntimeConfig = std::move(config);
 
     m_musicSlider.setValue(m_sdRuntimeConfig.bgmValue / 100.0, false);
-    g_sdlDevice->setBGMVolume(getMusicVolume().value_or(0.0f));
-
     m_soundEffectSlider.setValue(m_sdRuntimeConfig.soundEffValue / 100.0, false);
-    g_sdlDevice->setSoundEffectVolume(getSoundEffectVolume().value_or(0.0f));
-
-    for(auto buttonPtr: m_switchList){
-        buttonPtr->triggerCallback();
-    }
-
-    for(auto buttonPtr: {&m_musicSwitch, &m_soundEffectSwitch}){
-        buttonPtr->triggerCallback();
-    }
 }
 
 void RuntimeConfigExtBoard::reportRuntimeConfig()
