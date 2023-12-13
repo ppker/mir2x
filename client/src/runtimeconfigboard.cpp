@@ -29,8 +29,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
     , m_checkLabel
       {
           DIR_UPLEFT,
-          50,
-          130,
+          350,
+          40,
 
           colorf::RGBA(231, 231, 189, 128),
           16,
@@ -52,7 +52,7 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
     , m_texSliderBar
       {
           DIR_UPLEFT,
-          50,
+          250,
           200,
 
           100,
@@ -68,7 +68,7 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
     , m_texSliderBarVertical
       {
           DIR_UPLEFT,
-          50,
+          350,
           250,
 
           100,
@@ -84,7 +84,7 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
     , m_musicSlider
       {
           DIR_UPLEFT,
-          280,
+          380,
           124,
           194,
 
@@ -99,7 +99,7 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
     , m_soundEffectSlider
       {
           DIR_UPLEFT,
-          280,
+          380,
           184,
           194,
 
