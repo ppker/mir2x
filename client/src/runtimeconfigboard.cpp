@@ -169,7 +169,33 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           {10, 10, 10, 10},
       }
 
-    , m_menuButtonGfx
+    , m_menuImage
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+          {},
+          {},
+          [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000460); },
+      }
+
+    , m_menuImageCropDup
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+          50,
+          20,
+
+          &m_menuImage,
+
+          3,
+          3,
+          m_menuImage.w() - 6,
+          2,
+      }
+
+    , m_menuButtonTitle
       {
           DIR_UPLEFT,
           0,
@@ -187,8 +213,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           200,
           250,
 
-          {&m_menuButtonGfx, false},
-          {&m_menuBoard    , false},
+          {&m_menuButtonTitle, false},
+          {&m_menuBoard      , false},
 
           {},
 

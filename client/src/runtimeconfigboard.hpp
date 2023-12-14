@@ -4,6 +4,8 @@
 #include "mathf.hpp"
 #include "widget.hpp"
 #include "menuboard.hpp"
+#include "imageboard.hpp"
+#include "gfxcropdupboard.hpp"
 #include "menubutton.hpp"
 #include "checklabel.hpp"
 #include "labelboard.hpp"
@@ -39,7 +41,10 @@ class RuntimeConfigBoard: public Widget
         MenuBoard m_menuBoard;
 
     private:
-        LabelBoard m_menuButtonGfx;
+        ImageBoard      m_menuImage;
+        GfxCropDupBoard m_menuImageCropDup;
+
+        LabelBoard m_menuButtonTitle;
         MenuButton m_menuButton;
 
     private:
