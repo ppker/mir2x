@@ -32,12 +32,13 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           350,
           40,
 
+          true,
+          8,
+
           colorf::RGBA(231, 231, 189, 128),
           16,
           16,
           m_sdRuntimeConfig.ime,
-
-          8,
 
           u8"拼音输入法",
           1,
@@ -133,12 +134,13 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           0,
           0,
 
+          true,
+          8,
+
           colorf::RGBA(231, 231, 189, 128),
           16,
           16,
           m_sdRuntimeConfig.ime,
-
-          8,
 
           u8"拼音输入法",
           1,

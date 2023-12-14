@@ -20,12 +20,13 @@ class CheckLabel: public Widget
                 int,
                 int,
 
+                bool,
+                int,
+
                 uint32_t,
                 int,
                 int,
                 int &,
-
-                int,
 
                 const char8_t *,
                 uint8_t,
