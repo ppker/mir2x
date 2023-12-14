@@ -53,7 +53,7 @@ class Widget
                 int argW = 0,
                 int argH = 0,
 
-                std::initializer_list<std::tuple<Widget *, bool>> argChildList = {},
+                std::initializer_list<std::tuple<Widget *, dir8_t, int, int, bool>> argChildList = {},
 
                 Widget *argParent     = nullptr,
                 bool    argAutoDelete = false)
@@ -72,8 +72,9 @@ class Widget
             fflassert(m_w >= 0, m_w, m_h);
             fflassert(m_h >= 0, m_w, m_h);
 
-            for(const auto &[childPtr, autoDelete]: argChildList){
+            for(const auto &[childPtr, offDir, offX, offY, autoDelete]: argChildList){
                 addChild(childPtr, autoDelete);
+                childPtr->moveAt(offDir, offX, offY);
             }
         }
 
