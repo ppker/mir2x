@@ -226,7 +226,7 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           false,
 
           1,
-          15,
+          14,
           0,
           colorf::WHITE + colorf::A_SHF(255),
           0,
