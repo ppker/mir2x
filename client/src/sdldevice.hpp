@@ -248,15 +248,15 @@ class SDLDevice final
            SDL_RenderClear(m_renderer);
        }
 
-       void drawLine(int nX0, int nY0, int nX1, int nY1)
+       void drawLine(int argX0, int argY0, int argX1, int argY1)
        {
-           SDL_RenderDrawLine(m_renderer, nX0, nY0, nX1, nY1);
+           SDL_RenderDrawLine(m_renderer, argX0, argY0, argX1, argY1);
        }
 
-       void drawLine(uint32_t color, int nX0, int nY0, int nX1, int nY1)
+       void drawLine(uint32_t color, int argX0, int argY0, int argX1, int argY1)
        {
            SDLDeviceHelper::EnableRenderColor enableColor(color, this);
-           SDL_RenderDrawLine(m_renderer, nX0, nY0, nX1, nY1);
+           SDL_RenderDrawLine(m_renderer, argX0, argY0, argX1, argY1);
        }
 
        void drawCross(uint32_t color, int x, int y, size_t r)
@@ -266,15 +266,15 @@ class SDLDevice final
            SDL_RenderDrawLine(m_renderer, x, y - to_d(r), x, y + to_d(r));
        }
 
-       void drawLinef(float nX0, float nY0, float nX1, float nY1)
+       void drawLinef(float argX0, float argY0, float argX1, float argY1)
        {
-           SDL_RenderDrawLine(m_renderer, nX0, nY0, nX1, nY1);
+           SDL_RenderDrawLine(m_renderer, argX0, argY0, argX1, argY1);
        }
 
-       void drawLinef(uint32_t color, float nX0, float nY0, float nX1, float nY1)
+       void drawLinef(uint32_t color, float argX0, float argY0, float argX1, float argY1)
        {
            SDLDeviceHelper::EnableRenderColor enableColor(color, this);
-           SDL_RenderDrawLine(m_renderer, nX0, nY0, nX1, nY1);
+           SDL_RenderDrawLine(m_renderer, argX0, argY0, argX1, argY1);
        }
 
        void drawCrossf(uint32_t color, float x, float y, float r)
@@ -289,9 +289,9 @@ class SDLDevice final
            SDL_SetRenderDrawColor(m_renderer, nR, nG, nB, nA);
        }
 
-       void drawPixel(int nX, int nY)
+       void drawPixel(int argX, int argY)
        {
-           SDL_RenderDrawPoint(m_renderer, nX, nY);
+           SDL_RenderDrawPoint(m_renderer, argX, argY);
        }
 
     public:

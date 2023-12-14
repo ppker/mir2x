@@ -624,17 +624,17 @@ void SDLDevice::createInitViewWindow()
         m_window = nullptr;
     }
 
-    int nWindowW = 388;
-    int nWindowH = 160;
+    int windowW = 388;
+    int windowH = 160;
     {
-        SDL_DisplayMode stDesktop;
-        if(!SDL_GetDesktopDisplayMode(0, &stDesktop)){
-            nWindowW = std::min<int>(nWindowW , stDesktop.w);
-            nWindowH = std::min<int>(nWindowH , stDesktop.h);
+        SDL_DisplayMode desktop;
+        if(!SDL_GetDesktopDisplayMode(0, &desktop)){
+            windowW = std::min<int>(windowW , desktop.w);
+            windowH = std::min<int>(windowH , desktop.h);
         }
     }
 
-    m_window = SDL_CreateWindow("MIR2X-V0.1-LOADING", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, nWindowW, nWindowH, SDL_WINDOW_BORDERLESS);
+    m_window = SDL_CreateWindow("MIR2X-V0.1-LOADING", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowW, windowH, SDL_WINDOW_BORDERLESS);
     if(!m_window){
         throw fflerror("failed to create SDL window handler: %s", SDL_GetError());
     }
@@ -877,9 +877,9 @@ SDL_Texture *SDLDevice::getCover(int r, int angle)
     throw fflerror("failed to create texture: r = %d, angle = %d", r, angle);
 }
 
-void SDLDevice::fillRectangle(int nX, int nY, int nW, int nH, int nRad)
+void SDLDevice::fillRectangle(int argX, int argY, int argW, int argH, int argRad)
 {
-    if(!(nW > 0 && nH > 0)){
+    if(!(argW > 0 && argH > 0)){
         return;
     }
 
@@ -896,35 +896,35 @@ void SDLDevice::fillRectangle(int nX, int nY, int nW, int nH, int nRad)
         return;
     }
 
-    if(roundedBoxRGBA(getRenderer(), nX, nY, nX + nW - 1, nY + nH - 1, nRad, r, g, b, a)){
+    if(roundedBoxRGBA(getRenderer(), argX, argY, argX + argW - 1, argY + argH - 1, argRad, r, g, b, a)){
         throw fflerror("roundedRectangleRGBA() failed");
     }
 }
 
-void SDLDevice::fillRectangle(uint32_t nRGBA, int nX, int nY, int nW, int nH, int nRad)
+void SDLDevice::fillRectangle(uint32_t nRGBA, int argX, int argY, int argW, int argH, int argRad)
 {
-    if(!(nW > 0 && nH > 0)){
+    if(!(argW > 0 && argH > 0)){
         return;
     }
 
     if(colorf::A(nRGBA)){
-        SDLDeviceHelper::EnableRenderColor stEnableColor(nRGBA, this);
+        SDLDeviceHelper::EnableRenderColor enableColor(nRGBA, this);
         SDLDeviceHelper::EnableRenderBlendMode enableBlendMode(SDL_BLENDMODE_BLEND, this);
-        fillRectangle(nX, nY, nW, nH, nRad);
+        fillRectangle(argX, argY, argW, argH, argRad);
     }
 }
 
-void SDLDevice::drawRectangle(int nX, int nY, int nW, int nH, int nRad)
+void SDLDevice::drawRectangle(int argX, int argY, int argW, int argH, int argRad)
 {
     // hack for roundedRectangleRGBA
     // looks sdl2_gfx has 1 pixel location bug
 
-    if(nRad <= 1){
-        nW++;
-        nH++;
+    if(argRad <= 1){
+        argW++;
+        argH++;
     }
 
-    if(!(nW > 0 && nH > 0)){
+    if(!(argW > 0 && argH > 0)){
         return;
     }
 
@@ -941,47 +941,47 @@ void SDLDevice::drawRectangle(int nX, int nY, int nW, int nH, int nRad)
         return;
     }
 
-    if(roundedRectangleRGBA(getRenderer(), nX, nY, nX + nW - 1, nY + nH - 1, nRad, r, g, b, a)){
+    if(roundedRectangleRGBA(getRenderer(), argX, argY, argX + argW - 1, argY + argH - 1, argRad, r, g, b, a)){
         throw fflerror("roundedRectangleRGBA() failed");
     }
 }
 
-void SDLDevice::drawRectangle(uint32_t color, int nX, int nY, int nW, int nH, int nRad)
+void SDLDevice::drawRectangle(uint32_t color, int argX, int argY, int argW, int argH, int argRad)
 {
-    if(!(nW > 0 && nH > 0)){
+    if(!(argW > 0 && argH > 0)){
         return;
     }
 
     if(colorf::A(color)){
         SDLDeviceHelper::EnableRenderColor enableColor(color, this);
         SDLDeviceHelper::EnableRenderBlendMode enableBlendMode(SDL_BLENDMODE_BLEND, this);
-        drawRectangle(nX, nY, nW, nH, nRad);
+        drawRectangle(argX, argY, argW, argH, argRad);
     }
 }
 
-void SDLDevice::drawWidthRectangle(size_t frameLineWidth, int nX, int nY, int nW, int nH)
+void SDLDevice::drawWidthRectangle(size_t frameLineWidth, int argX, int argY, int argW, int argH)
 {
     if(!frameLineWidth){
         return;
     }
 
     if(frameLineWidth == 1){
-        drawRectangle(nX, nY, nW, nH);
+        drawRectangle(argX, argY, argW, argH);
         return;
     }
 
-    fillRectangle(nX, nY,                           nW, frameLineWidth);
-    fillRectangle(nX, nY + nW - 2 * frameLineWidth, nW, frameLineWidth);
+    fillRectangle(argX, argY,                             argW, frameLineWidth);
+    fillRectangle(argX, argY + argW - 2 * frameLineWidth, argW, frameLineWidth);
 
-    fillRectangle(nX,                           nY + frameLineWidth, frameLineWidth, nH - 2 * frameLineWidth);
-    fillRectangle(nX + nW - 2 * frameLineWidth, nY + frameLineWidth, frameLineWidth, nH - 2 * frameLineWidth);
+    fillRectangle(argX,                             argY + frameLineWidth, frameLineWidth, argH - 2 * frameLineWidth);
+    fillRectangle(argX + argW - 2 * frameLineWidth, argY + frameLineWidth, frameLineWidth, argH - 2 * frameLineWidth);
 }
 
-void SDLDevice::drawWidthRectangle(uint32_t color, size_t frameLineWidth, int nX, int nY, int nW, int nH)
+void SDLDevice::drawWidthRectangle(uint32_t color, size_t frameLineWidth, int argX, int argY, int argW, int argH)
 {
     SDLDeviceHelper::EnableRenderColor enableColor(color, this);
     SDLDeviceHelper::EnableRenderBlendMode enableBlendMode(SDL_BLENDMODE_BLEND, this);
-    drawWidthRectangle(frameLineWidth, nX, nY, nW, nH);
+    drawWidthRectangle(frameLineWidth, argX, argY, argW, argH);
 }
 
 void SDLDevice::drawHLineFading(uint32_t startColor, uint32_t endColor, int x, int y, int length)
