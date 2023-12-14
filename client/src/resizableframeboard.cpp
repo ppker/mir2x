@@ -16,9 +16,21 @@ ResizableFrameBoard::ResizableFrameBoard(
         int argW,
         int argH,
 
-        Widget *parent     = nullptr,
-        bool    autoDelete = false)
-    : Widget(argDir, argX, argY, argW, argH, parent, autoDelete)
+        Widget *argParent,
+        bool    argAutoDelete)
+
+    : Widget
+      {
+          argDir,
+          argX,
+          argY,
+          argW,
+          argH,
+
+          argParent,
+          argAutoDelete
+      }
+
     , m_close
       {
           DIR_UPLEFT,

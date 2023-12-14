@@ -33,7 +33,14 @@ class ResizableFrameBoard: public Widget
         TritexButton m_close;
 
     public:
-        ResizableFrameBoard(dir8_t, int, int, int, int, Widget *, bool);
+        ResizableFrameBoard(dir8_t,
+                int,
+                int,
+                int,
+                int,
+
+                Widget * = nullptr,
+                bool     = false);
 
     public:
         void drawEx(int, int, int, int, int, int) const override;
