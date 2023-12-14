@@ -235,8 +235,20 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           0,
           0,
 
-          [](const std::unordered_map<std::string, std::string> &, int, int)
+          [](const std::unordered_map<std::string, std::string> &attrList, int oldState, int newState)
           {
+              if(oldState == BEVENT_DOWN && newState == BEVENT_ON){
+                  const auto fnFindAttrValue = [&attrList](const char *key, const char *valDefault) -> const char *
+                  {
+                      if(auto p = attrList.find(key); p != attrList.end() && str_haschar(p->second)){
+                          return p->second.c_str();
+                      }
+                      return valDefault;
+                  };
+
+                  if(const auto id = fnFindAttrValue("id", nullptr)){
+                  }
+              }
           },
 
           this,
@@ -250,15 +262,15 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
 {
     m_leftMenu.loadXML(
         R"###( <layout>            )###""\n"
-        R"###(     <par><event>系 统</event></par> )###""\n"
-        R"###(     <par>                    </par> )###""\n"
-        R"###(     <par><event>社 交</event></par> )###""\n"
-        R"###(     <par>                    </par> )###""\n"
-        R"###(     <par><event>网 络</event></par> )###""\n"
-        R"###(     <par>                    </par> )###""\n"
-        R"###(     <par><event>游 戏</event></par> )###""\n"
-        R"###(     <par>                    </par> )###""\n"
-        R"###(     <par><event>帮 助</event></par> )###""\n"
+        R"###(     <par><event id="系统">系 统</event></par> )###""\n"
+        R"###(     <par>                              </par> )###""\n"
+        R"###(     <par><event id="社交">社 交</event></par> )###""\n"
+        R"###(     <par>                              </par> )###""\n"
+        R"###(     <par><event id="网络">网 络</event></par> )###""\n"
+        R"###(     <par>                              </par> )###""\n"
+        R"###(     <par><event id="游戏">游 戏</event></par> )###""\n"
+        R"###(     <par>                              </par> )###""\n"
+        R"###(     <par><event id="帮助">帮 助</event></par> )###""\n"
         R"###( </layout>                           )###""\n"
     );
 
