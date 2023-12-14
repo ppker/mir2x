@@ -916,6 +916,14 @@ void SDLDevice::fillRectangle(uint32_t nRGBA, int nX, int nY, int nW, int nH, in
 
 void SDLDevice::drawRectangle(int nX, int nY, int nW, int nH, int nRad)
 {
+    // hack for roundedRectangleRGBA
+    // looks sdl2_gfx has 1 pixel location bug
+
+    if(nRad <= 1){
+        nW++;
+        nH++;
+    }
+
     if(!(nW > 0 && nH > 0)){
         return;
     }
@@ -933,10 +941,7 @@ void SDLDevice::drawRectangle(int nX, int nY, int nW, int nH, int nRad)
         return;
     }
 
-    // roundedBoxRGBA       uses (nX + nW - 1, nY + nH - 1) as the right-bottom point
-    // roundedRectangleRGBA uses (nX + nW    , nY + nH    ) as the right-bottom point
-
-    if(roundedRectangleRGBA(getRenderer(), nX, nY, nX + nW, nY + nH, nRad, r, g, b, a)){
+    if(roundedRectangleRGBA(getRenderer(), nX, nY, nX + nW - 1, nY + nH - 1, nRad, r, g, b, a)){
         throw fflerror("roundedRectangleRGBA() failed");
     }
 }
