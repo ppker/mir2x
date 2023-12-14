@@ -27,24 +27,6 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           false,
       }
 
-    , m_leftMenuBackground
-      {
-          DIR_UPLEFT,
-          30,
-          30,
-          80,
-          argH - 30 * 2,
-
-          [](const Widget *widgetPtr, int drawDstX, int drawDstY)
-          {
-              g_sdlDevice->fillRectangle(                             colorf::A_SHF(128), drawDstX, drawDstY, widgetPtr->w(), widgetPtr->h(), 10);
-              g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(100), drawDstX, drawDstY, widgetPtr->w(), widgetPtr->h(), 10);
-          },
-
-          this,
-          false,
-      }
-
     , m_checkLabel
       {
           DIR_UPLEFT,
@@ -269,14 +251,33 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
 
 void RuntimeConfigBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
 {
-    m_frameBoard.drawEx(dstX, dstY, srcX, srcY, srcW, srcH);
-    for(auto p:
+    if(!show()){
+        return;
+    }
+
+    ShapeClipBoard leftMenuBackground
     {
-        static_cast<const Widget *>(&m_leftMenuBackground),
-        static_cast<const Widget *>(&m_selectBoard),
-        static_cast<const Widget *>(&m_menuButton),
-        static_cast<const Widget *>(&m_checkLabel),
-        static_cast<const Widget *>(&m_texSliderBar),
+        DIR_UPLEFT,
+        30,
+        30,
+        80,
+        h() - 30 * 2,
+
+        [](const Widget *widgetPtr, int drawDstX, int drawDstY)
+        {
+            g_sdlDevice->fillRectangle(                             colorf::A_SHF(128), drawDstX, drawDstY, widgetPtr->w(), widgetPtr->h(), 10);
+            g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(100), drawDstX, drawDstY, widgetPtr->w(), widgetPtr->h(), 10);
+        },
+    };
+
+    for(const auto p:
+    {
+        static_cast<const Widget *>(&m_frameBoard          ),
+        static_cast<const Widget *>(&leftMenuBackground    ),
+        static_cast<const Widget *>(&m_selectBoard         ),
+        static_cast<const Widget *>(&m_menuButton          ),
+        static_cast<const Widget *>(&m_checkLabel          ),
+        static_cast<const Widget *>(&m_texSliderBar        ),
         static_cast<const Widget *>(&m_texSliderBarVertical),
     }){
         auto drawSrcX = srcX;
