@@ -16,29 +16,45 @@ class LabelBoard: public Widget
 
     public:
         LabelBoard(
-                dir8_t         dir,
-                int            x,
-                int            y,
-                const char8_t *content    = u8"",
-                uint8_t        font       = 0,
-                uint8_t        fontSize   = 10,
-                uint8_t        fontStyle  = 0,
-                uint32_t       fontColor  = colorf::WHITE + colorf::A_SHF(255),
-                Widget        *widgetPtr  = nullptr,
-                bool           autoDelete = false)
-            : Widget(dir, x, y, 0, 0, widgetPtr, autoDelete)
+                dir8_t argDir,
+                int    argX,
+                int    argY,
+
+                const char8_t *argContent    = u8"",
+                uint8_t        argFont       = 0,
+                uint8_t        argFontSize   = 10,
+                uint8_t        argFontStyle  = 0,
+                uint32_t       argFontColor  = colorf::WHITE + colorf::A_SHF(255),
+
+                Widget *argParent     = nullptr,
+                bool    argAutoDelete = false)
+
+            : Widget
+              {
+                  argDir,
+                  argX,
+                  argY,
+                  0,
+                  0,
+
+                  {},
+
+                  argParent,
+                  argAutoDelete,
+              }
+
             , m_tpset
               {
                   0,
                   LALIGN_LEFT,
                   false,
-                  font,
-                  fontSize,
-                  fontStyle,
-                  fontColor,
+                  argFont,
+                  argFontSize,
+                  argFontStyle,
+                  argFontColor,
               }
         {
-            setText(u8"%s", content);
+            setText(u8"%s", argContent);
         }
 
     public:

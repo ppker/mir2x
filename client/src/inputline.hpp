@@ -48,7 +48,7 @@ class InputLine: public Widget
 
                 Widget *widgetPtr  = nullptr,
                 bool    autoDelete = false)
-            : Widget(dir, x, y, w, h, widgetPtr, autoDelete)
+            : Widget(dir, x, y, w, h, {}, widgetPtr, autoDelete)
             , m_imeEnabled(imeEnabled)
             , m_tpset
               {

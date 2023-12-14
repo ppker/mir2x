@@ -16,6 +16,7 @@ InputStringBoard::InputStringBoard(dir8_t dir, int x, int y, bool security, Widg
           y,
           0,
           0,
+          {},
 
           widgetPtr,
           autoDelete

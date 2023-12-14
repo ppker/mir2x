@@ -25,6 +25,7 @@ PlayerStateBoard::PlayerStateBoard(int argX, int argY, ProcessRun *runPtr, Widge
           argY,
           0,
           0,
+          {},
 
           widgetPtr,
           autoDelete

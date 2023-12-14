@@ -46,7 +46,7 @@ class NotifyBoard: public Widget
                 size_t           maxEntryCount    = 0,
                 Widget          *widgetPtr        = nullptr,
                 bool             autoDelete       = false)
-            : Widget(nDir, nX, nY, 0, 0, widgetPtr, autoDelete)
+            : Widget(nDir, nX, nY, 0, 0, {}, widgetPtr, autoDelete)
             , m_lineW(nW)
             , m_font(defaultFont)
             , m_fontSize(defaultFontSize)

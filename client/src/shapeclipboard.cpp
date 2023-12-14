@@ -20,6 +20,8 @@ ShapeClipBoard::ShapeClipBoard(dir8_t argDir,
           argW,
           argH,
 
+          {},
+
           argParent,
           argAutoDelete,
       }

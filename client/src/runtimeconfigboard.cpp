@@ -13,7 +13,7 @@ extern PNGTexDB *g_progUseDB;
 extern SDLDevice *g_sdlDevice;
 
 RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, ProcessRun *proc, Widget *widgetPtr, bool autoDelete)
-    : Widget(DIR_UPLEFT, argX, argY, argW, argH, widgetPtr, autoDelete)
+    : Widget(DIR_UPLEFT, argX, argY, argW, argH, {}, widgetPtr, autoDelete)
     , m_frameBoard
       {
           DIR_UPLEFT,

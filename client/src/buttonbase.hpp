@@ -89,7 +89,21 @@ class ButtonBase: public Widget
                 bool    onClickDone = true,
                 Widget *widgetPtr   = nullptr,
                 bool    autoFree    = false)
-            : Widget(argDir, argX, argY, argW, argH, widgetPtr, autoFree)
+
+            : Widget
+              {
+                  argDir,
+                  argX,
+                  argY,
+                  argW,
+                  argH,
+
+                  {},
+
+                  widgetPtr,
+                  autoFree,
+              }
+
             , m_onClickDone(onClickDone)
             , m_seffID
               {

@@ -43,6 +43,8 @@ class GfxCropDupBoard: public Widget
                   argW,
                   argH,
 
+                  {},
+
                   argParent,
                   argAutoDelete,
               }

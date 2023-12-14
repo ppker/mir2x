@@ -23,6 +23,7 @@ ImageBoard::ImageBoard(
 
         Widget *argParent,
         bool    argAutoDelete)
+
     : Widget
       {
           argDir,
@@ -30,6 +31,8 @@ ImageBoard::ImageBoard(
           argY,
           0,
           0,
+
+          {},
 
           argParent,
           argAutoDelete,

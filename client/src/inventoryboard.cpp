@@ -11,7 +11,7 @@ extern SoundEffectDB *g_seffDB;
 extern SDLDevice *g_sdlDevice;
 
 InventoryBoard::InventoryBoard(int nX, int nY, ProcessRun *pRun, Widget *pwidget, bool autoDelete)
-    : Widget(DIR_UPLEFT, nX, nY, 0, 0, pwidget, autoDelete)
+    : Widget(DIR_UPLEFT, nX, nY, 0, 0, {}, pwidget, autoDelete)
     , m_wmdAniBoard
       {
           DIR_UPLEFT,

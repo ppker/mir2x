@@ -17,6 +17,7 @@ MiniMapBoard::MiniMapBoard(ProcessRun *runPtr, Widget *parent, bool autoDelete)
           0,
           0,
           0,
+          {},
 
           parent,
           autoDelete,

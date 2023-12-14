@@ -23,6 +23,7 @@ MenuButton::MenuButton(dir8_t argDir,
           argY,
           0,
           0,
+          {},
 
           argParent,
           argAutoDelete,

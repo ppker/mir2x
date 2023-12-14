@@ -68,6 +68,7 @@ SkillBoard::MagicIconButton::MagicIconButton(int argX, int argY, uint32_t argMag
           argY,
           0,
           0,
+          {},
           widgetPtr,
           autoDelete,
       }
@@ -180,6 +181,7 @@ SkillBoard::SkillPage::SkillPage(uint32_t pageImage, SkillBoardConfig *configPtr
           SkillBoard::getPageRectange().at(1),
           0, // reset in ctor body
           0,
+          {},
           widgetPtr,
           autoDelete,
       }
@@ -234,7 +236,7 @@ void SkillBoard::SkillPage::drawEx(int dstX, int dstY, int srcX, int srcY, int s
 }
 
 SkillBoard::SkillBoard(int argX, int argY, ProcessRun *runPtr, Widget *widgetPtr, bool autoDelete)
-    : Widget(DIR_UPLEFT, argX, argY, 0, 0, widgetPtr, autoDelete)
+    : Widget(DIR_UPLEFT, argX, argY, 0, 0, {}, widgetPtr, autoDelete)
     , m_skillPageList([runPtr, this]() -> std::vector<SkillBoard::SkillPage *>
       {
           std::vector<SkillBoard::SkillPage *> pageList;

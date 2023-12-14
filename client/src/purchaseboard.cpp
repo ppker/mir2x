@@ -19,6 +19,7 @@ PurchaseBoard::PurchaseBoard(ProcessRun *runPtr, Widget *widgetPtr, bool autoDel
           0,
           0,
           0,
+          {},
 
           widgetPtr,
           autoDelete

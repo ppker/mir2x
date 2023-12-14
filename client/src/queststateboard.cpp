@@ -17,6 +17,7 @@ QuestStateBoard::QuestStateBoard(int argX, int argY, ProcessRun *runPtr, Widget 
           argY,
           0,
           0,
+          {},
 
           widgetPtr,
           autoDelete

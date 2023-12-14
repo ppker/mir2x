@@ -53,6 +53,8 @@ class Widget
                 int argW = 0,
                 int argH = 0,
 
+                std::initializer_list<std::tuple<Widget *, bool>> argChildList = {},
+
                 Widget *argParent     = nullptr,
                 bool    argAutoDelete = false)
 
@@ -69,6 +71,10 @@ class Widget
 
             fflassert(m_w >= 0, m_w, m_h);
             fflassert(m_h >= 0, m_w, m_h);
+
+            for(const auto &[childPtr, autoDelete]: argChildList){
+                addChild(childPtr, autoDelete);
+            }
         }
 
     public:

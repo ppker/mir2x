@@ -26,6 +26,8 @@ TexSliderBar::TexSliderBar(
           /* argW */  argHSlider ? [argSize]{ fflassert(argSize >= 6, argSize); return argSize; }() : SDLDeviceHelper::getTextureHeight(g_progUseDB->retrieve(0X00000460)),
           /* argH */ !argHSlider ? [argSize]{ fflassert(argSize >= 6, argSize); return argSize; }() : SDLDeviceHelper::getTextureHeight(g_progUseDB->retrieve(0X00000460)),
 
+          {},
+
           argParent,
           argAutoDelete,
       }

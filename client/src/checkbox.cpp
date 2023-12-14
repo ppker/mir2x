@@ -15,7 +15,21 @@ CheckBox::CheckBox(dir8_t argDir,
 
         Widget *argParent,
         bool    argAutoDelete)
-    : Widget(argDir, argX, argY, argW, argH, argParent, argAutoDelete)
+
+    : Widget
+      {
+          argDir,
+          argX,
+          argY,
+          argW,
+          argH,
+
+          {},
+
+          argParent,
+          argAutoDelete,
+      }
+
     , m_color(argColor)
     , m_valRef(argValRef)
     , m_checkImage

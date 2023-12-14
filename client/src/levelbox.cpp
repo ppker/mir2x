@@ -16,7 +16,7 @@ LevelBox::LevelBox(
 
         Widget *parent,
         bool    autoDelete)
-    : Widget(dir, x, y, 16, 16, parent, autoDelete)
+    : Widget(dir, x, y, 16, 16, {}, parent, autoDelete)
     , m_processRun(proc)
     , m_onDrag(onDrag)
     , m_onDoubleClick(onDoubleClick)

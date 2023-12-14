@@ -14,7 +14,7 @@ extern PNGTexDB *g_progUseDB;
 extern SDLDevice *g_sdlDevice;
 
 RuntimeConfigBoard_bak::RuntimeConfigBoard_bak(int argX, int argY, ProcessRun *proc, Widget *widgetPtr, bool autoDelete)
-    : Widget(DIR_UPLEFT, argX, argY, 0, 0, widgetPtr, autoDelete)
+    : Widget(DIR_UPLEFT, argX, argY, 0, 0, {}, widgetPtr, autoDelete)
     , m_closeButton
       {
           DIR_UPLEFT,

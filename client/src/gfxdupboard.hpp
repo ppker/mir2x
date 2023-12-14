@@ -29,6 +29,8 @@ class GfxDupBoard: public Widget
                   argW,
                   argH,
 
+                  {},
+
                   argParent,
                   argAutoDelete,
               }

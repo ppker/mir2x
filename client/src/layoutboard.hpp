@@ -81,7 +81,7 @@ class LayoutBoard: public Widget
 
                 Widget *parent     =  nullptr,
                 bool    autoDelete =  false)
-            : Widget(dir, x, y, 0, 0, parent, autoDelete)
+            : Widget(dir, x, y, 0, 0, {}, parent, autoDelete)
             , m_parNodeConfig
               {
                   lineWidth,

@@ -30,6 +30,7 @@ class LabelShadowBoard: public Widget
                   y,
                   0,
                   0,
+                  {},
                   widgetPtr,
                   autoDelete,
               }

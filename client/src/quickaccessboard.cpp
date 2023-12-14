@@ -19,6 +19,7 @@ QuickAccessBoard::QuickAccessBoard(int x, int y, ProcessRun *proc, Widget *pwidg
           y,
           0,
           0,
+          {},
           pwidget,
           autoDelete,
       }

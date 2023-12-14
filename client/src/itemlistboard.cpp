@@ -18,6 +18,7 @@ ItemListBoard::ItemListBoard(int argX, int argY, Widget *widgetPtr, bool autoDel
           argY,
           m_gfxSrcW,
           m_gfxSrcH,
+          {},
 
           widgetPtr,
           autoDelete

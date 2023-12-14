@@ -33,6 +33,8 @@ IMEBoard::IMEBoard(
           0,
           0,
 
+          {},
+
           parent,
           autoDelete,
       }

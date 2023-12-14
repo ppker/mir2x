@@ -34,7 +34,7 @@ class Slider: public Widget
 
     public:
         Slider(dir8_t argDir, int argX, int argY, int argW, int argH, bool hslider, int sliderW, int sliderH, std::function<void(float)> onChanged, Widget *parent = nullptr, bool autoDelete = false)
-            : Widget(argDir, argX, argY, argW, argH, parent, autoDelete)
+            : Widget(argDir, argX, argY, argW, argH, {}, parent, autoDelete)
             , m_hslider(hslider)
             , m_sliderW(sliderW)
             , m_sliderH(sliderH)

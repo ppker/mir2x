@@ -24,6 +24,7 @@ ResizableFrameBoard::ResizableFrameBoard(
           argY,
           argW,
           argH,
+          {},
 
           argParent,
           argAutoDelete

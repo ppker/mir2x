@@ -60,7 +60,7 @@ extern PNGTexDB *g_progUseDB;
 extern SDLDevice *g_sdlDevice;
 
 ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwidget, bool autoDelete)
-    : Widget(DIR_UPLEFT, 0, startY, boardW, 133, pwidget, autoDelete)
+    : Widget(DIR_UPLEFT, 0, startY, boardW, 133, {}, pwidget, autoDelete)
     , m_processRun(proc)
     , m_left
       {
@@ -69,7 +69,11 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
           0,
           178,
           133,
+
+          {},
+
           this,
+          false,
       }
 
     , m_middle
@@ -79,6 +83,7 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
           2, // middle tex height is 131, not 133
           boardW - 178 - 166,
           131,
+          {},
           this,
       }
 
@@ -89,6 +94,7 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
           0,
           166,
           133,
+          {},
           this,
       }
 

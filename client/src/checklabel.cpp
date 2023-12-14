@@ -32,6 +32,8 @@ CheckLabel::CheckLabel(
           0,
           0,
 
+          {},
+
           argParent,
           argAutoDelete,
       }
