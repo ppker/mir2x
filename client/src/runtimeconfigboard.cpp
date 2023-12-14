@@ -207,14 +207,29 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           0,
       }
 
+    , m_menuButtonTitleGfx
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          200,
+          250,
+
+          {
+              {&m_menuImageCropDup, false},
+              {&m_menuButtonTitle,  false},
+          },
+      }
+
     , m_menuButton
       {
           DIR_UPLEFT,
           200,
           250,
 
-          {&m_menuButtonTitle, false},
-          {&m_menuBoard      , false},
+          {&m_menuButtonTitleGfx, false},
+          {&m_menuBoard         , false},
 
           {},
 

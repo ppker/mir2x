@@ -45,6 +45,7 @@ class RuntimeConfigBoard: public Widget
         GfxCropDupBoard m_menuImageCropDup;
 
         LabelBoard m_menuButtonTitle;
+        Widget     m_menuButtonTitleGfx;
         MenuButton m_menuButton;
 
     private:
