@@ -2,7 +2,7 @@
 #include "mathf.hpp"
 #include "widget.hpp"
 
-class ImageCropBoard: public Widget
+class GfxCropBoard: public Widget
 {
     private:
         const Widget * const m_widget;
@@ -17,7 +17,7 @@ class ImageCropBoard: public Widget
         const std::array<int, 4> m_margin;
 
     public:
-        ImageCropBoard(
+        GfxCropBoard(
                 dir8_t argDir,
 
                 int argX,

@@ -2,7 +2,7 @@
 #include "totype.hpp"
 #include "sdldevice.hpp"
 #include "imageboard.hpp"
-#include "imagecropboard.hpp"
+#include "gfxcropboard.hpp"
 #include "imagecropdupboard.hpp"
 #include "resizableframeboard.hpp"
 
@@ -80,15 +80,15 @@ void ResizableFrameBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int src
             [](const ImageBoard *){ return g_progUseDB->retrieve(m_frameTexID); },
         };
 
-        const ImageCropBoard topLeft     {DIR_UPLEFT,                  0,                  0, &frame,                        0,                        0,                 m_cornerSize,                 m_cornerSize};
-        const ImageCropBoard top         {DIR_UPLEFT,       m_cornerSize,                  0, &frame,             m_cornerSize,                        0, frame.w() - 2 * m_cornerSize,                 m_cornerSize};
-        const ImageCropBoard topRight    {DIR_UPLEFT, w() - m_cornerSize,                  0, &frame, frame.w() - m_cornerSize,                        0,                 m_cornerSize,                 m_cornerSize};
-        const ImageCropBoard left        {DIR_UPLEFT,                  0,       m_cornerSize, &frame,                        0,             m_cornerSize,                 m_cornerSize, frame.h() - 2 * m_cornerSize};
-        const ImageCropBoard middle      {DIR_UPLEFT,       m_cornerSize,       m_cornerSize, &frame,             m_cornerSize,             m_cornerSize, frame.w() - 2 * m_cornerSize, frame.h() - 2 * m_cornerSize};
-        const ImageCropBoard right       {DIR_UPLEFT, w() - m_cornerSize,       m_cornerSize, &frame, frame.w() - m_cornerSize,             m_cornerSize,                 m_cornerSize, frame.h() - 2 * m_cornerSize};
-        const ImageCropBoard bottomLeft  {DIR_UPLEFT,                  0, h() - m_cornerSize, &frame,                        0, frame.h() - m_cornerSize,                 m_cornerSize,                 m_cornerSize};
-        const ImageCropBoard bottom      {DIR_UPLEFT,       m_cornerSize, h() - m_cornerSize, &frame,             m_cornerSize, frame.h() - m_cornerSize, frame.w() - 2 * m_cornerSize,                 m_cornerSize};
-        const ImageCropBoard bottomRight {DIR_UPLEFT, w() - m_cornerSize, h() - m_cornerSize, &frame, frame.w() - m_cornerSize, frame.h() - m_cornerSize,                 m_cornerSize,                 m_cornerSize};
+        const GfxCropBoard topLeft     {DIR_UPLEFT,                  0,                  0, &frame,                        0,                        0,                 m_cornerSize,                 m_cornerSize};
+        const GfxCropBoard top         {DIR_UPLEFT,       m_cornerSize,                  0, &frame,             m_cornerSize,                        0, frame.w() - 2 * m_cornerSize,                 m_cornerSize};
+        const GfxCropBoard topRight    {DIR_UPLEFT, w() - m_cornerSize,                  0, &frame, frame.w() - m_cornerSize,                        0,                 m_cornerSize,                 m_cornerSize};
+        const GfxCropBoard left        {DIR_UPLEFT,                  0,       m_cornerSize, &frame,                        0,             m_cornerSize,                 m_cornerSize, frame.h() - 2 * m_cornerSize};
+        const GfxCropBoard middle      {DIR_UPLEFT,       m_cornerSize,       m_cornerSize, &frame,             m_cornerSize,             m_cornerSize, frame.w() - 2 * m_cornerSize, frame.h() - 2 * m_cornerSize};
+        const GfxCropBoard right       {DIR_UPLEFT, w() - m_cornerSize,       m_cornerSize, &frame, frame.w() - m_cornerSize,             m_cornerSize,                 m_cornerSize, frame.h() - 2 * m_cornerSize};
+        const GfxCropBoard bottomLeft  {DIR_UPLEFT,                  0, h() - m_cornerSize, &frame,                        0, frame.h() - m_cornerSize,                 m_cornerSize,                 m_cornerSize};
+        const GfxCropBoard bottom      {DIR_UPLEFT,       m_cornerSize, h() - m_cornerSize, &frame,             m_cornerSize, frame.h() - m_cornerSize, frame.w() - 2 * m_cornerSize,                 m_cornerSize};
+        const GfxCropBoard bottomRight {DIR_UPLEFT, w() - m_cornerSize, h() - m_cornerSize, &frame, frame.w() - m_cornerSize, frame.h() - m_cornerSize,                 m_cornerSize,                 m_cornerSize};
 
         const ImageCropDupBoard    topDup{DIR_UPLEFT,       m_cornerSize,                  0, w() - 2 * m_cornerSize,           m_cornerSize, &top    };
         const ImageCropDupBoard   leftDup{DIR_UPLEFT,                  0,       m_cornerSize,           m_cornerSize, h() - 2 * m_cornerSize, &left   };

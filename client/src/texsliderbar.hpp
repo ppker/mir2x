@@ -3,7 +3,7 @@
 #include "widget.hpp"
 #include "texslider.hpp"
 #include "imageboard.hpp"
-#include "imagecropboard.hpp"
+#include "gfxcropboard.hpp"
 #include "imagecropdupboard.hpp"
 
 class TexSliderBar: public Widget
@@ -16,9 +16,9 @@ class TexSliderBar: public Widget
         ImageBoard m_barImage;
 
     private:
-        ImageCropBoard m_slotCropLeft;
-        ImageCropBoard m_slotCropMiddle;
-        ImageCropBoard m_slotCropRight;
+        GfxCropBoard m_slotCropLeft;
+        GfxCropBoard m_slotCropMiddle;
+        GfxCropBoard m_slotCropRight;
 
     private:
         ImageCropDupBoard m_barCropDup;
