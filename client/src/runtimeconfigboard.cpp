@@ -6,7 +6,6 @@
 #include "soundeffectdb.hpp"
 #include "processrun.hpp"
 #include "inventoryboard.hpp"
-#include "shapeclipboard.hpp"
 
 extern Client *g_client;
 extern IMEBoard *g_imeBoard;
@@ -195,12 +194,31 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           false,
       }
 
-    , m_selectBoard
+    , m_leftMenuBackground
       {
           DIR_UPLEFT,
-          20,
-          20,
-          50,
+          30,
+          30,
+          80,
+          argH - 30 * 2,
+
+          [](const Widget *widgetPtr, int drawDstX, int drawDstY)
+          {
+              g_sdlDevice->fillRectangle(                             colorf::A_SHF(128), drawDstX, drawDstY, widgetPtr->w(), widgetPtr->h(), 10);
+              g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(100), drawDstX, drawDstY, widgetPtr->w(), widgetPtr->h(), 10);
+          },
+
+          this,
+          false,
+      }
+
+    , m_leftMenu
+      {
+          DIR_NONE,
+          m_leftMenuBackground.dx() + m_leftMenuBackground.w() / 2,
+          m_leftMenuBackground.dy() + m_leftMenuBackground.h() / 2,
+
+          to_dround(m_leftMenuBackground.w() * 0.7),
 
           false,
           {},
@@ -208,7 +226,7 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           false,
 
           1,
-          12,
+          15,
           0,
           colorf::WHITE + colorf::A_SHF(255),
           0,
@@ -230,14 +248,18 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           fflassert(proc); return proc;
       }())
 {
-    m_selectBoard.loadXML(
+    m_leftMenu.loadXML(
         R"###( <layout>            )###""\n"
-        R"###(     <par><event>系统</event></par> )###""\n"
-        R"###(     <par><event>社交</event></par> )###""\n"
-        R"###(     <par><event>网络</event></par> )###""\n"
-        R"###(     <par><event>游戏</event></par> )###""\n"
-        R"###(     <par><event>帮助</event></par> )###""\n"
-        R"###( </layout>           )###""\n"
+        R"###(     <par><event>系 统</event></par> )###""\n"
+        R"###(     <par>                    </par> )###""\n"
+        R"###(     <par><event>社 交</event></par> )###""\n"
+        R"###(     <par>                    </par> )###""\n"
+        R"###(     <par><event>网 络</event></par> )###""\n"
+        R"###(     <par>                    </par> )###""\n"
+        R"###(     <par><event>游 戏</event></par> )###""\n"
+        R"###(     <par>                    </par> )###""\n"
+        R"###(     <par><event>帮 助</event></par> )###""\n"
+        R"###( </layout>                           )###""\n"
     );
 
     // 1.0f -> SDL_MIX_MAXVOLUME
@@ -255,26 +277,11 @@ void RuntimeConfigBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW
         return;
     }
 
-    ShapeClipBoard leftMenuBackground
-    {
-        DIR_UPLEFT,
-        30,
-        30,
-        80,
-        h() - 30 * 2,
-
-        [](const Widget *widgetPtr, int drawDstX, int drawDstY)
-        {
-            g_sdlDevice->fillRectangle(                             colorf::A_SHF(128), drawDstX, drawDstY, widgetPtr->w(), widgetPtr->h(), 10);
-            g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(100), drawDstX, drawDstY, widgetPtr->w(), widgetPtr->h(), 10);
-        },
-    };
-
     for(const auto p:
     {
         static_cast<const Widget *>(&m_frameBoard          ),
-        static_cast<const Widget *>(&leftMenuBackground    ),
-        static_cast<const Widget *>(&m_selectBoard         ),
+        static_cast<const Widget *>(&m_leftMenuBackground  ),
+        static_cast<const Widget *>(&m_leftMenu            ),
         static_cast<const Widget *>(&m_menuButton          ),
         static_cast<const Widget *>(&m_checkLabel          ),
         static_cast<const Widget *>(&m_texSliderBar        ),
@@ -324,7 +331,7 @@ bool RuntimeConfigBoard::processEvent(const SDL_Event &event, bool valid)
 
     for(auto widgetPtr:
     {
-        static_cast<Widget *>(&m_selectBoard),
+        static_cast<Widget *>(&m_leftMenu),
         static_cast<Widget *>(&m_menuButton),
         static_cast<Widget *>(&m_checkLabel),
         static_cast<Widget *>(&m_frameBoard),

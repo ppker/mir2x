@@ -10,6 +10,7 @@
 #include "texslider.hpp"
 #include "tritexbutton.hpp"
 #include "texsliderbar.hpp"
+#include "shapeclipboard.hpp"
 #include "resizableframeboard.hpp"
 
 class ProcessRun;
@@ -42,7 +43,8 @@ class RuntimeConfigBoard: public Widget
         MenuButton m_menuButton;
 
     private:
-        LayoutBoard m_selectBoard;
+        ShapeClipBoard m_leftMenuBackground;
+        LayoutBoard    m_leftMenu;
 
     private:
         ProcessRun *m_processRun;
