@@ -3,7 +3,7 @@
 #include "sdldevice.hpp"
 #include "imageboard.hpp"
 #include "gfxcropboard.hpp"
-#include "imagecropdupboard.hpp"
+#include "gfxdupboard.hpp"
 #include "resizableframeboard.hpp"
 
 extern PNGTexDB *g_progUseDB;
@@ -90,11 +90,11 @@ void ResizableFrameBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int src
         const GfxCropBoard bottom      {DIR_UPLEFT,       m_cornerSize, h() - m_cornerSize, &frame,             m_cornerSize, frame.h() - m_cornerSize, frame.w() - 2 * m_cornerSize,                 m_cornerSize};
         const GfxCropBoard bottomRight {DIR_UPLEFT, w() - m_cornerSize, h() - m_cornerSize, &frame, frame.w() - m_cornerSize, frame.h() - m_cornerSize,                 m_cornerSize,                 m_cornerSize};
 
-        const ImageCropDupBoard    topDup{DIR_UPLEFT,       m_cornerSize,                  0, w() - 2 * m_cornerSize,           m_cornerSize, &top    };
-        const ImageCropDupBoard   leftDup{DIR_UPLEFT,                  0,       m_cornerSize,           m_cornerSize, h() - 2 * m_cornerSize, &left   };
-        const ImageCropDupBoard middleDup{DIR_UPLEFT,       m_cornerSize,       m_cornerSize, w() - 2 * m_cornerSize, h() - 2 * m_cornerSize, &middle };
-        const ImageCropDupBoard  rightDup{DIR_UPLEFT, w() - m_cornerSize,       m_cornerSize,           m_cornerSize, h() - 2 * m_cornerSize, &right  };
-        const ImageCropDupBoard bottomDup{DIR_UPLEFT,       m_cornerSize, h() - m_cornerSize, w() - 2 * m_cornerSize,           m_cornerSize, &bottom };
+        const GfxDupBoard    topDup{DIR_UPLEFT,       m_cornerSize,                  0, w() - 2 * m_cornerSize,           m_cornerSize, &top    };
+        const GfxDupBoard   leftDup{DIR_UPLEFT,                  0,       m_cornerSize,           m_cornerSize, h() - 2 * m_cornerSize, &left   };
+        const GfxDupBoard middleDup{DIR_UPLEFT,       m_cornerSize,       m_cornerSize, w() - 2 * m_cornerSize, h() - 2 * m_cornerSize, &middle };
+        const GfxDupBoard  rightDup{DIR_UPLEFT, w() - m_cornerSize,       m_cornerSize,           m_cornerSize, h() - 2 * m_cornerSize, &right  };
+        const GfxDupBoard bottomDup{DIR_UPLEFT,       m_cornerSize, h() - m_cornerSize, w() - 2 * m_cornerSize,           m_cornerSize, &bottom };
 
         for(const auto &p:
         {

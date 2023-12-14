@@ -4,7 +4,7 @@
 #include "texslider.hpp"
 #include "imageboard.hpp"
 #include "gfxcropboard.hpp"
-#include "imagecropdupboard.hpp"
+#include "gfxdupboard.hpp"
 
 class TexSliderBar: public Widget
 {
@@ -21,8 +21,8 @@ class TexSliderBar: public Widget
         GfxCropBoard m_slotCropRight;
 
     private:
-        ImageCropDupBoard m_barCropDup;
-        ImageCropDupBoard m_slotMidCropDup;
+        GfxDupBoard m_barCropDup;
+        GfxDupBoard m_slotMidCropDup;
 
     public:
         TexSliderBar(dir8_t,

@@ -5,7 +5,7 @@
 class GfxCropBoard: public Widget
 {
     private:
-        const Widget * const m_widget;
+        const Widget * const m_gfxWidget;
 
     private:
         const int m_brdCropX;
@@ -47,7 +47,7 @@ class GfxCropBoard: public Widget
                   argAutoDelete,
               }
 
-            , m_widget([argWidget]{ fflassert(argWidget); return argWidget; }())
+            , m_gfxWidget([argWidget]{ fflassert(argWidget); return argWidget; }())
 
             , m_brdCropX(argBrdCropX)
             , m_brdCropY(argBrdCropY)
@@ -73,7 +73,7 @@ class GfxCropBoard: public Widget
             int brdCropW = m_brdCropW;
             int brdCropH = m_brdCropH;
 
-            if(!mathf::rectangleOverlapRegion<int>(0, 0, m_widget->w(), m_widget->h(), brdCropX, brdCropY, brdCropW, brdCropH)){
+            if(!mathf::rectangleOverlapRegion<int>(0, 0, m_gfxWidget->w(), m_gfxWidget->h(), brdCropX, brdCropY, brdCropW, brdCropH)){
                 return;
             }
 
@@ -100,6 +100,6 @@ class GfxCropBoard: public Widget
                 return;
             }
 
-            m_widget->drawEx(drawDstX, drawDstY, drawSrcX + brdCropX, drawSrcY + brdCropY, drawSrcW, drawSrcH);
+            m_gfxWidget->drawEx(drawDstX, drawDstY, drawSrcX + brdCropX, drawSrcY + brdCropY, drawSrcW, drawSrcH);
         }
 };

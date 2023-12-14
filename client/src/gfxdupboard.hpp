@@ -2,13 +2,13 @@
 #include "mathf.hpp"
 #include "widget.hpp"
 
-class ImageCropDupBoard: public Widget
+class GfxDupBoard: public Widget
 {
     private:
-        const Widget * const m_widget;
+        const Widget * const m_gfxWidget;
 
     public:
-        ImageCropDupBoard(
+        GfxDupBoard(
                 dir8_t argDir,
 
                 int argX,
@@ -33,7 +33,7 @@ class ImageCropDupBoard: public Widget
                   argAutoDelete,
               }
 
-            , m_widget([argWidget]{ fflassert(argWidget); return argWidget; }())
+            , m_gfxWidget([argWidget]{ fflassert(argWidget); return argWidget; }())
         {}
 
     public:
@@ -52,11 +52,11 @@ class ImageCropDupBoard: public Widget
                             &onScreenX,
                             &onScreenY,
 
-                            m_widget->w(),
-                            m_widget->h(),
+                            m_gfxWidget->w(),
+                            m_gfxWidget->h(),
 
                             0, 0, -1, -1, dstX, dstY, srcW, srcH)){
-                    m_widget->drawEx(onScreenX, onScreenY, onCropBrdX, onCropBrdY, onCropBrdW, onCropBrdH);
+                    m_gfxWidget->drawEx(onScreenX, onScreenY, onCropBrdX, onCropBrdY, onCropBrdW, onCropBrdH);
                 }
             };
 
@@ -65,10 +65,10 @@ class ImageCropDupBoard: public Widget
 
             int doneDrawWidth = 0;
             while(doneDrawWidth < w()){
-                const int drawWidth = std::min<int>(m_widget->w(), w() - doneDrawWidth);
+                const int drawWidth = std::min<int>(m_gfxWidget->w(), w() - doneDrawWidth);
                 int doneDrawHeight = 0;
                 while(doneDrawHeight < h()){
-                    const int drawHeight = std::min<int>(m_widget->h(), h() - doneDrawHeight);
+                    const int drawHeight = std::min<int>(m_gfxWidget->h(), h() - doneDrawHeight);
                     fnCropDraw(0, 0, drawWidth, drawHeight, extendedDstX + doneDrawWidth, extendedDstY + doneDrawHeight);
                     doneDrawHeight += drawHeight;
                 }
