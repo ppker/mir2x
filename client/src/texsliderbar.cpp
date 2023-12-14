@@ -125,8 +125,8 @@ TexSliderBar::TexSliderBar(
     , m_slotCropRight
       {
           DIR_DOWNRIGHT,
-          w(),
-          h(),
+          w() - 1,
+          h() - 1,
 
           &m_slotImage,
 
