@@ -420,8 +420,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           140,
 
           {
-              &m_resizeImg0,
               &m_resizeImg1,
+              &m_resizeImg0,
               &m_resizeImg2,
           },
 
