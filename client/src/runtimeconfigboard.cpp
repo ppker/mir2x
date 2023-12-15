@@ -169,6 +169,35 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           {10, 10, 10, 10},
       }
 
+    , m_menuExpandButton
+      {
+          DIR_UPLEFT,
+          180,
+          130,
+
+          {0X00000055, 0X00000055, 0X00000056},
+          {
+              SYS_U32NIL,
+              SYS_U32NIL,
+              0X01020000 + 105,
+          },
+
+          nullptr,
+          nullptr,
+          [this]()
+          {
+          },
+
+          0,
+          0,
+          0,
+          0,
+
+          true,
+          true,
+          this,
+      }
+
     , m_menuImage
       {
           DIR_UPLEFT,
@@ -182,8 +211,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
     , m_menuImageCropDup
       {
           DIR_UPLEFT,
-          180,
-          130,
+          m_menuExpandButton.dx() + m_menuExpandButton.w(),
+          m_menuExpandButton.dy() + m_menuExpandButton.h(),
           50,
           20,
 
@@ -338,6 +367,7 @@ void RuntimeConfigBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW
     for(const auto p:
     {
         static_cast<const Widget *>(&m_frameBoard          ),
+        static_cast<const Widget *>(&m_menuExpandButton    ),
         static_cast<const Widget *>(&m_menuImageCropDup    ),
         static_cast<const Widget *>(&m_leftMenuBackground  ),
         static_cast<const Widget *>(&m_leftMenu            ),
@@ -391,6 +421,7 @@ bool RuntimeConfigBoard::processEvent(const SDL_Event &event, bool valid)
     for(auto widgetPtr:
     {
         static_cast<Widget *>(&m_leftMenu),
+        static_cast<Widget *>(&m_menuExpandButton),
         static_cast<Widget *>(&m_menuButton),
         static_cast<Widget *>(&m_checkLabel),
         static_cast<Widget *>(&m_frameBoard),
