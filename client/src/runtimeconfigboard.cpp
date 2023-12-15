@@ -409,6 +409,45 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           false,
       }
 
+    , m_resizeImg0{DIR_UPLEFT, 0, 0, 22, 22, [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000300); }, false, false, 1}
+    , m_resizeImg1{DIR_UPLEFT, 0, 0, 22, 22, [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000301); }, false, false, 1}
+    , m_resizeImg2{DIR_UPLEFT, 0, 0, 22, 22, [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000302); }, false, false, 1}
+
+    , m_resizeButton
+      {
+          DIR_UPLEFT,
+          130,
+          140,
+
+          {
+              &m_resizeImg0,
+              &m_resizeImg1,
+              &m_resizeImg2,
+          },
+
+          {
+              SYS_U32NIL,
+              SYS_U32NIL,
+              0X01020000 + 105,
+          },
+
+          nullptr,
+          nullptr,
+          [this]()
+          {
+          },
+
+          0,
+          0,
+          0,
+          0,
+
+          true,
+          true,
+          this,
+          false,
+      }
+
     , m_processRun([proc]()
       {
           fflassert(proc); return proc;
@@ -453,6 +492,7 @@ void RuntimeConfigBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW
         static_cast<const Widget *>(&m_menuImageCropDup    ),
         static_cast<const Widget *>(&m_leftMenuBackground  ),
         static_cast<const Widget *>(&m_leftMenu            ),
+        static_cast<const Widget *>(&m_resizeButton        ),
         static_cast<const Widget *>(&m_menuButton          ),
         static_cast<const Widget *>(&m_checkLabel          ),
         static_cast<const Widget *>(&m_texSliderBar        ),
@@ -503,6 +543,7 @@ bool RuntimeConfigBoard::processEvent(const SDL_Event &event, bool valid)
     for(auto widgetPtr:
     {
         static_cast<Widget *>(&m_leftMenu),
+        static_cast<Widget *>(&m_resizeButton),
         static_cast<Widget *>(&m_menuExpandButton),
         static_cast<Widget *>(&m_menuExpandButton2),
         static_cast<Widget *>(&m_menuButton),

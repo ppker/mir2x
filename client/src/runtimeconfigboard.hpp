@@ -12,6 +12,7 @@
 #include "labelboard.hpp"
 #include "texslider.hpp"
 #include "tritexbutton.hpp"
+#include "trigfxbutton.hpp"
 #include "texsliderbar.hpp"
 #include "shapeclipboard.hpp"
 #include "resizableframeboard.hpp"
@@ -61,6 +62,13 @@ class RuntimeConfigBoard: public Widget
     private:
         ShapeClipBoard m_leftMenuBackground;
         LayoutBoard    m_leftMenu;
+
+    private:
+        ImageBoard m_resizeImg0;
+        ImageBoard m_resizeImg1;
+        ImageBoard m_resizeImg2;
+
+        TrigfxButton m_resizeButton;
 
     private:
         ProcessRun *m_processRun;
