@@ -55,7 +55,7 @@ class ButtonBase: public Widget
         const bool m_onClickDone;
 
     protected:
-        const uint32_t m_seffID[3];
+        const std::optional<uint32_t> m_seffID[3];
 
     protected:
         const int m_offset[3][2];
@@ -66,64 +66,29 @@ class ButtonBase: public Widget
         std::function<void()> m_onClick;
 
     public:
-        ButtonBase(
-                dir8_t argDir,
-                int argX,
-                int argY,
-                int argW,
-                int argH,
+        ButtonBase(dir8_t,
+                int,
+                int,
+                int,
+                int,
 
-                std::function<void()> fnOnOverIn  = nullptr,
-                std::function<void()> fnOnOverOut = nullptr,
-                std::function<void()> fnOnClick   = nullptr,
+                std::function<void()> = nullptr,
+                std::function<void()> = nullptr,
+                std::function<void()> = nullptr,
 
-                uint32_t seffIDOnOverIn  = SYS_U32NIL,
-                uint32_t seffIDOnOverOut = SYS_U32NIL,
-                uint32_t seffIDOnClick   = SYS_U32NIL,
+                std::optional<uint32_t> = {},
+                std::optional<uint32_t> = {},
+                std::optional<uint32_t> = {},
 
-                int offXOnOver  = 0,
-                int offYOnOver  = 0,
-                int offXOnClick = 0,
-                int offYOnClick = 0,
+                int = 0,
+                int = 0,
+                int = 0,
+                int = 0,
 
-                bool    onClickDone = true,
-                Widget *widgetPtr   = nullptr,
-                bool    autoFree    = false)
+                bool = true,
 
-            : Widget
-              {
-                  argDir,
-                  argX,
-                  argY,
-                  argW,
-                  argH,
-
-                  {},
-
-                  widgetPtr,
-                  autoFree,
-              }
-
-            , m_onClickDone(onClickDone)
-            , m_seffID
-              {
-                  seffIDOnOverIn,
-                  seffIDOnOverOut,
-                  seffIDOnClick,
-              }
-            , m_offset
-              {
-                  {0            , 0          },
-                  {offXOnOver   , offYOnOver },
-                  {offXOnClick  , offYOnClick},
-              }
-            , m_onOverIn (std::move(fnOnOverIn))
-            , m_onOverOut(std::move(fnOnOverOut))
-            , m_onClick  (std::move(fnOnClick))
-        {
-            // we don't fail even if x, y, w, h are invalid
-            // because derived class could do reset in its constructor
-        }
+                Widget * = nullptr,
+                bool     = false);
 
     public:
         virtual ~ButtonBase() = default;

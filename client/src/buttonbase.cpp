@@ -7,6 +7,66 @@
 extern SDLDevice *g_sdlDevice;
 extern SoundEffectDB *g_seffDB;
 
+ButtonBase::ButtonBase(
+        dir8_t argDir,
+        int argX,
+        int argY,
+        int argW,
+        int argH,
+
+        std::function<void()> fnOnOverIn,
+        std::function<void()> fnOnOverOut,
+        std::function<void()> fnOnClick,
+
+        std::optional<uint32_t> seffIDOnOverIn,
+        std::optional<uint32_t> seffIDOnOverOut,
+        std::optional<uint32_t> seffIDOnClick,
+
+        int offXOnOver,
+        int offYOnOver,
+        int offXOnClick,
+        int offYOnClick,
+
+        bool onClickDone,
+
+        Widget *widgetPtr,
+        bool    autoFree)
+
+    : Widget
+      {
+          argDir,
+          argX,
+          argY,
+          argW,
+          argH,
+
+          {},
+
+          widgetPtr,
+          autoFree,
+      }
+
+    , m_onClickDone(onClickDone)
+
+    , m_seffID
+      {
+          seffIDOnOverIn,
+          seffIDOnOverOut,
+          seffIDOnClick,
+      }
+
+    , m_offset
+      {
+          {0            , 0          },
+          {offXOnOver   , offYOnOver },
+          {offXOnClick  , offYOnClick},
+      }
+
+    , m_onOverIn (std::move(fnOnOverIn))
+    , m_onOverOut(std::move(fnOnOverOut))
+    , m_onClick  (std::move(fnOnClick))
+{}
+
 bool ButtonBase::processEvent(const SDL_Event &event, bool valid)
 {
     if(!valid){
@@ -141,8 +201,8 @@ void ButtonBase::onClick()
         m_onClick();
     }
 
-    if(m_seffID[2] != SYS_U32NIL){
-        g_sdlDevice->playSoundEffect(g_seffDB->retrieve((m_seffID[2])));
+    if(m_seffID[2].has_value()){
+        g_sdlDevice->playSoundEffect(g_seffDB->retrieve((m_seffID[2].value())));
     }
 }
 
@@ -152,8 +212,8 @@ void ButtonBase::onOverIn()
         m_onOverIn();
     }
 
-    if(m_seffID[0] != SYS_U32NIL){
-        g_sdlDevice->playSoundEffect(g_seffDB->retrieve((m_seffID[0])));
+    if(m_seffID[0].has_value()){
+        g_sdlDevice->playSoundEffect(g_seffDB->retrieve((m_seffID[0].value())));
     }
 }
 
@@ -163,8 +223,8 @@ void ButtonBase::onOverOut()
         m_onOverOut();
     }
 
-    if(m_seffID[1] != SYS_U32NIL){
-        g_sdlDevice->playSoundEffect(g_seffDB->retrieve((m_seffID[1])));
+    if(m_seffID[1].has_value()){
+        g_sdlDevice->playSoundEffect(g_seffDB->retrieve((m_seffID[1].value())));
     }
 }
 
