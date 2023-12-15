@@ -286,6 +286,22 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           false,
       }
 
+    , m_menuImageCropDup2
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+          22,
+          20,
+
+          &m_menuImage,
+
+          3,
+          3,
+          m_menuImage.w() - 6,
+          2,
+      }
+
     , m_menuExpandButton2
       {
           DIR_UPLEFT,
@@ -319,14 +335,14 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
       {
           DIR_UPLEFT,
           130,
-          100,
+          99,
 
-          &m_menuImageCropDup,
+          &m_menuImageCropDup2,
 
           3,
           2,
-          m_menuImageCropDup.w() - 6,
-          m_menuImageCropDup.h() - 4,
+          m_menuImageCropDup2.w() - 6,
+          m_menuImageCropDup2.h() - 4,
 
           this,
           false,
