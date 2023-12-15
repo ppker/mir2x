@@ -198,6 +198,23 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           this,
       }
 
+    , m_menuExpandButtonBox
+      {
+          DIR_UPLEFT,
+          m_menuExpandButton.dx(),
+          m_menuExpandButton.dy(),
+          m_menuExpandButton.w(),
+          m_menuExpandButton.h(),
+
+          [](const Widget *widgetPtr, int drawDstX, int drawDstY)
+          {
+              g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(100), drawDstX, drawDstY, widgetPtr->w(), widgetPtr->h(), 2);
+          },
+
+          this,
+          false,
+      }
+
     , m_menuImage
       {
           DIR_UPLEFT,
@@ -367,6 +384,7 @@ void RuntimeConfigBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW
     for(const auto p:
     {
         static_cast<const Widget *>(&m_frameBoard          ),
+        static_cast<const Widget *>(&m_menuExpandButtonBox ),
         static_cast<const Widget *>(&m_menuExpandButton    ),
         static_cast<const Widget *>(&m_menuImageCropDup    ),
         static_cast<const Widget *>(&m_leftMenuBackground  ),

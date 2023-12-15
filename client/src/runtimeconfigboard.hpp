@@ -41,7 +41,8 @@ class RuntimeConfigBoard: public Widget
         MenuBoard m_menuBoard;
 
     private:
-        TritexButton m_menuExpandButton;
+        TritexButton   m_menuExpandButton;
+        ShapeClipBoard m_menuExpandButtonBox;
 
     private:
         ImageBoard      m_menuImage;
