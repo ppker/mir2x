@@ -5,6 +5,7 @@
 #include "widget.hpp"
 #include "menuboard.hpp"
 #include "imageboard.hpp"
+#include "gfxcutoutboard.hpp"
 #include "gfxcropdupboard.hpp"
 #include "menubutton.hpp"
 #include "checklabel.hpp"
@@ -51,6 +52,10 @@ class RuntimeConfigBoard: public Widget
         LabelBoard m_menuButtonTitle;
         Widget     m_menuButtonTitleGfx;
         MenuButton m_menuButton;
+
+    private:
+        TritexButton   m_menuExpandButton2;
+        GfxCutoutBoard m_menuExpandButtonBox2;
 
     private:
         ShapeClipBoard m_leftMenuBackground;
