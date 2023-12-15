@@ -182,8 +182,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
     , m_menuImageCropDup
       {
           DIR_UPLEFT,
-          0,
-          0,
+          180,
+          130,
           50,
           20,
 
@@ -193,6 +193,9 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           3,
           m_menuImage.w() - 6,
           2,
+
+          this,
+          false,
       }
 
     , m_menuButtonTitle
@@ -335,6 +338,7 @@ void RuntimeConfigBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW
     for(const auto p:
     {
         static_cast<const Widget *>(&m_frameBoard          ),
+        static_cast<const Widget *>(&m_menuImageCropDup    ),
         static_cast<const Widget *>(&m_leftMenuBackground  ),
         static_cast<const Widget *>(&m_leftMenu            ),
         static_cast<const Widget *>(&m_menuButton          ),
