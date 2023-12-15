@@ -217,8 +217,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           250,
 
           {
-              {&m_menuImageCropDup, DIR_UPLEFT, 0, 0, false},
-              {&m_menuButtonTitle,  DIR_UPLEFT, 0, 0, false},
+              // {&m_menuImageCropDup, DIR_UPLEFT, 0, 0, false},
+              // {&m_menuButtonTitle,  DIR_UPLEFT, 0, 0, false},
           },
       }
 
@@ -228,8 +228,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           200,
           250,
 
-          {&m_menuButtonTitleGfx, false},
-          {&m_menuBoard         , false},
+          {&m_menuButtonTitle, false},
+          {&m_menuBoard      , false},
 
           {},
 
