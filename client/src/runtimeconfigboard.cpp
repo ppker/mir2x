@@ -201,10 +201,10 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
     , m_menuExpandButtonBox
       {
           DIR_UPLEFT,
-          m_menuExpandButton.dx(),
+          m_menuExpandButton.dx() - 1,
           m_menuExpandButton.dy(),
-          m_menuExpandButton.w(),
-          m_menuExpandButton.h(),
+          m_menuExpandButton. w() - 1,
+          m_menuExpandButton. h(),
 
           [](const Widget *widgetPtr, int drawDstX, int drawDstY)
           {
@@ -384,8 +384,8 @@ void RuntimeConfigBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW
     for(const auto p:
     {
         static_cast<const Widget *>(&m_frameBoard          ),
-        static_cast<const Widget *>(&m_menuExpandButtonBox ),
         static_cast<const Widget *>(&m_menuExpandButton    ),
+        static_cast<const Widget *>(&m_menuExpandButtonBox ),
         static_cast<const Widget *>(&m_menuImageCropDup    ),
         static_cast<const Widget *>(&m_leftMenuBackground  ),
         static_cast<const Widget *>(&m_leftMenu            ),
