@@ -426,8 +426,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           },
 
           {
-              SYS_U32NIL,
-              SYS_U32NIL,
+              std::nullopt,
+              std::nullopt,
               0X01020000 + 105,
           },
 
