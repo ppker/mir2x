@@ -6,22 +6,22 @@ TrigfxButton::TrigfxButton(
         int argX,
         int argY,
 
-        std::array<const Widget *, 3> gfxList,
-        std::array<std::optional<uint32_t>, 3> seffIDList,
+        std::array<const Widget *, 3> argGfxList,
+        std::array<std::optional<uint32_t>, 3> argSeffIDList,
 
-        std::function<void()> fnOnOverIn,
-        std::function<void()> fnOnOverOut,
-        std::function<void()> fnOnClick,
+        std::function<void()> argOnOverIn,
+        std::function<void()> argOnOverOut,
+        std::function<void()> argOnClick,
 
-        int offXOnOver,
-        int offYOnOver,
-        int offXOnClick,
-        int offYOnClick,
+        int argOffXOnOver,
+        int argOffYOnOver,
+        int argOffXOnClick,
+        int argOffYOnClick,
 
-        bool onClickDone,
+        bool argOnClickDone,
 
-        Widget *widgetPtr,
-        bool    autoDelete)
+        Widget *argParent,
+        bool    argAutoDelete)
 
     : ButtonBase
       {
@@ -31,29 +31,29 @@ TrigfxButton::TrigfxButton(
           0,
           0,
 
-          std::move(fnOnOverIn),
-          std::move(fnOnOverOut),
-          std::move(fnOnClick),
+          std::move(argOnOverIn),
+          std::move(argOnOverOut),
+          std::move(argOnClick),
 
-          seffIDList[0],
-          seffIDList[1],
-          seffIDList[2],
+          argSeffIDList[0],
+          argSeffIDList[1],
+          argSeffIDList[2],
 
-          offXOnOver,
-          offYOnOver,
-          offXOnClick,
-          offYOnClick,
+          argOffXOnOver,
+          argOffYOnOver,
+          argOffXOnClick,
+          argOffYOnClick,
 
-          onClickDone,
-          widgetPtr,
-          autoDelete,
+          argOnClickDone,
+          argParent,
+          argAutoDelete,
       }
 
     , m_gfxList
       {
-          gfxList[0],
-          gfxList[1],
-          gfxList[2],
+          argGfxList[0],
+          argGfxList[1],
+          argGfxList[2],
       }
 {
     initButtonSize();
