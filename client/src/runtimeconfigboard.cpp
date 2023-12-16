@@ -443,7 +443,7 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           0,
 
           true,
-          true,
+
           this,
           false,
       }
