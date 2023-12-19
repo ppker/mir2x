@@ -162,6 +162,13 @@ RuntimeConfigBoard::PullMenu::PullMenu(
           nullptr,
           [this]()
           {
+              m_menuList.flipShow();
+              if(m_menuList.show()){
+                  setSize({}, std::max<int>(w(), m_menuTitleCrop.dy() + m_menuTitleCrop.h() + m_menuList.h()));
+              }
+              else{
+                  setSize({}, std::max<int>({m_labelCrop.h(), m_menuTitleBackground.h(), m_button.h()}));
+              }
           },
 
           0,
@@ -202,6 +209,8 @@ RuntimeConfigBoard::PullMenu::PullMenu(
 
     m_menuTitleCrop.moveAt(DIR_LEFT, m_menuTitleBackground.dx() + 3                        , h() / 2);
     m_button       .moveAt(DIR_LEFT, m_menuTitleBackground.dx() + m_menuTitleBackground.w(), h() / 2);
+
+    m_menuList.moveAt(DIR_UPLEFT, m_menuTitleCrop.dx(), m_menuTitleCrop.dy() + m_menuTitleCrop.h());
 }
 
 void RuntimeConfigBoard::PullMenu::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
@@ -716,10 +725,10 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           0,
 
           u8"分辨率",
-          100,
+          50,
 
           100,
-          70,
+          30,
 
           {
               {&m_menuItem0, false},
