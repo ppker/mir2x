@@ -59,8 +59,8 @@ class RuntimeConfigBoard: public Widget
 
                         std::initializer_list<std::pair<Widget *, bool>>,
 
-                        Widget *,
-                        bool);
+                        Widget * = nullptr,
+                        bool     = false);
         };
 
     private:

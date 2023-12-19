@@ -87,9 +87,8 @@ RuntimeConfigBoard::PullMenu::PullMenu(
     , m_menuTitleBackground
       {
           DIR_UPLEFT,
-          m_labelCrop.dx() + m_labelCrop.w(),
-          m_labelCrop.dy() + m_labelCrop.h(),
-
+          0,
+          0,
           argTitleBgWidth,
           argTitleBgHeight,
 
@@ -120,15 +119,15 @@ RuntimeConfigBoard::PullMenu::PullMenu(
     , m_menuTitleCrop
       {
           DIR_UPLEFT,
-          m_menuTitleBackground.dx() + 3,
-          m_menuTitleBackground.dy() + 2,
+          0,
+          0,
 
           &m_menuTitle,
 
           0,
           0,
-          argTitleBgWidth,
-          argTitleBgHeight,
+          m_menuTitleBackground.w() - 6,
+          m_menuTitleBackground.h() - 4,
 
           {},
 
@@ -143,8 +142,8 @@ RuntimeConfigBoard::PullMenu::PullMenu(
     , m_button
       {
           DIR_UPLEFT,
-          m_menuTitleBackground.dx() + m_menuTitleBackground.w(),
-          m_menuTitleBackground.dy(),
+          0,
+          0,
 
           {
               &m_imgOff,
@@ -178,8 +177,8 @@ RuntimeConfigBoard::PullMenu::PullMenu(
     , m_menuList
       {
           DIR_UPLEFT,
-          m_label.dx(),
-          m_label.dy(),
+          0,
+          0,
 
           50,
 
@@ -194,8 +193,15 @@ RuntimeConfigBoard::PullMenu::PullMenu(
           false,
       }
 {
-    setSize(m_button.dx() + m_button.w(),
-            std::max<int>({m_labelCrop.h(), m_menuTitleBackground.h(), m_button.h()}));
+    const auto maxH = std::max<int>({m_labelCrop.h(), m_menuTitleBackground.h(), m_button.h()});
+
+    m_labelCrop          .moveAt(DIR_LEFT, 0                                 , maxH / 2);
+    m_menuTitleBackground.moveAt(DIR_LEFT, m_labelCrop.dx() + m_labelCrop.w(), maxH / 2);
+
+    m_menuTitle.moveAt(DIR_LEFT, m_menuTitleBackground.dx() + 3                        , maxH / 2);
+    m_button   .moveAt(DIR_LEFT, m_menuTitleBackground.dx() + m_menuTitleBackground.w(), maxH / 2);
+
+    setSize(m_button.dx() + m_button.w(), maxH);
 }
 
 RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, ProcessRun *proc, Widget *widgetPtr, bool autoDelete)
@@ -645,9 +651,6 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           12,
           0,
           colorf::WHITE + colorf::A_SHF(255),
-
-          this,
-          false,
       }
 
     , m_menuItem1
@@ -661,9 +664,6 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           12,
           0,
           colorf::WHITE + colorf::A_SHF(255),
-
-          this,
-          false,
       }
 
     , m_pullMenu
@@ -682,19 +682,16 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
               {&m_menuItem0, false},
               {&m_menuItem1, false},
           },
-
-          this,
-          false,
       }
 
     , m_pageSystem
       {
           DIR_UPLEFT,
-          100,
+          150,
           100,
 
-          500,
-          500,
+          400,
+          400,
 
           {
               {&m_pullMenu, DIR_UPLEFT, 10, 10, false},
