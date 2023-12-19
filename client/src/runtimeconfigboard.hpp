@@ -21,6 +21,32 @@ class ProcessRun;
 class RuntimeConfigBoard: public Widget
 {
     private:
+        class PullMenu: public Widget
+        {
+            private:
+                LabelBoard m_label;
+
+            private:
+                ImageBoard      m_menuTitleImage;
+                GfxCropDupBoard m_menuTitleBackground;
+                LabelBoard      m_menuTitle;
+
+            private:
+                ImageBoard m_imgOff;
+                ImageBoard m_imgOn;
+                ImageBoard m_imgDown;
+
+            private:
+                TrigfxButton m_button;
+
+            private:
+                MenuBoard m_menuList;
+
+            public:
+                PullMenu(dir8_t, int, int, const char8_t *, std::initializer_list<std::pair<Widget *, bool>>, Widget *, bool);
+        };
+
+    private:
         SDRuntimeConfig m_sdRuntimeConfig;
 
     private:
@@ -69,6 +95,13 @@ class RuntimeConfigBoard: public Widget
         ImageBoard m_resizeImg2;
 
         TrigfxButton m_resizeButton;
+
+    private:
+        LabelBoard m_menuItem0;
+        LabelBoard m_menuItem1;
+        PullMenu   m_pullMenu;
+
+        Widget m_pageSystem;
 
     private:
         ProcessRun *m_processRun;

@@ -12,6 +12,151 @@ extern IMEBoard *g_imeBoard;
 extern PNGTexDB *g_progUseDB;
 extern SDLDevice *g_sdlDevice;
 
+RuntimeConfigBoard::PullMenu::PullMenu(
+        dir8_t argDir,
+        int argX,
+        int argY,
+
+        const char8_t *argLabel,
+        std::initializer_list<std::pair<Widget *, bool>> argMenuList,
+
+        Widget *argParent,
+        bool    argAutoDelete)
+
+    : Widget
+      {
+          argDir,
+          argX,
+          argY,
+          0,
+          0,
+
+          {},
+
+          argParent,
+          argAutoDelete,
+      }
+
+    , m_label
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          argLabel,
+          1,
+          12,
+          0,
+          colorf::WHITE + colorf::A_SHF(255),
+
+          this,
+          false,
+      }
+
+    , m_menuTitleImage
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+          {},
+          {},
+          [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000460); },
+      }
+
+    , m_menuTitleBackground
+      {
+          DIR_UPLEFT,
+          m_label.dx() + m_label.w(),
+          m_label.dy() + m_label.h(),
+          50,
+          20,
+
+          &m_menuTitleImage,
+
+          3,
+          3,
+          m_menuTitleImage.w() - 6,
+          2,
+
+          this,
+          false,
+      }
+
+    , m_menuTitle
+      {
+          DIR_UPLEFT,
+          30,
+          30,
+
+          argLabel,
+          1,
+          12,
+          0,
+          colorf::WHITE + colorf::A_SHF(255),
+
+          this,
+          false,
+      }
+
+    , m_imgOff {DIR_UPLEFT, 0, 0, 22, 22, [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000301); }, false, false, 1}
+    , m_imgOn  {DIR_UPLEFT, 0, 0, 22, 22, [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000300); }, false, false, 1}
+    , m_imgDown{DIR_UPLEFT, 0, 0, 22, 22, [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000302); }, false, false, 1}
+
+    , m_button
+      {
+          DIR_UPLEFT,
+          130,
+          140,
+
+          {
+              &m_imgOff,
+              &m_imgOn,
+              &m_imgDown,
+          },
+
+          {
+              std::nullopt,
+              std::nullopt,
+              0X01020000 + 105,
+          },
+
+          nullptr,
+          nullptr,
+          [this]()
+          {
+          },
+
+          0,
+          0,
+          0,
+          0,
+
+          true,
+
+          this,
+          false,
+      }
+
+    , m_menuList
+      {
+          DIR_UPLEFT,
+          m_label.dx(),
+          m_label.dy(),
+
+          50,
+
+          0,
+          0,
+
+          argMenuList,
+
+          {},
+
+          this,
+          false,
+      }
+{}
+
 RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, ProcessRun *proc, Widget *widgetPtr, bool autoDelete)
     : Widget(DIR_UPLEFT, argX, argY, argW, argH, {}, widgetPtr, autoDelete)
     , m_frameBoard
@@ -443,6 +588,71 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           0,
 
           true,
+
+          this,
+          false,
+      }
+
+    , m_menuItem0
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          u8"你好",
+          1,
+          12,
+          0,
+          colorf::WHITE + colorf::A_SHF(255),
+
+          this,
+          false,
+      }
+
+    , m_menuItem1
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          u8"她也好",
+          1,
+          12,
+          0,
+          colorf::WHITE + colorf::A_SHF(255),
+
+          this,
+          false,
+      }
+
+    , m_pullMenu
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          u8"分辨率",
+          {
+              {&m_menuItem0, false},
+              {&m_menuItem1, false},
+          },
+
+          this,
+          false,
+      }
+
+    , m_pageSystem
+      {
+          DIR_UPLEFT,
+          m_leftMenuBackground.x() + m_leftMenuBackground.w() + 20,
+          m_leftMenuBackground.y(),
+
+          w() - (m_leftMenuBackground.x() + m_leftMenuBackground.w() + 20),
+          h(),
+
+          {
+              {&m_pullMenu, DIR_UPLEFT, 10, 10, false},
+          },
 
           this,
           false,
