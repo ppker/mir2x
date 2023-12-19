@@ -30,8 +30,6 @@ class RuntimeConfigBoard: public Widget
             private:
                 ImageBoard      m_menuTitleImage;
                 GfxCropDupBoard m_menuTitleBackground;
-
-            private:
                 LabelBoard      m_menuTitle;
                 GfxCropBoard    m_menuTitleCrop;
 

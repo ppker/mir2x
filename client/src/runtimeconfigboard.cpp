@@ -89,8 +89,9 @@ RuntimeConfigBoard::PullMenu::PullMenu(
           DIR_UPLEFT,
           0,
           0,
-          argTitleBgWidth,
-          argTitleBgHeight,
+
+          [argTitleBgWidth ]{fflassert(argTitleBgWidth  >= 0); return argTitleBgWidth ; }(),
+          [argTitleBgHeight]{fflassert(argTitleBgHeight >= 0); return argTitleBgHeight; }(),
 
           &m_menuTitleImage,
 
@@ -193,15 +194,14 @@ RuntimeConfigBoard::PullMenu::PullMenu(
           false,
       }
 {
-    const auto maxH = std::max<int>({m_labelCrop.h(), m_menuTitleBackground.h(), m_button.h()});
+    m_menuList.setShow(false);
+    setSize(m_labelCrop.w() + m_menuTitleBackground.w() + m_button.w(), std::max<int>({m_labelCrop.h(), m_menuTitleBackground.h(), m_button.h()}));
 
-    m_labelCrop          .moveAt(DIR_LEFT, 0                                 , maxH / 2);
-    m_menuTitleBackground.moveAt(DIR_LEFT, m_labelCrop.dx() + m_labelCrop.w(), maxH / 2);
+    m_labelCrop          .moveAt(DIR_LEFT, 0                                 , h() / 2);
+    m_menuTitleBackground.moveAt(DIR_LEFT, m_labelCrop.dx() + m_labelCrop.w(), h() / 2);
 
-    m_menuTitle.moveAt(DIR_LEFT, m_menuTitleBackground.dx() + 3                        , maxH / 2);
-    m_button   .moveAt(DIR_LEFT, m_menuTitleBackground.dx() + m_menuTitleBackground.w(), maxH / 2);
-
-    setSize(m_button.dx() + m_button.w(), maxH);
+    m_menuTitleCrop.moveAt(DIR_LEFT, m_menuTitleBackground.dx() + 3                        , h() / 2);
+    m_button       .moveAt(DIR_LEFT, m_menuTitleBackground.dx() + m_menuTitleBackground.w(), h() / 2);
 }
 
 RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, ProcessRun *proc, Widget *widgetPtr, bool autoDelete)
