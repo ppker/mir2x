@@ -24,12 +24,16 @@ class RuntimeConfigBoard: public Widget
         class PullMenu: public Widget
         {
             private:
-                LabelBoard m_label;
+                LabelBoard   m_label;
+                GfxCropBoard m_labelCrop;
 
             private:
                 ImageBoard      m_menuTitleImage;
                 GfxCropDupBoard m_menuTitleBackground;
+
+            private:
                 LabelBoard      m_menuTitle;
+                GfxCropBoard    m_menuTitleCrop;
 
             private:
                 ImageBoard m_imgOff;
@@ -43,7 +47,20 @@ class RuntimeConfigBoard: public Widget
                 MenuBoard m_menuList;
 
             public:
-                PullMenu(dir8_t, int, int, const char8_t *, std::initializer_list<std::pair<Widget *, bool>>, Widget *, bool);
+                PullMenu(dir8_t,
+                        int,
+                        int,
+
+                        const char8_t *, // label text
+                        int,             // label width
+
+                        int, // title background width
+                        int, // title background height
+
+                        std::initializer_list<std::pair<Widget *, bool>>,
+
+                        Widget *,
+                        bool);
         };
 
     private:

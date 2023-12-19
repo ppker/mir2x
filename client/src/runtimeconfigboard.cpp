@@ -18,6 +18,11 @@ RuntimeConfigBoard::PullMenu::PullMenu(
         int argY,
 
         const char8_t *argLabel,
+        int argLabelWidth,
+
+        int argTitleBgWidth,
+        int argTitleBgHeight,
+
         std::initializer_list<std::pair<Widget *, bool>> argMenuList,
 
         Widget *argParent,
@@ -48,6 +53,22 @@ RuntimeConfigBoard::PullMenu::PullMenu(
           12,
           0,
           colorf::WHITE + colorf::A_SHF(255),
+      }
+
+    , m_labelCrop
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          &m_label,
+
+          0,
+          0,
+          [argLabelWidth]{fflassert(argLabelWidth >= 0); return argLabelWidth; }(),
+          m_label.h(),
+
+          {},
 
           this,
           false,
@@ -66,10 +87,11 @@ RuntimeConfigBoard::PullMenu::PullMenu(
     , m_menuTitleBackground
       {
           DIR_UPLEFT,
-          m_label.dx() + m_label.w(),
-          m_label.dy() + m_label.h(),
-          50,
-          20,
+          m_labelCrop.dx() + m_labelCrop.w(),
+          m_labelCrop.dy() + m_labelCrop.h(),
+
+          argTitleBgWidth,
+          argTitleBgHeight,
 
           &m_menuTitleImage,
 
@@ -85,14 +107,30 @@ RuntimeConfigBoard::PullMenu::PullMenu(
     , m_menuTitle
       {
           DIR_UPLEFT,
-          30,
-          30,
+          0,
+          0,
 
-          argLabel,
+          u8"NA",
           1,
           12,
           0,
           colorf::WHITE + colorf::A_SHF(255),
+      }
+
+    , m_menuTitleCrop
+      {
+          DIR_UPLEFT,
+          m_menuTitleBackground.dx() + 3,
+          m_menuTitleBackground.dy() + 2,
+
+          &m_menuTitle,
+
+          0,
+          0,
+          argTitleBgWidth,
+          argTitleBgHeight,
+
+          {},
 
           this,
           false,
@@ -105,8 +143,8 @@ RuntimeConfigBoard::PullMenu::PullMenu(
     , m_button
       {
           DIR_UPLEFT,
-          130,
-          140,
+          m_menuTitleBackground.dx() + m_menuTitleBackground.w(),
+          m_menuTitleBackground.dy(),
 
           {
               &m_imgOff,
@@ -155,7 +193,10 @@ RuntimeConfigBoard::PullMenu::PullMenu(
           this,
           false,
       }
-{}
+{
+    setSize(m_button.dx() + m_button.w(),
+            std::max<int>({m_labelCrop.h(), m_menuTitleBackground.h(), m_button.h()}));
+}
 
 RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, ProcessRun *proc, Widget *widgetPtr, bool autoDelete)
     : Widget(DIR_UPLEFT, argX, argY, argW, argH, {}, widgetPtr, autoDelete)
@@ -632,6 +673,11 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           0,
 
           u8"分辨率",
+          100,
+
+          100,
+          70,
+
           {
               {&m_menuItem0, false},
               {&m_menuItem1, false},
@@ -644,11 +690,11 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
     , m_pageSystem
       {
           DIR_UPLEFT,
-          m_leftMenuBackground.x() + m_leftMenuBackground.w() + 20,
-          m_leftMenuBackground.y(),
+          100,
+          100,
 
-          w() - (m_leftMenuBackground.x() + m_leftMenuBackground.w() + 20),
-          h(),
+          500,
+          500,
 
           {
               {&m_pullMenu, DIR_UPLEFT, 10, 10, false},
@@ -695,18 +741,19 @@ void RuntimeConfigBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW
     for(const auto p:
     {
         static_cast<const Widget *>(&m_frameBoard          ),
-        static_cast<const Widget *>(&m_menuExpandButton    ),
-        static_cast<const Widget *>(&m_menuExpandButtonBox ),
-        static_cast<const Widget *>(&m_menuExpandButton2   ),
-        static_cast<const Widget *>(&m_menuExpandButtonBox2),
-        static_cast<const Widget *>(&m_menuImageCropDup    ),
+        // static_cast<const Widget *>(&m_menuExpandButton    ),
+        // static_cast<const Widget *>(&m_menuExpandButtonBox ),
+        // static_cast<const Widget *>(&m_menuExpandButton2   ),
+        // static_cast<const Widget *>(&m_menuExpandButtonBox2),
+        // static_cast<const Widget *>(&m_menuImageCropDup    ),
         static_cast<const Widget *>(&m_leftMenuBackground  ),
         static_cast<const Widget *>(&m_leftMenu            ),
-        static_cast<const Widget *>(&m_resizeButton        ),
-        static_cast<const Widget *>(&m_menuButton          ),
-        static_cast<const Widget *>(&m_checkLabel          ),
-        static_cast<const Widget *>(&m_texSliderBar        ),
-        static_cast<const Widget *>(&m_texSliderBarVertical),
+        static_cast<const Widget *>(&m_pageSystem          ),
+        // static_cast<const Widget *>(&m_resizeButton        ),
+        // static_cast<const Widget *>(&m_menuButton          ),
+        // static_cast<const Widget *>(&m_checkLabel          ),
+        // static_cast<const Widget *>(&m_texSliderBar        ),
+        // static_cast<const Widget *>(&m_texSliderBarVertical),
     }){
         auto drawSrcX = srcX;
         auto drawSrcY = srcY;
@@ -733,11 +780,11 @@ void RuntimeConfigBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW
 
     drawEntryTitle(u8"【游戏设置】", w() / 2, 35);
 
-    drawEntryTitle(u8"背景音乐", 345,  97);
-    drawEntryTitle(u8"音效",     345, 157);
+    // drawEntryTitle(u8"背景音乐", 345,  97);
+    // drawEntryTitle(u8"音效",     345, 157);
 
-    m_musicSlider.draw();
-    m_soundEffectSlider.draw();
+    // m_musicSlider.draw();
+    // m_soundEffectSlider.draw();
 }
 
 bool RuntimeConfigBoard::processEvent(const SDL_Event &event, bool valid)
@@ -753,27 +800,28 @@ bool RuntimeConfigBoard::processEvent(const SDL_Event &event, bool valid)
     for(auto widgetPtr:
     {
         static_cast<Widget *>(&m_leftMenu),
-        static_cast<Widget *>(&m_resizeButton),
-        static_cast<Widget *>(&m_menuExpandButton),
-        static_cast<Widget *>(&m_menuExpandButton2),
-        static_cast<Widget *>(&m_menuButton),
-        static_cast<Widget *>(&m_checkLabel),
+        // static_cast<Widget *>(&m_resizeButton),
+        // static_cast<Widget *>(&m_menuExpandButton),
+        // static_cast<Widget *>(&m_menuExpandButton2),
+        // static_cast<Widget *>(&m_menuButton),
+        // static_cast<Widget *>(&m_checkLabel),
         static_cast<Widget *>(&m_frameBoard),
-        static_cast<Widget *>(&m_texSliderBar),
-        static_cast<Widget *>(&m_texSliderBarVertical),
+        static_cast<Widget *>(&m_pageSystem),
+        // static_cast<Widget *>(&m_texSliderBar),
+        // static_cast<Widget *>(&m_texSliderBarVertical),
     }){
         if(widgetPtr->processEvent(event, valid)){
             return true;
         }
     }
 
-    if(m_musicSlider.processEvent(event, valid)){
-        return consumeFocus(true);
-    }
-
-    if(m_soundEffectSlider.processEvent(event, valid)){
-        return consumeFocus(true);
-    }
+    // if(m_musicSlider.processEvent(event, valid)){
+    //     return consumeFocus(true);
+    // }
+    //
+    // if(m_soundEffectSlider.processEvent(event, valid)){
+    //     return consumeFocus(true);
+    // }
 
     switch(event.type){
         case SDL_KEYDOWN:
