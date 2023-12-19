@@ -59,6 +59,9 @@ class RuntimeConfigBoard: public Widget
 
                         Widget * = nullptr,
                         bool     = false);
+
+            public:
+                void drawEx(int, int, int, int, int, int) const override;
         };
 
     private:

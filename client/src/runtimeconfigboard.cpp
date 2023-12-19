@@ -204,6 +204,49 @@ RuntimeConfigBoard::PullMenu::PullMenu(
     m_button       .moveAt(DIR_LEFT, m_menuTitleBackground.dx() + m_menuTitleBackground.w(), h() / 2);
 }
 
+void RuntimeConfigBoard::PullMenu::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
+{
+    if(!show()){
+        return;
+    }
+
+    for(const auto p:
+    {
+        static_cast<const Widget *>(&m_menuTitleBackground),
+        static_cast<const Widget *>(&m_labelCrop),
+        static_cast<const Widget *>(&m_menuTitleCrop),
+        static_cast<const Widget *>(&m_button),
+        static_cast<const Widget *>(&m_menuList),
+    }){
+        if(!p->show()){
+            continue;
+        }
+
+        int srcXCrop = srcX;
+        int srcYCrop = srcY;
+        int dstXCrop = dstX;
+        int dstYCrop = dstY;
+        int srcWCrop = srcW;
+        int srcHCrop = srcH;
+
+        if(!mathf::cropChildROI(
+                    &srcXCrop, &srcYCrop,
+                    &srcWCrop, &srcHCrop,
+                    &dstXCrop, &dstYCrop,
+
+                    w(),
+                    h(),
+
+                    p->dx(),
+                    p->dy(),
+                    p-> w(),
+                    p-> h())){
+            continue;
+        }
+        p->drawEx(dstXCrop, dstYCrop, srcXCrop, srcYCrop, srcWCrop, srcHCrop);
+    }
+}
+
 RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, ProcessRun *proc, Widget *widgetPtr, bool autoDelete)
     : Widget(DIR_UPLEFT, argX, argY, argW, argH, {}, widgetPtr, autoDelete)
     , m_frameBoard
