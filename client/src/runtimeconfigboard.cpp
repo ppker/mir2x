@@ -190,7 +190,7 @@ RuntimeConfigBoard::PullMenu::PullMenu(
           0,
           0,
 
-          50,
+          m_menuTitleBackground.w() - 6,
 
           0,
           0,
