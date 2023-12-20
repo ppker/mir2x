@@ -73,7 +73,7 @@ void MenuBoard::addChild(Widget *widget, bool autoDelete)
 
 void MenuBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
 {
-    g_sdlDevice->fillRectangle(colorf::BLACK + colorf::A_SHF(128), dstX, dstY, srcW, srcH);
+    g_sdlDevice->fillRectangle(colorf::BLACK + colorf::A_SHF(255), dstX, dstY, srcW, srcH);
     Widget::drawEx(dstX, dstY, srcX, srcY, srcW, srcH);
 
     if(auto p = focusedChild()){
