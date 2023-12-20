@@ -254,14 +254,14 @@ class Widget
 
             switch(m_dir){
                 case DIR_UPLEFT   : return anchorX;
-                case DIR_UP       : return anchorX - (w() - 1) / 2;
+                case DIR_UP       : return anchorX - (w() - 0) / 2;
                 case DIR_UPRIGHT  : return anchorX - (w() - 1);
                 case DIR_RIGHT    : return anchorX - (w() - 1);
                 case DIR_DOWNRIGHT: return anchorX - (w() - 1);
-                case DIR_DOWN     : return anchorX - (w() - 1) / 2;
+                case DIR_DOWN     : return anchorX - (w() - 0) / 2;
                 case DIR_DOWNLEFT : return anchorX;
                 case DIR_LEFT     : return anchorX;
-                default           : return anchorX - (w() - 1) / 2;
+                default           : return anchorX - (w() - 0) / 2;
             }
         }
 
@@ -281,12 +281,12 @@ class Widget
                 case DIR_UPLEFT   : return anchorY;
                 case DIR_UP       : return anchorY;
                 case DIR_UPRIGHT  : return anchorY;
-                case DIR_RIGHT    : return anchorY - (h() - 1) / 2;
+                case DIR_RIGHT    : return anchorY - (h() - 0) / 2;
                 case DIR_DOWNRIGHT: return anchorY - (h() - 1);
                 case DIR_DOWN     : return anchorY - (h() - 1);
                 case DIR_DOWNLEFT : return anchorY - (h() - 1);
-                case DIR_LEFT     : return anchorY - (h() - 1) / 2;
-                default           : return anchorY - (h() - 1) / 2;
+                case DIR_LEFT     : return anchorY - (h() - 0) / 2;
+                default           : return anchorY - (h() - 0) / 2;
             }
         }
 

@@ -730,7 +730,7 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           50,
 
           60,
-          20,
+          24,
 
           {
               {&m_menuItem0, false},
