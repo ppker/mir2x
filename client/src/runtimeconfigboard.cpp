@@ -711,8 +711,12 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           24,
 
           {
-              {new LabelBoard(DIR_UPLEFT, 0, 0, u8"你好", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), true},
-              {new LabelBoard(DIR_UPLEFT, 0, 0, u8"我好", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), true},
+              {new LabelBoard(DIR_UPLEFT, 0, 0, u8"800×600" , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), true},
+              {new LabelBoard(DIR_UPLEFT, 0, 0, u8"960×600" , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), true},
+              {new LabelBoard(DIR_UPLEFT, 0, 0, u8"1024×768", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), true},
+              {new LabelBoard(DIR_UPLEFT, 0, 0, u8"1280×720", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), true},
+              {new LabelBoard(DIR_UPLEFT, 0, 0, u8"1280×768", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), true},
+              {new LabelBoard(DIR_UPLEFT, 0, 0, u8"1280×800", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), true},
           },
 
           [this](Widget *widgetPtr)
