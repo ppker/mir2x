@@ -698,16 +698,16 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           false,
       }
 
-    , m_pullMenu
+    , m_pageSystem_resolution
       {
           DIR_UPLEFT,
           0,
           0,
 
           u8"分辨率",
-          50,
+          40,
 
-          60,
+          80,
           24,
 
           {
@@ -721,8 +721,29 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
 
           [this](Widget *widgetPtr)
           {
-              m_pullMenu.getMenuTitle()->setText(to_u8cstr(dynamic_cast<LabelBoard *>(widgetPtr)->getText(true)));
+              m_pageSystem_resolution.getMenuTitle()->setText(to_u8cstr(dynamic_cast<LabelBoard *>(widgetPtr)->getText(true)));
           },
+      }
+
+    , m_pageSystem_fullScreen
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          true,
+          8,
+
+          colorf::RGBA(231, 231, 189, 128),
+          16,
+          16,
+          m_sdRuntimeConfig.ime,
+
+          u8"全屏显示",
+          1,
+          12,
+          0,
+          colorf::WHITE + colorf::A_SHF(255),
       }
 
     , m_pageSystem
@@ -735,7 +756,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           400,
 
           {
-              {&m_pullMenu, DIR_UPLEFT, 10, 10, false},
+              {&m_pageSystem_resolution, DIR_UPLEFT, 0,  0, false},
+              {&m_pageSystem_fullScreen, DIR_UPLEFT, 0, 50, false},
           },
 
           this,

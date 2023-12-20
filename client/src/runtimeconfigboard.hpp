@@ -122,7 +122,8 @@ class RuntimeConfigBoard: public Widget
         TrigfxButton m_resizeButton;
 
     private:
-        PullMenu m_pullMenu;
+        PullMenu   m_pageSystem_resolution;
+        CheckLabel m_pageSystem_fullScreen;
 
         Widget m_pageSystem;
 
