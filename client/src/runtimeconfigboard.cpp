@@ -164,10 +164,12 @@ RuntimeConfigBoard::PullMenu::PullMenu(
           {
               m_menuList.flipShow();
               if(m_menuList.show()){
-                  setSize({}, std::max<int>(w(), m_menuTitleCrop.dy() + m_menuTitleCrop.h() + m_menuList.h()));
+                  setSize(std::max<int>(w(), m_menuList.dx() + m_menuList.w()),
+                          std::max<int>(h(), m_menuList.dy() + m_menuList.h()));
               }
               else{
-                  setSize({}, std::max<int>({m_labelCrop.h(), m_menuTitleBackground.h(), m_button.h()}));
+                  setSize(m_button.dx() + m_button.w(),
+                          std::max<int>({m_labelCrop.h(), m_menuTitleBackground.h(), m_button.h()}));
               }
           },
 
@@ -728,7 +730,7 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           50,
 
           60,
-          30,
+          20,
 
           {
               {&m_menuItem0, false},
