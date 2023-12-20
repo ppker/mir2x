@@ -72,6 +72,32 @@ class RuntimeConfigBoard: public Widget
         };
 
     private:
+        class LabelSliderBar: public Widget
+        {
+            private:
+                LabelBoard   m_label;
+                GfxCropBoard m_labelCrop;
+
+            private:
+                TexSliderBar m_slider;
+
+            public:
+                LabelSliderBar(dir8_t,
+                        int,
+                        int,
+
+                        const char8_t *,
+                        int, // label width
+
+                        int, // slider index
+                        int, // slider width
+                        std::function<void(float)>,
+
+                        Widget * = nullptr,
+                        bool     = false);
+        };
+
+    private:
         SDRuntimeConfig m_sdRuntimeConfig;
 
     private:
@@ -122,9 +148,11 @@ class RuntimeConfigBoard: public Widget
         TrigfxButton m_resizeButton;
 
     private:
-        PullMenu   m_pageSystem_resolution;
-        CheckLabel m_pageSystem_fullScreen;
-        CheckLabel m_pageSystem_showFPS;
+        PullMenu       m_pageSystem_resolution;
+        CheckLabel     m_pageSystem_fullScreen;
+        CheckLabel     m_pageSystem_showFPS;
+        LabelSliderBar m_pageSystem_musicSlider;
+        LabelSliderBar m_pageSystem_soundEffectSlider;
 
         Widget m_pageSystem;
 

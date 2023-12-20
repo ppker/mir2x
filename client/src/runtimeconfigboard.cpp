@@ -217,6 +217,87 @@ RuntimeConfigBoard::PullMenu::PullMenu(
     m_menuList.moveAt(DIR_UPLEFT, m_menuTitleBackground.dx() + 3, m_menuTitleBackground.dy() + m_menuTitleBackground.h() - 2);
 }
 
+RuntimeConfigBoard::LabelSliderBar::LabelSliderBar(
+        dir8_t argDir,
+        int argX,
+        int argY,
+
+        const char8_t *argLabel,
+        int argLabelWidth,
+
+        int argSliderIndex,
+        int argSliderWidth,
+        std::function<void(float)> argOnValueChange,
+
+        Widget *argParent,
+        bool    argAutoDelete)
+
+    : Widget
+      {
+          argDir,
+          argX,
+          argY,
+          0,
+          0,
+
+          {},
+
+          argParent,
+          argAutoDelete,
+      }
+
+    , m_label
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          argLabel,
+          1,
+          12,
+          0,
+          colorf::WHITE + colorf::A_SHF(255),
+      }
+
+    , m_labelCrop
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          &m_label,
+
+          0,
+          0,
+          [argLabelWidth]{fflassert(argLabelWidth >= 0); return argLabelWidth; }(),
+          m_label.h(),
+
+          {},
+
+          this,
+          false,
+      }
+
+    , m_slider
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+          [argSliderWidth]{fflassert(argSliderWidth >= 0); return argSliderWidth; }(),
+
+          true,
+          argSliderIndex,
+          std::move(argOnValueChange),
+
+          this,
+          false,
+      }
+{
+    setSize(m_labelCrop.w() + m_slider.w(), std::max<int>({m_labelCrop.h(), m_slider.h()}));
+    m_labelCrop.moveAt(DIR_LEFT, 0                                 , h() / 2);
+    m_slider   .moveAt(DIR_LEFT, m_labelCrop.dx() + m_labelCrop.w(), h() / 2);
+}
+
 void RuntimeConfigBoard::PullMenu::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
 {
     if(!show()){
@@ -767,6 +848,40 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           colorf::WHITE + colorf::A_SHF(255),
       }
 
+    , m_pageSystem_musicSlider
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          u8"背景音量",
+          60,
+
+          1,
+          80,
+
+          [this](float)
+          {
+          },
+      }
+
+    , m_pageSystem_soundEffectSlider
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          u8"声效音量",
+          60,
+
+          1,
+          80,
+
+          [this](float)
+          {
+          },
+      }
+
     , m_pageSystem
       {
           DIR_UPLEFT,
@@ -777,9 +892,11 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           400,
 
           {
-              {&m_pageSystem_resolution, DIR_UPLEFT, 0,   0, false},
-              {&m_pageSystem_fullScreen, DIR_UPLEFT, 0,  50, false},
-              {&m_pageSystem_showFPS   , DIR_UPLEFT, 0, 100, false},
+              {&m_pageSystem_resolution       , DIR_UPLEFT, 0,   0, false},
+              {&m_pageSystem_fullScreen       , DIR_UPLEFT, 0,  50, false},
+              {&m_pageSystem_showFPS          , DIR_UPLEFT, 0, 100, false},
+              {&m_pageSystem_musicSlider      , DIR_UPLEFT, 0, 150, false},
+              {&m_pageSystem_soundEffectSlider, DIR_UPLEFT, 0, 200, false},
           },
 
           this,
