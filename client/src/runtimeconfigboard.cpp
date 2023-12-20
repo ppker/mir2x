@@ -210,7 +210,7 @@ RuntimeConfigBoard::PullMenu::PullMenu(
     m_menuTitleCrop.moveAt(DIR_LEFT, m_menuTitleBackground.dx() + 3                        , h() / 2);
     m_button       .moveAt(DIR_LEFT, m_menuTitleBackground.dx() + m_menuTitleBackground.w(), h() / 2);
 
-    m_menuList.moveAt(DIR_UPLEFT, m_menuTitleCrop.dx(), m_menuTitleCrop.dy() + m_menuTitleCrop.h());
+    m_menuList.moveAt(DIR_UPLEFT, m_menuTitleBackground.dx() + 3, m_menuTitleBackground.dy() + m_menuTitleBackground.h() - 2);
 }
 
 void RuntimeConfigBoard::PullMenu::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
@@ -727,7 +727,7 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           u8"分辨率",
           50,
 
-          100,
+          60,
           30,
 
           {
