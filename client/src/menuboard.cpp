@@ -14,6 +14,7 @@ MenuBoard::MenuBoard(dir8_t argDir,
         int argSeperatorSpace,
 
         std::initializer_list<std::pair<Widget *, bool>> argMenuItemList,
+        std::function<void(Widget *)> argOnClickMenu,
 
         std::array<int, 4> argMargin,
 
@@ -35,6 +36,7 @@ MenuBoard::MenuBoard(dir8_t argDir,
     , m_wOpt(argWOpt)
     , m_itemSpace(argItemSpace)
     , m_seperatorSpace(argSeperatorSpace)
+    , m_onClickMenu(std::move(argOnClickMenu))
     , m_margin(argMargin)
 {
     if(m_wOpt.has_value()){

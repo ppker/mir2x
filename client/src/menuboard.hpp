@@ -1,5 +1,6 @@
 #pragma once
 #include <initializer_list>
+#include <functional>
 #include "widget.hpp"
 
 class MenuBoard: public Widget
@@ -10,6 +11,9 @@ class MenuBoard: public Widget
     private:
         const int m_itemSpace;
         const int m_seperatorSpace;
+
+    private:
+        std::function<void(Widget *)> m_onClickMenu;
 
     private:
         const std::array<int, 4> m_margin;
@@ -25,8 +29,9 @@ class MenuBoard: public Widget
                 int,
 
                 std::initializer_list<std::pair<Widget *, bool>>,
+                std::function<void(Widget *)> = nullptr,
 
-                std::array<int, 4>,
+                std::array<int, 4> = {},
 
                 Widget * = nullptr,
                 bool     = false);

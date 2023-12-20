@@ -196,6 +196,7 @@ RuntimeConfigBoard::PullMenu::PullMenu(
           0,
 
           argMenuList,
+          nullptr,
 
           {},
 
@@ -411,6 +412,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
               {&m_item2, false},
               {&m_itemCheckLabel, false},
           },
+
+          nullptr,
 
           {10, 10, 10, 10},
       }
