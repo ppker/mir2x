@@ -746,6 +746,27 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           colorf::WHITE + colorf::A_SHF(255),
       }
 
+    , m_pageSystem_showFPS
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          true,
+          8,
+
+          colorf::RGBA(231, 231, 189, 128),
+          16,
+          16,
+          m_sdRuntimeConfig.ime,
+
+          u8"显示FPS",
+          1,
+          12,
+          0,
+          colorf::WHITE + colorf::A_SHF(255),
+      }
+
     , m_pageSystem
       {
           DIR_UPLEFT,
@@ -756,8 +777,9 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           400,
 
           {
-              {&m_pageSystem_resolution, DIR_UPLEFT, 0,  0, false},
-              {&m_pageSystem_fullScreen, DIR_UPLEFT, 0, 50, false},
+              {&m_pageSystem_resolution, DIR_UPLEFT, 0,   0, false},
+              {&m_pageSystem_fullScreen, DIR_UPLEFT, 0,  50, false},
+              {&m_pageSystem_showFPS   , DIR_UPLEFT, 0, 100, false},
           },
 
           this,

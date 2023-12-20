@@ -124,6 +124,7 @@ class RuntimeConfigBoard: public Widget
     private:
         PullMenu   m_pageSystem_resolution;
         CheckLabel m_pageSystem_fullScreen;
+        CheckLabel m_pageSystem_showFPS;
 
         Widget m_pageSystem;
 
