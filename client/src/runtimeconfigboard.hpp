@@ -56,12 +56,19 @@ class RuntimeConfigBoard: public Widget
                         int, // title background height
 
                         std::initializer_list<std::pair<Widget *, bool>>,
+                        std::function<void(Widget *)>,
 
                         Widget * = nullptr,
                         bool     = false);
 
             public:
                 void drawEx(int, int, int, int, int, int) const override;
+
+            public:
+                LabelBoard *getMenuTitle()
+                {
+                    return &m_menuTitle;
+                }
         };
 
     private:

@@ -24,6 +24,7 @@ RuntimeConfigBoard::PullMenu::PullMenu(
         int argTitleBgHeight,
 
         std::initializer_list<std::pair<Widget *, bool>> argMenuList,
+        std::function<void(Widget *)> argOnClickMenu,
 
         Widget *argParent,
         bool    argAutoDelete)
@@ -196,7 +197,7 @@ RuntimeConfigBoard::PullMenu::PullMenu(
           0,
 
           argMenuList,
-          nullptr,
+          std::move(argOnClickMenu),
 
           {},
 
@@ -738,6 +739,11 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           {
               {&m_menuItem0, false},
               {&m_menuItem1, false},
+          },
+
+          [this](Widget *widgetPtr)
+          {
+              m_pullMenu.getMenuTitle()->setText(to_u8cstr(dynamic_cast<LabelBoard *>(widgetPtr)->getText(true)));
           },
       }
 
