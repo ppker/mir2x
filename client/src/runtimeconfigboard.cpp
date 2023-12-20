@@ -698,32 +698,6 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           false,
       }
 
-    , m_menuItem0
-      {
-          DIR_UPLEFT,
-          0,
-          0,
-
-          u8"你好",
-          1,
-          12,
-          0,
-          colorf::WHITE + colorf::A_SHF(255),
-      }
-
-    , m_menuItem1
-      {
-          DIR_UPLEFT,
-          0,
-          0,
-
-          u8"她也好",
-          1,
-          12,
-          0,
-          colorf::WHITE + colorf::A_SHF(255),
-      }
-
     , m_pullMenu
       {
           DIR_UPLEFT,
@@ -737,8 +711,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           24,
 
           {
-              {&m_menuItem0, false},
-              {&m_menuItem1, false},
+              {new LabelBoard(DIR_UPLEFT, 0, 0, u8"你好", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), true},
+              {new LabelBoard(DIR_UPLEFT, 0, 0, u8"我好", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), true},
           },
 
           [this](Widget *widgetPtr)
