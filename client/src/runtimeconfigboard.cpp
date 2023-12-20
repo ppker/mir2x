@@ -128,7 +128,7 @@ RuntimeConfigBoard::PullMenu::PullMenu(
           0,
           0,
           m_menuTitleBackground.w() - 6,
-          m_menuTitleBackground.h() - 4,
+          std::min<int>(m_menuTitleBackground.h() - 4, m_menuTitle.h()),
 
           {},
 
@@ -728,7 +728,7 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           50,
 
           100,
-          20,
+          30,
 
           {
               {&m_menuItem0, false},
