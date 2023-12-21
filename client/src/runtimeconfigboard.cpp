@@ -355,330 +355,6 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           false,
       }
 
-    , m_checkLabel
-      {
-          DIR_UPLEFT,
-          350,
-          40,
-
-          true,
-          8,
-
-          colorf::RGBA(231, 231, 189, 128),
-          16,
-          16,
-          m_sdRuntimeConfig.ime,
-
-          u8"拼音输入法",
-          1,
-          12,
-          0,
-          colorf::WHITE + colorf::A_SHF(255),
-
-          this,
-          false,
-      }
-
-    , m_texSliderBar
-      {
-          DIR_UPLEFT,
-          250,
-          200,
-
-          100,
-          true,
-
-          1,
-          [](float){},
-
-          this,
-          false,
-      }
-
-    , m_texSliderBarVertical
-      {
-          DIR_UPLEFT,
-          350,
-          250,
-
-          100,
-          false,
-
-          1,
-          [](float){},
-
-          this,
-          false,
-      }
-
-    , m_musicSlider
-      {
-          DIR_UPLEFT,
-          380,
-          124,
-          194,
-
-          true,
-          1,
-          [this](float)
-          {
-          },
-          this,
-      }
-
-    , m_soundEffectSlider
-      {
-          DIR_UPLEFT,
-          380,
-          184,
-          194,
-
-          true,
-          1,
-          [this](float)
-          {
-          },
-          this,
-      }
-
-    , m_item1
-      {
-          DIR_UPLEFT,
-          0,
-          0,
-          u8"你好",
-      }
-
-    , m_item2
-      {
-          DIR_UPLEFT,
-          0,
-          0,
-          u8"天气很好",
-      }
-
-    , m_itemCheckLabel
-      {
-          DIR_UPLEFT,
-          0,
-          0,
-
-          true,
-          8,
-
-          colorf::RGBA(231, 231, 189, 128),
-          16,
-          16,
-          m_sdRuntimeConfig.ime,
-
-          u8"拼音输入法",
-          1,
-          12,
-          0,
-          colorf::WHITE + colorf::A_SHF(255),
-      }
-
-    , m_menuBoard
-      {
-          DIR_UPLEFT,
-          0,
-          0,
-
-          {},
-
-          10,
-          50,
-
-          {
-              {&m_item1, false},
-              {&m_item2, false},
-              {&m_itemCheckLabel, false},
-          },
-
-          nullptr,
-
-          {10, 10, 10, 10},
-      }
-
-    , m_menuExpandButton
-      {
-          DIR_UPLEFT,
-          180,
-          130,
-
-          {0X00000055, 0X00000055, 0X00000056},
-          {
-              SYS_U32NIL,
-              SYS_U32NIL,
-              0X01020000 + 105,
-          },
-
-          nullptr,
-          nullptr,
-          [this]()
-          {
-          },
-
-          0,
-          0,
-          0,
-          0,
-
-          true,
-          true,
-          this,
-      }
-
-    , m_menuExpandButtonBox
-      {
-          DIR_UPLEFT,
-          m_menuExpandButton.dx() - 1,
-          m_menuExpandButton.dy(),
-          m_menuExpandButton. w() - 1,
-          m_menuExpandButton. h(),
-
-          [](const Widget *widgetPtr, int drawDstX, int drawDstY)
-          {
-              g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(100), drawDstX, drawDstY, widgetPtr->w(), widgetPtr->h(), 2);
-          },
-
-          this,
-          false,
-      }
-
-    , m_menuImage
-      {
-          DIR_UPLEFT,
-          0,
-          0,
-          {},
-          {},
-          [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000460); },
-      }
-
-    , m_menuImageCropDup
-      {
-          DIR_UPLEFT,
-          m_menuExpandButton.dx() + m_menuExpandButton.w(),
-          m_menuExpandButton.dy() + m_menuExpandButton.h(),
-          50,
-          20,
-
-          &m_menuImage,
-
-          3,
-          3,
-          m_menuImage.w() - 6,
-          2,
-
-          this,
-          false,
-      }
-
-    , m_menuButtonTitle
-      {
-          DIR_UPLEFT,
-          0,
-          0,
-
-          u8"点击菜单",
-          1,
-          12,
-          0,
-      }
-
-    , m_menuButtonTitleGfx
-      {
-          DIR_UPLEFT,
-          0,
-          0,
-
-          200,
-          250,
-
-          {
-              // {&m_menuImageCropDup, DIR_UPLEFT, 0, 0, false},
-              // {&m_menuButtonTitle,  DIR_UPLEFT, 0, 0, false},
-          },
-      }
-
-    , m_menuButton
-      {
-          DIR_UPLEFT,
-          200,
-          250,
-
-          {&m_menuButtonTitle, false},
-          {&m_menuBoard      , false},
-
-          {},
-
-          this,
-          false,
-      }
-
-    , m_menuImageCropDup2
-      {
-          DIR_UPLEFT,
-          0,
-          0,
-          22,
-          20,
-
-          &m_menuImage,
-
-          3,
-          3,
-          m_menuImage.w() - 6,
-          2,
-      }
-
-    , m_menuExpandButton2
-      {
-          DIR_UPLEFT,
-          130,
-          100,
-
-          {0X00000055, 0X00000055, 0X00000056},
-          {
-              SYS_U32NIL,
-              SYS_U32NIL,
-              0X01020000 + 105,
-          },
-
-          nullptr,
-          nullptr,
-          [this]()
-          {
-          },
-
-          0,
-          0,
-          0,
-          0,
-
-          true,
-          true,
-          this,
-      }
-
-    , m_menuExpandButtonBox2
-      {
-          DIR_UPLEFT,
-          130,
-          99,
-
-          &m_menuImageCropDup2,
-
-          3,
-          2,
-          m_menuImageCropDup2.w() - 6,
-          m_menuImageCropDup2.h() - 4,
-
-          this,
-          false,
-      }
-
     , m_leftMenuBackground
       {
           DIR_UPLEFT,
@@ -747,45 +423,6 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           false,
       }
 
-    , m_resizeImg0{DIR_UPLEFT, 0, 0, 22, 22, [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000300); }, false, false, 1}
-    , m_resizeImg1{DIR_UPLEFT, 0, 0, 22, 22, [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000301); }, false, false, 1}
-    , m_resizeImg2{DIR_UPLEFT, 0, 0, 22, 22, [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000302); }, false, false, 1}
-
-    , m_resizeButton
-      {
-          DIR_UPLEFT,
-          130,
-          140,
-
-          {
-              &m_resizeImg1,
-              &m_resizeImg0,
-              &m_resizeImg2,
-          },
-
-          {
-              std::nullopt,
-              std::nullopt,
-              0X01020000 + 105,
-          },
-
-          nullptr,
-          nullptr,
-          [this]()
-          {
-          },
-
-          0,
-          0,
-          0,
-          0,
-
-          true,
-
-          this,
-          false,
-      }
-
     , m_pageSystem_resolution
       {
           DIR_UPLEFT,
@@ -813,6 +450,44 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           },
       }
 
+    , m_pageSystem_musicSlider
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          u8"背景音量",
+          60,
+
+          1,
+          80,
+
+          [this](float val)
+          {
+              m_sdRuntimeConfig.bgmValue = to_dround(val * 100);
+              reportRuntimeConfig();
+          },
+      }
+
+    , m_pageSystem_soundEffectSlider
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          u8"声效音量",
+          60,
+
+          1,
+          80,
+
+          [this](float val)
+          {
+              m_sdRuntimeConfig.soundEffValue = to_dround(val * 100);
+              reportRuntimeConfig();
+          },
+      }
+
     , m_pageSystem
       {
           DIR_UPLEFT,
@@ -828,39 +503,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
               {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, m_sdRuntimeConfig.ime, u8"全屏显示", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)) , DIR_UPLEFT, 0,  40, true},
               {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, m_sdRuntimeConfig.ime, u8"显示FPS" , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)) , DIR_UPLEFT, 0,  80, true},
 
-              {new LabelSliderBar
-              {
-                  DIR_UPLEFT,
-                  0,
-                  0,
-
-                  u8"背景音量",
-                  60,
-
-                  1,
-                  80,
-
-                  [this](float)
-                  {
-                  },
-              }, DIR_UPLEFT, 0, 120, true},
-
-              {new LabelSliderBar
-              {
-                  DIR_UPLEFT,
-                  0,
-                  0,
-
-                  u8"声效音量",
-                  60,
-
-                  1,
-                  80,
-
-                  [this](float)
-                  {
-                  },
-              }, DIR_UPLEFT, 0, 160, true},
+              {&m_pageSystem_musicSlider      , DIR_UPLEFT, 0, 120, false},
+              {&m_pageSystem_soundEffectSlider, DIR_UPLEFT, 0, 160, false},
           },
 
           this,
@@ -921,8 +565,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
     // 1.0f -> SDL_MIX_MAXVOLUME
     // SDL_mixer initial sound/music volume is SDL_MIX_MAXVOLUME
 
-    m_musicSlider.setValue(to_f(SDRuntimeConfig().bgmValue) / 100.0, false);
-    m_soundEffectSlider.setValue(to_f(SDRuntimeConfig().soundEffValue) / 100.0, false);
+    m_pageSystem_musicSlider      .getSlider()->setValue(to_f(SDRuntimeConfig().     bgmValue) / 100.0, false);
+    m_pageSystem_soundEffectSlider.getSlider()->setValue(to_f(SDRuntimeConfig().soundEffValue) / 100.0, false);
 
     m_pageSystem.setShow(true);
     m_pageSocial.setShow(false);
@@ -938,21 +582,11 @@ void RuntimeConfigBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW
 
     for(const auto p:
     {
-        static_cast<const Widget *>(&m_frameBoard          ),
-        // static_cast<const Widget *>(&m_menuExpandButton    ),
-        // static_cast<const Widget *>(&m_menuExpandButtonBox ),
-        // static_cast<const Widget *>(&m_menuExpandButton2   ),
-        // static_cast<const Widget *>(&m_menuExpandButtonBox2),
-        // static_cast<const Widget *>(&m_menuImageCropDup    ),
-        static_cast<const Widget *>(&m_leftMenuBackground  ),
-        static_cast<const Widget *>(&m_leftMenu            ),
-        static_cast<const Widget *>(&m_pageSystem          ),
-        static_cast<const Widget *>(&m_pageSocial          ),
-        // static_cast<const Widget *>(&m_resizeButton        ),
-        // static_cast<const Widget *>(&m_menuButton          ),
-        // static_cast<const Widget *>(&m_checkLabel          ),
-        // static_cast<const Widget *>(&m_texSliderBar        ),
-        // static_cast<const Widget *>(&m_texSliderBarVertical),
+        static_cast<const Widget *>(&m_frameBoard),
+        static_cast<const Widget *>(&m_leftMenuBackground),
+        static_cast<const Widget *>(&m_leftMenu),
+        static_cast<const Widget *>(&m_pageSystem),
+        static_cast<const Widget *>(&m_pageSocial),
     }){
         auto drawSrcX = srcX;
         auto drawSrcY = srcY;
@@ -976,14 +610,6 @@ void RuntimeConfigBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW
             p->drawEx(drawDstX, drawDstY, drawSrcX, drawSrcY, drawSrcW, drawSrcH);
         }
     }
-
-    drawEntryTitle(u8"【游戏设置】", w() / 2, 35);
-
-    // drawEntryTitle(u8"背景音乐", 345,  97);
-    // drawEntryTitle(u8"音效",     345, 157);
-
-    // m_musicSlider.draw();
-    // m_soundEffectSlider.draw();
 }
 
 bool RuntimeConfigBoard::processEvent(const SDL_Event &event, bool valid)
@@ -999,29 +625,14 @@ bool RuntimeConfigBoard::processEvent(const SDL_Event &event, bool valid)
     for(auto widgetPtr:
     {
         static_cast<Widget *>(&m_leftMenu),
-        // static_cast<Widget *>(&m_resizeButton),
-        // static_cast<Widget *>(&m_menuExpandButton),
-        // static_cast<Widget *>(&m_menuExpandButton2),
-        // static_cast<Widget *>(&m_menuButton),
-        // static_cast<Widget *>(&m_checkLabel),
         static_cast<Widget *>(&m_frameBoard),
         static_cast<Widget *>(&m_pageSystem),
         static_cast<Widget *>(&m_pageSocial),
-        // static_cast<Widget *>(&m_texSliderBar),
-        // static_cast<Widget *>(&m_texSliderBarVertical),
     }){
         if(widgetPtr->processEvent(event, valid)){
             return true;
         }
     }
-
-    // if(m_musicSlider.processEvent(event, valid)){
-    //     return consumeFocus(true);
-    // }
-    //
-    // if(m_soundEffectSlider.processEvent(event, valid)){
-    //     return consumeFocus(true);
-    // }
 
     switch(event.type){
         case SDL_KEYDOWN:
@@ -1080,8 +691,8 @@ void RuntimeConfigBoard::setConfig(SDRuntimeConfig config)
 {
     m_sdRuntimeConfig = std::move(config);
 
-    m_musicSlider.setValue(m_sdRuntimeConfig.bgmValue / 100.0, false);
-    m_soundEffectSlider.setValue(m_sdRuntimeConfig.soundEffValue / 100.0, false);
+    m_pageSystem_musicSlider      .getSlider()->setValue(m_sdRuntimeConfig.     bgmValue / 100.0, false);
+    m_pageSystem_soundEffectSlider.getSlider()->setValue(m_sdRuntimeConfig.soundEffValue / 100.0, false);
 }
 
 void RuntimeConfigBoard::reportRuntimeConfig()
