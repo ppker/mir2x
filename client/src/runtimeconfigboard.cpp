@@ -903,48 +903,6 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           false,
       }
 
-    , m_pageSocial_allowGossip
-      {
-          DIR_UPLEFT,
-          0,
-          0,
-
-          true,
-          8,
-
-          colorf::RGBA(231, 231, 189, 128),
-          16,
-          16,
-          m_sdRuntimeConfig.ime,
-
-          u8"允许悄悄话",
-          1,
-          12,
-          0,
-          colorf::WHITE + colorf::A_SHF(255),
-      }
-
-    , m_pageSocial_allowGreetings
-      {
-          DIR_UPLEFT,
-          0,
-          0,
-
-          true,
-          8,
-
-          colorf::RGBA(231, 231, 189, 128),
-          16,
-          16,
-          m_sdRuntimeConfig.ime,
-
-          u8"允许白字聊天",
-          1,
-          12,
-          0,
-          colorf::WHITE + colorf::A_SHF(255),
-      }
-
     , m_pageSocial
       {
           DIR_UPLEFT,
@@ -955,8 +913,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           400,
 
           {
-              {&m_pageSocial_allowGossip   , DIR_UPLEFT, 0,  0, false},
-              {&m_pageSocial_allowGreetings, DIR_UPLEFT, 0, 50, false},
+              {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, m_sdRuntimeConfig.ime, u8"允许私聊"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,   0, true},
+              {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, m_sdRuntimeConfig.ime, u8"允许白字聊天", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  40, true},
           },
 
           this,
