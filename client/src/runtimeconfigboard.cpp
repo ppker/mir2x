@@ -419,6 +419,7 @@ RuntimeConfigBoard::MenuPage::MenuPage(
         dir8_t argDir,
         int argX,
         int argY,
+        int argGap,
 
         std::initializer_list<std::tuple<const char8_t *, Widget *, bool>> argTabList,
 
@@ -474,7 +475,9 @@ RuntimeConfigBoard::MenuPage::MenuPage(
     int maxWidth  = -1;
     int maxHeight = -1;
 
+    fflassert(argGap >= 0, argGap);
     fflassert(!std::empty(argTabList));
+
     for(auto &[tabName, tab, autoDelete]: argTabList){
         fflassert(str_haschar(tabName));
         fflassert(tab);
@@ -498,10 +501,10 @@ RuntimeConfigBoard::MenuPage::MenuPage(
             m_selectedHeader = currHeader;
         }
 
-        tab->moveAt(DIR_UPLEFT, 0, currHeader->dy() + currHeader->h());
+        tab->moveAt(DIR_UPLEFT, 0, currHeader->dy() + currHeader->h() + argGap);
 
         maxWidth  = std::max<int>({maxWidth , currHeader->dx() + currHeader->w(), tab->w()});
-        maxHeight = std::max<int>({maxHeight, currHeader->h() + tab->h()});
+        maxHeight = std::max<int>({maxHeight, currHeader->h() + tab->h() + argGap});
     }
 
     m_buttonMask.setSize(maxWidth, maxHeight);
@@ -660,6 +663,7 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           DIR_UPLEFT,
           150,
           100,
+          20,
 
           {
               {
@@ -695,6 +699,7 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           DIR_UPLEFT,
           150,
           100,
+          20,
 
           {
               {

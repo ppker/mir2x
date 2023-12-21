@@ -135,6 +135,7 @@ class RuntimeConfigBoard: public Widget
                 MenuPage(dir8_t,
                         int,
                         int,
+                        int,
 
                         std::initializer_list<std::tuple<const char8_t *, Widget *, bool>>,
 
