@@ -34,8 +34,8 @@ RuntimeConfigBoard::PullMenu::PullMenu(
           argDir,
           argX,
           argY,
-          0,
-          0,
+          {},
+          {},
 
           {},
 
@@ -164,14 +164,6 @@ RuntimeConfigBoard::PullMenu::PullMenu(
           [this]()
           {
               m_menuList.flipShow();
-              if(m_menuList.show()){
-                  setSize(std::max<int>(w(), m_menuList.dx() + m_menuList.w()),
-                          std::max<int>(h(), m_menuList.dy() + m_menuList.h()));
-              }
-              else{
-                  setSize(m_button.dx() + m_button.w(),
-                          std::max<int>({m_labelCrop.h(), m_menuTitleBackground.h(), m_button.h()}));
-              }
           },
 
           0,
@@ -206,13 +198,13 @@ RuntimeConfigBoard::PullMenu::PullMenu(
       }
 {
     m_menuList.setShow(false);
-    setSize(m_labelCrop.w() + m_menuTitleBackground.w() + m_button.w(), std::max<int>({m_labelCrop.h(), m_menuTitleBackground.h(), m_button.h()}));
+    const int maxHeight = std::max<int>({m_labelCrop.h(), m_menuTitleBackground.h(), m_button.h()});
 
-    m_labelCrop          .moveAt(DIR_LEFT, 0                                 , h() / 2);
-    m_menuTitleBackground.moveAt(DIR_LEFT, m_labelCrop.dx() + m_labelCrop.w(), h() / 2);
+    m_labelCrop          .moveAt(DIR_LEFT, 0                                 , maxHeight / 2);
+    m_menuTitleBackground.moveAt(DIR_LEFT, m_labelCrop.dx() + m_labelCrop.w(), maxHeight / 2);
 
-    m_menuTitleCrop.moveAt(DIR_LEFT, m_menuTitleBackground.dx() + 3                        , h() / 2);
-    m_button       .moveAt(DIR_LEFT, m_menuTitleBackground.dx() + m_menuTitleBackground.w(), h() / 2);
+    m_menuTitleCrop.moveAt(DIR_LEFT, m_menuTitleBackground.dx() + 3                        , maxHeight / 2);
+    m_button       .moveAt(DIR_LEFT, m_menuTitleBackground.dx() + m_menuTitleBackground.w(), maxHeight / 2);
 
     m_menuList.moveAt(DIR_UPLEFT, m_menuTitleBackground.dx() + 3, m_menuTitleBackground.dy() + m_menuTitleBackground.h() - 2);
 }
