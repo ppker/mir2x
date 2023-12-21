@@ -349,8 +349,8 @@ RuntimeConfigBoard::MenuPage::TabHeader::TabHeader(
           argDir,
           argX,
           argY,
-          0,
-          0,
+          {},
+          {},
 
           {},
 
@@ -403,9 +403,7 @@ RuntimeConfigBoard::MenuPage::TabHeader::TabHeader(
           this,
           false,
       }
-{
-    setSize(m_button.w(), m_button.h());
-}
+{}
 
 RuntimeConfigBoard::MenuPage::MenuPage(
         dir8_t argDir,
