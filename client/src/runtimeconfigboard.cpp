@@ -450,14 +450,14 @@ RuntimeConfigBoard::MenuPage::MenuPage(
 
           [this](const Widget *self, int drawDstX, int drawDstY)
           {
-              g_sdlDevice->fillRectangle(colorf::RED + colorf::A_SHF(128),
+              g_sdlDevice->fillRectangle(colorf::RGBA(231, 231, 189, 100),
                       drawDstX + m_selectedHeader->dx(),
                       drawDstY + m_selectedHeader->dy(),
 
                       m_selectedHeader->w(),
                       m_selectedHeader->h());
 
-              g_sdlDevice->drawLine(colorf::RED + colorf::A_SHF(128),
+              g_sdlDevice->drawLine(colorf::RGBA(231, 231, 189, 100),
                       drawDstX,
                       drawDstY + m_selectedHeader->dy() + m_selectedHeader->h(),
 
