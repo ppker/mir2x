@@ -174,9 +174,6 @@ class RuntimeConfigBoard: public Widget
     public:
         bool processEvent(const SDL_Event &, bool) override;
 
-    protected:
-        void drawEntryTitle(const char8_t *, int, int) const;
-
     private:
         void reportRuntimeConfig();
 

@@ -866,24 +866,6 @@ bool RuntimeConfigBoard::processEvent(const SDL_Event &event, bool valid)
     }
 }
 
-void RuntimeConfigBoard::drawEntryTitle(const char8_t *info, int dstCenterX, int dstCenterY) const
-{
-    const LabelBoard titleBoard
-    {
-        DIR_NONE,
-        0, // reset by new width
-        0,
-        to_u8cstr(info),
-
-        1,
-        12,
-        0,
-
-        colorf::RGBA(0XFF, 0XFF, 0X00, 0XFF),
-    };
-    titleBoard.drawAt(DIR_NONE, x() + dstCenterX, y() + dstCenterY);
-}
-
 void RuntimeConfigBoard::setConfig(SDRuntimeConfig config)
 {
     m_sdRuntimeConfig = std::move(config);
