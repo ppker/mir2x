@@ -656,8 +656,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
                       DIR_UPLEFT,
                       0,
                       0,
-                      150,
-                      80,
+                      {},
+                      {},
 
                       {
                           {&m_pageSystem_resolution, DIR_UPLEFT, 0,   0, false},
@@ -693,8 +693,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
                       0,
                       0,
 
-                      150,
-                      80,
+                      {},
+                      {},
 
                       {
                           {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, m_sdRuntimeConfig.ime, u8"允许私聊"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,   0, true},
