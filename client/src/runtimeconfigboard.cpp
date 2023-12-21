@@ -435,7 +435,7 @@ RuntimeConfigBoard::MenuPage::MenuPage(
           DIR_UPLEFT,
           0,
           0,
-          0,
+          400,
           0,
 
           [this](const Widget *self, int drawDstX, int drawDstY)
@@ -491,7 +491,7 @@ RuntimeConfigBoard::MenuPage::MenuPage(
         tab->moveAt(DIR_UPLEFT, 0, currHeader->dy() + currHeader->h() + argGap);
     }
 
-    m_buttonMask.setSize(w(), h());
+    m_buttonMask.setSize({}, h());
 }
 
 RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, ProcessRun *proc, Widget *widgetPtr, bool autoDelete)
