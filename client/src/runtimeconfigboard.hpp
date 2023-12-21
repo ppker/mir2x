@@ -148,17 +148,11 @@ class RuntimeConfigBoard: public Widget
         TrigfxButton m_resizeButton;
 
     private:
-        PullMenu       m_pageSystem_resolution;
-        CheckLabel     m_pageSystem_fullScreen;
-        CheckLabel     m_pageSystem_showFPS;
-        LabelSliderBar m_pageSystem_musicSlider;
-        LabelSliderBar m_pageSystem_soundEffectSlider;
-
+        PullMenu m_pageSystem_resolution;
         Widget m_pageSystem;
 
     private:
         Widget m_pageSocial;
-
 
     private:
         ProcessRun *m_processRun;

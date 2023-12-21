@@ -813,82 +813,6 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           },
       }
 
-    , m_pageSystem_fullScreen
-      {
-          DIR_UPLEFT,
-          0,
-          0,
-
-          true,
-          8,
-
-          colorf::RGBA(231, 231, 189, 128),
-          16,
-          16,
-          m_sdRuntimeConfig.ime,
-
-          u8"全屏显示",
-          1,
-          12,
-          0,
-          colorf::WHITE + colorf::A_SHF(255),
-      }
-
-    , m_pageSystem_showFPS
-      {
-          DIR_UPLEFT,
-          0,
-          0,
-
-          true,
-          8,
-
-          colorf::RGBA(231, 231, 189, 128),
-          16,
-          16,
-          m_sdRuntimeConfig.ime,
-
-          u8"显示FPS",
-          1,
-          12,
-          0,
-          colorf::WHITE + colorf::A_SHF(255),
-      }
-
-    , m_pageSystem_musicSlider
-      {
-          DIR_UPLEFT,
-          0,
-          0,
-
-          u8"背景音量",
-          60,
-
-          1,
-          80,
-
-          [this](float)
-          {
-          },
-      }
-
-    , m_pageSystem_soundEffectSlider
-      {
-          DIR_UPLEFT,
-          0,
-          0,
-
-          u8"声效音量",
-          60,
-
-          1,
-          80,
-
-          [this](float)
-          {
-          },
-      }
-
     , m_pageSystem
       {
           DIR_UPLEFT,
@@ -899,11 +823,44 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           400,
 
           {
-              {&m_pageSystem_resolution       , DIR_UPLEFT, 0,   0, false},
-              {&m_pageSystem_fullScreen       , DIR_UPLEFT, 0,  50, false},
-              {&m_pageSystem_showFPS          , DIR_UPLEFT, 0, 100, false},
-              {&m_pageSystem_musicSlider      , DIR_UPLEFT, 0, 150, false},
-              {&m_pageSystem_soundEffectSlider, DIR_UPLEFT, 0, 200, false},
+              {&m_pageSystem_resolution, DIR_UPLEFT, 0,   0, false},
+
+              {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, m_sdRuntimeConfig.ime, u8"全屏显示", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)) , DIR_UPLEFT, 0,  40, true},
+              {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, m_sdRuntimeConfig.ime, u8"显示FPS" , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)) , DIR_UPLEFT, 0,  80, true},
+
+              {new LabelSliderBar
+              {
+                  DIR_UPLEFT,
+                  0,
+                  0,
+
+                  u8"背景音量",
+                  60,
+
+                  1,
+                  80,
+
+                  [this](float)
+                  {
+                  },
+              }, DIR_UPLEFT, 0, 120, true},
+
+              {new LabelSliderBar
+              {
+                  DIR_UPLEFT,
+                  0,
+                  0,
+
+                  u8"声效音量",
+                  60,
+
+                  1,
+                  80,
+
+                  [this](float)
+                  {
+                  },
+              }, DIR_UPLEFT, 0, 160, true},
           },
 
           this,
