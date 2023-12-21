@@ -249,8 +249,8 @@ void GUIManager::onWindowResize()
 
     const auto fnSetWidgetPLoc = [this](Widget *widgetPtr)
     {
-        const auto moveDX = std::max<int>(widgetPtr->x() - (m_w - widgetPtr->w()), 0);
-        const auto moveDY = std::max<int>(widgetPtr->y() - (m_h - widgetPtr->h()), 0);
+        const auto moveDX = std::max<int>(widgetPtr->x() - (w() - widgetPtr->w()), 0);
+        const auto moveDY = std::max<int>(widgetPtr->y() - (h() - widgetPtr->h()), 0);
 
         // move upper-left
         //

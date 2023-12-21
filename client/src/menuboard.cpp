@@ -64,7 +64,7 @@ void MenuBoard::addChild(Widget *widget, bool autoDelete)
         }
 
         if(!m_wOpt.has_value()){
-            m_w = std::max<int>(m_w, widget->w() + m_margin[2] + m_margin[3]);
+            m_w = std::max<int>(w(), widget->w() + m_margin[2] + m_margin[3]);
         }
 
         m_h = widget->dy() + widget->h() + (m_itemSpace - m_itemSpace / 2) + m_margin[1];

@@ -33,8 +33,8 @@ class Widget
         int m_y;
 
     protected:
-        int m_w;
-        int m_h;
+        std::optional<int> m_w;
+        std::optional<int> m_h;
 
     protected:
         struct ChildWidgetElement
@@ -50,8 +50,9 @@ class Widget
 
                 int argX,
                 int argY,
-                int argW = 0,
-                int argH = 0,
+
+                std::optional<int> argW = std::nullopt,
+                std::optional<int> argH = std::nullopt,
 
                 std::initializer_list<std::tuple<Widget *, dir8_t, int, int, bool>> argChildList = {},
 
@@ -69,8 +70,8 @@ class Widget
                 m_parent->addChild(this, argAutoDelete);
             }
 
-            fflassert(m_w >= 0, m_w, m_h);
-            fflassert(m_h >= 0, m_w, m_h);
+            fflassert(m_w.value_or(0) >= 0, m_w, m_h);
+            fflassert(m_h.value_or(0) >= 0, m_w, m_h);
 
             for(const auto &[childPtr, offDir, offX, offY, autoDelete]: argChildList){
                 addChild(childPtr, autoDelete);
@@ -292,12 +293,34 @@ class Widget
 
         virtual int w() const
         {
-            return m_w;
+            if(m_w.has_value()){
+                return m_w.value();
+            }
+
+            int maxW = 0;
+            for(const auto &child: m_childList){
+                if(child.widget->show()){
+                    maxW = std::max<int>(maxW, child.widget->dx() + child.widget->w());
+                }
+            }
+
+            return maxW;
         }
 
         virtual int h() const
         {
-            return m_h;
+            if(m_h.has_value()){
+                return m_h.value();
+            }
+
+            int maxH = 0;
+            for(const auto &child: m_childList){
+                if(child.widget->show()){
+                    maxH = std::max<int>(maxH, child.widget->dy() + child.widget->h());
+                }
+            }
+
+            return maxH;
         }
 
         Widget * parent()
@@ -464,20 +487,28 @@ class Widget
     public:
         void setSize(std::optional<int> argW, std::optional<int> argH)
         {
-            const int newW = argW.value_or(m_w);
-            const int newH = argH.value_or(m_h);
+            if(argW.has_value()){
+                fflassert(argW.value() >= 0, argW);
+                m_w = argW.value();
+            }
 
-            fflassert(newW >= 0, newW, newH);
-            fflassert(newH >= 0, newW, newH);
-
-            m_w = newW;
-            m_h = newH;
+            if(argH.has_value()){
+                fflassert(argH.value() >= 0, argH);
+                m_h = argH.value();
+            }
         }
 
         template<typename T> void setSize(const T &t)
         {
             const auto [argW, argH] = t;
             setSize(argW, argH);
+        }
+
+    public:
+        void setFlexibleSize(bool argW, bool argH)
+        {
+            if(argW) m_w.reset();
+            if(argH) m_h.reset();
         }
 
     public:
