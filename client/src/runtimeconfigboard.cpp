@@ -644,8 +644,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
     , m_pageSystem
       {
           DIR_UPLEFT,
-          150,
-          100,
+          m_leftMenuBackground.dx() + m_leftMenuBackground.w() + 30,
+          m_leftMenuBackground.dy() + 10,
           20,
 
           {
@@ -680,8 +680,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
     , m_pageSocial
       {
           DIR_UPLEFT,
-          150,
-          100,
+          m_leftMenuBackground.dx() + m_leftMenuBackground.w() + 30,
+          m_leftMenuBackground.dy() + 10,
           20,
 
           {
