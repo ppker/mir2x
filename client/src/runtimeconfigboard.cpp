@@ -720,7 +720,7 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           0,
           0,
 
-          [](const std::unordered_map<std::string, std::string> &attrList, int oldState, int newState)
+          [this](const std::unordered_map<std::string, std::string> &attrList, int oldState, int newState)
           {
               if(oldState == BEVENT_DOWN && newState == BEVENT_ON){
                   const auto fnFindAttrValue = [&attrList](const char *key, const char *valDefault) -> const char *
@@ -732,6 +732,13 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
                   };
 
                   if(const auto id = fnFindAttrValue("id", nullptr)){
+                      for(const auto &[label, page]: std::initializer_list<std::tuple<const char8_t *, Widget *>>
+                      {
+                          {u8"系统", &m_pageSystem},
+                          {u8"社交", &m_pageSocial},
+                      }){
+                          page->setShow(to_u8sv(id) == label);
+                      }
                   }
               }
           },
@@ -960,8 +967,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
     m_musicSlider.setValue(to_f(SDRuntimeConfig().bgmValue) / 100.0, false);
     m_soundEffectSlider.setValue(to_f(SDRuntimeConfig().soundEffValue) / 100.0, false);
 
-    m_pageSystem.setShow(false);
-    m_pageSocial.setShow(true);
+    m_pageSystem.setShow(true);
+    m_pageSocial.setShow(false);
 
     setShow(false);
 }
