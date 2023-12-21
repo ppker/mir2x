@@ -1,4 +1,5 @@
 #pragma once
+#include <optional>
 #include <functional>
 #include "widget.hpp"
 
@@ -11,8 +12,8 @@ class ShapeClipBoard: public Widget
         ShapeClipBoard(dir8_t,
                 int,
                 int,
-                int,
-                int,
+                std::optional<int>,
+                std::optional<int>,
 
                 std::function<void(const Widget *, int, int)>,
 

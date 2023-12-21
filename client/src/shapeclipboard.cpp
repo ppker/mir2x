@@ -4,8 +4,8 @@
 ShapeClipBoard::ShapeClipBoard(dir8_t argDir,
         int argX,
         int argY,
-        int argW,
-        int argH,
+        std::optional<int> argW,
+        std::optional<int> argH,
 
         std::function<void(const Widget *, int, int)> argDrawFunc,
 

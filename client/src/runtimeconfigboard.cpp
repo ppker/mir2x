@@ -421,8 +421,8 @@ RuntimeConfigBoard::MenuPage::MenuPage(
           argDir,
           argX,
           argY,
-          0,
-          0,
+          {},
+          {},
 
           {},
 
@@ -462,9 +462,6 @@ RuntimeConfigBoard::MenuPage::MenuPage(
     TabHeader *lastHeader = nullptr;
     TabHeader *currHeader = nullptr;
 
-    int maxWidth  = -1;
-    int maxHeight = -1;
-
     fflassert(argGap >= 0, argGap);
     fflassert(!std::empty(argTabList));
 
@@ -492,13 +489,9 @@ RuntimeConfigBoard::MenuPage::MenuPage(
         }
 
         tab->moveAt(DIR_UPLEFT, 0, currHeader->dy() + currHeader->h() + argGap);
-
-        maxWidth  = std::max<int>({maxWidth , currHeader->dx() + currHeader->w(), tab->w()});
-        maxHeight = std::max<int>({maxHeight, currHeader->h() + tab->h() + argGap});
     }
 
-    m_buttonMask.setSize(maxWidth, maxHeight);
-                 setSize(maxWidth, maxHeight);
+    m_buttonMask.setSize(w(), h());
 }
 
 RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, ProcessRun *proc, Widget *widgetPtr, bool autoDelete)
