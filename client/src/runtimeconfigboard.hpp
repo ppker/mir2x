@@ -163,6 +163,9 @@ class RuntimeConfigBoard: public Widget
         MenuPage m_pageSocial;
 
     private:
+        MenuPage m_pageGameConfig;
+
+    private:
         ProcessRun *m_processRun;
 
     public:
