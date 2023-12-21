@@ -458,10 +458,10 @@ RuntimeConfigBoard::MenuPage::MenuPage(
 
               g_sdlDevice->drawLine(colorf::RED + colorf::A_SHF(128),
                       drawDstX,
-                      drawDstY + m_selectedHeader->dy(),
+                      drawDstY + m_selectedHeader->dy() + m_selectedHeader->h(),
 
                       drawDstX + self->w(),
-                      drawDstY + m_selectedHeader->dy());
+                      drawDstY + m_selectedHeader->dy() + m_selectedHeader->h());
           },
 
           this,
@@ -479,6 +479,7 @@ RuntimeConfigBoard::MenuPage::MenuPage(
         fflassert(str_haschar(tabName));
         fflassert(tab);
 
+        addChild(tab, autoDelete);
         addChild(currHeader = new TabHeader
         {
             DIR_UPLEFT,
@@ -492,19 +493,19 @@ RuntimeConfigBoard::MenuPage::MenuPage(
             }
         }, true);
 
-        addChild(tab, autoDelete);
-
         lastHeader = currHeader;
         if(!m_selectedHeader){
             m_selectedHeader = currHeader;
         }
+
+        tab->moveAt(DIR_UPLEFT, 0, currHeader->dy() + currHeader->h());
 
         maxWidth  = std::max<int>({maxWidth , currHeader->dx() + currHeader->w(), tab->w()});
         maxHeight = std::max<int>({maxHeight, currHeader->h() + tab->h()});
     }
 
     m_buttonMask.setSize(maxWidth, maxHeight);
-    setSize(maxWidth, maxHeight);
+                 setSize(maxWidth, maxHeight);
 }
 
 RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, ProcessRun *proc, Widget *widgetPtr, bool autoDelete)
