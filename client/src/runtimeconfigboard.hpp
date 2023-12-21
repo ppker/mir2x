@@ -157,6 +157,13 @@ class RuntimeConfigBoard: public Widget
         Widget m_pageSystem;
 
     private:
+        CheckLabel m_pageSocial_allowGossip;
+        CheckLabel m_pageSocial_allowGreetings;
+
+        Widget m_pageSocial;
+
+
+    private:
         ProcessRun *m_processRun;
 
     public:

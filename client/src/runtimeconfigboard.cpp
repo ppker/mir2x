@@ -903,6 +903,66 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           false,
       }
 
+    , m_pageSocial_allowGossip
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          true,
+          8,
+
+          colorf::RGBA(231, 231, 189, 128),
+          16,
+          16,
+          m_sdRuntimeConfig.ime,
+
+          u8"允许悄悄话",
+          1,
+          12,
+          0,
+          colorf::WHITE + colorf::A_SHF(255),
+      }
+
+    , m_pageSocial_allowGreetings
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          true,
+          8,
+
+          colorf::RGBA(231, 231, 189, 128),
+          16,
+          16,
+          m_sdRuntimeConfig.ime,
+
+          u8"允许白字聊天",
+          1,
+          12,
+          0,
+          colorf::WHITE + colorf::A_SHF(255),
+      }
+
+    , m_pageSocial
+      {
+          DIR_UPLEFT,
+          150,
+          100,
+
+          400,
+          400,
+
+          {
+              {&m_pageSocial_allowGossip   , DIR_UPLEFT, 0,  0, false},
+              {&m_pageSocial_allowGreetings, DIR_UPLEFT, 0, 50, false},
+          },
+
+          this,
+          false,
+      }
+
     , m_processRun([proc]()
       {
           fflassert(proc); return proc;
@@ -928,6 +988,9 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
     m_musicSlider.setValue(to_f(SDRuntimeConfig().bgmValue) / 100.0, false);
     m_soundEffectSlider.setValue(to_f(SDRuntimeConfig().soundEffValue) / 100.0, false);
 
+    m_pageSystem.setShow(false);
+    m_pageSocial.setShow(true);
+
     setShow(false);
 }
 
@@ -948,6 +1011,7 @@ void RuntimeConfigBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW
         static_cast<const Widget *>(&m_leftMenuBackground  ),
         static_cast<const Widget *>(&m_leftMenu            ),
         static_cast<const Widget *>(&m_pageSystem          ),
+        static_cast<const Widget *>(&m_pageSocial          ),
         // static_cast<const Widget *>(&m_resizeButton        ),
         // static_cast<const Widget *>(&m_menuButton          ),
         // static_cast<const Widget *>(&m_checkLabel          ),
@@ -1006,6 +1070,7 @@ bool RuntimeConfigBoard::processEvent(const SDL_Event &event, bool valid)
         // static_cast<Widget *>(&m_checkLabel),
         static_cast<Widget *>(&m_frameBoard),
         static_cast<Widget *>(&m_pageSystem),
+        static_cast<Widget *>(&m_pageSocial),
         // static_cast<Widget *>(&m_texSliderBar),
         // static_cast<Widget *>(&m_texSliderBarVertical),
     }){
