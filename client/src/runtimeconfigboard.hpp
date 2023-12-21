@@ -104,6 +104,45 @@ class RuntimeConfigBoard: public Widget
         };
 
     private:
+        class MenuPage: public Widget
+        {
+            private:
+                class TabHeader: public Widget
+                {
+                    private:
+                        LabelBoard m_label;
+                        TrigfxButton m_button;
+
+                    public:
+                        TabHeader(dir8_t,
+                                int,
+                                int,
+
+                                const char8_t *,
+                                std::function<void()>,
+
+                                Widget * = nullptr,
+                                bool     = false);
+                };
+
+            private:
+                ShapeClipBoard m_buttonMask;
+
+            private:
+                TabHeader *m_selectedHeader = nullptr;
+
+            public:
+                MenuPage(dir8_t,
+                        int,
+                        int,
+
+                        std::initializer_list<std::tuple<const char8_t *, Widget *, bool>>,
+
+                        Widget * = nullptr,
+                        bool     = false);
+        };
+
+    private:
         SDRuntimeConfig m_sdRuntimeConfig;
 
     private:
@@ -117,10 +156,10 @@ class RuntimeConfigBoard: public Widget
         PullMenu       m_pageSystem_resolution;
         LabelSliderBar m_pageSystem_musicSlider;
         LabelSliderBar m_pageSystem_soundEffectSlider;
-        Widget         m_pageSystem;
+        MenuPage       m_pageSystem;
 
     private:
-        Widget m_pageSocial;
+        MenuPage m_pageSocial;
 
     private:
         ProcessRun *m_processRun;
