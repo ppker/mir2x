@@ -2,6 +2,7 @@
 // widget has no box concept like gtk, it can't calculate size in parent
 
 #pragma once
+#include <any>
 #include <list>
 #include <tuple>
 #include <array>
@@ -24,6 +25,9 @@ class Widget
         bool m_show   = true;
         bool m_focus  = false;
         bool m_active = true;
+
+    protected:
+        std::any m_data;
 
     private:
         dir8_t m_dir;
@@ -342,6 +346,18 @@ class Widget
         virtual int dy() const
         {
             return y() - (m_parent ? m_parent->y() : 0);
+        }
+
+    public:
+        std::any &data()
+        {
+            return m_data;
+        }
+
+        Widget *setData(std::any argData)
+        {
+            m_data = std::move(argData);
+            return this;
         }
 
     public:

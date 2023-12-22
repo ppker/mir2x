@@ -440,19 +440,21 @@ RuntimeConfigBoard::MenuPage::MenuPage(
 
           [this](const Widget *self, int drawDstX, int drawDstY)
           {
-              g_sdlDevice->fillRectangle(colorf::RGBA(231, 231, 189, 100),
-                      drawDstX + m_selectedHeader->dx(),
-                      drawDstY + m_selectedHeader->dy(),
+              if(m_selectedHeader){
+                  g_sdlDevice->fillRectangle(colorf::RGBA(231, 231, 189, 100),
+                          drawDstX + m_selectedHeader->dx(),
+                          drawDstY + m_selectedHeader->dy(),
 
-                      m_selectedHeader->w(),
-                      m_selectedHeader->h());
+                          m_selectedHeader->w(),
+                          m_selectedHeader->h());
 
-              g_sdlDevice->drawLine(colorf::RGBA(231, 231, 189, 100),
-                      drawDstX,
-                      drawDstY + m_selectedHeader->dy() + m_selectedHeader->h(),
+                  g_sdlDevice->drawLine(colorf::RGBA(231, 231, 189, 100),
+                          drawDstX,
+                          drawDstY + m_selectedHeader->dy() + m_selectedHeader->h(),
 
-                      drawDstX + self->w(),
-                      drawDstY + m_selectedHeader->dy() + m_selectedHeader->h());
+                          drawDstX + self->w(),
+                          drawDstY + m_selectedHeader->dy() + m_selectedHeader->h());
+              }
           },
 
           this,
@@ -479,10 +481,16 @@ RuntimeConfigBoard::MenuPage::MenuPage(
             tabName,
             [this, tab = tab](ButtonBase *self)
             {
+                if(m_selectedHeader){
+                    std::any_cast<Widget *>(m_selectedHeader->data())->setShow(false);
+                }
+
                 tab->setShow(true);
                 m_selectedHeader = self->parent();
             }
         }, true);
+
+        currHeader->setData(tab);
 
         tab->setShow(lastHeader == nullptr);
         tab->moveAt(DIR_UPLEFT, 0, currHeader->dy() + currHeader->h() + argGap);
