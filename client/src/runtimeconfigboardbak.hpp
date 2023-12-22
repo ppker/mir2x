@@ -42,7 +42,7 @@ class RuntimeConfigBoard_bak: public Widget
 
                           nullptr,
                           nullptr,
-                          [this]()
+                          [this](ButtonBase *)
                           {
                               std::get<0>(m_valueState) = ((getValue() - getValueOffset() + 1) % getValueCount()) + getValueOffset();
                               triggerCallback();

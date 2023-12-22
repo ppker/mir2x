@@ -161,7 +161,7 @@ RuntimeConfigBoard::PullMenu::PullMenu(
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               m_menuList.flipShow();
           },
@@ -339,7 +339,7 @@ RuntimeConfigBoard::MenuPage::TabHeader::TabHeader(
         int argY,
 
         const char8_t *argLabel,
-        std::function<void()> argOnClick,
+        std::function<void(ButtonBase *)> argOnClick,
 
         Widget *argParent,
         bool    argAutoDelete)
@@ -477,9 +477,10 @@ RuntimeConfigBoard::MenuPage::MenuPage(
             0,
 
             tabName,
-            [tab = tab]()
+            [this, tab = tab](ButtonBase *self)
             {
                 tab->setShow(true);
+                m_selectedHeader = self->parent();
             }
         }, true);
 

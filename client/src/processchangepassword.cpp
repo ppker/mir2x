@@ -162,7 +162,7 @@ ProcessChangePassword::ProcessChangePassword()
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               doPostPasswordChange();
           },
@@ -190,7 +190,7 @@ ProcessChangePassword::ProcessChangePassword()
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               doExit();
           },

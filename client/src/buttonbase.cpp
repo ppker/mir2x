@@ -14,9 +14,9 @@ ButtonBase::ButtonBase(
         int argW,
         int argH,
 
-        std::function<void()> fnOnOverIn,
-        std::function<void()> fnOnOverOut,
-        std::function<void()> fnOnClick,
+        std::function<void(ButtonBase *)> fnOnOverIn,
+        std::function<void(ButtonBase *)> fnOnOverOut,
+        std::function<void(ButtonBase *)> fnOnClick,
 
         std::optional<uint32_t> seffIDOnOverIn,
         std::optional<uint32_t> seffIDOnOverOut,
@@ -198,7 +198,7 @@ bool ButtonBase::processEvent(const SDL_Event &event, bool valid)
 void ButtonBase::onClick()
 {
     if(m_onClick){
-        m_onClick();
+        m_onClick(this);
     }
 
     if(m_seffID[2].has_value()){
@@ -209,7 +209,7 @@ void ButtonBase::onClick()
 void ButtonBase::onOverIn()
 {
     if(m_onOverIn){
-        m_onOverIn();
+        m_onOverIn(this);
     }
 
     if(m_seffID[0].has_value()){
@@ -220,7 +220,7 @@ void ButtonBase::onOverIn()
 void ButtonBase::onOverOut()
 {
     if(m_onOverOut){
-        m_onOverOut();
+        m_onOverOut(this);
     }
 
     if(m_seffID[1].has_value()){

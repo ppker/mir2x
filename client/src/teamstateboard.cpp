@@ -45,9 +45,7 @@ TeamStateBoard::TeamStateBoard(int argX, int argY, ProcessRun *runPtr, Widget *w
 
           nullptr,
           nullptr,
-          [this]()
-          {
-          },
+          nullptr,
 
           0,
           0,
@@ -74,7 +72,7 @@ TeamStateBoard::TeamStateBoard(int argX, int argY, ProcessRun *runPtr, Widget *w
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               m_showCandidateList = !m_showCandidateList;
               if(m_showCandidateList){
@@ -112,7 +110,7 @@ TeamStateBoard::TeamStateBoard(int argX, int argY, ProcessRun *runPtr, Widget *w
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               if(m_showCandidateList && (m_selectedIndex[m_showCandidateList] >= 0)){
                   m_processRun->requestJoinTeam(getSDTeamPlayer(m_selectedIndex[m_showCandidateList]).uid);
@@ -144,7 +142,7 @@ TeamStateBoard::TeamStateBoard(int argX, int argY, ProcessRun *runPtr, Widget *w
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               if(!m_showCandidateList && (m_selectedIndex[m_showCandidateList] >= 0)){
                   m_processRun->requestLeaveTeam(getSDTeamPlayer(m_selectedIndex[m_showCandidateList]).uid);
@@ -176,7 +174,7 @@ TeamStateBoard::TeamStateBoard(int argX, int argY, ProcessRun *runPtr, Widget *w
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               refresh();
           },
@@ -206,7 +204,7 @@ TeamStateBoard::TeamStateBoard(int argX, int argY, ProcessRun *runPtr, Widget *w
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               setShow(false);
           },

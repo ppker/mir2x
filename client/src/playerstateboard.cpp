@@ -95,7 +95,7 @@ PlayerStateBoard::PlayerStateBoard(int argX, int argY, ProcessRun *runPtr, Widge
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               setShow(false);
           },

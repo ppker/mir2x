@@ -119,7 +119,7 @@ class RuntimeConfigBoard: public Widget
                                 int,
 
                                 const char8_t *,
-                                std::function<void()>,
+                                std::function<void(ButtonBase *)>,
 
                                 Widget * = nullptr,
                                 bool     = false);
@@ -129,7 +129,7 @@ class RuntimeConfigBoard: public Widget
                 ShapeClipBoard m_buttonMask;
 
             private:
-                TabHeader *m_selectedHeader = nullptr;
+                Widget *m_selectedHeader = nullptr;
 
             public:
                 MenuPage(dir8_t,

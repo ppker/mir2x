@@ -112,7 +112,7 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               if(auto p = m_processRun->getWidget("QuickAccessBoard")){
                   p->flipShow();
@@ -143,7 +143,7 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
 
           nullptr,
           nullptr,
-          []()
+          [](ButtonBase *)
           {
               std::exit(0);
           },
@@ -200,7 +200,7 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               addLog(0, "exchange doesn't implemented yet.");
           },
@@ -225,7 +225,7 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               if(auto p = dynamic_cast<MiniMapBoard *>(m_processRun->getWidget("MiniMapBoard"))){
                   if(p->getMiniMapTexture()){
@@ -257,7 +257,7 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               m_processRun->flipDrawMagicKey();
           },
@@ -280,7 +280,7 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               if(auto p = m_processRun->getWidget("InventoryBoard")){
                   p->flipShow();
@@ -311,7 +311,7 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               if(auto p = m_processRun->getWidget("PlayerStateBoard")){
                   p->flipShow();
@@ -342,7 +342,7 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               if(auto p = m_processRun->getWidget("SkillBoard")){
                   p->flipShow();
@@ -373,7 +373,7 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               if(auto p = m_processRun->getWidget("InventoryBoard")){
                   p->flipShow();
@@ -404,7 +404,7 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               auto boardPtr = dynamic_cast<TeamStateBoard *>(m_processRun->getWidget("TeamStateBoard"));
               auto  heroPtr = m_processRun->getMyHero();
@@ -444,7 +444,7 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               if(auto p = m_processRun->getWidget("QuestStateBoard")){
                   p->flipShow();
@@ -477,7 +477,7 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               if(auto p = m_processRun->getWidget("InventoryBoard")){
                   p->flipShow();
@@ -508,7 +508,7 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               if(auto p = m_processRun->getWidget("RuntimeConfigBoard")){
                   p->flipShow();
@@ -539,7 +539,7 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               if(auto p = m_processRun->getWidget("InventoryBoard")){
                   p->flipShow();
@@ -600,7 +600,7 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               switchExpandMode();
           },

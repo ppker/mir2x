@@ -29,7 +29,7 @@ RuntimeConfigBoard_bak::RuntimeConfigBoard_bak(int argX, int argY, ProcessRun *p
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               setShow(false);
           },

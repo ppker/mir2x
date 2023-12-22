@@ -294,12 +294,12 @@ SkillBoard::SkillBoard(int argX, int argY, ProcessRun *runPtr, Widget *widgetPtr
                       0X01020000 + 105,
                   },
 
-                  [i, this]()
+                  [i, this](ButtonBase *)
                   {
                       m_cursorOnTabIndex = i;
                   },
 
-                  [i, this]()
+                  [i, this](ButtonBase *)
                   {
                       if(i != m_cursorOnTabIndex){
                           return;
@@ -307,7 +307,7 @@ SkillBoard::SkillBoard(int argX, int argY, ProcessRun *runPtr, Widget *widgetPtr
                       m_cursorOnTabIndex = -1;
                   },
 
-                  [i, this]()
+                  [i, this](ButtonBase *)
                   {
                       if(m_selectedTabIndex == i){
                           return;
@@ -396,7 +396,7 @@ SkillBoard::SkillBoard(int argX, int argY, ProcessRun *runPtr, Widget *widgetPtr
 
           nullptr,
           nullptr,
-          [this]()
+          [this](ButtonBase *)
           {
               setShow(false);
           },
