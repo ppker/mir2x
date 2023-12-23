@@ -623,7 +623,7 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           0,
           0,
 
-          u8"背景音量",
+          u8"音乐音量",
           60,
 
           1,
@@ -681,8 +681,11 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
                           {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, m_sdRuntimeConfig.ime, u8"全屏显示", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)) , DIR_UPLEFT, 0,  40, true},
                           {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, m_sdRuntimeConfig.ime, u8"显示FPS" , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)) , DIR_UPLEFT, 0,  80, true},
 
-                          {&m_pageSystem_musicSlider      , DIR_UPLEFT, 0, 120, false},
-                          {&m_pageSystem_soundEffectSlider, DIR_UPLEFT, 0, 160, false},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, m_sdRuntimeConfig.ime, u8"背景音乐" , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)) , DIR_UPLEFT, 0,  120, true},
+                          {&m_pageSystem_musicSlider, DIR_UPLEFT, 0, 160, false},
+
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, m_sdRuntimeConfig.ime, u8"动作声效" , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)) , DIR_UPLEFT, 0,  200, true},
+                          {&m_pageSystem_soundEffectSlider, DIR_UPLEFT, 0, 240, false},
                       },
                   },
                   true,
