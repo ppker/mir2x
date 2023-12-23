@@ -104,7 +104,7 @@ GUIManager::GUIManager(ProcessRun *proc)
           g_sdlDevice->getRendererHeight() / 2 - 234,
 
           600,
-          500,
+          480,
 
           proc,
           this,
