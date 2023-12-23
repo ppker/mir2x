@@ -409,6 +409,8 @@ RuntimeConfigBoard::MenuPage::MenuPage(
         dir8_t argDir,
         int argX,
         int argY,
+
+        std::optional<int> argSeperatorW,
         int argGap,
 
         std::initializer_list<std::tuple<const char8_t *, Widget *, bool>> argTabList,
@@ -435,7 +437,7 @@ RuntimeConfigBoard::MenuPage::MenuPage(
           DIR_UPLEFT,
           0,
           0,
-          400,
+          argSeperatorW,
           0,
 
           [this](const Widget *self, int drawDstX, int drawDstY)
@@ -502,7 +504,7 @@ RuntimeConfigBoard::MenuPage::MenuPage(
         }
     }
 
-    m_buttonMask.setSize({}, h());
+    m_buttonMask.setSize(argSeperatorW.has_value() ? std::nullopt : std::make_optional<int>(w()), h());
 }
 
 RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, ProcessRun *proc, Widget *widgetPtr, bool autoDelete)
@@ -658,6 +660,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           DIR_UPLEFT,
           m_leftMenuBackground.dx() + m_leftMenuBackground.w() + 30,
           m_leftMenuBackground.dy() + 10,
+
+          w() - (m_leftMenuBackground.dx() + m_leftMenuBackground.w() + 30) - 50,
           20,
 
           {
@@ -694,6 +698,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           DIR_UPLEFT,
           m_leftMenuBackground.dx() + m_leftMenuBackground.w() + 30,
           m_leftMenuBackground.dy() + 10,
+
+          w() - (m_leftMenuBackground.dx() + m_leftMenuBackground.w() + 30) - 50,
           20,
 
           {
@@ -740,6 +746,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           DIR_UPLEFT,
           m_leftMenuBackground.dx() + m_leftMenuBackground.w() + 30,
           m_leftMenuBackground.dy() + 10,
+
+          w() - (m_leftMenuBackground.dx() + m_leftMenuBackground.w() + 30) - 50,
           20,
 
           {
