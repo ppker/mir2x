@@ -55,6 +55,11 @@ class CheckBox: public Widget
             }
         }
 
+        bool checked() const
+        {
+            return *m_valPtr;
+        }
+
     private:
         static SDL_Texture *loadFunc(const ImageBoard *);
 };
