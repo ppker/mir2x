@@ -12,7 +12,7 @@ extern IMEBoard *g_imeBoard;
 extern PNGTexDB *g_progUseDB;
 extern SDLDevice *g_sdlDevice;
 
-RuntimeConfigBoard::TextLine::TextLine(
+RuntimeConfigBoard::TextInput::TextInput(
         dir8_t argDir,
         int argX,
         int argY,
@@ -96,6 +96,11 @@ RuntimeConfigBoard::TextLine::TextLine(
           false,
       }
 {}
+
+bool RuntimeConfigBoard::TextInput::processEvent(const SDL_Event &event, bool valid)
+{
+    return m_input.processEvent(event, valid);
+}
 
 RuntimeConfigBoard::PullMenu::PullMenu(
         dir8_t argDir,
@@ -908,6 +913,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
                           {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"保持满血", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 25, true},
                           {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"自动喝蓝", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 50, true},
                           {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"保持满蓝", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 75, true},
+
+                          {new TextInput(DIR_UPLEFT, 0, 0, 100, 20, true), DIR_UPLEFT, 0, 100, true},
                       },
                   },
                   true,

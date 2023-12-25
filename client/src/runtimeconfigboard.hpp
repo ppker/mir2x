@@ -21,7 +21,7 @@ class ProcessRun;
 class RuntimeConfigBoard: public Widget
 {
     private:
-        class TextLine: public Widget
+        class TextInput: public Widget
         {
             private:
                 ImageBoard      m_image;
@@ -31,7 +31,7 @@ class RuntimeConfigBoard: public Widget
                 InputLine m_input;
 
             public:
-                TextLine(
+                TextInput(
                     dir8_t,
                     int,
                     int,
@@ -45,6 +45,9 @@ class RuntimeConfigBoard: public Widget
 
                     Widget * = nullptr,
                     bool     = false);
+
+            public:
+                bool processEvent(const SDL_Event &, bool) override;
         };
 
     private:
