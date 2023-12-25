@@ -538,7 +538,7 @@ class Widget
             }
 
             widget->m_parent = this;
-            m_childList.emplace_back(widget, autoDelete);
+            m_childList.emplace_front(widget, autoDelete);
         }
 
         virtual void removeChild(Widget *widget, bool triggerDelete)

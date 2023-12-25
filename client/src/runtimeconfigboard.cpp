@@ -32,8 +32,9 @@ RuntimeConfigBoard::TextInput::TextInput(
           argDir,
           argX,
           argY,
-          argW,
-          argH,
+
+          [argW, argH]{fflassert(argW >= 6, argW, argH); return argW;}(),
+          [argW, argH]{fflassert(argH >= 4, argW, argH); return argH;}(),
 
           {},
 
@@ -56,9 +57,8 @@ RuntimeConfigBoard::TextInput::TextInput(
           DIR_UPLEFT,
           0,
           0,
-
-          [argW]{ fflassert(argW >= 0); return argW; }(),
-          [argH]{ fflassert(argH >= 0); return argH; }(),
+          argW,
+          argH,
 
           &m_image,
 
