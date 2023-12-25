@@ -81,6 +81,10 @@ void IMEBoard::update(double)
         }
     }
     else{
+        for(auto &p: m_labelBoardList){
+            this->removeChild(p.get(), false);
+        }
+
         m_labelBoardList.clear();
         m_candidateList = currCandidateList;
 
@@ -394,8 +398,12 @@ void IMEBoard::drawEx(int dstX, int dstY, int, int, int, int) const
 
 void IMEBoard::gainFocus(std::string prefix, std::string input, Widget *pwidget, std::function<void(std::string)> onCommit)
 {
-    m_candidateList.clear();
+    for(auto &p: m_labelBoardList){
+        this->removeChild(p.get(), false);
+    }
+
     m_labelBoardList.clear();
+    m_candidateList.clear();
 
     m_ime.assign(prefix, input);
 
@@ -412,8 +420,12 @@ void IMEBoard::gainFocus(std::string prefix, std::string input, Widget *pwidget,
 
 void IMEBoard::dropFocus()
 {
-    m_candidateList.clear();
+    for(auto &p: m_labelBoardList){
+        this->removeChild(p.get(), false);
+    }
+
     m_labelBoardList.clear();
+    m_candidateList.clear();
 
     m_ime.clear();
 
