@@ -50,6 +50,9 @@ class CheckBox: public Widget
         void toggle()
         {
             *m_valPtr = !(*m_valPtr);
+            if(m_onChange){
+                m_onChange(this);
+            }
         }
 
     private:
