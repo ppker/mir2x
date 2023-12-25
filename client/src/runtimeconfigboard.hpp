@@ -21,6 +21,33 @@ class ProcessRun;
 class RuntimeConfigBoard: public Widget
 {
     private:
+        class TextLine: public Widget
+        {
+            private:
+                ImageBoard      m_image;
+                GfxCropDupBoard m_imageBg;
+
+            private:
+                InputLine m_input;
+
+            public:
+                TextLine(
+                    dir8_t,
+                    int,
+                    int,
+                    int,
+                    int,
+
+                    bool,
+
+                    std::function<void()> = nullptr,
+                    std::function<void()> = nullptr,
+
+                    Widget * = nullptr,
+                    bool     = false);
+        };
+
+    private:
         class PullMenu: public Widget
         {
             private:

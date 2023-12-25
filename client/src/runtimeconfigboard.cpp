@@ -12,6 +12,91 @@ extern IMEBoard *g_imeBoard;
 extern PNGTexDB *g_progUseDB;
 extern SDLDevice *g_sdlDevice;
 
+RuntimeConfigBoard::TextLine::TextLine(
+        dir8_t argDir,
+        int argX,
+        int argY,
+        int argW,
+        int argH,
+
+        bool argIMEEnabled,
+
+        std::function<void()> argOnTab,
+        std::function<void()> argOnCR,
+
+        Widget *argParent,
+        bool    argAutoDelete)
+
+    : Widget
+      {
+          argDir,
+          argX,
+          argY,
+          argW,
+          argH,
+
+          {},
+
+          argParent,
+          argAutoDelete,
+      }
+
+    , m_image
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+          {},
+          {},
+          [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000460); },
+      }
+
+    , m_imageBg
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          [argW]{ fflassert(argW >= 0); return argW; }(),
+          [argH]{ fflassert(argH >= 0); return argH; }(),
+
+          &m_image,
+
+          3,
+          3,
+          m_image.w() - 6,
+          2,
+
+          this,
+          false,
+      }
+
+    , m_input
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+          argW - 6,
+          argH - 4,
+
+          argIMEEnabled,
+
+          1,
+          12,
+          0,
+          colorf::WHITE + colorf::A_SHF(255),
+
+          2,
+          colorf::WHITE + colorf::A_SHF(255),
+
+          argOnTab,
+          argOnCR,
+
+          this,
+          false,
+      }
+{}
+
 RuntimeConfigBoard::PullMenu::PullMenu(
         dir8_t argDir,
         int argX,
