@@ -27,43 +27,57 @@ class InputLine: public Widget
 
     public:
         InputLine(
-                dir8_t dir,
-                int x,
-                int y,
-                int w,
-                int h,
+                dir8_t argDir,
+                int argX,
+                int argY,
+                int argW,
+                int argH,
 
-                bool imeEnabled,
+                bool argIMEEnabled,
 
-                uint8_t  font      =  0,
-                uint8_t  fontSize  = 10,
-                uint8_t  fontStyle =  0,
-                uint32_t fontColor =  colorf::WHITE + colorf::A_SHF(255),
+                uint8_t  argFont      =  0,
+                uint8_t  argFontSize  = 10,
+                uint8_t  argFontStyle =  0,
+                uint32_t argFontColor =  colorf::WHITE + colorf::A_SHF(255),
 
-                int      cursorWidth = 2,
-                uint32_t cursorColor = colorf::WHITE + colorf::A_SHF(255),
+                int      argCursorWidth = 2,
+                uint32_t argCursorColor = colorf::WHITE + colorf::A_SHF(255),
 
-                std::function<void()> onTab = nullptr,
-                std::function<void()> onCR  = nullptr,
+                std::function<void()> argOnTab = nullptr,
+                std::function<void()> argOnCR  = nullptr,
 
                 Widget *widgetPtr  = nullptr,
                 bool    autoDelete = false)
-            : Widget(dir, x, y, w, h, {}, widgetPtr, autoDelete)
-            , m_imeEnabled(imeEnabled)
+
+            : Widget
+              {
+                  argDir,
+                  argX,
+                  argY,
+                  argW,
+                  argH,
+
+                  {},
+
+                  widgetPtr,
+                  autoDelete,
+              }
+
+            , m_imeEnabled(argIMEEnabled)
             , m_tpset
               {
                   0,
                   LALIGN_LEFT,
                   false,
-                  font,
-                  fontSize,
-                  fontStyle,
-                  fontColor,
+                  argFont,
+                  argFontSize,
+                  argFontStyle,
+                  argFontColor,
               }
-            , m_cursorWidth(cursorWidth)
-            , m_cursorColor(cursorColor)
-            , m_onTab(onTab)
-            , m_onCR(onCR)
+            , m_cursorWidth(argCursorWidth)
+            , m_cursorColor(argCursorColor)
+            , m_onTab(argOnTab)
+            , m_onCR(argOnCR)
         {}
 
     public:
