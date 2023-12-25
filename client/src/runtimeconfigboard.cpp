@@ -74,8 +74,8 @@ RuntimeConfigBoard::TextInput::TextInput(
     , m_input
       {
           DIR_UPLEFT,
-          0,
-          0,
+          3,
+          2,
           argW - 6,
           argH - 4,
 
