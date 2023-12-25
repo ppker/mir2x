@@ -227,7 +227,7 @@ class Widget
                 }
             }
 
-            if(focusedNode != m_childList.end()){
+            if(focusedNode != m_childList.begin() && focusedNode != m_childList.end()){
                 m_childList.push_front(*focusedNode);
                 m_childList.erase(focusedNode);
             }
