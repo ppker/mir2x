@@ -32,30 +32,6 @@ TexSliderBar::TexSliderBar(
           argAutoDelete,
       }
 
-    , m_slider
-      {
-          DIR_NONE,
-          w() / 2,
-          h() / 2,
-
-          w() - 6,
-          h() - 6,
-
-          argHSlider,
-          argSliderIndex,
-
-          [argHSlider, argOnChanged = std::move(argOnChanged), this](float val)
-          {
-              argOnChanged(val);
-              m_barCropDup.setSize(
-                      /* w */  argHSlider ? std::make_optional<int>(std::lround(val * (w() - 6))) : std::nullopt,
-                      /* h */ !argHSlider ? std::make_optional<int>(std::lround(val * (h() - 6))) : std::nullopt);
-          },
-
-          this,
-          false,
-      }
-
     , m_slotImage
       {
           DIR_UPLEFT,
@@ -85,7 +61,6 @@ TexSliderBar::TexSliderBar(
 
           false,
           false,
-
           argHSlider ? 0 : 1,
       }
 
@@ -144,22 +119,6 @@ TexSliderBar::TexSliderBar(
           false,
       }
 
-    , m_barCropDup
-      {
-          DIR_UPLEFT,
-
-          /* x */  argHSlider ? 3 : 2,
-          /* y */ !argHSlider ? 3 : 2,
-
-          /* w */  argHSlider ? to_dround((w() - 6) * m_slider.getValue()) : m_barImage.w(),
-          /* h */ !argHSlider ? to_dround((h() - 6) * m_slider.getValue()) : m_barImage.h(),
-
-          &m_barImage,
-
-          this,
-          false,
-      }
-
     , m_slotMidCropDup
       {
           DIR_UPLEFT,
@@ -171,6 +130,46 @@ TexSliderBar::TexSliderBar(
           /* h */ !argHSlider ? h() - 6 : h(),
 
           &m_slotCropMiddle,
+
+          this,
+          false,
+      }
+
+    , m_barCropDup
+      {
+          DIR_UPLEFT,
+
+          /* x */  argHSlider ? 3 : 2,
+          /* y */ !argHSlider ? 3 : 2,
+
+          /* w */  argHSlider ? 0 : m_barImage.w(),
+          /* h */ !argHSlider ? 0 : m_barImage.h(),
+
+          &m_barImage,
+
+          this,
+          false,
+      }
+
+    , m_slider
+      {
+          DIR_NONE,
+          w() / 2,
+          h() / 2,
+
+          w() - 6,
+          h() - 6,
+
+          argHSlider,
+          argSliderIndex,
+
+          [argHSlider, argOnChanged = std::move(argOnChanged), this](float val)
+          {
+              argOnChanged(val);
+              m_barCropDup.setSize(
+                      /* w */  argHSlider ? std::make_optional<int>(std::lround(val * (w() - 6))) : std::nullopt,
+                      /* h */ !argHSlider ? std::make_optional<int>(std::lround(val * (h() - 6))) : std::nullopt);
+          },
 
           this,
           false,
