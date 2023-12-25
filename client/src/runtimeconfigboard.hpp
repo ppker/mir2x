@@ -47,7 +47,15 @@ class RuntimeConfigBoard: public Widget
                     bool     = false);
 
             public:
-                bool processEvent(const SDL_Event &, bool) override;
+                void update(double fUpdateTime) override
+                {
+                    m_input.update(fUpdateTime);
+                }
+
+                bool processEvent(const SDL_Event &event, bool valid) override
+                {
+                    return m_input.processEvent(event, valid);
+                }
         };
 
     private:

@@ -97,11 +97,6 @@ RuntimeConfigBoard::TextInput::TextInput(
       }
 {}
 
-bool RuntimeConfigBoard::TextInput::processEvent(const SDL_Event &event, bool valid)
-{
-    return m_input.processEvent(event, valid);
-}
-
 RuntimeConfigBoard::PullMenu::PullMenu(
         dir8_t argDir,
         int argX,
@@ -1049,7 +1044,7 @@ bool RuntimeConfigBoard::processEvent(const SDL_Event &event, bool valid)
             }
         default:
             {
-                return consumeFocus(false);
+                return false;
             }
     }
 }

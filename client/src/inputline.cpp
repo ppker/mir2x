@@ -90,22 +90,25 @@ bool InputLine::processEvent(const SDL_Event &event, bool valid)
                         }
                 }
             }
+        case SDL_MOUSEBUTTONUP:
         case SDL_MOUSEBUTTONDOWN:
             {
                 if(!in(event.button.x, event.button.y)){
                     return consumeFocus(false);
                 }
 
-                const int eventX = event.button.x - x();
-                const int eventY = event.button.y - y();
+                if(event.type == SDL_MOUSEBUTTONDOWN){
+                    const int eventX = event.button.x - x();
+                    const int eventY = event.button.y - y();
 
-                const auto [cursorX, cursorY] = m_tpset.locCursor(eventX, eventY);
-                if(cursorY != 0){
-                    throw fflerror("cursor locates at wrong line");
+                    const auto [cursorX, cursorY] = m_tpset.locCursor(eventX, eventY);
+                    if(cursorY != 0){
+                        throw fflerror("cursor locates at wrong line");
+                    }
+
+                    m_cursor = cursorX;
+                    m_cursorBlink = 0.0;
                 }
-
-                m_cursor = cursorX;
-                m_cursorBlink = 0.0;
 
                 return consumeFocus(true);
             }
