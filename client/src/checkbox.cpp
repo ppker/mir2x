@@ -11,7 +11,9 @@ CheckBox::CheckBox(dir8_t argDir,
         int argH,
 
         uint32_t argColor,
-        int &argValRef,
+
+        int *argValPtr,
+        std::function<void(Widget *)> argOnChange,
 
         Widget *argParent,
         bool    argAutoDelete)
@@ -31,7 +33,9 @@ CheckBox::CheckBox(dir8_t argDir,
       }
 
     , m_color(argColor)
-    , m_valRef(argValRef)
+    , m_valPtr(argValPtr ? argValPtr : &m_innVal)
+    , m_onChange(std::move(argOnChange))
+
     , m_checkImage
       {
           DIR_NONE,
@@ -56,7 +60,7 @@ CheckBox::CheckBox(dir8_t argDir,
 
 void CheckBox::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
 {
-    if(m_valRef){
+    if(*m_valPtr){
         int drawSrcX = srcX;
         int drawSrcY = srcY;
         int drawSrcW = srcW;

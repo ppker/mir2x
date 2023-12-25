@@ -26,7 +26,9 @@ class CheckLabel: public Widget
                 uint32_t,
                 int,
                 int,
-                int &,
+
+                int *,
+                std::function<void(Widget *)>,
 
                 const char8_t *,
                 uint8_t,

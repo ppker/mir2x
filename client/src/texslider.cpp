@@ -57,6 +57,7 @@ void TexSlider::drawEx(int, int, int, int, int, int) const
 
     const auto [valCenterX, valCenterY] = getValueCenter();
     if(auto texPtr = g_progUseDB->retrieve(m_sliderTexInfo.texID)){
+        const SDLDeviceHelper::EnableTextureModColor enableTexModColor(texPtr, active() ? colorf::RGBA(0XFF, 0XFF, 0XFF, 0XFF) : colorf::RGBA(0X80, 0X80, 0X80, 0XFF));
         g_sdlDevice->drawTexture(texPtr, valCenterX - m_sliderTexInfo.offX, valCenterY - m_sliderTexInfo.offY);
     }
 

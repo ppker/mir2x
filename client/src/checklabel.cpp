@@ -13,7 +13,9 @@ CheckLabel::CheckLabel(
         uint32_t argBoxColor,
         int argBoxW,
         int argBoxH,
-        int &argBoxRef,
+
+        int *argBoxValPtr,
+        std::function<void(Widget *)> argOnChange,
 
         const char8_t *argLabel,
         uint8_t  argFont,
@@ -50,7 +52,9 @@ CheckLabel::CheckLabel(
           argBoxH,
 
           argBoxColor,
-          argBoxRef,
+
+          argBoxValPtr,
+          std::move(argOnChange),
 
           this,
           false,

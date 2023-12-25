@@ -9,7 +9,11 @@ class CheckBox: public Widget
         uint32_t m_color;
 
     private:
-        int &m_valRef;
+        int  m_innVal = 0;
+        int *m_valPtr;
+
+    private:
+        std::function<void(Widget *)> m_onChange;
 
     private:
         ImageBoard m_checkImage;
@@ -23,7 +27,9 @@ class CheckBox: public Widget
                 int,
 
                 uint32_t,
-                int &,
+
+                int *,
+                std::function<void(Widget *)>,
 
                 Widget * = nullptr, // parent
                 bool     = false);  // auto-delete
@@ -43,7 +49,7 @@ class CheckBox: public Widget
     public:
         void toggle()
         {
-            m_valRef = !m_valRef;
+            *m_valPtr = !(*m_valPtr);
         }
 
     private:

@@ -472,6 +472,9 @@ class Widget
 
         virtual bool active() const
         {
+            if(m_parent && !m_parent->active()){
+                return false;
+            }
             return m_active;
         }
 
