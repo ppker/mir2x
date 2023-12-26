@@ -957,7 +957,7 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
                           {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"自动喝蓝", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 50, true},
                           {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"保持满蓝", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 75, true},
 
-                          {new TextInput(DIR_UPLEFT, 0, 0, u8"等待", u8"秒", 0, 0, true, 50, 20), DIR_UPLEFT, 0, 110, true},
+                          {new TextInput(DIR_UPLEFT, 0, 0, u8"等待", u8"秒", 3, 3, true, 50, 20), DIR_UPLEFT, 0, 110, true},
                       },
                   },
                   true,
