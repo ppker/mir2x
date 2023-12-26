@@ -136,7 +136,7 @@ RuntimeConfigBoard::TextInput::TextInput(
           false,
       }
 {
-    const int maxH = std::max<int>({m_labelFirst.h(), m_input.h(), m_labelSecond.h()});
+    const int maxH = std::max<int>({m_labelFirst.h(), m_imageBg.h(), m_labelSecond.h()});
 
     m_labelFirst .moveAt(DIR_LEFT,                                                   0, maxH / 2);
     m_imageBg    .moveAt(DIR_LEFT, m_labelFirst.dx() + m_labelFirst.w() + argGapFirst , maxH / 2);
