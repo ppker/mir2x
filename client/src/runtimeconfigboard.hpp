@@ -24,6 +24,10 @@ class RuntimeConfigBoard: public Widget
         class TextInput: public Widget
         {
             private:
+                LabelBoard m_labelFirst;
+                LabelBoard m_labelSecond;
+
+            private:
                 ImageBoard      m_image;
                 GfxCropDupBoard m_imageBg;
 
@@ -35,10 +39,17 @@ class RuntimeConfigBoard: public Widget
                     dir8_t,
                     int,
                     int,
-                    int,
-                    int,
+
+                    const char8_t *,
+                    const char8_t *,
+
+                    int, // argGapFirst
+                    int, // argGapSecond
 
                     bool,
+
+                    int, // argInputW
+                    int, // argInputH
 
                     std::function<void()> = nullptr,
                     std::function<void()> = nullptr,

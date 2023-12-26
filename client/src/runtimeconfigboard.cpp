@@ -16,10 +16,17 @@ RuntimeConfigBoard::TextInput::TextInput(
         dir8_t argDir,
         int argX,
         int argY,
-        int argW,
-        int argH,
+
+        const char8_t *argLabelFirst,
+        const char8_t *argLabelSecond,
+
+        int argGapFirst,
+        int argGapSecond,
 
         bool argIMEEnabled,
+
+        int argInputW,
+        int argInputH,
 
         std::function<void()> argOnTab,
         std::function<void()> argOnCR,
@@ -33,13 +40,44 @@ RuntimeConfigBoard::TextInput::TextInput(
           argX,
           argY,
 
-          [argW, argH]{fflassert(argW >= 6, argW, argH); return argW;}(),
-          [argW, argH]{fflassert(argH >= 4, argW, argH); return argH;}(),
-
+          {},
+          {},
           {},
 
           argParent,
           argAutoDelete,
+      }
+
+    , m_labelFirst
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          argLabelFirst,
+          1,
+          12,
+          0,
+          colorf::WHITE + colorf::A_SHF(255),
+
+          this,
+          false,
+      }
+
+    , m_labelSecond
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          argLabelSecond,
+          1,
+          12,
+          0,
+          colorf::WHITE + colorf::A_SHF(255),
+
+          this,
+          false,
       }
 
     , m_image
@@ -57,8 +95,9 @@ RuntimeConfigBoard::TextInput::TextInput(
           DIR_UPLEFT,
           0,
           0,
-          argW,
-          argH,
+
+          argInputW + 6,
+          argInputH + 4,
 
           &m_image,
 
@@ -74,10 +113,11 @@ RuntimeConfigBoard::TextInput::TextInput(
     , m_input
       {
           DIR_UPLEFT,
-          3,
-          2,
-          argW - 6,
-          argH - 4,
+          0,
+          0,
+
+          argInputW,
+          argInputH,
 
           argIMEEnabled,
 
@@ -95,7 +135,15 @@ RuntimeConfigBoard::TextInput::TextInput(
           this,
           false,
       }
-{}
+{
+    const int maxH = std::max<int>({m_labelFirst.h(), m_input.h(), m_labelSecond.h()});
+
+    m_labelFirst .moveAt(DIR_LEFT,                                                   0, maxH / 2);
+    m_imageBg    .moveAt(DIR_LEFT, m_labelFirst.dx() + m_labelFirst.w() + argGapFirst , maxH / 2);
+    m_labelSecond.moveAt(DIR_LEFT, m_imageBg   .dx() + m_imageBg   .w() + argGapSecond, maxH / 2);
+
+    m_input.moveAt(DIR_UPLEFT, m_imageBg.dx() + 3, m_imageBg.dy() + 2);
+}
 
 RuntimeConfigBoard::PullMenu::PullMenu(
         dir8_t argDir,
@@ -909,7 +957,7 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
                           {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"自动喝蓝", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 50, true},
                           {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"保持满蓝", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 75, true},
 
-                          {new TextInput(DIR_UPLEFT, 0, 0, 100, 20, true), DIR_UPLEFT, 0, 100, true},
+                          {new TextInput(DIR_UPLEFT, 0, 0, u8"等待", u8"秒", 10, 20, true, 50, 20), DIR_UPLEFT, 0, 100, true},
                       },
                   },
                   true,
