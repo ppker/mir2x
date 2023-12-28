@@ -132,6 +132,18 @@ bool MenuBoard::processEvent(const SDL_Event &event, bool valid)
                     return consumeFocus(false);
                 }
 
+                if(!mathf::pointInRectangle<int>(
+                            eventX,
+                            eventY,
+
+                            x() + m_margin[2],
+                            y() + m_margin[0],
+
+                            w() - m_margin[2] - m_margin[3],
+                            h() - m_margin[0] - m_margin[1])){
+                    return consumeFocus(false);
+                }
+
                 for(auto &p: m_childList){
                     if(mathf::pointInRectangle(eventX, eventY, p.widget->x(), p.widget->y() - m_itemSpace / 2, w() - m_margin[2] - m_margin[3], p.widget->h() + m_itemSpace)){
                         consumeFocus(true, p.widget);
