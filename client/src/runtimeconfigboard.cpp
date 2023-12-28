@@ -1083,7 +1083,7 @@ bool RuntimeConfigBoard::processEvent(const SDL_Event &event, bool valid)
                     moveBy(newX - x(), newY - y());
                     return consumeFocus(true);
                 }
-                return consumeFocus(false);
+		return false;
             }
         case SDL_MOUSEBUTTONUP:
         case SDL_MOUSEBUTTONDOWN:
