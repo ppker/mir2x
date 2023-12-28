@@ -316,15 +316,15 @@ RuntimeConfigBoard::PullMenu::PullMenu(
           0,
           0,
 
-          m_menuTitleBackground.w() - 6,
+          {},
 
-          0,
+          10,
           0,
 
           argMenuList,
           std::move(argOnClickMenu),
 
-          {},
+          {10, 10, 10, 10},
 
           this,
           false,
