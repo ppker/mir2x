@@ -143,12 +143,11 @@ bool MenuBoard::processEvent(const SDL_Event &event, bool valid)
                         return true;
                     }
                 }
-
-                return consumeFocus(false);
+                return false;
             }
         default:
             {
-                return consumeFocus(false);
+                return false;
             }
     }
 }
