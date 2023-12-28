@@ -118,6 +118,7 @@ bool MenuBoard::processEvent(const SDL_Event &event, bool valid)
                 if(m_onClickMenu){
                     m_onClickMenu(p);
                 }
+                setShow(false);
             }
         }
         return true;
@@ -132,6 +133,9 @@ bool MenuBoard::processEvent(const SDL_Event &event, bool valid)
                     return consumeFocus(false);
                 }
 
+                // event drops into margin
+                // we should drop focus but still consume the event
+
                 if(!mathf::pointInRectangle<int>(
                             eventX,
                             eventY,
@@ -141,7 +145,7 @@ bool MenuBoard::processEvent(const SDL_Event &event, bool valid)
 
                             w() - m_margin[2] - m_margin[3],
                             h() - m_margin[0] - m_margin[1])){
-                    return consumeFocus(false);
+                    return !consumeFocus(false);
                 }
 
                 for(auto &p: m_childList){
@@ -151,6 +155,7 @@ bool MenuBoard::processEvent(const SDL_Event &event, bool valid)
                             if(m_onClickMenu){
                                 m_onClickMenu(p.widget);
                             }
+                            setShow(false);
                         }
                         return true;
                     }
