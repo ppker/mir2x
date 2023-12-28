@@ -130,7 +130,8 @@ bool MenuBoard::processEvent(const SDL_Event &event, bool valid)
             {
                 const auto [eventX, eventY] = SDLDeviceHelper::getEventPLoc(event).value();
                 if(!in(eventX, eventY)){
-                    return consumeFocus(false);
+                    consumeFocus(false);
+                    return event.type == SDL_MOUSEMOTION;
                 }
 
                 // event drops into margin
