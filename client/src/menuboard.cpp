@@ -130,7 +130,7 @@ bool MenuBoard::processEvent(const SDL_Event &event, bool valid)
             {
                 const auto [eventX, eventY] = SDLDeviceHelper::getEventPLoc(event).value();
                 if(!in(eventX, eventY)){
-                    consumeFocus(false);
+                    setFocus(false);
                     return event.type == SDL_MOUSEMOTION;
                 }
 
