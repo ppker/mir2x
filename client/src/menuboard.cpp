@@ -118,7 +118,9 @@ bool MenuBoard::processEvent(const SDL_Event &event, bool valid)
                 if(m_onClickMenu){
                     m_onClickMenu(p);
                 }
+
                 setShow(false);
+                setFocus(false);
             }
         }
         return true;
@@ -152,12 +154,16 @@ bool MenuBoard::processEvent(const SDL_Event &event, bool valid)
 
                 for(auto &p: m_childList){
                     if(mathf::pointInRectangle(eventX, eventY, p.widget->x(), p.widget->y() - m_itemSpace / 2, w() - m_margin[2] - m_margin[3], p.widget->h() + m_itemSpace)){
-                        consumeFocus(true, p.widget);
                         if(event.type == SDL_MOUSEBUTTONDOWN){
                             if(m_onClickMenu){
                                 m_onClickMenu(p.widget);
                             }
+
                             setShow(false);
+                            setFocus(false);
+                        }
+                        else{
+                            consumeFocus(true, p.widget);
                         }
                         return true;
                     }
