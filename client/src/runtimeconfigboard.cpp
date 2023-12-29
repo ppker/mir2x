@@ -466,6 +466,38 @@ void RuntimeConfigBoard::PullMenu::drawEx(int dstX, int dstY, int srcX, int srcY
     }
 }
 
+bool RuntimeConfigBoard::PullMenu::processEvent(const SDL_Event &event, bool valid)
+{
+    if(!valid){
+        return consumeFocus(false);
+    }
+
+    if(!show()){
+        return consumeFocus(false);
+    }
+
+    if(Widget::processEvent(event, valid)){
+        return true;
+    }
+
+    switch(event.type){
+        case SDL_MOUSEBUTTONDOWN:
+            {
+                if(m_menuList.show()){
+                    const auto [eventX, eventY] = SDLDeviceHelper::getEventPLoc(event).value();
+                    if(!m_menuList.in(eventX, eventY)){
+                        m_menuList.setShow(false);
+                    }
+                }
+                return false;
+            }
+        default:
+            {
+                return false;
+            }
+    }
+}
+
 RuntimeConfigBoard::MenuPage::TabHeader::TabHeader(
         dir8_t argDir,
         int argX,

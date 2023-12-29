@@ -126,6 +126,7 @@ bool MenuBoard::processEvent(const SDL_Event &event, bool valid)
 
     switch(event.type){
         case SDL_MOUSEMOTION:
+        case SDL_MOUSEBUTTONUP:
         case SDL_MOUSEBUTTONDOWN:
             {
                 const auto [eventX, eventY] = SDLDeviceHelper::getEventPLoc(event).value();
