@@ -1203,6 +1203,7 @@ void RuntimeConfigBoard::reportRuntimeConfig(int rtCfg)
     const auto fnUpdate = [&cmSRC, rtCfg, this]<typename T>()
     {
         cmSRC.type = rtCfg;
+        cmSRC.str  = std::is_same_v<T, std::string>;
         cmSRC.buf.assign(std::get<T>(m_sdRuntimeConfig[rtCfg]));
     };
 
