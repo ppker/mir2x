@@ -232,7 +232,7 @@ class RuntimeConfigBoard: public Widget
         bool processEvent(const SDL_Event &, bool) override;
 
     private:
-        void reportRuntimeConfig();
+        void reportRuntimeConfig(int);
 
     public:
         const SDRuntimeConfig &getConfig() const

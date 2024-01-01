@@ -7,6 +7,7 @@
 #include <optional>
 #include <algorithm>
 #include <unordered_set>
+#include <unordered_map>
 #include "totype.hpp"
 #include "cerealf.hpp"
 #include "fflerror.hpp"
@@ -762,25 +763,7 @@ struct SDMagicKeyList
     bool setMagicKey(uint32_t, char);
 };
 
-struct SDRuntimeConfig
-{
-    // keep all variables the same type
-    // variables in this class get bound to RuntimeConfigBoard switches
-
-    int bgm = 1;                        // bool 0/1
-    int bgmValue = 50;                  // value 0 ~ 100
-
-    int soundEff = 1;                   // bool 0/1
-    int soundEffValue = 50;             // value 0 ~ 100
-
-    int ime = 1;                        // bool 0/1
-    int attackMode = ATKMODE_BEGIN;     // value ATKMODE_BEGIN ~ ATKMODE_END - 1
-
-    template<typename Archive> void serialize(Archive & ar)
-    {
-        ar(bgm, bgmValue, soundEff, soundEffValue, ime, attackMode);
-    }
-};
+using SDRuntimeConfig = std::array<std::variant<int64_t, std::string>, RTCFG_END>;
 
 struct SDPlayerConfig
 {

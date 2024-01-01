@@ -14,7 +14,7 @@ CheckLabel::CheckLabel(
         int argBoxW,
         int argBoxH,
 
-        int *argBoxValPtr,
+        int64_t *argBoxValPtr,
         std::function<void(Widget *)> argOnChange,
 
         const char8_t *argLabel,

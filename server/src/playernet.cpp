@@ -755,26 +755,19 @@ void Player::net_CM_SETMAGICKEY(uint8_t, const uint8_t *buf, size_t)
 void Player::net_CM_SETRUNTIMECONFIG(uint8_t, const uint8_t *buf, size_t)
 {
     const auto cmSRC = ClientMsg::conv<CMSetRuntimeConfig>(buf);
-    bool needUpdate = false;
 
-    const auto fnCheckUpdate = [&needUpdate](auto &oldVal, auto &newVal)
-    {
-        if(const auto val = check_cast<std::remove_cvref_t<decltype(oldVal)>>(newVal); val != oldVal){
-            oldVal = val;
-            needUpdate = true;
-        }
-    };
+    fflassert(cmSRC.type >= RTCFG_BEGIN, cmSRC.type);
+    fflassert(cmSRC.type <  RTCFG_END  , cmSRC.type);
 
-    fnCheckUpdate(m_sdPlayerConfig.runtimeConfig.bgm, cmSRC.bgm);
-    fnCheckUpdate(m_sdPlayerConfig.runtimeConfig.bgmValue, cmSRC.bgmValue);
-
-    fnCheckUpdate(m_sdPlayerConfig.runtimeConfig.soundEff, cmSRC.soundEff);
-    fnCheckUpdate(m_sdPlayerConfig.runtimeConfig.soundEffValue, cmSRC.soundEffValue);
-
-    fnCheckUpdate(m_sdPlayerConfig.runtimeConfig.ime, cmSRC.ime);
-    fnCheckUpdate(m_sdPlayerConfig.runtimeConfig.attackMode, cmSRC.attackMode);
-
-    if(needUpdate){
-        dbUpdateRuntimeConfig();
-    }
+    // std::visit([&cmSRC, this](const auto &val)
+    // {
+    //     if(m_sdPlayerConfig.runtimeConfig.contains(cmSRC.type) && m_sdPlayerConfig.runtimeConfig.at(cmSRC.type) == val){
+    //         return;
+    //     }
+    //
+    //     m_sdPlayerConfig.runtimeConfig[cmSRC.type] = val;
+    //     dbUpdateRuntimeConfig();
+    // },
+    //
+    // SDRuntimeConfig::mapped_type(1));
 }

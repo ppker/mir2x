@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 #include "widget.hpp"
 #include "sdldevice.hpp"
 #include "imageboard.hpp"
@@ -9,8 +10,8 @@ class CheckBox: public Widget
         uint32_t m_color;
 
     private:
-        int  m_innVal = 0;
-        int *m_valPtr;
+        int64_t  m_innVal = 0;
+        int64_t *m_valPtr;
 
     private:
         std::function<void(Widget *)> m_onChange;
@@ -28,7 +29,7 @@ class CheckBox: public Widget
 
                 uint32_t,
 
-                int *,
+                int64_t *,
                 std::function<void(Widget *)>,
 
                 Widget * = nullptr, // parent
@@ -53,6 +54,12 @@ class CheckBox: public Widget
             if(m_onChange){
                 m_onChange(this);
             }
+        }
+
+    public:
+        bool checkedValue() const
+        {
+            return *m_valPtr;
         }
 
     private:

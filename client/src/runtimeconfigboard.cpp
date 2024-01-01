@@ -1,3 +1,4 @@
+#include <memory>
 #include "luaf.hpp"
 #include "client.hpp"
 #include "imeboard.hpp"
@@ -796,8 +797,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
 
           [this](float val)
           {
-              m_sdRuntimeConfig.bgmValue = to_dround(val * 100);
-              reportRuntimeConfig();
+              m_sdRuntimeConfig[RTCFG_BGM] = to_dround(val * 100);
+              reportRuntimeConfig(RTCFG_BGM);
           },
       }
 
@@ -815,8 +816,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
 
           [this](float val)
           {
-              m_sdRuntimeConfig.soundEffValue = to_dround(val * 100);
-              reportRuntimeConfig();
+              m_sdRuntimeConfig[RTCFG_SEFF] = to_dround(val * 100);
+              reportRuntimeConfig(RTCFG_SEFF);
           },
       }
 
@@ -843,13 +844,67 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
                       {
                           {&m_pageSystem_resolution, DIR_UPLEFT, 0, 0, false},
 
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"全屏显示", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)) , DIR_UPLEFT, 0,  40, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"显示FPS" , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)) , DIR_UPLEFT, 0,  65, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_FULLSCREEN])), [this](Widget *){ reportRuntimeConfig(RTCFG_FULLSCREEN); }, u8"全屏显示", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)) , DIR_UPLEFT, 0, 40, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_SHOWFPS   ])), [this](Widget *){ reportRuntimeConfig(RTCFG_SHOWFPS   ); }, u8"显示FPS" , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)) , DIR_UPLEFT, 0, 65, true},
 
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, false, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"背景音乐" , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)) , DIR_UPLEFT, 0,  100, true},
+                          {new CheckLabel
+                          {
+                              DIR_UPLEFT,
+                              0,
+                              0,
+
+                              false,
+                              8,
+
+                              colorf::RGBA(231, 231, 189, 128),
+                              16,
+                              16,
+
+                              std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_BGM])),
+                              [this](Widget *widgetPtr)
+                              {
+                                  reportRuntimeConfig(RTCFG_BGM);
+                                  m_pageSystem_musicSlider.setActive(dynamic_cast<CheckBox *>(widgetPtr)->checkedValue());
+                              },
+
+                              u8"背景音乐",
+                              1,
+                              12,
+                              0,
+                              colorf::WHITE + colorf::A_SHF(255),
+                          },
+                          DIR_UPLEFT, 0, 100, true},
+
                           {&m_pageSystem_musicSlider, DIR_UPLEFT, 0, 125, false},
 
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, false, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"动作声效" , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)) , DIR_UPLEFT, 0,  160, true},
+                          {new CheckLabel
+                          {
+                              DIR_UPLEFT,
+                              0,
+                              0,
+
+                              false,
+                              8,
+
+                              colorf::RGBA(231, 231, 189, 128),
+                              16,
+                              16,
+
+                              std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_SEFF])),
+                              [this](Widget *widgetPtr)
+                              {
+                                  reportRuntimeConfig(RTCFG_SEFF);
+                                  m_pageSystem_soundEffectSlider.setActive(dynamic_cast<CheckBox *>(widgetPtr)->checkedValue());
+                              },
+
+                              u8"动作声效",
+                              1,
+                              12,
+                              0,
+                              colorf::WHITE + colorf::A_SHF(255),
+                          },
+                          DIR_UPLEFT, 0,  160, true},
+
                           {&m_pageSystem_soundEffectSlider, DIR_UPLEFT, 0, 185, false},
                       },
                   },
@@ -883,22 +938,22 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
                       {},
 
                       {
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"允许私聊"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,   0, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"允许白字聊天", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  25, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"允许地图聊天", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  50, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"允许行会聊天", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  75, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"允许全服聊天", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 100, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"允许私聊"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,   0, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"允许白字聊天", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  25, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"允许地图聊天", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  50, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"允许行会聊天", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  75, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"允许全服聊天", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 100, true},
 
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"允许加入队伍"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200,   0, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"允许加入行会"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200,  25, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"允许回生术"      , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200,  50, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"允许天地合一"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200,  75, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"允许交易"        , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 100, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"允许添加好友"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 125, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"允许行会召唤"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 150, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"允许行会杀人提示", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 175, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"允许拜师"        , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 200, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"允许好友上线提示", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 225, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"允许加入队伍"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200,   0, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"允许加入行会"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200,  25, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"允许回生术"      , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200,  50, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"允许天地合一"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200,  75, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"允许交易"        , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 100, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"允许添加好友"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 125, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"允许行会召唤"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 150, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"允许行会杀人提示", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 175, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"允许拜师"        , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 200, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"允许好友上线提示", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 225, true},
                       },
                   },
                   true,
@@ -931,20 +986,20 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
                       {},
 
                       {
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"强制攻击"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,   0, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"显示体力变化", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  25, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"满血不显血"  , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  50, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"显示血条"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  75, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"数字显血"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 100, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"综合数字显示", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 125, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"标记攻击目标", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 150, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"单击解除锁定", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 175, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"显示BUFF图标", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 200, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"显示BUFF计时", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 225, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"显示角色名字", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 250, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"关闭组队血条", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 275, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"队友染色"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 300, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"显示队友位置", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 325, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"强制攻击"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,   0, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"显示体力变化", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  25, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"满血不显血"  , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  50, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"显示血条"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  75, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"数字显血"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 100, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"综合数字显示", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 125, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"标记攻击目标", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 150, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"单击解除锁定", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 175, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"显示BUFF图标", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 200, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"显示BUFF计时", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 225, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"显示角色名字", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 250, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"关闭组队血条", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 275, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"队友染色"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 300, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"显示队友位置", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 325, true},
                       },
                   },
                   true,
@@ -962,11 +1017,11 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
                       {},
 
                       {
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"持续盾"      , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,   0, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"持续移花接木", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  25, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"持续金刚"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  50, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"持续破血"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 100, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"持续铁布衫"  , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 125, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"持续盾"      , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,   0, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"持续移花接木", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  25, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"持续金刚"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  50, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"持续破血"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 100, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"持续铁布衫"  , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 125, true},
                       },
                   },
                   true,
@@ -984,10 +1039,10 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
                       {},
 
                       {
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"自动喝红", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  0, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"保持满血", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 25, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"自动喝蓝", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 50, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, &m_sdRuntimeConfig.ime, nullptr, u8"保持满蓝", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 75, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"自动喝红", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  0, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"保持满血", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 25, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"自动喝蓝", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 50, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, std::get_if<int64_t>(std::addressof(m_sdRuntimeConfig[RTCFG_IME])), nullptr, u8"保持满蓝", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 75, true},
 
                           {new TextInput(DIR_UPLEFT, 0, 0, u8"等待", u8"秒", 3, 3, true, 50, 20), DIR_UPLEFT, 0, 110, true},
                       },
@@ -1022,8 +1077,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
     // 1.0f -> SDL_MIX_MAXVOLUME
     // SDL_mixer initial sound/music volume is SDL_MIX_MAXVOLUME
 
-    m_pageSystem_musicSlider      .getSlider()->setValue(to_f(SDRuntimeConfig().     bgmValue) / 100.0, false);
-    m_pageSystem_soundEffectSlider.getSlider()->setValue(to_f(SDRuntimeConfig().soundEffValue) / 100.0, false);
+    m_pageSystem_musicSlider      .getSlider()->setValue(0.0, false);
+    m_pageSystem_soundEffectSlider.getSlider()->setValue(0.0, false);
 
     m_pageSystem.setShow(true);
     m_pageSocial.setShow(false);
@@ -1131,25 +1186,62 @@ bool RuntimeConfigBoard::processEvent(const SDL_Event &event, bool valid)
 
 void RuntimeConfigBoard::setConfig(SDRuntimeConfig config)
 {
-    m_sdRuntimeConfig = std::move(config);
+    m_sdRuntimeConfig = config;
 
-    m_pageSystem_musicSlider      .getSlider()->setValue(m_sdRuntimeConfig.     bgmValue / 100.0, false);
-    m_pageSystem_soundEffectSlider.getSlider()->setValue(m_sdRuntimeConfig.soundEffValue / 100.0, false);
+    m_pageSystem_musicSlider      .getSlider()->setValue(std::get<int64_t>(m_sdRuntimeConfig[RTCFG_BGM ]) / 100.0, false);
+    m_pageSystem_soundEffectSlider.getSlider()->setValue(std::get<int64_t>(m_sdRuntimeConfig[RTCFG_SEFF]) / 100.0, false);
 }
 
-void RuntimeConfigBoard::reportRuntimeConfig()
+void RuntimeConfigBoard::reportRuntimeConfig(int rtCfg)
 {
     CMSetRuntimeConfig cmSRC;
     std::memset(&cmSRC, 0, sizeof(cmSRC));
 
-    cmSRC.bgm = getConfig().bgm;
-    cmSRC.bgmValue = getConfig().bgmValue;
+    fflassert(rtCfg >= RTCFG_BEGIN, rtCfg);
+    fflassert(rtCfg <  RTCFG_END  , rtCfg);
 
-    cmSRC.soundEff = getConfig().soundEff;
-    cmSRC.soundEffValue = getConfig().soundEffValue;
-
-    cmSRC.ime = getConfig().ime;
-    cmSRC.attackMode = getConfig().attackMode;
+    switch(rtCfg){
+        case RTCFG_BGM:
+            {
+                cmSRC.type = RTCFG_BGM;
+                cmSRC.buf.assign(std::get<int64_t>(m_sdRuntimeConfig[RTCFG_BGM]));
+                break;
+            }
+        case RTCFG_SEFF:
+            {
+                cmSRC.type = RTCFG_SEFF;
+                cmSRC.buf.assign(std::get<int64_t>(m_sdRuntimeConfig[RTCFG_SEFF]));
+                break;
+            }
+        case RTCFG_IME:
+            {
+                cmSRC.type = RTCFG_IME;
+                cmSRC.buf.assign(std::get<int64_t>(m_sdRuntimeConfig[RTCFG_IME]));
+                break;
+            }
+        case RTCFG_ATTACKMODE:
+            {
+                cmSRC.type = RTCFG_ATTACKMODE;
+                cmSRC.buf.assign(std::get<int64_t>(m_sdRuntimeConfig[RTCFG_ATTACKMODE]));
+                break;
+            }
+        case RTCFG_SHOWFPS:
+            {
+                cmSRC.type = RTCFG_SHOWFPS;
+                cmSRC.buf.assign(std::get<int64_t>(m_sdRuntimeConfig[RTCFG_SHOWFPS]));
+                break;
+            }
+        case RTCFG_FULLSCREEN:
+            {
+                cmSRC.type = RTCFG_FULLSCREEN;
+                cmSRC.buf.assign(std::get<int64_t>(m_sdRuntimeConfig[RTCFG_FULLSCREEN]));
+                break;
+            }
+        default:
+            {
+                throw fflerror("invalid runtime config type: %d", rtCfg);
+            }
+    }
 
     g_client->send(CM_SETRUNTIMECONFIG, cmSRC);
 }

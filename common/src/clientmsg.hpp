@@ -153,14 +153,8 @@ struct CMChangePassword
 
 struct CMSetRuntimeConfig
 {
-    uint8_t bgm;
-    uint8_t bgmValue;
-
-    uint8_t soundEff;
-    uint8_t soundEffValue;
-
-    uint8_t ime;
-    uint8_t attackMode;
+    uint16_t type;
+    FixedBuf<RTCFG_BUFSIZE> buf;
 };
 
 struct CMNPCEvent
@@ -283,11 +277,11 @@ class ClientMsg final: public MsgBase
                 _add_client_msg_type_case(CM_PICKUP,                     1, sizeof(CMPickUp)                    )
                 _add_client_msg_type_case(CM_QUERYGOLD,                  0, 0                                   )
                 _add_client_msg_type_case(CM_QUERYUIDBUFF,               1, sizeof(CMQueryUIDBuff)              )
-                _add_client_msg_type_case(CM_QUERYPLAYERNAME,            1, sizeof(CMQueryPlayerName)         )
+                _add_client_msg_type_case(CM_QUERYPLAYERNAME,            1, sizeof(CMQueryPlayerName)           )
                 _add_client_msg_type_case(CM_QUERYPLAYERWLDESP,          1, sizeof(CMQueryPlayerWLDesp)         )
                 _add_client_msg_type_case(CM_CREATEACCOUNT,              1, sizeof(CMCreateAccount)             )
                 _add_client_msg_type_case(CM_CHANGEPASSWORD,             1, sizeof(CMChangePassword)            )
-                _add_client_msg_type_case(CM_SETRUNTIMECONFIG,           1, sizeof(CMSetRuntimeConfig)             )
+                _add_client_msg_type_case(CM_SETRUNTIMECONFIG,           1, sizeof(CMSetRuntimeConfig)          )
                 _add_client_msg_type_case(CM_NPCEVENT,                   1, sizeof(CMNPCEvent)                  )
                 _add_client_msg_type_case(CM_QUERYSELLITEMLIST,          1, sizeof(CMQuerySellItemList)         )
                 _add_client_msg_type_case(CM_DROPITEM,                   1, sizeof(CMDropItem)                  )

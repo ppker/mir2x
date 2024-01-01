@@ -12,7 +12,7 @@ CheckBox::CheckBox(dir8_t argDir,
 
         uint32_t argColor,
 
-        int *argValPtr,
+        int64_t *argValPtr,
         std::function<void(Widget *)> argOnChange,
 
         Widget *argParent,
