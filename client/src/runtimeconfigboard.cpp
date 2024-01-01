@@ -1200,7 +1200,7 @@ void RuntimeConfigBoard::reportRuntimeConfig(int rtCfg)
     fflassert(rtCfg >= RTCFG_BEGIN, rtCfg);
     fflassert(rtCfg <  RTCFG_END  , rtCfg);
 
-    const auto fnUpdate = [&cmSRC, rtCfg, this]<typename T>()
+    const auto fnAssignBuf = [&cmSRC, rtCfg, this]<typename T>()
     {
         cmSRC.type = rtCfg;
         cmSRC.str  = std::is_same_v<T, std::string>;
@@ -1208,12 +1208,12 @@ void RuntimeConfigBoard::reportRuntimeConfig(int rtCfg)
     };
 
     switch(rtCfg){
-        case RTCFG_BGM       : fnUpdate.template operator()<int64_t>(); break;
-        case RTCFG_SEFF      : fnUpdate.template operator()<int64_t>(); break;
-        case RTCFG_IME       : fnUpdate.template operator()<int64_t>(); break;
-        case RTCFG_SHOWFPS   : fnUpdate.template operator()<int64_t>(); break;
-        case RTCFG_FULLSCREEN: fnUpdate.template operator()<int64_t>(); break;
-        case RTCFG_ATTACKMODE: fnUpdate.template operator()<int64_t>(); break;
+        case RTCFG_BGM       : fnAssignBuf.template operator()<int64_t>(); break;
+        case RTCFG_SEFF      : fnAssignBuf.template operator()<int64_t>(); break;
+        case RTCFG_IME       : fnAssignBuf.template operator()<int64_t>(); break;
+        case RTCFG_SHOWFPS   : fnAssignBuf.template operator()<int64_t>(); break;
+        case RTCFG_FULLSCREEN: fnAssignBuf.template operator()<int64_t>(); break;
+        case RTCFG_ATTACKMODE: fnAssignBuf.template operator()<int64_t>(); break;
         default:
             {
                 throw fflerror("invalid runtime config type: %d", rtCfg);
