@@ -1184,7 +1184,7 @@ bool RuntimeConfigBoard::processEvent(const SDL_Event &event, bool valid)
     }
 }
 
-void RuntimeConfigBoard::setConfig(SDRuntimeConfig config)
+void RuntimeConfigBoard::setConfig(const SDRuntimeConfig &config)
 {
     m_sdRuntimeConfig = config;
 
@@ -1200,43 +1200,19 @@ void RuntimeConfigBoard::reportRuntimeConfig(int rtCfg)
     fflassert(rtCfg >= RTCFG_BEGIN, rtCfg);
     fflassert(rtCfg <  RTCFG_END  , rtCfg);
 
+    const auto fnUpdate = [&cmSRC, rtCfg, this]<typename T>()
+    {
+        cmSRC.type = rtCfg;
+        cmSRC.buf.assign(std::get<T>(m_sdRuntimeConfig[rtCfg]));
+    };
+
     switch(rtCfg){
-        case RTCFG_BGM:
-            {
-                cmSRC.type = RTCFG_BGM;
-                cmSRC.buf.assign(std::get<int64_t>(m_sdRuntimeConfig[RTCFG_BGM]));
-                break;
-            }
-        case RTCFG_SEFF:
-            {
-                cmSRC.type = RTCFG_SEFF;
-                cmSRC.buf.assign(std::get<int64_t>(m_sdRuntimeConfig[RTCFG_SEFF]));
-                break;
-            }
-        case RTCFG_IME:
-            {
-                cmSRC.type = RTCFG_IME;
-                cmSRC.buf.assign(std::get<int64_t>(m_sdRuntimeConfig[RTCFG_IME]));
-                break;
-            }
-        case RTCFG_ATTACKMODE:
-            {
-                cmSRC.type = RTCFG_ATTACKMODE;
-                cmSRC.buf.assign(std::get<int64_t>(m_sdRuntimeConfig[RTCFG_ATTACKMODE]));
-                break;
-            }
-        case RTCFG_SHOWFPS:
-            {
-                cmSRC.type = RTCFG_SHOWFPS;
-                cmSRC.buf.assign(std::get<int64_t>(m_sdRuntimeConfig[RTCFG_SHOWFPS]));
-                break;
-            }
-        case RTCFG_FULLSCREEN:
-            {
-                cmSRC.type = RTCFG_FULLSCREEN;
-                cmSRC.buf.assign(std::get<int64_t>(m_sdRuntimeConfig[RTCFG_FULLSCREEN]));
-                break;
-            }
+        case RTCFG_BGM       : fnUpdate.template operator()<int64_t>(); break;
+        case RTCFG_SEFF      : fnUpdate.template operator()<int64_t>(); break;
+        case RTCFG_IME       : fnUpdate.template operator()<int64_t>(); break;
+        case RTCFG_SHOWFPS   : fnUpdate.template operator()<int64_t>(); break;
+        case RTCFG_FULLSCREEN: fnUpdate.template operator()<int64_t>(); break;
+        case RTCFG_ATTACKMODE: fnUpdate.template operator()<int64_t>(); break;
         default:
             {
                 throw fflerror("invalid runtime config type: %d", rtCfg);

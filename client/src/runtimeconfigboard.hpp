@@ -241,5 +241,5 @@ class RuntimeConfigBoard: public Widget
         }
 
     public:
-        void setConfig(SDRuntimeConfig);
+        void setConfig(const SDRuntimeConfig &);
 };
