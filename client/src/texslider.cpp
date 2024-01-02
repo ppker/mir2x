@@ -71,20 +71,9 @@ void TexSlider::drawEx(int, int, int, int, int, int) const
     };
 
     switch(m_sliderState){
-        case BEVENT_ON:
-            {
-                fnDrawCover(colorf::BLUE + colorf::A_SHF(200));
-                break;
-            }
-        case BEVENT_DOWN:
-            {
-                fnDrawCover(colorf::RED + colorf::A_SHF(200));
-                break;
-            }
-        default:
-            {
-                break;
-            }
+        case BEVENT_ON  : fnDrawCover(active() ? (colorf::BLUE + colorf::A_SHF(200)) : (colorf::WHITE + colorf::A_SHF(255))); break;
+        case BEVENT_DOWN: fnDrawCover(active() ? (colorf::RED  + colorf::A_SHF(200)) : (colorf::WHITE + colorf::A_SHF(255))); break;
+        default: break;
     }
 
     if(g_clientArgParser->debugSlider){

@@ -7,6 +7,10 @@ bool Slider::processEvent(const SDL_Event &e, bool valid)
         return consumeFocus(false);
     }
 
+    if(!active()){
+        return consumeFocus(false);
+    }
+
     const auto fnInSlider = [this](int eventX, int eventY) -> bool
     {
         const auto [sliderX, sliderY, sliderW, sliderH] = getSliderRectangle();
