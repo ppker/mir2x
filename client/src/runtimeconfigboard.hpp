@@ -235,9 +235,9 @@ class RuntimeConfigBoard: public Widget
         void reportRuntimeConfig(int);
 
     public:
-        const SDRuntimeConfig &getConfig() const
+        template<typename T> const T &getConfig(int cfgType) const
         {
-            return m_sdRuntimeConfig;
+            return std::get<T>(m_sdRuntimeConfig.at(cfgType));
         }
 
     public:
