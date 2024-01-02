@@ -797,8 +797,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
 
           [this](float val)
           {
-              m_sdRuntimeConfig[RTCFG_BGM] = to_dround(val * 100);
-              reportRuntimeConfig(RTCFG_BGM);
+              m_sdRuntimeConfig[RTCFG_BGMVALUE] = to_dround(val * 100);
+              reportRuntimeConfig(RTCFG_BGMVALUE);
           },
       }
 
@@ -816,8 +816,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
 
           [this](float val)
           {
-              m_sdRuntimeConfig[RTCFG_SEFF] = to_dround(val * 100);
-              reportRuntimeConfig(RTCFG_SEFF);
+              m_sdRuntimeConfig[RTCFG_SEFFVALUE] = to_dround(val * 100);
+              reportRuntimeConfig(RTCFG_SEFFVALUE);
           },
       }
 
@@ -1188,8 +1188,11 @@ void RuntimeConfigBoard::setConfig(const SDRuntimeConfig &config)
 {
     m_sdRuntimeConfig = config;
 
-    m_pageSystem_musicSlider      .getSlider()->setValue(std::get<int64_t>(m_sdRuntimeConfig[RTCFG_BGM ]) / 100.0, false);
-    m_pageSystem_soundEffectSlider.getSlider()->setValue(std::get<int64_t>(m_sdRuntimeConfig[RTCFG_SEFF]) / 100.0, false);
+    m_pageSystem_musicSlider      .setActive(std::get<int64_t>(m_sdRuntimeConfig[RTCFG_BGM ]));
+    m_pageSystem_soundEffectSlider.setActive(std::get<int64_t>(m_sdRuntimeConfig[RTCFG_SEFF]));
+
+    m_pageSystem_musicSlider      .getSlider()->setValue(std::get<int64_t>(m_sdRuntimeConfig[RTCFG_BGMVALUE ]) / 100.0, false);
+    m_pageSystem_soundEffectSlider.getSlider()->setValue(std::get<int64_t>(m_sdRuntimeConfig[RTCFG_SEFFVALUE]) / 100.0, false);
 }
 
 void RuntimeConfigBoard::reportRuntimeConfig(int rtCfg)
@@ -1209,7 +1212,9 @@ void RuntimeConfigBoard::reportRuntimeConfig(int rtCfg)
 
     switch(rtCfg){
         case RTCFG_BGM       : fnAssignBuf.template operator()<int64_t>(); break;
+        case RTCFG_BGMVALUE  : fnAssignBuf.template operator()<int64_t>(); break;
         case RTCFG_SEFF      : fnAssignBuf.template operator()<int64_t>(); break;
+        case RTCFG_SEFFVALUE : fnAssignBuf.template operator()<int64_t>(); break;
         case RTCFG_IME       : fnAssignBuf.template operator()<int64_t>(); break;
         case RTCFG_SHOWFPS   : fnAssignBuf.template operator()<int64_t>(); break;
         case RTCFG_FULLSCREEN: fnAssignBuf.template operator()<int64_t>(); break;
