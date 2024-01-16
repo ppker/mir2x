@@ -851,7 +851,7 @@ SDL_Texture *SDLDevice::getCover(int r, int angle)
                 if(g_clientArgParser->debugAlphaCover){
                     return 255;
                 }
-                return 255 - std::min<uint8_t>(255, std::lround(255.0 * curr_r2 / (r * r)));
+                return 255 - std::min<uint8_t>(255, to_dround(255.0 * curr_r2 / (r * r)));
             }();
 
             const auto curr_angle = [dx, dy]() -> int
