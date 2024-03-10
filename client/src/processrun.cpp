@@ -2030,8 +2030,8 @@ void ProcessRun::drawFPS() const
     const int winWidth = g_sdlDevice->getRendererWidth();
     fpsBoard.moveTo(winWidth - fpsBoard.w(), 0);
 
-    g_sdlDevice->fillRectangle(colorf::BLACK + 200, fpsBoard.x() - 1, fpsBoard.y(), fpsBoard.w() + 1, fpsBoard.h());
-    g_sdlDevice->drawRectangle(colorf::BLUE  + 255, fpsBoard.x() - 1, fpsBoard.y(), fpsBoard.w() + 1, fpsBoard.h());
+    g_sdlDevice->fillRectangle(colorf::BLACK + colorf::A_SHF(200), fpsBoard.x() - 1, fpsBoard.y(), fpsBoard.w() + 1, fpsBoard.h());
+    g_sdlDevice->drawRectangle(colorf::BLUE  + colorf::A_SHF(255), fpsBoard.x() - 1, fpsBoard.y(), fpsBoard.w() + 1, fpsBoard.h());
     fpsBoard.draw();
 }
 
