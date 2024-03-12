@@ -518,7 +518,7 @@ void ProcessRun::draw() const
         drawMouseLocation();
     }
 
-    if(dynamic_cast<const RuntimeConfigBoard *>(getWidget("RuntimeConfigBoard"))->getOptConfig<int64_t>(RTCFG_SHOWFPS).value_or(0)){
+    if(dynamic_cast<const RuntimeConfigBoard *>(getWidget("RuntimeConfigBoard"))->getConfig<int64_t>(RTCFG_SHOWFPS).value_or(0)){
         drawFPS();
     }
 }

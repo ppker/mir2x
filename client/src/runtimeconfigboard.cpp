@@ -1200,7 +1200,7 @@ void RuntimeConfigBoard::setConfig(const SDRuntimeConfig &config)
     m_pageSystem_musicSlider      .getSlider()->setValue(std::get<int64_t>(m_sdRuntimeConfig[RTCFG_BGMVALUE ]) / 100.0, false);
     m_pageSystem_soundEffectSlider.getSlider()->setValue(std::get<int64_t>(m_sdRuntimeConfig[RTCFG_SEFFVALUE]) / 100.0, false);
 
-    const auto [winW, winH] = getOptConfig<std::pair<int64_t, int64_t>>(RTCFG_WINDOWSIZE).value_or(std::make_pair(800, 600));
+    const auto [winW, winH] = getConfig<std::pair<int64_t, int64_t>>(RTCFG_WINDOWSIZE).value_or(std::make_pair(800, 600));
     g_sdlDevice->setWindowSize(winW, winH);
 }
 
