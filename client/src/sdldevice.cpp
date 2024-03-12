@@ -624,8 +624,8 @@ void SDLDevice::createInitViewWindow()
         m_window = nullptr;
     }
 
-    int windowW = 388;
-    int windowH = 160;
+    int windowW = 800;
+    int windowH = 600;
     {
         SDL_DisplayMode desktop;
         if(!SDL_GetDesktopDisplayMode(0, &desktop)){
@@ -1182,6 +1182,14 @@ void SDLDevice::drawString(uint32_t color, int x, int y, const char *s)
     if(stringRGBA(m_renderer, x, y, s, colorf::R(color), colorf::G(color), colorf::B(color), colorf::A(color))){
         throw fflerror("failed to draw 8x8 string: %s", s);
     }
+}
+
+void SDLDevice::setWindowSize(int w, int h)
+{
+    fflassert(w >= 400, w, h);
+    fflassert(h >= 400, w, h);
+
+    SDL_SetWindowSize(m_window, w, h);
 }
 
 void SDLDevice::stopBGM()

@@ -402,6 +402,9 @@ class SDLDevice final
        void drawString(uint32_t, int, int, const char *);
 
     public:
+       void setWindowSize(int, int);
+
+    public:
        void stopBGM();
        void setBGMVolume(float); // by initial max volume
        void playBGM(Mix_Music *, size_t repeats = 0); // by default repeats forever
