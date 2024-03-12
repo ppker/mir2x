@@ -49,20 +49,12 @@ template<size_t FixedBufSize> struct FixedBuf
 
     void assign(std::string_view s)
     {
-        if(s.size() + 1 > capacity()){
-            throw fflerror("string size %zu exceeds buffer capacity: %zu", s.size(), capacity());
-        }
-
         assign(s.data(), s.size());
         buf[size] = 0;
     }
 
     void assign(std::u8string_view s)
     {
-        if(s.size() + 1 > capacity()){
-            throw fflerror("string size %zu exceeds buffer capacity: %zu", s.size(), capacity());
-        }
-
         assign(s.data(), s.size());
         buf[size] = 0;
     }
