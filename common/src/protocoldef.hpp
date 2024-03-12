@@ -378,6 +378,7 @@ enum RuntimeConfigType: uint16_t
     RTCFG_SHOWFPS,
     RTCFG_FULLSCREEN,
     RTCFG_ATTACKMODE,
+    RTCFG_WINDOWSIZE,
     RTCFG_END,
 
     RTCFG_BUFSIZE = 500,

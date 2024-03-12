@@ -34,8 +34,14 @@ template<size_t FixedBufSize> struct FixedBuf
     void assign(const void *data, size_t length)
     {
         if(length > 0){
-            fflassert(data);
-            fflassert(length <= capacity());
+            if(!data){
+                throw fflerror("null data pointer while data length is non-zero: %zu", length);
+            }
+
+            if(length > capacity()){
+                throw fflerror("data length %zu exceeds buffer capacity: %zu", length, capacity());
+            }
+
             std::memcpy(buf, data, length);
         }
         size = length;
@@ -43,12 +49,20 @@ template<size_t FixedBufSize> struct FixedBuf
 
     void assign(std::string_view s)
     {
+        if(s.size() + 1 > capacity()){
+            throw fflerror("string size %zu exceeds buffer capacity: %zu", s.size(), capacity());
+        }
+
         assign(s.data(), s.size());
         buf[size] = 0;
     }
 
     void assign(std::u8string_view s)
     {
+        if(s.size() + 1 > capacity()){
+            throw fflerror("string size %zu exceeds buffer capacity: %zu", s.size(), capacity());
+        }
+
         assign(s.data(), s.size());
         buf[size] = 0;
     }
@@ -75,8 +89,12 @@ template<size_t FixedBufSize> struct FixedBuf
 
     template<typename T> void assign(const T &t)
     {
-        static_assert(std::is_trivially_copyable_v<T>);
-        assign(&t, sizeof(t));
+        if constexpr (std::is_trivially_copyable_v<T>){
+            assign(&t, sizeof(t));
+        }
+        else{
+            serialize(t);
+        }
     }
 
     template<typename T> T as() const

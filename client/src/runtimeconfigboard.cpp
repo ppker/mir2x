@@ -782,7 +782,10 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           {
               m_pageSystem_resolution.getMenuTitle()->setText(to_u8cstr(dynamic_cast<LabelBoard *>(widgetPtr)->getText(true)));
               const auto [w, h] = std::any_cast<std::pair<int, int>>(widgetPtr->data());
+
               g_sdlDevice->setWindowSize(w, h);
+              m_sdRuntimeConfig[RTCFG_WINDOWSIZE] = std::pair<int64_t, int64_t>(w, h);
+              reportRuntimeConfig(RTCFG_WINDOWSIZE);
           },
       }
 
@@ -1222,6 +1225,7 @@ void RuntimeConfigBoard::reportRuntimeConfig(int rtCfg)
         case RTCFG_SHOWFPS   : fnAssignBuf.template operator()<int64_t>(); break;
         case RTCFG_FULLSCREEN: fnAssignBuf.template operator()<int64_t>(); break;
         case RTCFG_ATTACKMODE: fnAssignBuf.template operator()<int64_t>(); break;
+        case RTCFG_WINDOWSIZE: fnAssignBuf.template operator()<std::pair<int64_t, int64_t>>(); break;
         default:
             {
                 throw fflerror("invalid runtime config type: %d", rtCfg);
