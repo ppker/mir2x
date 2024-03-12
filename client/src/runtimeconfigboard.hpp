@@ -235,11 +235,6 @@ class RuntimeConfigBoard: public Widget
         void reportRuntimeConfig(int);
 
     public:
-        template<typename T> const T &getConfig(int cfgType) const
-        {
-            return std::get<T>(m_sdRuntimeConfig.at(cfgType));
-        }
-
         template<typename T> std::optional<T> getOptConfig(int cfgType) const
         {
             if(cfgType >= 0 && cfgType < (int)(m_sdRuntimeConfig.size())){

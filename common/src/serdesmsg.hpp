@@ -763,7 +763,7 @@ struct SDMagicKeyList
     bool setMagicKey(uint32_t, char);
 };
 
-using SDRuntimeConfig = std::array<std::variant<int64_t, std::string, std::pair<int64_t, int64_t>>, RTCFG_END>;
+using SDRuntimeConfig = std::array<std::variant<std::monostate, int64_t, std::string, std::pair<int64_t, int64_t>>, RTCFG_END>;
 
 struct SDPlayerConfig
 {
