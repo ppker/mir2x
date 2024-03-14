@@ -850,8 +850,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
                       {
                           {&m_pageSystem_resolution, DIR_UPLEFT, 0, 0, false},
 
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, [this](Widget *widgetPtr){ SDRuntimeConfig_setConfig<RTCFG_FULLSCREEN>(m_sdRuntimeConfig, dynamic_cast<CheckLabel *>(widgetPtr)->checkedValue()); reportRuntimeConfig(RTCFG_FULLSCREEN); }, u8"全屏显示", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)) , DIR_UPLEFT, 0, 40, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, [this](Widget *widgetPtr){ SDRuntimeConfig_setConfig<RTCFG_SHOWFPS   >(m_sdRuntimeConfig, dynamic_cast<CheckLabel *>(widgetPtr)->checkedValue()); reportRuntimeConfig(RTCFG_SHOWFPS   ); }, u8"显示FPS" , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)) , DIR_UPLEFT, 0, 65, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, [this](Widget *, bool value){ SDRuntimeConfig_setConfig<RTCFG_FULLSCREEN>(m_sdRuntimeConfig, value); reportRuntimeConfig(RTCFG_FULLSCREEN); }, u8"全屏显示", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)) , DIR_UPLEFT, 0, 40, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, [this](Widget *, bool value){ SDRuntimeConfig_setConfig<RTCFG_SHOWFPS   >(m_sdRuntimeConfig, value); reportRuntimeConfig(RTCFG_SHOWFPS   ); }, u8"显示FPS" , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)) , DIR_UPLEFT, 0, 65, true},
 
                           {new CheckLabel
                           {
@@ -866,12 +866,20 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
                               16,
                               16,
 
-                              nullptr,
-                              [this](Widget *widgetPtr)
+                              [this](const Widget *)
                               {
-                                  m_pageSystem_musicSlider.setActive(dynamic_cast<CheckLabel *>(widgetPtr)->checkedValue());
-                                  SDRuntimeConfig_setConfig<RTCFG_BGM>(m_sdRuntimeConfig, dynamic_cast<CheckLabel *>(widgetPtr)->checkedValue());
+                                  return SDRuntimeConfig_getConfig<RTCFG_BGM>(m_sdRuntimeConfig).value_or(true);
+                              },
+
+                              [this](Widget *, bool value)
+                              {
+                                  SDRuntimeConfig_setConfig<RTCFG_BGM>(m_sdRuntimeConfig, value);
+                              },
+
+                              [this](Widget *, bool value)
+                              {
                                   reportRuntimeConfig(RTCFG_BGM);
+                                  m_pageSystem_musicSlider.setActive(value);
                               },
 
                               u8"背景音乐",
@@ -897,12 +905,20 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
                               16,
                               16,
 
-                              nullptr,
-                              [this](Widget *widgetPtr)
+                              [this](const Widget *)
                               {
-                                  m_pageSystem_soundEffectSlider.setActive(dynamic_cast<CheckLabel *>(widgetPtr)->checkedValue());
-                                  SDRuntimeConfig_setConfig<RTCFG_SEFF>(m_sdRuntimeConfig, dynamic_cast<CheckLabel *>(widgetPtr)->checkedValue());
+                                  return SDRuntimeConfig_getConfig<RTCFG_SEFF>(m_sdRuntimeConfig).value_or(true);
+                              },
+
+                              [this](Widget *, bool value)
+                              {
+                                  SDRuntimeConfig_setConfig<RTCFG_SEFF>(m_sdRuntimeConfig, value);
+                              },
+
+                              [this](Widget *, bool value)
+                              {
                                   reportRuntimeConfig(RTCFG_SEFF);
+                                  m_pageSystem_soundEffectSlider.setActive(value);
                               },
 
                               u8"动作声效",
@@ -946,22 +962,22 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
                       {},
 
                       {
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"允许私聊"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,   0, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"允许白字聊天", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  25, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"允许地图聊天", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  50, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"允许行会聊天", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  75, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"允许全服聊天", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 100, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"允许私聊"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,   0, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"允许白字聊天", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  25, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"允许地图聊天", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  50, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"允许行会聊天", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  75, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"允许全服聊天", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 100, true},
 
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"允许加入队伍"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200,   0, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"允许加入行会"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200,  25, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"允许回生术"      , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200,  50, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"允许天地合一"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200,  75, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"允许交易"        , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 100, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"允许添加好友"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 125, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"允许行会召唤"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 150, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"允许行会杀人提示", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 175, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"允许拜师"        , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 200, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"允许好友上线提示", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 225, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"允许加入队伍"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200,   0, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"允许加入行会"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200,  25, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"允许回生术"      , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200,  50, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"允许天地合一"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200,  75, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"允许交易"        , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 100, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"允许添加好友"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 125, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"允许行会召唤"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 150, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"允许行会杀人提示", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 175, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"允许拜师"        , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 200, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"允许好友上线提示", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 200, 225, true},
                       },
                   },
                   true,
@@ -994,20 +1010,20 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
                       {},
 
                       {
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"强制攻击"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,   0, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"显示体力变化", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  25, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"满血不显血"  , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  50, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"显示血条"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  75, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"数字显血"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 100, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"综合数字显示", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 125, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"标记攻击目标", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 150, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"单击解除锁定", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 175, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"显示BUFF图标", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 200, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"显示BUFF计时", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 225, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"显示角色名字", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 250, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"关闭组队血条", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 275, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"队友染色"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 300, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"显示队友位置", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 325, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"强制攻击"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,   0, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"显示体力变化", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  25, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"满血不显血"  , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  50, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"显示血条"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  75, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"数字显血"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 100, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"综合数字显示", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 125, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"标记攻击目标", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 150, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"单击解除锁定", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 175, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"显示BUFF图标", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 200, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"显示BUFF计时", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 225, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"显示角色名字", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 250, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"关闭组队血条", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 275, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"队友染色"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 300, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"显示队友位置", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 325, true},
                       },
                   },
                   true,
@@ -1025,11 +1041,11 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
                       {},
 
                       {
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"持续盾"      , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,   0, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"持续移花接木", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  25, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"持续金刚"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  50, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"持续破血"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 100, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"持续铁布衫"  , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 125, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"持续盾"      , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,   0, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"持续移花接木", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  25, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"持续金刚"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  50, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"持续破血"    , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 100, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"持续铁布衫"  , 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 125, true},
                       },
                   },
                   true,
@@ -1047,10 +1063,10 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
                       {},
 
                       {
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"自动喝红", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  0, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"保持满血", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 25, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"自动喝蓝", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 50, true},
-                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, u8"保持满蓝", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 75, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"自动喝红", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0,  0, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"保持满血", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 25, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"自动喝蓝", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 50, true},
+                          {new CheckLabel(DIR_UPLEFT, 0, 0, true, 8, colorf::RGBA(231, 231, 189, 128), 16, 16, nullptr, nullptr, nullptr, u8"保持满蓝", 1, 12, 0, colorf::WHITE + colorf::A_SHF(255)), DIR_UPLEFT, 0, 75, true},
 
                           {new TextInput(DIR_UPLEFT, 0, 0, u8"等待", u8"秒", 3, 3, true, 50, 20), DIR_UPLEFT, 0, 110, true},
                       },

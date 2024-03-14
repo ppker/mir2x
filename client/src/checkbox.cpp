@@ -12,8 +12,9 @@ CheckBox::CheckBox(dir8_t argDir,
 
         uint32_t argColor,
 
-        bool *argValPtr,
-        std::function<void(Widget *)> argOnChange,
+        std::function<bool(const Widget *      )> argValGetter,
+        std::function<void(      Widget *, bool)> argValSetter,
+        std::function<void(      Widget *, bool)> argValOnChange,
 
         Widget *argParent,
         bool    argAutoDelete)
@@ -33,8 +34,10 @@ CheckBox::CheckBox(dir8_t argDir,
       }
 
     , m_color(argColor)
-    , m_valPtr(argValPtr ? argValPtr : &m_innVal)
-    , m_onChange(std::move(argOnChange))
+
+    , m_valGetter  (std::move(argValGetter  ))
+    , m_valSetter  (std::move(argValSetter  ))
+    , m_valOnChange(std::move(argValOnChange))
 
     , m_checkImage
       {
@@ -60,7 +63,7 @@ CheckBox::CheckBox(dir8_t argDir,
 
 void CheckBox::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
 {
-    if(*m_valPtr){
+    if(getter()){
         int drawSrcX = srcX;
         int drawSrcY = srcY;
         int drawSrcW = srcW;
@@ -184,6 +187,35 @@ bool CheckBox::processEvent(const SDL_Event &event, bool valid)
             {
                 return false;
             }
+    }
+}
+
+void CheckBox::toggle()
+{
+    setter(!getter());
+    if(m_valOnChange){
+        m_valOnChange(this, getter());
+    }
+}
+
+bool CheckBox::getter() const
+{
+    if(m_valGetter){
+        return m_valGetter(this);
+    }
+    else{
+        return m_innVal;
+    }
+}
+
+void CheckBox::setter(bool value)
+{
+    if(!m_valGetter){
+        m_innVal = value;
+    }
+
+    if(m_valSetter){
+        m_valSetter(this, value);
     }
 }
 

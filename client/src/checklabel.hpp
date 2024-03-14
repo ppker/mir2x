@@ -27,8 +27,9 @@ class CheckLabel: public Widget
                 int,
                 int,
 
-                bool *,
-                std::function<void(Widget *)>,
+                std::function<bool(const Widget *      )>,
+                std::function<void(      Widget *, bool)>,
+                std::function<void(      Widget *, bool)>,
 
                 const char8_t *,
                 uint8_t,

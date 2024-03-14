@@ -14,8 +14,9 @@ CheckLabel::CheckLabel(
         int argBoxW,
         int argBoxH,
 
-        bool *argBoxValPtr,
-        std::function<void(Widget *)> argOnChange,
+        std::function<bool(const Widget *      )> argValGetter,
+        std::function<void(      Widget *, bool)> argValSetter,
+        std::function<void(      Widget *, bool)> argValOnChange,
 
         const char8_t *argLabel,
         uint8_t  argFont,
@@ -53,13 +54,42 @@ CheckLabel::CheckLabel(
 
           argBoxColor,
 
-          argBoxValPtr,
-          [argOnChange = std::move(argOnChange), this](Widget *)
+          [argValGetter = std::move(argValGetter), this]() -> std::function<bool(const Widget *)>
           {
-              if(argOnChange){
-                  argOnChange(this);
+              if(!argValGetter){
+                  return nullptr;
               }
-          },
+
+              return [argValGetter = std::move(argValGetter), this](const Widget *) -> bool
+              {
+                  return argValGetter(this);
+              };
+          }(),
+
+          [argValSetter = std::move(argValSetter), this]() -> std::function<void(Widget *, bool)>
+          {
+              if(!argValSetter){
+                  return nullptr;
+              }
+
+              return [argValSetter = std::move(argValSetter), this](Widget *, bool value)
+              {
+                  argValSetter(this, value);
+              };
+          }(),
+
+
+          [argValOnChange = std::move(argValOnChange), this]() -> std::function<void(Widget *, bool)>
+          {
+              if(!argValOnChange){
+                  return nullptr;
+              }
+
+              return [argValOnChange = std::move(argValOnChange), this](Widget *, bool value)
+              {
+                  argValOnChange(this, value);
+              };
+          }(),
 
           this,
           false,

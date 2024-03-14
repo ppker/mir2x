@@ -10,11 +10,12 @@ class CheckBox: public Widget
         uint32_t m_color;
 
     private:
-        bool  m_innVal = false;
-        bool *m_valPtr;
+        bool m_innVal = false;
 
     private:
-        std::function<void(Widget *)> m_onChange;
+        std::function<bool(const Widget *      )> m_valGetter;
+        std::function<void(      Widget *, bool)> m_valSetter;
+        std::function<void(      Widget *, bool)> m_valOnChange;
 
     private:
         ImageBoard m_checkImage;
@@ -29,8 +30,9 @@ class CheckBox: public Widget
 
                 uint32_t,
 
-                bool *,
-                std::function<void(Widget *)>,
+                std::function<bool(const Widget *      )>, // getter, use m_innVal if not provided
+                std::function<void(      Widget *, bool)>, // setter
+                std::function<void(      Widget *, bool)>, // onchange
 
                 Widget * = nullptr, // parent
                 bool     = false);  // auto-delete
@@ -48,19 +50,18 @@ class CheckBox: public Widget
         }
 
     public:
-        void toggle()
-        {
-            *m_valPtr = !(*m_valPtr);
-            if(m_onChange){
-                m_onChange(this);
-            }
-        }
+        void toggle();
 
     public:
         bool checkedValue() const
         {
-            return *m_valPtr;
+            return getter();
         }
+
+
+    private:
+        bool getter(    ) const;
+        void setter(bool);
 
     private:
         static SDL_Texture *loadFunc(const ImageBoard *);
