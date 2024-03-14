@@ -869,8 +869,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
                               nullptr,
                               [this](Widget *widgetPtr)
                               {
-                                  m_pageSystem_musicSlider.setActive(dynamic_cast<CheckBox *>(widgetPtr)->checkedValue());
-                                  SDRuntimeConfig_setConfig<RTCFG_BGM>(m_sdRuntimeConfig, dynamic_cast<CheckBox *>(widgetPtr)->checkedValue());
+                                  m_pageSystem_musicSlider.setActive(dynamic_cast<CheckLabel *>(widgetPtr)->checkedValue());
+                                  SDRuntimeConfig_setConfig<RTCFG_BGM>(m_sdRuntimeConfig, dynamic_cast<CheckLabel *>(widgetPtr)->checkedValue());
                                   reportRuntimeConfig(RTCFG_BGM);
                               },
 
@@ -900,8 +900,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
                               nullptr,
                               [this](Widget *widgetPtr)
                               {
-                                  m_pageSystem_soundEffectSlider.setActive(dynamic_cast<CheckBox *>(widgetPtr)->checkedValue());
-                                  SDRuntimeConfig_setConfig<RTCFG_SEFF>(m_sdRuntimeConfig, dynamic_cast<CheckBox *>(widgetPtr)->checkedValue());
+                                  m_pageSystem_soundEffectSlider.setActive(dynamic_cast<CheckLabel *>(widgetPtr)->checkedValue());
+                                  SDRuntimeConfig_setConfig<RTCFG_SEFF>(m_sdRuntimeConfig, dynamic_cast<CheckLabel *>(widgetPtr)->checkedValue());
                                   reportRuntimeConfig(RTCFG_SEFF);
                               },
 
