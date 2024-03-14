@@ -60,8 +60,8 @@ constexpr int RTCFG_NONE  = 0;
 constexpr int RTCFG_BEGIN = 1;
 
 constexpr int _RSVD_rtcfg_add_type_counter_begin = __COUNTER__;
-template<int            > auto SDRuntimeConfig_getConfig(const SDRuntimeConfig &           );
-template<int, typename T> bool SDRuntimeConfig_setConfig(      SDRuntimeConfig &, const T &);
+template<int            > auto SDRuntimeConfig_getConfig(const SDRuntimeConfig &           ) = delete;
+template<int, typename T> bool SDRuntimeConfig_setConfig(      SDRuntimeConfig &, const T &) = delete;
 
 #define _MACRO_ADD_RTCFG_TYPE(rtCfgKeyType, rtCfgValueType) \
     constexpr int rtCfgKeyType = __COUNTER__ - _RSVD_rtcfg_add_type_counter_begin; \
