@@ -10,8 +10,8 @@ class CheckBox: public Widget
         uint32_t m_color;
 
     private:
-        int64_t  m_innVal = 0;
-        int64_t *m_valPtr;
+        bool  m_innVal = false;
+        bool *m_valPtr;
 
     private:
         std::function<void(Widget *)> m_onChange;
@@ -29,7 +29,7 @@ class CheckBox: public Widget
 
                 uint32_t,
 
-                int64_t *,
+                bool *,
                 std::function<void(Widget *)>,
 
                 Widget * = nullptr, // parent

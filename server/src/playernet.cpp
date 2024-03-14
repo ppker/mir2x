@@ -759,11 +759,7 @@ void Player::net_CM_SETRUNTIMECONFIG(uint8_t, const uint8_t *buf, size_t)
     fflassert(cmSRC.type >= RTCFG_BEGIN, cmSRC.type);
     fflassert(cmSRC.type <  RTCFG_END  , cmSRC.type);
 
-    const auto newVal = cmSRC.str ? SDRuntimeConfig::value_type(cmSRC.buf.to_str()) : SDRuntimeConfig::value_type(cmSRC.buf.as<int64_t>());
-    if(m_sdPlayerConfig.runtimeConfig[cmSRC.type] == newVal){
-        return;
+    if(m_sdPlayerConfig.runtimeConfig.setConfig(cmSRC.type, cmSRC.buf.as_sv())){
+        dbUpdateRuntimeConfig();
     }
-
-    m_sdPlayerConfig.runtimeConfig[cmSRC.type] = newVal;
-    dbUpdateRuntimeConfig();
 }

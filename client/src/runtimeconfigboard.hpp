@@ -235,19 +235,11 @@ class RuntimeConfigBoard: public Widget
         void reportRuntimeConfig(int);
 
     public:
-        template<typename T> std::optional<T> getConfig(int cfgType) const
-        {
-            if(cfgType >= 0 && cfgType < (int)(m_sdRuntimeConfig.size())){
-                if(const auto p = std::get_if<T>(std::addressof(m_sdRuntimeConfig[cfgType]))){
-                    return std::make_optional<T>(*p);
-                }
-                else{
-                    return std::nullopt;
-                }
-            }
-            throw fflerror("invalid cfg type: %d", cfgType);
-        }
+        void setConfig(const SDRuntimeConfig &);
 
     public:
-        void setConfig(const SDRuntimeConfig &);
+        const SDRuntimeConfig &getConfig() const
+        {
+            return m_sdRuntimeConfig;
+        }
 };

@@ -27,7 +27,7 @@ class CheckLabel: public Widget
                 int,
                 int,
 
-                int64_t *,
+                bool *,
                 std::function<void(Widget *)>,
 
                 const char8_t *,
@@ -47,4 +47,10 @@ class CheckLabel: public Widget
 
     public:
         void setFocus(bool) override;
+
+    public:
+        bool checkedValue() const
+        {
+            return m_checkBox.checkedValue();
+        }
 };

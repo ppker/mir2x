@@ -366,24 +366,6 @@ enum TeamErrorType: int
     TEAMERR_END,
 };
 
-enum RuntimeConfigType: uint16_t
-{
-    RTCFG_NONE  = 0,
-    RTCFG_BEGIN = 1,
-    RTCFG_IME   = RTCFG_BEGIN,
-    RTCFG_BGM,
-    RTCFG_BGMVALUE,
-    RTCFG_SEFF,
-    RTCFG_SEFFVALUE,
-    RTCFG_SHOWFPS,
-    RTCFG_FULLSCREEN,
-    RTCFG_ATTACKMODE,
-    RTCFG_WINDOWSIZE,
-    RTCFG_END,
-
-    RTCFG_BUFSIZE = 500,
-};
-
 template<typename... Ts> struct varDispatcher: Ts...
 {
     using Ts::operator()...;

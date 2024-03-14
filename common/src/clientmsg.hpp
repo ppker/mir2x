@@ -153,9 +153,8 @@ struct CMChangePassword
 
 struct CMSetRuntimeConfig
 {
-    uint16_t type: 15;
-    uint16_t  str:  1;
-    FixedBuf<RTCFG_BUFSIZE> buf;
+    uint16_t type;
+    FixedBuf<256> buf;
 };
 
 struct CMNPCEvent
