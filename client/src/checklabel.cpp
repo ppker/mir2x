@@ -56,7 +56,9 @@ CheckLabel::CheckLabel(
           argBoxValPtr,
           [argOnChange = std::move(argOnChange), this](Widget *)
           {
-              argOnChange(this);
+              if(argOnChange){
+                  argOnChange(this);
+              }
           },
 
           this,
