@@ -114,6 +114,32 @@ template<int, typename T> bool SDRuntimeConfig_setConfig(      SDRuntimeConfig &
     /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_允许拜师        , bool)
     /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_允许好友上线提示, bool)
     /**/
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_强制攻击    , bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_显示体力变化, bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_满血不显血  , bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_显示血条    , bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_数字显血    , bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_综合数字显示, bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_标记攻击目标, bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_单击解除锁定, bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_显示BUFF图标, bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_显示BUFF计时, bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_显示角色名字, bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_关闭组队血条, bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_队友染色    , bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_显示队友位置, bool)
+    /**/
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_持续盾      , bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_持续移花接木, bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_持续金刚    , bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_持续破血    , bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_持续铁布衫  , bool)
+    /**/
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_自动喝红, bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_保持满血, bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_自动喝蓝, bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_保持满蓝, bool)
+    /**/
     /**/ using _RSVD_helper_type_RTCFG_WINDOWSIZE_t = std::pair<int, int>;
     /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_WINDOWSIZE, _RSVD_helper_type_RTCFG_WINDOWSIZE_t)
     /**/
