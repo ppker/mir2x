@@ -98,6 +98,22 @@ template<int, typename T> bool SDRuntimeConfig_setConfig(      SDRuntimeConfig &
     /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_FULLSCREEN, bool)
     /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_ATTACKMODE, int)
     /**/
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_允许私聊        , bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_允许白字聊天    , bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_允许地图聊天    , bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_允许行会聊天    , bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_允许全服聊天    , bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_允许加入队伍    , bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_允许加入行会    , bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_允许回生术      , bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_允许天地合一    , bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_允许交易        , bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_允许添加好友    , bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_允许行会召唤    , bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_允许行会杀人提示, bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_允许拜师        , bool)
+    /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_允许好友上线提示, bool)
+    /**/
     /**/ using _RSVD_helper_type_RTCFG_WINDOWSIZE_t = std::pair<int, int>;
     /**/ _MACRO_ADD_RTCFG_TYPE(RTCFG_WINDOWSIZE, _RSVD_helper_type_RTCFG_WINDOWSIZE_t)
     /**/
