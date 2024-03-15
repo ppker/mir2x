@@ -242,4 +242,7 @@ class RuntimeConfigBoard: public Widget
         {
             return m_sdRuntimeConfig;
         }
+
+    public:
+        void updateWindowSizeLabel(int, int, bool);
 };

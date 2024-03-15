@@ -780,12 +780,9 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
 
           [this](Widget *widgetPtr)
           {
-              m_pageSystem_resolution.getMenuTitle()->setText(to_u8cstr(dynamic_cast<LabelBoard *>(widgetPtr)->getText(true)));
               const auto [w, h] = std::any_cast<std::pair<int, int>>(widgetPtr->data());
-
               g_sdlDevice->setWindowSize(w, h);
-              SDRuntimeConfig_setConfig<RTCFG_WINDOWSIZE>(m_sdRuntimeConfig, std::make_pair(w, h));
-              reportRuntimeConfig(RTCFG_WINDOWSIZE);
+              updateWindowSizeLabel(w, h, true);
           },
       }
 
@@ -1233,4 +1230,16 @@ void RuntimeConfigBoard::reportRuntimeConfig(int rtCfg)
     cmSRC.buf.assign(m_sdRuntimeConfig.getConfig(rtCfg).value_or(std::string()));
 
     g_client->send(CM_SETRUNTIMECONFIG, cmSRC);
+}
+
+void RuntimeConfigBoard::updateWindowSizeLabel(int w, int h, bool saveConfig)
+{
+    fflassert(w >= 0, w, h);
+    fflassert(h >= 0, w, h);
+
+    m_pageSystem_resolution.getMenuTitle()->setText(str_printf(u8"%d×%d", w, h).c_str());
+    if(saveConfig){
+        SDRuntimeConfig_setConfig<RTCFG_WINDOWSIZE>(m_sdRuntimeConfig, std::make_pair(w, h));
+        reportRuntimeConfig(RTCFG_WINDOWSIZE);
+    }
 }
