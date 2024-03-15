@@ -518,7 +518,7 @@ void ProcessRun::draw() const
         drawMouseLocation();
     }
 
-    if(getRuntimeConfig<RTCFG_SHOWFPS>().value_or(false)){
+    if(getRuntimeConfig<RTCFG_SHOWFPS>()){
         drawFPS();
     }
 }
