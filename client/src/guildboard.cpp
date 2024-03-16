@@ -272,6 +272,22 @@ GuildBoard::GuildBoard(int argX, int argY, ProcessRun *runPtr, Widget *widgetPtr
           true,
           this,
       }
+
+    , m_slider
+      {
+          DIR_UPLEFT,
+          564,
+          62,
+          9,
+          277,
+
+          false,
+          3,
+          nullptr,
+
+          this,
+          false,
+      }
 {
     setShow(false);
 }
@@ -292,6 +308,7 @@ void GuildBoard::drawEx(int dstX, int dstY, int, int, int, int) const
     m_disbandGuild      .draw();
     m_editMemberPosition.draw();
     m_dissolveCovenant  .draw();
+    m_slider            .draw();
 }
 
 bool GuildBoard::processEvent(const SDL_Event &event, bool valid)
@@ -313,6 +330,7 @@ bool GuildBoard::processEvent(const SDL_Event &event, bool valid)
     if(m_disbandGuild      .processEvent(event, valid)){ return true; }
     if(m_editMemberPosition.processEvent(event, valid)){ return true; }
     if(m_dissolveCovenant  .processEvent(event, valid)){ return true; }
+    if(m_slider            .processEvent(event, valid)){ return true; }
 
     switch(event.type){
         case SDL_KEYDOWN:

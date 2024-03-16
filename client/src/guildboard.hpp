@@ -23,6 +23,9 @@ class GuildBoard: public Widget
         TritexButton m_editMemberPosition;
         TritexButton m_dissolveCovenant;
 
+    private:
+        TexSlider m_slider;
+
     public:
         GuildBoard(int, int, ProcessRun *, Widget * = nullptr, bool = false);
 
