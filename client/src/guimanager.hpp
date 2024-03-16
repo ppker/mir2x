@@ -1,6 +1,7 @@
 #pragma once
 #include "widget.hpp"
 #include "minimapboard.hpp"
+#include "horseboard.hpp"
 #include "skillboard.hpp"
 #include "guildboard.hpp"
 #include "npcchatboard.hpp"
@@ -26,6 +27,7 @@ class GUIManager: public Widget
         ControlBoard m_controlBoard;
 
     private:
+        HorseBoard m_horseBoard;
         SkillBoard m_skillBoard;
         GuildBoard m_guildBoard;
         MiniMapBoard m_miniMapBoard;

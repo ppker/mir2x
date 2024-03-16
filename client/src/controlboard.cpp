@@ -479,7 +479,7 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
           nullptr,
           [this](ButtonBase *)
           {
-              if(auto p = m_processRun->getWidget("InventoryBoard")){
+              if(auto p = m_processRun->getWidget("HorseBoard")){
                   p->flipShow();
               }
           },

@@ -30,6 +30,14 @@ GUIManager::GUIManager(ProcessRun *proc)
           proc,
       }
 
+    , m_horseBoard
+      {
+          g_sdlDevice->getRendererWidth()  / 2 - 128,
+          g_sdlDevice->getRendererHeight() / 2 - 161,
+          proc,
+          this,
+      }
+
     , m_skillBoard
       {
           g_sdlDevice->getRendererWidth()  / 2 - 180,
@@ -203,6 +211,10 @@ Widget *GUIManager::getWidget(const std::string &name)
         return &m_controlBoard;
     }
 
+    else if(name == "HorseBoard"){
+        return &m_horseBoard;
+    }
+
     else if(name == "SkillBoard"){
         return &m_skillBoard;
     }
@@ -271,6 +283,7 @@ void GUIManager::onWindowResize()
     };
 
     fnSetWidgetPLoc(g_imeBoard);
+    fnSetWidgetPLoc(&m_horseBoard);
     fnSetWidgetPLoc(&m_skillBoard);
     fnSetWidgetPLoc(&m_guildBoard);
     fnSetWidgetPLoc(&m_inventoryBoard);
