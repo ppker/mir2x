@@ -23,8 +23,8 @@ GuildBoard::GuildBoard(int argX, int argY, ProcessRun *runPtr, Widget *widgetPtr
     , m_closeButton
       {
           DIR_UPLEFT,
-          533,
-          401,
+          554,
+          399,
           {SYS_U32NIL, 0X0000001C, 0X0000001D},
           {
               SYS_U32NIL,
@@ -48,7 +48,233 @@ GuildBoard::GuildBoard(int argX, int argY, ProcessRun *runPtr, Widget *widgetPtr
           true,
           this,
       }
-{}
+
+    , m_announcement
+      {
+          DIR_UPLEFT,
+          40,
+          385,
+          {SYS_U32NIL, 0X00000510, 0X00000511},
+          {
+              SYS_U32NIL,
+              SYS_U32NIL,
+              0X01020000 + 105,
+          },
+
+          nullptr,
+          nullptr,
+          [this](ButtonBase *)
+          {
+          },
+
+          0,
+          0,
+          0,
+          0,
+
+          true,
+          true,
+          this,
+      }
+
+    , m_members
+      {
+          DIR_UPLEFT,
+          90,
+          385,
+          {SYS_U32NIL, 0X00000520, 0X00000521},
+          {
+              SYS_U32NIL,
+              SYS_U32NIL,
+              0X01020000 + 105,
+          },
+
+          nullptr,
+          nullptr,
+          [this](ButtonBase *)
+          {
+          },
+
+          0,
+          0,
+          0,
+          0,
+
+          true,
+          true,
+          this,
+      }
+
+    , m_chat
+      {
+          DIR_UPLEFT,
+          140,
+          385,
+          {SYS_U32NIL, 0X00000530, 0X00000531},
+          {
+              SYS_U32NIL,
+              SYS_U32NIL,
+              0X01020000 + 105,
+          },
+
+          nullptr,
+          nullptr,
+          [this](ButtonBase *)
+          {
+          },
+
+          0,
+          0,
+          0,
+          0,
+
+          true,
+          true,
+          this,
+      }
+
+    , m_editAnnouncement
+      {
+          DIR_UPLEFT,
+          290,
+          385,
+          {SYS_U32NIL, 0X00000540, 0X00000541},
+          {
+              SYS_U32NIL,
+              SYS_U32NIL,
+              0X01020000 + 105,
+          },
+
+          nullptr,
+          nullptr,
+          [this](ButtonBase *)
+          {
+          },
+
+          0,
+          0,
+          0,
+          0,
+
+          true,
+          true,
+          this,
+      }
+
+    , m_removeMember
+      {
+          DIR_UPLEFT,
+          340,
+          385,
+          {SYS_U32NIL, 0X00000550, 0X00000551},
+          {
+              SYS_U32NIL,
+              SYS_U32NIL,
+              0X01020000 + 105,
+          },
+
+          nullptr,
+          nullptr,
+          [this](ButtonBase *)
+          {
+          },
+
+          0,
+          0,
+          0,
+          0,
+
+          true,
+          true,
+          this,
+      }
+
+    , m_disbandGuild
+      {
+          DIR_UPLEFT,
+          390,
+          385,
+          {SYS_U32NIL, 0X00000560, 0X00000561},
+          {
+              SYS_U32NIL,
+              SYS_U32NIL,
+              0X01020000 + 105,
+          },
+
+          nullptr,
+          nullptr,
+          [this](ButtonBase *)
+          {
+          },
+
+          0,
+          0,
+          0,
+          0,
+
+          true,
+          true,
+          this,
+      }
+
+    , m_editMemberPosition
+      {
+          DIR_UPLEFT,
+          440,
+          385,
+          {SYS_U32NIL, 0X00000570, 0X00000571},
+          {
+              SYS_U32NIL,
+              SYS_U32NIL,
+              0X01020000 + 105,
+          },
+
+          nullptr,
+          nullptr,
+          [this](ButtonBase *)
+          {
+          },
+
+          0,
+          0,
+          0,
+          0,
+
+          true,
+          true,
+          this,
+      }
+
+    , m_dissolveCovenant
+      {
+          DIR_UPLEFT,
+          490,
+          385,
+          {SYS_U32NIL, 0X00000580, 0X00000581},
+          {
+              SYS_U32NIL,
+              SYS_U32NIL,
+              0X01020000 + 105,
+          },
+
+          nullptr,
+          nullptr,
+          [this](ButtonBase *)
+          {
+          },
+
+          0,
+          0,
+          0,
+          0,
+
+          true,
+          true,
+          this,
+      }
+{
+    setShow(false);
+}
 
 
 void GuildBoard::drawEx(int dstX, int dstY, int, int, int, int) const
@@ -56,6 +282,16 @@ void GuildBoard::drawEx(int dstX, int dstY, int, int, int, int) const
     if(auto texPtr = g_progUseDB->retrieve(0X00000500)){
         g_sdlDevice->drawTexture(texPtr, dstX, dstY);
     }
+
+    m_closeButton       .draw();
+    m_announcement      .draw();
+    m_members           .draw();
+    m_chat              .draw();
+    m_editAnnouncement  .draw();
+    m_removeMember      .draw();
+    m_disbandGuild      .draw();
+    m_editMemberPosition.draw();
+    m_dissolveCovenant  .draw();
 }
 
 bool GuildBoard::processEvent(const SDL_Event &event, bool valid)
@@ -68,9 +304,15 @@ bool GuildBoard::processEvent(const SDL_Event &event, bool valid)
         return consumeFocus(false);
     }
 
-    if(m_closeButton.processEvent(event, valid)){
-        return true;
-    }
+    if(m_closeButton       .processEvent(event, valid)){ return true; }
+    if(m_announcement      .processEvent(event, valid)){ return true; }
+    if(m_members           .processEvent(event, valid)){ return true; }
+    if(m_chat              .processEvent(event, valid)){ return true; }
+    if(m_editAnnouncement  .processEvent(event, valid)){ return true; }
+    if(m_removeMember      .processEvent(event, valid)){ return true; }
+    if(m_disbandGuild      .processEvent(event, valid)){ return true; }
+    if(m_editMemberPosition.processEvent(event, valid)){ return true; }
+    if(m_dissolveCovenant  .processEvent(event, valid)){ return true; }
 
     switch(event.type){
         case SDL_KEYDOWN:

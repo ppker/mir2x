@@ -13,6 +13,16 @@ class GuildBoard: public Widget
     private:
         TritexButton m_closeButton;
 
+    private:
+        TritexButton m_announcement;
+        TritexButton m_members;
+        TritexButton m_chat;
+        TritexButton m_editAnnouncement;
+        TritexButton m_removeMember;
+        TritexButton m_disbandGuild;
+        TritexButton m_editMemberPosition;
+        TritexButton m_dissolveCovenant;
+
     public:
         GuildBoard(int, int, ProcessRun *, Widget * = nullptr, bool = false);
 
