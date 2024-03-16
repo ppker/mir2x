@@ -2,6 +2,7 @@
 #include "widget.hpp"
 #include "minimapboard.hpp"
 #include "skillboard.hpp"
+#include "guildboard.hpp"
 #include "npcchatboard.hpp"
 #include "controlboard.hpp"
 #include "purchaseboard.hpp"
@@ -26,6 +27,7 @@ class GUIManager: public Widget
 
     private:
         SkillBoard m_skillBoard;
+        GuildBoard m_guildBoard;
         MiniMapBoard m_miniMapBoard;
         PurchaseBoard m_purchaseBoard;
         TeamStateBoard m_teamStateBoard;

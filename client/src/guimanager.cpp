@@ -38,6 +38,14 @@ GUIManager::GUIManager(ProcessRun *proc)
           this,
       }
 
+    , m_guildBoard
+      {
+          g_sdlDevice->getRendererWidth()  / 2 - 297,
+          g_sdlDevice->getRendererHeight() / 2 - 222,
+          proc,
+          this,
+      }
+
     , m_miniMapBoard
       {
           proc,
@@ -199,6 +207,10 @@ Widget *GUIManager::getWidget(const std::string &name)
         return &m_skillBoard;
     }
 
+    else if(name == "GuildBoard"){
+        return &m_guildBoard;
+    }
+
     else if(name == "MiniMapBoard"){
         return &m_miniMapBoard;
     }
@@ -260,6 +272,7 @@ void GUIManager::onWindowResize()
 
     fnSetWidgetPLoc(g_imeBoard);
     fnSetWidgetPLoc(&m_skillBoard);
+    fnSetWidgetPLoc(&m_guildBoard);
     fnSetWidgetPLoc(&m_inventoryBoard);
     fnSetWidgetPLoc(&m_quickAccessBoard);
     fnSetWidgetPLoc(&m_playerStateBoard);
