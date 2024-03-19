@@ -65,7 +65,7 @@ class ControlBoard: public Widget
         TritexButton m_buttonQuest;
         TritexButton m_buttonHorse;
         TritexButton m_buttonRuntimeConfig;
-        TritexButton m_buttonSysMessage;
+        TritexButton m_buttonFriendChat;
 
     private:
         ACButton m_buttonAC;

@@ -525,7 +525,7 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
           &m_right,
       }
 
-    , m_buttonSysMessage
+    , m_buttonFriendChat
       {
           DIR_UPLEFT,
           108,
@@ -541,7 +541,7 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
           nullptr,
           [this](ButtonBase *)
           {
-              if(auto p = m_processRun->getWidget("InventoryBoard")){
+              if(auto p = m_processRun->getWidget("FriendChatBoard")){
                   p->flipShow();
               }
           },
@@ -830,7 +830,7 @@ void ControlBoard::update(double fUpdateTime)
     m_buttonQuest        .update(fUpdateTime);
     m_buttonHorse        .update(fUpdateTime);
     m_buttonRuntimeConfig.update(fUpdateTime);
-    m_buttonSysMessage   .update(fUpdateTime);
+    m_buttonFriendChat   .update(fUpdateTime);
 }
 
 void ControlBoard::drawLeft() const
@@ -901,7 +901,7 @@ void ControlBoard::drawRight() const
     m_buttonQuest.draw();
     m_buttonHorse.draw();
     m_buttonRuntimeConfig.draw();
-    m_buttonSysMessage.draw();
+    m_buttonFriendChat.draw();
 
     m_buttonAC.draw();
     m_buttonDC.draw();
@@ -1110,7 +1110,7 @@ bool ControlBoard::processEvent(const SDL_Event &event, bool valid)
     takeEvent |= m_buttonQuest        .processEvent(event, valid && !takeEvent);
     takeEvent |= m_buttonHorse        .processEvent(event, valid && !takeEvent);
     takeEvent |= m_buttonRuntimeConfig.processEvent(event, valid && !takeEvent);
-    takeEvent |= m_buttonSysMessage   .processEvent(event, valid && !takeEvent);
+    takeEvent |= m_buttonFriendChat   .processEvent(event, valid && !takeEvent);
     takeEvent |= m_buttonAC           .processEvent(event, valid && !takeEvent);
     takeEvent |= m_buttonDC           .processEvent(event, valid && !takeEvent);
     takeEvent |= m_buttonInventory    .processEvent(event, valid && !takeEvent);
@@ -1540,6 +1540,6 @@ TritexButton *ControlBoard::getButton(const std::string_view &buttonName)
     else if(buttonName == "Quest"        ){ return &m_buttonQuest        ; }
     else if(buttonName == "Horse"        ){ return &m_buttonHorse        ; }
     else if(buttonName == "RuntimeConfig"){ return &m_buttonRuntimeConfig; }
-    else if(buttonName == "SysMessage"   ){ return &m_buttonSysMessage   ; }
+    else if(buttonName == "FriendChat"   ){ return &m_buttonFriendChat   ; }
     else                                  { return nullptr               ; }
 }

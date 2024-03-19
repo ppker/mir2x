@@ -5,6 +5,7 @@
 #include "skillboard.hpp"
 #include "guildboard.hpp"
 #include "npcchatboard.hpp"
+#include "friendchatboard.hpp"
 #include "controlboard.hpp"
 #include "purchaseboard.hpp"
 #include "teamstateboard.hpp"
@@ -25,6 +26,9 @@ class GUIManager: public Widget
     private:
         NPCChatBoard m_NPCChatBoard;
         ControlBoard m_controlBoard;
+
+    private:
+        FriendChatBoard m_friendChatBoard;
 
     private:
         HorseBoard m_horseBoard;

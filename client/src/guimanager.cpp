@@ -30,6 +30,14 @@ GUIManager::GUIManager(ProcessRun *proc)
           proc,
       }
 
+    , m_friendChatBoard
+      {
+          g_sdlDevice->getRendererWidth()  / 2 - 250,
+          g_sdlDevice->getRendererHeight() / 2 - 250,
+          proc,
+          this,
+      }
+
     , m_horseBoard
       {
           g_sdlDevice->getRendererWidth()  / 2 - 128,
@@ -211,6 +219,10 @@ Widget *GUIManager::getWidget(const std::string &name)
         return &m_controlBoard;
     }
 
+    else if(name == "FriendChatBoard"){
+        return &m_friendChatBoard;
+    }
+
     else if(name == "HorseBoard"){
         return &m_horseBoard;
     }
@@ -290,4 +302,5 @@ void GUIManager::onWindowResize()
     fnSetWidgetPLoc(&m_quickAccessBoard);
     fnSetWidgetPLoc(&m_playerStateBoard);
     fnSetWidgetPLoc(&m_inputStringBoard);
+    fnSetWidgetPLoc(&m_friendChatBoard);
 }
