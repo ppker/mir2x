@@ -21,6 +21,9 @@ class FriendChatBoard: public Widget
         GfxCropDupBoard m_backgroundCropDup;
 
     private:
+        TexSlider m_slider;
+
+    private:
         TritexButton m_close;
 
     public:

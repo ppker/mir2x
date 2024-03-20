@@ -78,6 +78,22 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, int argW, int argH, Process
           false,
       }
 
+    , m_slider
+      {
+          DIR_UPLEFT,
+          m_frameCropDup.w() - 30,
+          70,
+          9,
+          m_frameCropDup.h() - 140,
+
+          false,
+          3,
+          nullptr,
+
+          this,
+          false,
+      }
+
     , m_close
       {
           DIR_UPLEFT,
@@ -117,6 +133,7 @@ void FriendChatBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, i
     {
         static_cast<const Widget *>(&m_backgroundCropDup),
         static_cast<const Widget *>(&m_frameCropDup),
+        static_cast<const Widget *>(&m_slider),
         static_cast<const Widget *>(&m_close),
     }){
         int drawSrcX = srcX;
@@ -153,7 +170,8 @@ bool FriendChatBoard::processEvent(const SDL_Event &event, bool valid)
         return consumeFocus(false);
     }
 
-    if(m_close.processEvent(event, valid)){ return true; }
+    if(m_close .processEvent(event, valid)){ return true; }
+    if(m_slider.processEvent(event, valid)){ return true; }
 
     switch(event.type){
         case SDL_KEYDOWN:
