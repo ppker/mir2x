@@ -5,14 +5,14 @@
 extern PNGTexDB *g_progUseDB;
 extern SDLDevice *g_sdlDevice;
 
-FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget *widgetPtr, bool autoDelete)
+FriendChatBoard::FriendChatBoard(int argX, int argY, int argW, int argH, ProcessRun *runPtr, Widget *widgetPtr, bool autoDelete)
     : Widget
       {
           DIR_UPLEFT,
           argX,
           argY,
-          257,
-          322,
+          argW,
+          argH,
           {},
 
           widgetPtr,
@@ -35,8 +35,8 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
           DIR_UPLEFT,
           0,
           0,
-          500,
-          500,
+          argW,
+          argH,
 
           &m_frame,
 
@@ -52,8 +52,8 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
     , m_close
       {
           DIR_UPLEFT,
-          217,
-          278,
+          m_frameCropDup.w() - 38,
+          m_frameCropDup.h() - 40,
           {SYS_U32NIL, 0X0000001C, 0X0000001D},
           {
               SYS_U32NIL,

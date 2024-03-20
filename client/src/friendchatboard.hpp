@@ -20,7 +20,7 @@ class FriendChatBoard: public Widget
         TritexButton m_close;
 
     public:
-        FriendChatBoard(int, int, ProcessRun *, Widget * = nullptr, bool = false);
+        FriendChatBoard(int, int, int, int, ProcessRun *, Widget * = nullptr, bool = false);
 
     public:
         void drawEx(int, int, int, int, int, int) const override;

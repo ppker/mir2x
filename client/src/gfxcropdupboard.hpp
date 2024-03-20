@@ -53,8 +53,8 @@ class GfxCropDupBoard: public Widget
 
             , m_cropX(argCropX)
             , m_cropY(argCropY)
-            , m_cropW([argCropW]{ fflassert(argCropW >= 0); return argCropW; }())
-            , m_cropH([argCropH]{ fflassert(argCropH >= 0); return argCropH; }())
+            , m_cropW([argCropW, this]{ fflassert(argCropW >= 0); return argCropW; }())
+            , m_cropH([argCropH, this]{ fflassert(argCropH >= 0); return argCropH; }())
         {}
 
     public:
