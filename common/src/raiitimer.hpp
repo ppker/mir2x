@@ -43,6 +43,9 @@ class hres_tstamp
         {
             return static_cast<double>(to_nsec()) / 1000000000.0;
         }
+
+    public:
+        static uint64_t localtime();
 };
 
 class hres_timer
