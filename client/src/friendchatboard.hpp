@@ -10,6 +10,13 @@ class ProcessRun;
 class FriendChatBoard: public Widget
 {
     private:
+        static constexpr int UIPage_MESSAGE = 1;
+        static constexpr int UIPage_FRIEND  = 2;
+
+    private:
+        int m_uiPage = UIPage_MESSAGE;
+
+    private:
         ProcessRun *m_processRun;
 
     private:

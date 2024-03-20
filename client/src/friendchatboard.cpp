@@ -57,6 +57,11 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, int argW, int argH, Process
           {},
           {},
           [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000810); },
+
+          false,
+          false,
+          0,
+          colorf::RGBA(160, 160, 160, 255),
       }
 
     , m_backgroundCropDup
