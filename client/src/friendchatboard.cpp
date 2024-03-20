@@ -49,6 +49,35 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, int argW, int argH, Process
           false,
       }
 
+    , m_background
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+          {},
+          {},
+          [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000810); },
+      }
+
+    , m_backgroundCropDup
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+          m_frameCropDup.w(),
+          m_frameCropDup.h(),
+
+          &m_background,
+
+          0,
+          0,
+          510,
+          187,
+
+          this,
+          false,
+      }
+
     , m_close
       {
           DIR_UPLEFT,
@@ -86,6 +115,7 @@ void FriendChatBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, i
 {
     for(const auto &p:
     {
+        static_cast<const Widget *>(&m_backgroundCropDup),
         static_cast<const Widget *>(&m_frameCropDup),
         static_cast<const Widget *>(&m_close),
     }){
