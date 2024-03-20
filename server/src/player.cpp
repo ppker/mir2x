@@ -1834,6 +1834,7 @@ void Player::postOnlineOK()
     postNetMessage(SM_BELT,             cerealf::serialize(m_sdItemStorage.belt));
     postNetMessage(SM_LEARNEDMAGICLIST, cerealf::serialize(m_sdLearnedMagicList));
     postNetMessage(SM_PLAYERCONFIG,     cerealf::serialize(m_sdPlayerConfig));
+    postNetMessage(SM_FRIENDLIST,       cerealf::serialize(m_sdFriendList));
 
     for(int wltype = WLG_BEGIN; wltype < WLG_END; ++wltype){
         if(const auto &item = m_sdItemStorage.wear.getWLItem(wltype)){

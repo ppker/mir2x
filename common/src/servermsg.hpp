@@ -26,6 +26,7 @@ enum SMType: uint8_t
     SM_ONLINEERROR,
     SM_STARTGAMESCENE,
     SM_PLAYERCONFIG,
+    SM_FRIENDLIST,
     SM_LEARNEDMAGICLIST,
     SM_PLAYERWLDESP,
     SM_ACTION,
@@ -359,6 +360,7 @@ class ServerMsg final: public MsgBase
                 _add_server_msg_type_case(SM_ONLINEERROR,         1, sizeof(SMOnlineError)        )
                 _add_server_msg_type_case(SM_STARTGAMESCENE,      3, 0                            )
                 _add_server_msg_type_case(SM_PLAYERCONFIG,        3, 0                            )
+                _add_server_msg_type_case(SM_FRIENDLIST,          3, 0                            )
                 _add_server_msg_type_case(SM_LEARNEDMAGICLIST,    3, 0                            )
                 _add_server_msg_type_case(SM_QUERYCHAROK,         1, sizeof(SMQueryCharOK)        )
                 _add_server_msg_type_case(SM_QUERYCHARERROR,      1, sizeof(SMQueryCharError)     )

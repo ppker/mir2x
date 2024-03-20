@@ -625,6 +625,8 @@ struct SDPlayerConfig
     }
 };
 
+using SDFriendList = std::vector<uint32_t>;
+
 struct SDNPCEvent
 {
     int x = 0;

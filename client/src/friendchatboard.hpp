@@ -34,4 +34,7 @@ class FriendChatBoard: public Widget
 
     public:
         bool processEvent(const SDL_Event &, bool) override;
+
+    public:
+        void setFriendList(const SDFriendList &);
 };

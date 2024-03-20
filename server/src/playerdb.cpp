@@ -481,3 +481,21 @@ void Player::dbLoadLearnedMagic()
         });
     }
 }
+
+void Player::dbLoadFriendList()
+{
+    // tbl_learnedmagiclist:
+    // +----------+------------+
+    // | fld_dbid | fld_friend |
+    // +----------+------------+
+    // |          +------+
+    // |                 |
+    // |<--primary key-->|
+
+    m_sdFriendList.clear();
+    auto query = g_dbPod->createQuery("select * from tbl_friend where fld_dbid = %llu", to_llu(dbid()));
+
+    while(query.executeStep()){
+        m_sdFriendList.push_back(check_cast<uint32_t, unsigned>(query.getColumn("fld_friend")));
+    }
+}

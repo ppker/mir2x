@@ -213,3 +213,6 @@ bool FriendChatBoard::processEvent(const SDL_Event &event, bool valid)
             }
     }
 }
+
+void FriendChatBoard::setFriendList(const SDFriendList &)
+{}

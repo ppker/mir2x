@@ -77,6 +77,12 @@ void ProcessRun::net_PLAYERCONFIG(const uint8_t *buf, size_t bufSize)
     }
 }
 
+void ProcessRun::net_FRIENDLIST(const uint8_t *buf, size_t bufSize)
+{
+    const auto sdFL = cerealf::deserialize<SDFriendList>(buf, bufSize);
+    dynamic_cast<FriendChatBoard *>(getWidget("FriendChatBoard"))->setFriendList(sdFL);
+}
+
 void ProcessRun::net_LEARNEDMAGICLIST(const uint8_t *buf, size_t bufSize)
 {
     const auto sdLML = cerealf::deserialize<SDLearnedMagicList>(buf, bufSize);

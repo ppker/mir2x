@@ -494,6 +494,13 @@ void Client::onServerMessage(uint8_t headCode, const uint8_t *buf, size_t bufSiz
                 }
                 break;
             }
+        case SM_FRIENDLIST:
+            {
+                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
+                    proc->net_FRIENDLIST(buf, bufSize);
+                }
+                break;
+            }
         case SM_LEARNEDMAGICLIST:
             {
                 if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){

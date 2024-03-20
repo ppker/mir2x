@@ -62,6 +62,7 @@ class Player final: public BattleObject
         bool m_nextStrike = false;
 
     private:
+        SDFriendList       m_sdFriendList;
         SDItemStorage      m_sdItemStorage;
         SDPlayerConfig     m_sdPlayerConfig;
         SDLearnedMagicList m_sdLearnedMagicList;
@@ -305,6 +306,7 @@ class Player final: public BattleObject
 
     private:
         void dbLoadInventory();
+        void dbLoadFriendList();
         void dbUpdateInventoryItem(const SDItem &);
         void dbRemoveInventoryItem(const SDItem &);
         void dbRemoveInventoryItem(uint32_t, uint32_t);

@@ -333,6 +333,14 @@ void MonoServer::createDefaultDatabase()
         u8R"###(     foreign key (fld_dbid) references tbl_char(fld_dbid),           )###"
         u8R"###(     primary key (fld_dbid)                                          )###"
         u8R"###( );                                                                  )###",
+
+        u8R"###( create table tbl_friend(                                            )###"
+        u8R"###(     fld_dbid           int unsigned not null,                       )###"
+        u8R"###(     fld_friend         int unsigned not null,                       )###"
+        u8R"###(                                                                     )###"
+        u8R"###(     foreign key (fld_dbid) references tbl_char(fld_dbid),           )###"
+        u8R"###(     primary key (fld_dbid)                                          )###"
+        u8R"###( );                                                                  )###",
     };
 
     {
