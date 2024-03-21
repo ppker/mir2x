@@ -29,6 +29,19 @@ class Player final: public BattleObject
                 }
         };
 
+        struct DBRetrieveChatMessageListParams final
+        {
+            const uint64_t id = 0;
+
+            const uint32_t from = 0;
+            const uint32_t to   = 0;
+
+            const uint64_t dateFrom = 0;
+            const uint64_t dataTo   = 0;
+
+            const size_t limitCount = 0;
+        };
+
     protected:
         // empty: hasn't bind to a channel yet
         //  zero: has received AM_BADCHANNEL and need to go offine
@@ -192,6 +205,7 @@ class Player final: public BattleObject
         void net_CM_DROPITEM                  (uint8_t, const uint8_t *, size_t);
         void net_CM_SETMAGICKEY               (uint8_t, const uint8_t *, size_t);
         void net_CM_SETRUNTIMECONFIG          (uint8_t, const uint8_t *, size_t);
+        void net_CM_REQUESTLATESTCHATMESSAGE  (uint8_t, const uint8_t *, size_t);
 
     protected:
         void reportGold();
@@ -310,6 +324,10 @@ class Player final: public BattleObject
         void dbUpdateInventoryItem(const SDItem &);
         void dbRemoveInventoryItem(const SDItem &);
         void dbRemoveInventoryItem(uint32_t, uint32_t);
+
+    private:
+        SDChatMessageList dbRetrieveLatestChatMessage(const uint32_t *, size_t, size_t, bool, bool);
+        // static std::vector<SDChatMessage> dbRetrieveChatMessageList(const DBRetrieveChatMessageListParams &);
 
     private:
         void dbSecureItem(uint32_t, uint32_t);

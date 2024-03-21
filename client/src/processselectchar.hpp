@@ -80,10 +80,10 @@ class ProcessSelectChar: public Process
         void updateGUIActive();
 
     public:
-        void net_QUERYCHAROK    (const uint8_t *, size_t);
-        void net_QUERYCHARERROR (const uint8_t *, size_t);
-        void net_DELETECHAROK   (const uint8_t *, size_t);
-        void net_DELETECHARERROR(const uint8_t *, size_t);
-        void net_ONLINEOK       (const uint8_t *, size_t);
-        void net_ONLINEERROR    (const uint8_t *, size_t);
+        void on_SM_QUERYCHAROK    (const uint8_t *, size_t);
+        void on_SM_QUERYCHARERROR (const uint8_t *, size_t);
+        void on_SM_DELETECHAROK   (const uint8_t *, size_t);
+        void on_SM_DELETECHARERROR(const uint8_t *, size_t);
+        void on_SM_ONLINEOK       (const uint8_t *, size_t);
+        void on_SM_ONLINEERROR    (const uint8_t *, size_t);
 };

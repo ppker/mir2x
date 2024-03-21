@@ -77,6 +77,7 @@ enum SMType: uint8_t
     SM_TEAMERROR,
     SM_QUESTDESPUPDATE,
     SM_QUESTDESPLIST,
+    SM_CHATMESSAGELIST,
     SM_END,
 };
 
@@ -413,6 +414,7 @@ class ServerMsg final: public MsgBase
                 _add_server_msg_type_case(SM_TEAMERROR,           1, sizeof(SMTeamError)          )
                 _add_server_msg_type_case(SM_QUESTDESPUPDATE,     3, 0                            )
                 _add_server_msg_type_case(SM_QUESTDESPLIST,       3, 0                            )
+                _add_server_msg_type_case(SM_CHATMESSAGELIST,     3, 0                            )
 #undef _add_server_msg_type_case
             };
 

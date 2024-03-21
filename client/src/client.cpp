@@ -179,391 +179,6 @@ void Client::onServerMessage(uint8_t headCode, const uint8_t *buf, size_t bufSiz
     raii_timer stTimer(&(m_clientMonitor.SMProcMonitorList[headCode].procTick));
 
     switch(headCode){
-        case SM_LOGINOK:
-            {
-                if(auto proc = (ProcessLogin *)(ProcessValid(PROCESSID_LOGIN))){
-                    proc->net_LOGINOK(buf, bufSize);
-                }
-                break;
-            }
-        case SM_LOGINERROR:
-            {
-                if(auto proc = (ProcessLogin *)(ProcessValid(PROCESSID_LOGIN))){
-                    proc->net_LOGINERROR(buf, bufSize);
-                }
-                break;
-            }
-        case SM_QUERYCHAROK:
-            {
-                if(auto proc = (ProcessSelectChar *)(ProcessValid(PROCESSID_SELECTCHAR))){
-                    proc->net_QUERYCHAROK(buf, bufSize);
-                }
-                break;
-            }
-        case SM_QUERYCHARERROR:
-            {
-                if(auto proc = (ProcessSelectChar *)(ProcessValid(PROCESSID_SELECTCHAR))){
-                    proc->net_QUERYCHARERROR(buf, bufSize);
-                }
-                break;
-            }
-        case SM_DELETECHAROK:
-            {
-                if(auto proc = (ProcessSelectChar *)(ProcessValid(PROCESSID_SELECTCHAR))){
-                    proc->net_DELETECHAROK(buf, bufSize);
-                }
-                break;
-            }
-        case SM_DELETECHARERROR:
-            {
-                if(auto proc = (ProcessSelectChar *)(ProcessValid(PROCESSID_SELECTCHAR))){
-                    proc->net_DELETECHARERROR(buf, bufSize);
-                }
-                break;
-            }
-        case SM_CREATECHAROK:
-            {
-                if(auto proc = (ProcessCreateChar *)(ProcessValid(PROCESSID_CREATECHAR))){
-                    proc->net_CREATECHAROK(buf, bufSize);
-                }
-                break;
-            }
-        case SM_CREATECHARERROR:
-            {
-                if(auto proc = (ProcessCreateChar *)(ProcessValid(PROCESSID_CREATECHAR))){
-                    proc->net_CREATECHARERROR(buf, bufSize);
-                }
-                break;
-            }
-        case SM_ONLINEOK:
-            {
-                if(auto proc = (ProcessSelectChar *)(ProcessValid(PROCESSID_SELECTCHAR))){
-                    proc->net_ONLINEOK(buf, bufSize);
-                }
-                break;
-            }
-        case SM_ONLINEERROR:
-            {
-                if(auto proc = (ProcessSelectChar *)(ProcessValid(PROCESSID_SELECTCHAR))){
-                    proc->net_ONLINEERROR(buf, bufSize);
-                }
-                break;
-            }
-        case SM_STARTGAMESCENE:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_STARTGAMESCENE(buf, bufSize);
-                }
-                break;
-            }
-        case SM_CREATEACCOUNTOK:
-            {
-                if(auto proc = (ProcessCreateAccount *)(ProcessValid(PROCESSID_CREATEACCOUNT))){
-                    proc->net_CREATEACCOUNTOK(buf, bufSize);
-                }
-                break;
-            }
-        case SM_CREATEACCOUNTERROR:
-            {
-                if(auto proc = (ProcessCreateAccount *)(ProcessValid(PROCESSID_CREATEACCOUNT))){
-                    proc->net_CREATEACCOUNTERROR(buf, bufSize);
-                }
-                break;
-            }
-        case SM_CHANGEPASSWORDOK:
-            {
-                if(auto proc = (ProcessChangePassword *)(ProcessValid(PROCESSID_CHANGEPASSWORD))){
-                    proc->net_CHANGEPASSWORDOK(buf, bufSize);
-                }
-                break;
-            }
-        case SM_CHANGEPASSWORDERROR:
-            {
-                if(auto proc = (ProcessChangePassword *)(ProcessValid(PROCESSID_CHANGEPASSWORD))){
-                    proc->net_CHANGEPASSWORDERROR(buf, bufSize);
-                }
-                break;
-            }
-        case SM_BUFFIDLIST:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_BUFFIDLIST(buf, bufSize);
-                }
-                break;
-            }
-        case SM_HEALTH:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_HEALTH(buf, bufSize);
-                }
-                break;
-            }
-        case SM_NEXTSTRIKE:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_NEXTSTRIKE(buf, bufSize);
-                }
-                break;
-            }
-        case SM_DEADFADEOUT:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_DEADFADEOUT(buf, bufSize);
-                }
-                break;
-            }
-        case SM_NOTIFYDEAD:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_NOTIFYDEAD(buf, bufSize);
-                }
-                break;
-            }
-        case SM_EXP:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_EXP(buf, bufSize);
-                }
-                break;
-            }
-        case SM_BUFF:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_BUFF(buf, bufSize);
-                }
-                break;
-            }
-        case SM_MISS:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_MISS(buf, bufSize);
-                }
-                break;
-            }
-        case SM_GOLD:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_GOLD(buf, bufSize);
-                }
-                break;
-            }
-        case SM_INVOPCOST:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_INVOPCOST(buf, bufSize);
-                }
-                break;
-            }
-        case SM_STRIKEGRID:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_STRIKEGRID(buf, bufSize);
-                }
-                break;
-            }
-        case SM_PLAYERWLDESP:
-            {
-                if(auto runPtr = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    runPtr->net_PLAYERWLDESP(buf, bufSize);
-                }
-                break;
-            }
-        case SM_CASTMAGIC:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_CASTMAGIC(buf, bufSize);
-                }
-                break;
-            }
-        case SM_NPCXMLLAYOUT:
-            {
-                if(auto p = processRun(); p){
-                    p->net_NPCXMLLAYOUT(buf, bufSize);
-                }
-                break;
-            }
-        case SM_NPCSELL:
-            {
-                if(auto p = processRun(); p){
-                    p->net_NPCSELL(buf, bufSize);
-                }
-                break;
-            }
-        case SM_STARTINVOP:
-            {
-                if(auto p = processRun(); p){
-                    p->net_STARTINVOP(buf, bufSize);
-                }
-                break;
-            }
-        case SM_STARTINPUT:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_STARTINPUT(buf, bufSize);
-                }
-                break;
-            }
-        case SM_TEXT:
-            {
-                if(auto p = processRun(); p){
-                    p->net_TEXT(buf, bufSize);
-                }
-                break;
-            }
-        case SM_SHOWSECUREDITEMLIST:
-            {
-                if(auto p = processRun(); p){
-                    p->net_SHOWSECUREDITEMLIST(buf, bufSize);
-                }
-                break;
-            }
-        case SM_PLAYERNAME:
-            {
-                if(auto p = processRun(); p){
-                    p->net_PLAYERNAME(buf, bufSize);
-                }
-                break;
-            }
-        case SM_BUYSUCCEED:
-            {
-                if(auto p = processRun(); p){
-                    p->net_BUYSUCCEED(buf, bufSize);
-                }
-                break;
-            }
-        case SM_BUYERROR:
-            {
-                if(auto p = processRun(); p){
-                    p->net_BUYERROR(buf, bufSize);
-                }
-                break;
-            }
-        case SM_TEAMCANDIDATE:
-            {
-                if(auto p = processRun(); p){
-                    p->net_TEAMCANDIDATE(buf, bufSize);
-                }
-                break;
-            }
-        case SM_TEAMMEMBERLIST:
-            {
-                if(auto p = processRun(); p){
-                    p->net_TEAMMEMBERLIST(buf, bufSize);
-                }
-                break;
-            }
-        case SM_GROUNDITEMIDLIST:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_GROUNDITEMIDLIST(buf, bufSize);
-                }
-                break;
-            }
-        case SM_GROUNDFIREWALLLIST:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_GROUNDFIREWALLLIST(buf, bufSize);
-                }
-                break;
-            }
-        case SM_PICKUPERROR:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_PICKUPERROR(buf, bufSize);
-                }
-                break;
-            }
-        case SM_PING:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_PING(buf, bufSize);
-                }
-                break;
-            }
-        case SM_SELLITEMLIST:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_SELLITEMLIST(buf, bufSize);
-                }
-                break;
-            }
-        case SM_PLAYERCONFIG:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_PLAYERCONFIG(buf, bufSize);
-                }
-                break;
-            }
-        case SM_FRIENDLIST:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_FRIENDLIST(buf, bufSize);
-                }
-                break;
-            }
-        case SM_LEARNEDMAGICLIST:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_LEARNEDMAGICLIST(buf, bufSize);
-                }
-                break;
-            }
-        case SM_CORECORD:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_CORECORD(buf, bufSize);
-                }
-                break;
-            }
-        case SM_ACTION:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_ACTION(buf, bufSize);
-                }
-                break;
-            }
-        case SM_UPDATEITEM:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_UPDATEITEM(buf, bufSize);
-                }
-                break;
-            }
-        case SM_INVENTORY:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_INVENTORY(buf, bufSize);
-                }
-                break;
-            }
-        case SM_BELT:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_BELT(buf, bufSize);
-                }
-                break;
-            }
-        case SM_REMOVEITEM:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_REMOVEITEM(buf, bufSize);
-                }
-                break;
-            }
-        case SM_REMOVESECUREDITEM:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_REMOVESECUREDITEM(buf, bufSize);
-                }
-                break;
-            }
-        case SM_OFFLINE:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_OFFLINE(buf, bufSize);
-                }
-                break;
-            }
         case SM_BUILDVERSION:
             {
                 if(!g_clientArgParser->disableVersionCheck){
@@ -573,79 +188,85 @@ void Client::onServerMessage(uint8_t headCode, const uint8_t *buf, size_t bufSiz
                 }
                 break;
             }
-        case SM_EQUIPWEAR:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_EQUIPWEAR(buf, bufSize);
-                }
-                break;
-            }
-        case SM_EQUIPWEARERROR:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_EQUIPWEARERROR(buf, bufSize);
-                }
-                break;
-            }
-        case SM_GRABWEAR:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_GRABWEAR(buf, bufSize);
-                }
-                break;
-            }
-        case SM_GRABWEARERROR:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_GRABWEARERROR(buf, bufSize);
-                }
-                break;
-            }
-        case SM_EQUIPBELT:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_EQUIPBELT(buf, bufSize);
-                }
-                break;
-            }
-        case SM_EQUIPBELTERROR:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_EQUIPBELTERROR(buf, bufSize);
-                }
-                break;
-            }
-        case SM_GRABBELT:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_GRABBELT(buf, bufSize);
-                }
-                break;
-            }
-        case SM_GRABBELTERROR:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_GRABBELTERROR(buf, bufSize);
-                }
-                break;
-            }
-        case SM_QUESTDESPUPDATE:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_QUESTDESPUPDATE(buf, bufSize);
-                }
-                break;
-            }
-        case SM_QUESTDESPLIST:
-            {
-                if(auto proc = (ProcessRun *)(ProcessValid(PROCESSID_RUN))){
-                    proc->net_QUESTDESPLIST(buf, bufSize);
-                }
-                break;
-            }
+
+#define _INSTALL_SM_HANDLER(ProcessType, smType) case smType: {if(auto proc = getProcess<ProcessType>()){ proc->on_##smType(buf, bufSize); } break; }
+
+        _INSTALL_SM_HANDLER(ProcessLogin, SM_LOGINERROR)
+        _INSTALL_SM_HANDLER(ProcessLogin, SM_LOGINOK)
+
+        _INSTALL_SM_HANDLER(ProcessCreateChar, SM_CREATECHARERROR)
+        _INSTALL_SM_HANDLER(ProcessCreateChar, SM_CREATECHAROK)
+
+        _INSTALL_SM_HANDLER(ProcessCreateAccount, SM_CREATEACCOUNTOK)
+        _INSTALL_SM_HANDLER(ProcessCreateAccount, SM_CREATEACCOUNTERROR)
+
+        _INSTALL_SM_HANDLER(ProcessChangePassword, SM_CHANGEPASSWORDERROR)
+        _INSTALL_SM_HANDLER(ProcessChangePassword, SM_CHANGEPASSWORDOK)
+
+        _INSTALL_SM_HANDLER(ProcessSelectChar, SM_DELETECHARERROR)
+        _INSTALL_SM_HANDLER(ProcessSelectChar, SM_DELETECHAROK)
+        _INSTALL_SM_HANDLER(ProcessSelectChar, SM_ONLINEERROR)
+        _INSTALL_SM_HANDLER(ProcessSelectChar, SM_ONLINEOK)
+        _INSTALL_SM_HANDLER(ProcessSelectChar, SM_QUERYCHARERROR)
+        _INSTALL_SM_HANDLER(ProcessSelectChar, SM_QUERYCHAROK)
+
+        _INSTALL_SM_HANDLER(ProcessRun, SM_ACTION)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_BELT)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_BUFF)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_BUFFIDLIST)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_BUYERROR)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_BUYSUCCEED)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_CASTMAGIC)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_CORECORD)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_DEADFADEOUT)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_EQUIPBELT)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_EQUIPBELTERROR)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_EQUIPWEAR)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_EQUIPWEARERROR)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_EXP)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_FRIENDLIST)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_GOLD)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_GRABBELT)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_GRABBELTERROR)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_GRABWEAR)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_GRABWEARERROR)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_GROUNDFIREWALLLIST)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_GROUNDITEMIDLIST)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_HEALTH)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_INVENTORY)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_INVOPCOST)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_LEARNEDMAGICLIST)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_MISS)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_NEXTSTRIKE)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_NOTIFYDEAD)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_NPCSELL)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_NPCXMLLAYOUT)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_OFFLINE)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_PICKUPERROR)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_PING)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_PLAYERCONFIG)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_PLAYERNAME)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_PLAYERWLDESP)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_QUESTDESPLIST)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_QUESTDESPUPDATE)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_REMOVEITEM)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_REMOVESECUREDITEM)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_SELLITEMLIST)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_SHOWSECUREDITEMLIST)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_STARTGAMESCENE)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_STARTINPUT)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_STARTINVOP)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_STRIKEGRID)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_TEAMCANDIDATE)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_TEAMMEMBERLIST)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_TEXT)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_UPDATEITEM)
+
+#undef _INSTALL_SM_HANDLER
+
         default:
             {
-                break;
+                throw fflerror("no handler registered for server message %d", to_d(headCode));
             }
     }
 }

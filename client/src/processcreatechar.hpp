@@ -72,8 +72,8 @@ class ProcessCreateChar: public Process
         void setGUIActive(bool);
 
     public:
-        void net_CREATECHAROK   (const uint8_t *, size_t);
-        void net_CREATECHARERROR(const uint8_t *, size_t);
+        void on_SM_CREATECHAROK   (const uint8_t *, size_t);
+        void on_SM_CREATECHARERROR(const uint8_t *, size_t);
 
     private:
         void playMagicSoundEffect();

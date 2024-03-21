@@ -69,6 +69,6 @@ class ProcessCreateAccount: public Process
         void setInfoStr(const char8_t *, uint32_t);
 
     public:
-        void net_CREATEACCOUNTOK   (const uint8_t *, size_t);
-        void net_CREATEACCOUNTERROR(const uint8_t *, size_t);
+        void on_SM_CREATEACCOUNTOK   (const uint8_t *, size_t);
+        void on_SM_CREATEACCOUNTERROR(const uint8_t *, size_t);
 };

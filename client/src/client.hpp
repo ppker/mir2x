@@ -118,17 +118,9 @@ class Client final
         }
 
     public:
-        ProcessRun *processRun()
+        template<typename T> auto getProcess() const
         {
-            return ProcessValid(PROCESSID_RUN) ? (ProcessRun *)(m_currentProcess.get()) : nullptr;
-        }
-
-        ProcessRun *processRunEx()
-        {
-            if(auto p = processRun()){
-                return p;
-            }
-            throw fflerror("not in process run");
+            return m_currentProcess ? dynamic_cast<T *>(m_currentProcess.get()) : nullptr;
         }
 
     public:

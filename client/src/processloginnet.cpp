@@ -3,12 +3,12 @@
 #include "processlogin.hpp"
 
 extern Client *g_client;
-void ProcessLogin::net_LOGINOK(const uint8_t *, size_t)
+void ProcessLogin::on_SM_LOGINOK(const uint8_t *, size_t)
 {
     g_client->requestProcess(PROCESSID_SELECTCHAR);
 }
 
-void ProcessLogin::net_LOGINERROR(const uint8_t *buf, size_t)
+void ProcessLogin::on_SM_LOGINERROR(const uint8_t *buf, size_t)
 {
     const auto smLE = ServerMsg::conv<SMLoginError>(buf);
     switch(smLE.error){

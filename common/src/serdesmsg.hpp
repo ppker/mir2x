@@ -628,6 +628,8 @@ struct SDPlayerConfig
 using SDFriendList = std::vector<uint32_t>;
 struct SDChatMessage
 {
+    uint64_t id = 0;
+
     uint32_t from = 0;
     uint32_t to   = 0;
 
@@ -636,9 +638,11 @@ struct SDChatMessage
 
     template<typename Archive> void serialize(Archive & ar)
     {
-        ar(from, to, timestamp, message);
+        ar(id, from, to, timestamp, message);
     }
 };
+
+using SDChatMessageList = std::vector<SDChatMessage>;
 
 struct SDNPCEvent
 {

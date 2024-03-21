@@ -14,6 +14,15 @@ class FriendChatBoard: public Widget
         static constexpr int UIPage_FRIEND  = 2;
 
     private:
+        struct FriendMessage
+        {
+            uint32_t dbid   = 0;
+            size_t   unread = 0;
+
+            std::vector<SDChatMessage> list;
+        };
+
+    private:
         int m_uiPage = UIPage_MESSAGE;
 
     private:
@@ -33,6 +42,9 @@ class FriendChatBoard: public Widget
     private:
         TritexButton m_close;
 
+    private:
+        std::list<FriendMessage> m_friendMessageList;
+
     public:
         FriendChatBoard(int, int, int, int, ProcessRun *, Widget * = nullptr, bool = false);
 
@@ -43,5 +55,6 @@ class FriendChatBoard: public Widget
         bool processEvent(const SDL_Event &, bool) override;
 
     public:
+        void addMessage(const SDChatMessage &);
         void setFriendList(const SDFriendList &);
 };

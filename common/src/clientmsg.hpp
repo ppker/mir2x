@@ -47,6 +47,7 @@ enum CMType: uint8_t
     CM_REQUESTGRABBELT,
     CM_REQUESTJOINTEAM,
     CM_REQUESTLEAVETEAM,
+    CM_REQUESTLATESTCHATMESSAGE,
     CM_END,
 };
 
@@ -236,6 +237,15 @@ struct CMRequestLeaveTeam
     uint64_t uid;
 };
 
+struct CMRequestLatestChatMessage
+{
+    uint32_t dbidList[32];
+
+    uint32_t limitCount  : 30;
+    uint32_t includeSend :  1;
+    uint32_t includeRecv :  1;
+};
+
 #pragma pack(pop)
 
 // I was using class name ClientMessage
@@ -294,6 +304,7 @@ class ClientMsg final: public MsgBase
                 _add_client_msg_type_case(CM_REQUESTGRABBELT,            1, sizeof(CMRequestGrabBelt)           )
                 _add_client_msg_type_case(CM_REQUESTJOINTEAM,            1, sizeof(CMRequestJoinTeam)           )
                 _add_client_msg_type_case(CM_REQUESTLEAVETEAM,           1, sizeof(CMRequestLeaveTeam)          )
+                _add_client_msg_type_case(CM_REQUESTLATESTCHATMESSAGE,   1, sizeof(CMRequestLatestChatMessage)  )
 #undef _add_client_msg_type_case
             };
 
@@ -306,38 +317,7 @@ class ClientMsg final: public MsgBase
     public:
         template<typename T> static T conv(const uint8_t *buf, size_t bufLen = 0)
         {
-            static_assert(false
-                    || std::is_same_v<T, CMPing>
-                    || std::is_same_v<T, CMLogin>
-                    || std::is_same_v<T, CMCreateChar>
-                    || std::is_same_v<T, CMDeleteChar>
-                    || std::is_same_v<T, CMAction>
-                    || std::is_same_v<T, CMQueryCORecord>
-                    || std::is_same_v<T, CMRequestAddExp>
-                    || std::is_same_v<T, CMRequestRetrieveSecuredItem>
-                    || std::is_same_v<T, CMRequestSpaceMove>
-                    || std::is_same_v<T, CMRequestMagicDamage>
-                    || std::is_same_v<T, CMPickUp>
-                    || std::is_same_v<T, CMSetMagicKey>
-                    || std::is_same_v<T, CMQueryUIDBuff>
-                    || std::is_same_v<T, CMQueryPlayerName>
-                    || std::is_same_v<T, CMQueryPlayerWLDesp>
-                    || std::is_same_v<T, CMChangePassword>
-                    || std::is_same_v<T, CMSetRuntimeConfig>
-                    || std::is_same_v<T, CMCreateAccount>
-                    || std::is_same_v<T, CMNPCEvent>
-                    || std::is_same_v<T, CMQuerySellItemList>
-                    || std::is_same_v<T, CMDropItem>
-                    || std::is_same_v<T, CMConsumeItem>
-                    || std::is_same_v<T, CMMakeItem>
-                    || std::is_same_v<T, CMBuy>
-                    || std::is_same_v<T, CMRequestEquipWear>
-                    || std::is_same_v<T, CMRequestGrabWear>
-                    || std::is_same_v<T, CMRequestEquipBelt>
-                    || std::is_same_v<T, CMRequestJoinTeam>
-                    || std::is_same_v<T, CMRequestLeaveTeam>
-                    || std::is_same_v<T, CMRequestGrabBelt>);
-
+            static_assert(std::is_trivially_copyable_v<T>);
             if(bufLen && bufLen != sizeof(T)){
                 throw fflerror("invalid buffer length");
             }

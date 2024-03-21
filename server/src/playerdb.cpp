@@ -499,3 +499,98 @@ void Player::dbLoadFriendList()
         m_sdFriendList.push_back(check_cast<uint32_t, unsigned>(query.getColumn("fld_friend")));
     }
 }
+
+SDChatMessageList Player::dbRetrieveLatestChatMessage(const uint32_t *dbidList, size_t dbidCount, size_t limitPerDBID, bool includeSend, bool includeRecv)
+{
+    fflassert(dbidList);
+    fflassert(dbidCount);
+    fflassert(includeSend || includeRecv);
+
+    std::vector<std::string> queries;
+    for(const auto other: std::span(dbidList, dbidCount)){
+        queries.push_back("select * from tbl_chatmessage where ");
+        if(includeSend){
+            queries.back().append("(fld_from = %llu and fld_to = %llu) ", to_llu(dbid()), to_llu(other));
+        }
+
+        if(includeRecv){
+            queries.back().append(" or (fld_from = %llu and fld_to = %llu) ", to_llu(other), to_llu(dbid()));
+        }
+
+        queries.back().append("order by fld_timestamp desc");
+
+        if(limitPerDBID > 0){
+            queries.back().append(" limit %zu", limitPerDBID);
+        }
+    }
+
+    SDChatMessageList result;
+    auto query = g_dbPod->createQuery(str_join(queries, " union ").c_str());
+
+    while(query.executeStep()){
+        result.push_back(SDChatMessage
+        {
+            .id        = check_cast<uint64_t, unsigned>(query.getColumn("fld_id")),
+            .from      = check_cast<uint32_t, unsigned>(query.getColumn("fld_from")),
+            .to        = check_cast<uint32_t, unsigned>(query.getColumn("fld_to")),
+            .timestamp = check_cast<uint64_t, unsigned>(query.getColumn("fld_timestamp")),
+            .message   = cerealf::deserialize<std::string>(query.getColumn("fld_message")),
+        });
+    }
+    return result;
+}
+
+// std::vector<SDChatMessage> Player::dbRetrieveChatMessageList(const DBRetrieveChatMessageListParams &params)
+// {
+//     std::vector<std::string> conds;
+//
+//     if(params.id > 0){
+//         conds.push_back(str_printf("(fld_id = %llu)", to_llu(params.id)));
+//     }
+//
+//     if(params.from > 0){
+//         conds.push_back(str_printf("(fld_from = %llu)", to_llu(params.from)));
+//     }
+//
+//     if(params.to > 0){
+//         conds.push_back(str_printf("(fld_to = %llu)", to_llu(params.to)));
+//     }
+//
+//     if(params.dateFrom > 0){
+//         conds.push_back(str_printf("(fld_timestamp >= %llu)", to_llu(params.dateFrom)));
+//     }
+//
+//     if(params.dateTo > 0){
+//         if(params.dateFrom > params.dateTo){
+//             throw fflerror("invalid date range, from %llu, to %llu", to_llu(params.dateFrom), to_llu(params.dateTo));
+//         }
+//         conds.push_back(str_printf("(fld_timestamp <= %llu)", to_llu(params.dateTo)));
+//     }
+//
+//     std::string query = "select * from tbl_chatmessage";
+//     if(!conds.empty()){
+//         query.append(" where ");
+//         query.append(str_join(conds, " and "));
+//     }
+//
+//     if(params.limitCount > 0){
+//         query.append(str_printf(" limit %llu"), to_llu(params.limitCount));
+//     }
+//
+//     query.append("order by fld_timestamp");
+//
+//     std::vector<SDChatMessage> result;
+//     auto query = g_dbPod->createQuery(query.c_str());
+//
+//     while(query.executeStep()){
+//         m_sdFriendList.push_back(SDChatMessage
+//         {
+//             .id        = check_cast<uint64_t, unsigned long>(query.getColumn("fld_id")),
+//             .from      = check_cast<uint32_t, unsigned long>(query.getColumn("fld_from")),
+//             .to        = check_cast<uint32_t, unsigned long>(query.getColumn("fld_to")),
+//             .timestamp = check_cast<uint64_t, unsigned long>(query.getColumn("fld_timestamp")),
+//             .message   = cerealf::deserialize(query.getColumn("fld_message")),
+//         });
+//     }
+//     return result;
+// }

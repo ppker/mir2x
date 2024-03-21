@@ -28,7 +28,7 @@ extern IMEBoard *g_imeBoard;
 extern SDLDevice *g_sdlDevice;
 extern ClientArgParser *g_clientArgParser;
 
-void ProcessRun::net_STARTGAMESCENE(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_STARTGAMESCENE(const uint8_t *buf, size_t bufSize)
 {
     const auto sdSGS = cerealf::deserialize<SDStartGameScene>(buf, bufSize);
 
@@ -67,7 +67,7 @@ void ProcessRun::net_STARTGAMESCENE(const uint8_t *buf, size_t bufSize)
     }
 }
 
-void ProcessRun::net_PLAYERCONFIG(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_PLAYERCONFIG(const uint8_t *buf, size_t bufSize)
 {
     const auto sdPC = cerealf::deserialize<SDPlayerConfig>(buf, bufSize);
     dynamic_cast<RuntimeConfigBoard *>(getWidget("RuntimeConfigBoard"))->setConfig(sdPC.runtimeConfig);
@@ -77,13 +77,20 @@ void ProcessRun::net_PLAYERCONFIG(const uint8_t *buf, size_t bufSize)
     }
 }
 
-void ProcessRun::net_FRIENDLIST(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_FRIENDLIST(const uint8_t *buf, size_t bufSize)
 {
     const auto sdFL = cerealf::deserialize<SDFriendList>(buf, bufSize);
     dynamic_cast<FriendChatBoard *>(getWidget("FriendChatBoard"))->setFriendList(sdFL);
 }
 
-void ProcessRun::net_LEARNEDMAGICLIST(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_CHATMESSAGELIST(const uint8_t *buf, size_t bufSize)
+{
+    for(const auto &message: cerealf::deserialize<SDChatMessageList>(buf, bufSize)){
+        dynamic_cast<FriendChatBoard *>(getWidget("FriendChatBoard"))->addMessage(message);
+    }
+}
+
+void ProcessRun::on_SM_LEARNEDMAGICLIST(const uint8_t *buf, size_t bufSize)
 {
     const auto sdLML = cerealf::deserialize<SDLearnedMagicList>(buf, bufSize);
     for(const auto &magic: sdLML.magicList){
@@ -91,14 +98,14 @@ void ProcessRun::net_LEARNEDMAGICLIST(const uint8_t *buf, size_t bufSize)
     }
 }
 
-void ProcessRun::net_SELLITEMLIST(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_SELLITEMLIST(const uint8_t *buf, size_t bufSize)
 {
     auto sdSIL = cerealf::deserialize<SDSellItemList>(buf, bufSize);
     auto purchaseBoardPtr = dynamic_cast<PurchaseBoard *>(getGUIManager()->getWidget("PurchaseBoard"));
     purchaseBoardPtr->setSellItemList(std::move(sdSIL));
 }
 
-void ProcessRun::net_ACTION(const uint8_t *bufPtr, size_t)
+void ProcessRun::on_SM_ACTION(const uint8_t *bufPtr, size_t)
 {
     SMAction smA;
     std::memcpy(&smA, bufPtr, sizeof(smA));
@@ -244,7 +251,7 @@ void ProcessRun::net_ACTION(const uint8_t *bufPtr, size_t)
     }
 }
 
-void ProcessRun::net_CORECORD(const uint8_t *bufPtr, size_t)
+void ProcessRun::on_SM_CORECORD(const uint8_t *bufPtr, size_t)
 {
     const auto smCOR = ServerMsg::conv<SMCORecord>(bufPtr);
     if(smCOR.mapID != mapID()){
@@ -277,7 +284,7 @@ void ProcessRun::net_CORECORD(const uint8_t *bufPtr, size_t)
     }
 }
 
-void ProcessRun::net_HEALTH(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_HEALTH(const uint8_t *buf, size_t bufSize)
 {
     auto sdH = cerealf::deserialize<SDHealth>(buf, bufSize);
     if(auto p = findUID(sdH.uid)){
@@ -285,7 +292,7 @@ void ProcessRun::net_HEALTH(const uint8_t *buf, size_t bufSize)
     }
 }
 
-void ProcessRun::net_BUFFIDLIST(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_BUFFIDLIST(const uint8_t *buf, size_t bufSize)
 {
     auto sdBIDL = cerealf::deserialize<SDBuffIDList>(buf, bufSize);
     if(auto p = findUID(sdBIDL.uid)){
@@ -293,12 +300,12 @@ void ProcessRun::net_BUFFIDLIST(const uint8_t *buf, size_t bufSize)
     }
 }
 
-void ProcessRun::net_NEXTSTRIKE(const uint8_t *, size_t)
+void ProcessRun::on_SM_NEXTSTRIKE(const uint8_t *, size_t)
 {
     getMyHero()->setNextStrike(true);
 }
 
-void ProcessRun::net_NOTIFYDEAD(const uint8_t *bufPtr, size_t)
+void ProcessRun::on_SM_NOTIFYDEAD(const uint8_t *bufPtr, size_t)
 {
     SMNotifyDead stSMND;
     std::memcpy(&stSMND, bufPtr, sizeof(stSMND));
@@ -312,7 +319,7 @@ void ProcessRun::net_NOTIFYDEAD(const uint8_t *bufPtr, size_t)
     }
 }
 
-void ProcessRun::net_DEADFADEOUT(const uint8_t *bufPtr, size_t)
+void ProcessRun::on_SM_DEADFADEOUT(const uint8_t *bufPtr, size_t)
 {
     SMDeadFadeOut stSMDFO;
     std::memcpy(&stSMDFO, bufPtr, sizeof(stSMDFO));
@@ -324,7 +331,7 @@ void ProcessRun::net_DEADFADEOUT(const uint8_t *bufPtr, size_t)
     }
 }
 
-void ProcessRun::net_EXP(const uint8_t *buf, size_t)
+void ProcessRun::on_SM_EXP(const uint8_t *buf, size_t)
 {
     const auto smExp = ServerMsg::conv<SMExp>(buf);
     const uint32_t currExp = getMyHero()->getExp();
@@ -335,7 +342,7 @@ void ProcessRun::net_EXP(const uint8_t *buf, size_t)
     }
 }
 
-void ProcessRun::net_BUFF(const uint8_t *buf, size_t)
+void ProcessRun::on_SM_BUFF(const uint8_t *buf, size_t)
 {
     const auto smB = ServerMsg::conv<SMBuff>(buf);
     if(auto coPtr = findUID(smB.uid)){
@@ -343,7 +350,7 @@ void ProcessRun::net_BUFF(const uint8_t *buf, size_t)
     }
 }
 
-void ProcessRun::net_MISS(const uint8_t *bufPtr, size_t)
+void ProcessRun::on_SM_MISS(const uint8_t *bufPtr, size_t)
 {
     SMMiss stSMM;
     std::memcpy(&stSMM, bufPtr, sizeof(stSMM));
@@ -355,7 +362,7 @@ void ProcessRun::net_MISS(const uint8_t *bufPtr, size_t)
     }
 }
 
-void ProcessRun::net_PING(const uint8_t *bufPtr, size_t)
+void ProcessRun::on_SM_PING(const uint8_t *bufPtr, size_t)
 {
     if(m_lastPingDone){
         throw fflerror("received echo while no ping has been sent to server");
@@ -372,7 +379,7 @@ void ProcessRun::net_PING(const uint8_t *bufPtr, size_t)
     addCBLog(CBLOG_SYS, u8"延迟%llums", to_llu(currTick - smP.Tick));
 }
 
-void ProcessRun::net_BUYERROR(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_BUYERROR(const uint8_t *buf, size_t bufSize)
 {
     const auto smBE = ServerMsg::conv<SMBuyError>(buf, bufSize);
     switch(smBE.error){
@@ -389,13 +396,13 @@ void ProcessRun::net_BUYERROR(const uint8_t *buf, size_t bufSize)
     }
 }
 
-void ProcessRun::net_BUYSUCCEED(const uint8_t *buf, size_t)
+void ProcessRun::on_SM_BUYSUCCEED(const uint8_t *buf, size_t)
 {
     const auto smBS = ServerMsg::conv<SMBuySucceed>(buf);
     dynamic_cast<PurchaseBoard *>(getWidget("PurchaseBoard"))->onBuySucceed(smBS.npcUID, smBS.itemID, smBS.seqID);
 }
 
-void ProcessRun::net_GROUNDITEMIDLIST(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_GROUNDITEMIDLIST(const uint8_t *buf, size_t bufSize)
 {
     const auto sdGIIDL = cerealf::deserialize<SDGroundItemIDList>(buf, bufSize);
     if(sdGIIDL.mapID != m_mapID){
@@ -417,7 +424,7 @@ void ProcessRun::net_GROUNDITEMIDLIST(const uint8_t *buf, size_t bufSize)
     }
 }
 
-void ProcessRun::net_GROUNDFIREWALLLIST(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_GROUNDFIREWALLLIST(const uint8_t *buf, size_t bufSize)
 {
     const auto sdGFWL = cerealf::deserialize<SDGroundFireWallList>(buf, bufSize);
     if(sdGFWL.mapID != m_mapID){
@@ -477,7 +484,7 @@ void ProcessRun::net_GROUNDFIREWALLLIST(const uint8_t *buf, size_t bufSize)
     }
 }
 
-void ProcessRun::net_CASTMAGIC(const uint8_t *bufPtr, size_t)
+void ProcessRun::on_SM_CASTMAGIC(const uint8_t *bufPtr, size_t)
 {
     const auto smCM = ServerMsg::conv<SMCastMagic>(bufPtr);
     const auto &mr = DBCOM_MAGICRECORD(smCM.Magic);
@@ -539,7 +546,7 @@ void ProcessRun::net_CASTMAGIC(const uint8_t *bufPtr, size_t)
     }
 }
 
-void ProcessRun::net_OFFLINE(const uint8_t *bufPtr, size_t)
+void ProcessRun::on_SM_OFFLINE(const uint8_t *bufPtr, size_t)
 {
     const auto smO = ServerMsg::conv<SMOffline>(bufPtr);
     if(smO.mapID == mapID()){
@@ -550,7 +557,7 @@ void ProcessRun::net_OFFLINE(const uint8_t *bufPtr, size_t)
     }
 }
 
-void ProcessRun::net_PICKUPERROR(const uint8_t *buf, size_t)
+void ProcessRun::on_SM_PICKUPERROR(const uint8_t *buf, size_t)
 {
     const auto smPUE = ServerMsg::conv<SMPickUpError>(buf);
     if(smPUE.failedItemID){
@@ -566,7 +573,7 @@ void ProcessRun::net_PICKUPERROR(const uint8_t *buf, size_t)
     }
 }
 
-void ProcessRun::net_STARTINVOP(const uint8_t *buf, size_t size)
+void ProcessRun::on_SM_STARTINVOP(const uint8_t *buf, size_t size)
 {
     fflassert(buf);
     fflassert(size > 0);
@@ -577,7 +584,7 @@ void ProcessRun::net_STARTINVOP(const uint8_t *buf, size_t size)
     invBoardPtr->startInvOp(cerealf::deserialize<SDStartInvOp>(buf, size));
 }
 
-void ProcessRun::net_GOLD(const uint8_t *buf, size_t)
+void ProcessRun::on_SM_GOLD(const uint8_t *buf, size_t)
 {
     auto myHeroPtr = getMyHero();
     const int lastGold = to_d(myHeroPtr->getGold());
@@ -589,13 +596,13 @@ void ProcessRun::net_GOLD(const uint8_t *buf, size_t)
     }
 }
 
-void ProcessRun::net_INVOPCOST(const uint8_t *buf, size_t)
+void ProcessRun::on_SM_INVOPCOST(const uint8_t *buf, size_t)
 {
     const auto smIOPC = ServerMsg::conv<SMInvOpCost>(buf);
     dynamic_cast<InventoryBoard *>(getWidget("InventoryBoard"))->setInvOpCost(smIOPC.invOp, smIOPC.itemID, smIOPC.seqID, smIOPC.cost);
 }
 
-void ProcessRun::net_NPCXMLLAYOUT(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_NPCXMLLAYOUT(const uint8_t *buf, size_t bufSize)
 {
     const auto sdNPCXMLL = cerealf::deserialize<SDNPCXMLLayout>(buf, bufSize);
     auto npcChatBoardPtr  = dynamic_cast<NPCChatBoard  *>(getGUIManager()->getWidget("NPCChatBoard"));
@@ -606,7 +613,7 @@ void ProcessRun::net_NPCXMLLAYOUT(const uint8_t *buf, size_t bufSize)
     purchaseBoardPtr->setShow(false);
 }
 
-void ProcessRun::net_NPCSELL(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_NPCSELL(const uint8_t *buf, size_t bufSize)
 {
     auto sdNPCS = cerealf::deserialize<SDNPCSell>(buf, bufSize);
     auto purchaseBoardPtr = dynamic_cast<PurchaseBoard *>(getGUIManager()->getWidget("PurchaseBoard"));
@@ -623,12 +630,12 @@ void ProcessRun::net_NPCSELL(const uint8_t *buf, size_t bufSize)
     purchaseBoardPtr->setShow(true);
 }
 
-void ProcessRun::net_TEXT(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_TEXT(const uint8_t *buf, size_t bufSize)
 {
     addCBLog(CBLOG_SYS, u8"%s", std::string(buf, buf + bufSize).c_str());
 }
 
-void ProcessRun::net_PLAYERWLDESP(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_PLAYERWLDESP(const uint8_t *buf, size_t bufSize)
 {
     auto sdUIDWLD = cerealf::deserialize<SDUIDWLDesp>(buf, bufSize);
     if(uidf::getUIDType(sdUIDWLD.uid) != UID_PLY){
@@ -640,7 +647,7 @@ void ProcessRun::net_PLAYERWLDESP(const uint8_t *buf, size_t bufSize)
     }
 }
 
-void ProcessRun::net_PLAYERNAME(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_PLAYERNAME(const uint8_t *buf, size_t bufSize)
 {
     const auto sdPN = cerealf::deserialize<SDPlayerName>(buf, bufSize);
     if(uidf::isPlayer(sdPN.uid)){
@@ -650,13 +657,13 @@ void ProcessRun::net_PLAYERNAME(const uint8_t *buf, size_t bufSize)
     }
 }
 
-void ProcessRun::net_STRIKEGRID(const uint8_t *buf, size_t)
+void ProcessRun::on_SM_STRIKEGRID(const uint8_t *buf, size_t)
 {
     const auto smSG = ServerMsg::conv<SMStrikeGrid>(buf);
     m_strikeGridList[{smSG.x, smSG.y}] = hres_tstamp().to_msec();
 }
 
-void ProcessRun::net_UPDATEITEM(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_UPDATEITEM(const uint8_t *buf, size_t bufSize)
 {
     const auto sdUI = cerealf::deserialize<SDUpdateItem>(buf, bufSize);
     const auto &ir = DBCOM_ITEMRECORD(sdUI.item.itemID);
@@ -679,29 +686,29 @@ void ProcessRun::net_UPDATEITEM(const uint8_t *buf, size_t bufSize)
     }
 }
 
-void ProcessRun::net_REMOVEITEM(const uint8_t *buf, size_t)
+void ProcessRun::on_SM_REMOVEITEM(const uint8_t *buf, size_t)
 {
     const auto smRI = ServerMsg::conv<SMRemoveItem>(buf);
     dynamic_cast<InventoryBoard *>(getWidget("InventoryBoard"))->removeItem(smRI.itemID, smRI.seqID, smRI.count);
 }
 
-void ProcessRun::net_REMOVESECUREDITEM(const uint8_t *buf, size_t)
+void ProcessRun::on_SM_REMOVESECUREDITEM(const uint8_t *buf, size_t)
 {
     const auto smRI = ServerMsg::conv<SMRemoveSecuredItem>(buf);
     dynamic_cast<SecuredItemListBoard *>(getWidget("SecuredItemListBoard"))->removeItem(smRI.itemID, smRI.seqID);
 }
 
-void ProcessRun::net_INVENTORY(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_INVENTORY(const uint8_t *buf, size_t bufSize)
 {
     getMyHero()->getInvPack().setInventory(cerealf::deserialize<SDInventory>(buf, bufSize));
 }
 
-void ProcessRun::net_BELT(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_BELT(const uint8_t *buf, size_t bufSize)
 {
     getMyHero()->setBelt(cerealf::deserialize<SDBelt>(buf, bufSize));
 }
 
-void ProcessRun::net_EQUIPWEAR(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_EQUIPWEAR(const uint8_t *buf, size_t bufSize)
 {
     auto sdEW = cerealf::deserialize<SDEquipWear>(buf, bufSize);
     if(uidf::getUIDType(sdEW.uid) != UID_PLY){
@@ -713,7 +720,7 @@ void ProcessRun::net_EQUIPWEAR(const uint8_t *buf, size_t bufSize)
     }
 }
 
-void ProcessRun::net_EQUIPWEARERROR(const uint8_t *buf, size_t)
+void ProcessRun::on_SM_EQUIPWEARERROR(const uint8_t *buf, size_t)
 {
     const auto smEWE = ServerMsg::conv<SMEquipWearError>(buf);
     switch(smEWE.error){
@@ -735,7 +742,7 @@ void ProcessRun::net_EQUIPWEARERROR(const uint8_t *buf, size_t)
     }
 }
 
-void ProcessRun::net_GRABWEAR(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_GRABWEAR(const uint8_t *buf, size_t bufSize)
 {
     auto sdGW = cerealf::deserialize<SDGrabWear>(buf, bufSize);
     if(!sdGW.item){
@@ -757,7 +764,7 @@ void ProcessRun::net_GRABWEAR(const uint8_t *buf, size_t bufSize)
     invPackRef.setGrabbedItem(std::move(sdGW.item));
 }
 
-void ProcessRun::net_GRABWEARERROR(const uint8_t *buf, size_t)
+void ProcessRun::on_SM_GRABWEARERROR(const uint8_t *buf, size_t)
 {
     const auto smGWE = ServerMsg::conv<SMGrabWearError>(buf);
     switch(smGWE.error){
@@ -774,7 +781,7 @@ void ProcessRun::net_GRABWEARERROR(const uint8_t *buf, size_t)
     }
 }
 
-void ProcessRun::net_EQUIPBELT(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_EQUIPBELT(const uint8_t *buf, size_t bufSize)
 {
     auto sdEB = cerealf::deserialize<SDEquipBelt>(buf, bufSize);
     const auto &ir = DBCOM_ITEMRECORD(sdEB.item.itemID);
@@ -784,7 +791,7 @@ void ProcessRun::net_EQUIPBELT(const uint8_t *buf, size_t bufSize)
     getMyHero()->setBelt(sdEB.slot, std::move(sdEB.item));
 }
 
-void ProcessRun::net_EQUIPBELTERROR(const uint8_t *buf, size_t)
+void ProcessRun::on_SM_EQUIPBELTERROR(const uint8_t *buf, size_t)
 {
     const auto smEBE = ServerMsg::conv<SMEquipBeltError>(buf);
     switch(smEBE.error){
@@ -806,7 +813,7 @@ void ProcessRun::net_EQUIPBELTERROR(const uint8_t *buf, size_t)
     }
 }
 
-void ProcessRun::net_GRABBELT(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_GRABBELT(const uint8_t *buf, size_t bufSize)
 {
     auto sdGB = cerealf::deserialize<SDGrabBelt>(buf, bufSize);
     if(!sdGB.item){
@@ -828,7 +835,7 @@ void ProcessRun::net_GRABBELT(const uint8_t *buf, size_t bufSize)
     invPackRef.setGrabbedItem(std::move(sdGB.item));
 }
 
-void ProcessRun::net_GRABBELTERROR(const uint8_t *buf, size_t)
+void ProcessRun::on_SM_GRABBELTERROR(const uint8_t *buf, size_t)
 {
     const auto smGBE = ServerMsg::conv<SMGrabBeltError>(buf);
     switch(smGBE.error){
@@ -839,7 +846,7 @@ void ProcessRun::net_GRABBELTERROR(const uint8_t *buf, size_t)
     }
 }
 
-void ProcessRun::net_STARTINPUT(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_STARTINPUT(const uint8_t *buf, size_t bufSize)
 {
     const auto sdSI = cerealf::deserialize<SDStartInput>(buf, bufSize);
     auto inputBoardPtr = dynamic_cast<InputStringBoard *>(getWidget("InputStringBoard"));
@@ -851,7 +858,7 @@ void ProcessRun::net_STARTINPUT(const uint8_t *buf, size_t bufSize)
     });
 }
 
-void ProcessRun::net_SHOWSECUREDITEMLIST(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_SHOWSECUREDITEMLIST(const uint8_t *buf, size_t bufSize)
 {
     auto chatBoardPtr = dynamic_cast<NPCChatBoard *>(getWidget("NPCChatBoard"));
     auto itemBoardPtr = dynamic_cast<SecuredItemListBoard *>(getWidget("SecuredItemListBoard"));
@@ -871,22 +878,22 @@ void ProcessRun::net_SHOWSECUREDITEMLIST(const uint8_t *buf, size_t bufSize)
     invBoardPtr->moveAt(DIR_UPRIGHT, g_sdlDevice->getRendererWidth() - 1, 0);
 }
 
-void ProcessRun::net_TEAMCANDIDATE(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_TEAMCANDIDATE(const uint8_t *buf, size_t bufSize)
 {
     dynamic_cast<TeamStateBoard *>(getWidget("TeamStateBoard"))->addTeamCandidate(cerealf::deserialize<SDTeamCandidate>(buf, bufSize));
 }
 
-void ProcessRun::net_TEAMMEMBERLIST(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_TEAMMEMBERLIST(const uint8_t *buf, size_t bufSize)
 {
     dynamic_cast<TeamStateBoard *>(getWidget("TeamStateBoard"))->setTeamMemberList(cerealf::deserialize<SDTeamMemberList>(buf, bufSize));
 }
 
-void ProcessRun::net_QUESTDESPUPDATE(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_QUESTDESPUPDATE(const uint8_t *buf, size_t bufSize)
 {
     dynamic_cast<QuestStateBoard *>(getWidget("QuestStateBoard"))->updateQuestDesp(cerealf::deserialize<SDQuestDespUpdate>(buf, bufSize));
 }
 
-void ProcessRun::net_QUESTDESPLIST(const uint8_t *buf, size_t bufSize)
+void ProcessRun::on_SM_QUESTDESPLIST(const uint8_t *buf, size_t bufSize)
 {
     dynamic_cast<QuestStateBoard *>(getWidget("QuestStateBoard"))->setQuestDesp(cerealf::deserialize<SDQuestDespList>(buf, bufSize));
 }

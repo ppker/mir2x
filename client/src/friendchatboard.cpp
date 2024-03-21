@@ -1,5 +1,6 @@
 #include "sdldevice.hpp"
 #include "pngtexdb.hpp"
+#include "processrun.hpp"
 #include "friendchatboard.hpp"
 
 extern PNGTexDB *g_progUseDB;
@@ -221,3 +222,41 @@ bool FriendChatBoard::processEvent(const SDL_Event &event, bool valid)
 
 void FriendChatBoard::setFriendList(const SDFriendList &)
 {}
+
+void FriendChatBoard::addMessage(const SDChatMessage &newmsg)
+{
+    const auto saveInDBID = [&newmsg, this]
+    {
+        if(newmsg.from == m_processRun->getMyHero()->dbid()){
+            return newmsg.to;
+        }
+        else if(newmsg.to == m_processRun->getMyHero()->dbid()){
+            return newmsg.from;
+        }
+        else{
+            return m_processRun->getMyHero()->dbid();
+        }
+    }();
+
+    auto p = std::find_if(m_friendMessageList.begin(), m_friendMessageList.end(), [saveInDBID](const auto &item)
+    {
+        return item.dbid == saveInDBID;
+    });
+
+    if(p == m_friendMessageList.end()){
+        m_friendMessageList.emplace_front(saveInDBID);
+    }
+    else if(p != m_friendMessageList.begin()){
+        m_friendMessageList.splice(m_friendMessageList.begin(), m_friendMessageList, p, std::next(p));
+    }
+
+    p = m_friendMessageList.begin();
+    if(std::find_if(p->list.begin(), p->list.end(), [&newmsg](const auto &msg){ return msg.id == newmsg.id; }) == p->list.end()){
+        p->unread++;
+        p->list.push_back(newmsg);
+        std::sort(p->list.begin(), p->list.end(), [](const auto &x, const auto &y)
+        {
+            return x.timestamp < y.timestamp;
+        });
+    }
+}

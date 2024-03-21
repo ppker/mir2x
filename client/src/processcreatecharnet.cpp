@@ -3,12 +3,12 @@
 #include "processcreatechar.hpp"
 
 extern Client *g_client;
-void ProcessCreateChar::net_CREATECHAROK(const uint8_t *, size_t)
+void ProcessCreateChar::on_SM_CREATECHAROK(const uint8_t *, size_t)
 {
     g_client->requestProcess(PROCESSID_SELECTCHAR);
 }
 
-void ProcessCreateChar::net_CREATECHARERROR(const uint8_t *buf, size_t)
+void ProcessCreateChar::on_SM_CREATECHARERROR(const uint8_t *buf, size_t)
 {
     const auto smCCE = ServerMsg::conv<SMCreateCharError>(buf);
     switch(smCCE.error){

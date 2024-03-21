@@ -763,3 +763,15 @@ void Player::net_CM_SETRUNTIMECONFIG(uint8_t, const uint8_t *buf, size_t)
         dbUpdateRuntimeConfig();
     }
 }
+
+void Player::net_CM_REQUESTLATESTCHATMESSAGE(uint8_t, const uint8_t *buf, size_t)
+{
+    const auto cmRLCM = ClientMsg::conv<CMRequestLatestChatMessage>(buf);
+
+    size_t dbidCount = 0;
+    while(dbidCount < std::extent_v<decltype(cmRLCM.dbidList)> && cmRLCM.dbidList[dbidCount++]){}
+
+    if(dbidCount > 0){
+        postNetMessage(SM_CHATMESSAGELIST, cerealf::serialize(dbRetrieveLatestChatMessage(cmRLCM.dbidList, dbidCount, cmRLCM.limitCount, cmRLCM.includeSend, cmRLCM.includeRecv)));
+    }
+}

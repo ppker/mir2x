@@ -2,7 +2,7 @@
 #include "servermsg.hpp"
 #include "processcreateaccount.hpp"
 
-void ProcessCreateAccount::net_CREATEACCOUNTOK(const uint8_t *, size_t)
+void ProcessCreateAccount::on_SM_CREATEACCOUNTOK(const uint8_t *, size_t)
 {
     setInfoStr(u8"注册成功", 2);
     m_boxID.setFocus(false);
@@ -10,7 +10,7 @@ void ProcessCreateAccount::net_CREATEACCOUNTOK(const uint8_t *, size_t)
     m_boxPwdConfirm.setFocus(false);
 }
 
-void ProcessCreateAccount::net_CREATEACCOUNTERROR(const uint8_t *buf, size_t)
+void ProcessCreateAccount::on_SM_CREATEACCOUNTERROR(const uint8_t *buf, size_t)
 {
     const auto smCAE = ServerMsg::conv<SMCreateAccountError>(buf);
     switch(smCAE.error){

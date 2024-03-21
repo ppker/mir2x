@@ -2,7 +2,7 @@
 #include "servermsg.hpp"
 #include "processchangepassword.hpp"
 
-void ProcessChangePassword::net_CHANGEPASSWORDOK(const uint8_t *, size_t)
+void ProcessChangePassword::on_SM_CHANGEPASSWORDOK(const uint8_t *, size_t)
 {
     setInfoStr(u8"修改密码成功", 2);
     m_boxID.setFocus(false);
@@ -11,7 +11,7 @@ void ProcessChangePassword::net_CHANGEPASSWORDOK(const uint8_t *, size_t)
     m_boxNewPwdConfirm.setFocus(false);
 }
 
-void ProcessChangePassword::net_CHANGEPASSWORDERROR(const uint8_t *buf, size_t)
+void ProcessChangePassword::on_SM_CHANGEPASSWORDERROR(const uint8_t *buf, size_t)
 {
     const auto smCAE = ServerMsg::conv<SMChangePasswordError>(buf);
     switch(smCAE.error){

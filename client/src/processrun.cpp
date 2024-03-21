@@ -1675,6 +1675,24 @@ void ProcessRun::requestLeaveTeam(uint64_t uid)
     g_client->send(CM_REQUESTLEAVETEAM, cmRLT);
 }
 
+void ProcessRun::requestLatestChatMessage(const std::vector<uint32_t> &dbids, size_t limitCount, bool sendIncluded, bool recvIncluded)
+{
+    CMRequestLatestChatMessage cmRLCM;
+    std::memset(&cmRLCM, 0, sizeof(cmRLCM));
+
+    if(dbids.size() > std::extent_v<decltype(cmRLCM.dbidList)>){
+        throw fflerror("query of %zu dbids exceeds capacity %zu", dbids.size(), std::extent_v<decltype(cmRLCM.dbidList)>);
+    }
+
+    std::copy(dbids.begin(), dbids.end(), cmRLCM.dbidList);
+
+    cmRLCM.limitCount  = limitCount;
+    cmRLCM.includeSend = sendIncluded;
+    cmRLCM.includeRecv = recvIncluded;
+
+    g_client->send(CM_REQUESTLATESTCHATMESSAGE, cmRLCM);
+}
+
 void ProcessRun::RequestKillPets()
 {
     g_client->send(CM_REQUESTKILLPETS);

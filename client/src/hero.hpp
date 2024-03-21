@@ -67,6 +67,11 @@ class Hero: public CreatureMovable
             return uidf::getPlayerGender(UID());
         }
 
+        uint32_t dbid() const
+        {
+            return uidf::getPlayerDBID(UID());
+        }
+
     public:
         bool moving();
 

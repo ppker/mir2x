@@ -8,7 +8,7 @@
 extern Client *g_client;
 extern ClientArgParser *g_clientArgParser;
 
-void ProcessSelectChar::net_QUERYCHAROK(const uint8_t *buf, size_t)
+void ProcessSelectChar::on_SM_QUERYCHAROK(const uint8_t *buf, size_t)
 {
     m_smChar = ServerMsg::conv<SMQueryCharOK>(buf);
     fflassert(m_smChar.value().name.size > 0);
@@ -24,7 +24,7 @@ void ProcessSelectChar::net_QUERYCHAROK(const uint8_t *buf, size_t)
     updateGUIActive();
 }
 
-void ProcessSelectChar::net_QUERYCHARERROR(const uint8_t *buf, size_t)
+void ProcessSelectChar::on_SM_QUERYCHARERROR(const uint8_t *buf, size_t)
 {
     const auto smQCE = ServerMsg::conv<SMQueryCharError>(buf);
     switch(smQCE.error){
@@ -45,7 +45,7 @@ void ProcessSelectChar::net_QUERYCHARERROR(const uint8_t *buf, size_t)
     }
 }
 
-void ProcessSelectChar::net_DELETECHAROK(const uint8_t *, size_t)
+void ProcessSelectChar::on_SM_DELETECHAROK(const uint8_t *, size_t)
 {
     m_smChar.emplace();
     m_smChar.value().name.clear();
@@ -54,7 +54,7 @@ void ProcessSelectChar::net_DELETECHAROK(const uint8_t *, size_t)
     m_notifyBoard.addLog(u8"删除角色成功");
 }
 
-void ProcessSelectChar::net_DELETECHARERROR(const uint8_t *buf, size_t)
+void ProcessSelectChar::on_SM_DELETECHARERROR(const uint8_t *buf, size_t)
 {
     const auto smDCE = ServerMsg::conv<SMDeleteCharError>(buf);
     switch(smDCE.error){
@@ -75,7 +75,7 @@ void ProcessSelectChar::net_DELETECHARERROR(const uint8_t *buf, size_t)
     }
 }
 
-void ProcessSelectChar::net_ONLINEOK(const uint8_t *buf, size_t)
+void ProcessSelectChar::on_SM_ONLINEOK(const uint8_t *buf, size_t)
 {
     const auto smOOK = ServerMsg::conv<SMOnlineOK>(buf);
     fflassert(uidf::isPlayer(smOOK.uid), smOOK.uid, uidf::getUIDString(smOOK.uid));
@@ -85,7 +85,7 @@ void ProcessSelectChar::net_ONLINEOK(const uint8_t *buf, size_t)
     g_client->requestProcess(PROCESSID_RUN);
 }
 
-void ProcessSelectChar::net_ONLINEERROR(const uint8_t *buf, size_t)
+void ProcessSelectChar::on_SM_ONLINEERROR(const uint8_t *buf, size_t)
 {
     const auto smOE = ServerMsg::conv<SMOnlineError>(buf);
     switch(smOE.error){

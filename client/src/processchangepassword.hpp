@@ -73,6 +73,6 @@ class ProcessChangePassword: public Process
         void setInfoStr(const char8_t *, uint32_t);
 
     public:
-        void net_CHANGEPASSWORDOK   (const uint8_t *, size_t);
-        void net_CHANGEPASSWORDERROR(const uint8_t *, size_t);
+        void on_SM_CHANGEPASSWORDOK   (const uint8_t *, size_t);
+        void on_SM_CHANGEPASSWORDERROR(const uint8_t *, size_t);
 };
