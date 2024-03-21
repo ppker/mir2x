@@ -9,10 +9,10 @@ extern SDLDevice *g_sdlDevice;
 struct FriendChatPreviewItem: public Widget
 {
     static constexpr int WIDTH  = 400;
-    static constexpr int HEIGHT = 100;
+    static constexpr int HEIGHT = 60;
 
     static constexpr int GAP = 10;
-    static constexpr int AVATAR_WIDTH = 80;
+    static constexpr int AVATAR_WIDTH = HEIGHT * 84 / 94; // original avatar size: 84 x 94
 
     //        GAP
     //       |<->|
@@ -118,14 +118,16 @@ struct FriendChatPreviewItem: public Widget
     {}
 };
 
-FriendChatBoard::FriendChatBoard(int argX, int argY, int argW, int argH, ProcessRun *runPtr, Widget *widgetPtr, bool autoDelete)
+FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget *widgetPtr, bool autoDelete)
     : Widget
       {
           DIR_UPLEFT,
           argX,
           argY,
-          argW,
-          argH,
+
+          UIPage_MARGIN[2] + FriendChatPreviewItem::WIDTH      + UIPage_MARGIN[3],
+          UIPage_MARGIN[0] + FriendChatPreviewItem::HEIGHT * 8 + UIPage_MARGIN[1],
+
           {},
 
           widgetPtr,
@@ -148,8 +150,8 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, int argW, int argH, Process
           DIR_UPLEFT,
           0,
           0,
-          argW,
-          argH,
+          this->w(),
+          this->h(),
 
           &m_frame,
 
@@ -244,11 +246,11 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, int argW, int argH, Process
     , m_UIPage_FRIEND
       {
           DIR_UPLEFT,
-          0,
-          0,
+          UIPage_MARGIN[2],
+          UIPage_MARGIN[0],
 
-          500,
-          500,
+          m_frameCropDup.w() - UIPage_MARGIN[2] - UIPage_MARGIN[3],
+          m_frameCropDup.h() - UIPage_MARGIN[0] - UIPage_MARGIN[1],
 
           {},
 
@@ -260,8 +262,8 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, int argW, int argH, Process
     m_UIPage_FRIEND.addChild(new FriendChatPreviewItem
     {
         DIR_UPLEFT,
-        13,
-        54,
+        0,
+        0,
 
         u8"绝地武士",
         [](const ImageBoard *)

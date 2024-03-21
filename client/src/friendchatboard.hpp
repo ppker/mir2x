@@ -14,6 +14,15 @@ class FriendChatBoard: public Widget
         static constexpr int UIPage_FRIEND  = 2;
 
     private:
+        static constexpr int UIPage_MARGIN[4]
+        {
+            54,
+            10,
+            13,
+            38,
+        };
+
+    private:
         struct FriendMessage
         {
             uint32_t dbid   = 0;
@@ -49,7 +58,7 @@ class FriendChatBoard: public Widget
         std::list<FriendMessage> m_friendMessageList;
 
     public:
-        FriendChatBoard(int, int, int, int, ProcessRun *, Widget * = nullptr, bool = false);
+        FriendChatBoard(int, int, ProcessRun *, Widget * = nullptr, bool = false);
 
     public:
         void drawEx(int, int, int, int, int, int) const override;

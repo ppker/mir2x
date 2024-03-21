@@ -34,8 +34,6 @@ GUIManager::GUIManager(ProcessRun *proc)
       {
           g_sdlDevice->getRendererWidth()  / 2 - 250,
           g_sdlDevice->getRendererHeight() / 2 - 250,
-          500,
-          500,
           proc,
           this,
       }
