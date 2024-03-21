@@ -399,7 +399,20 @@ bool FriendChatBoard::processEvent(const SDL_Event &event, bool valid)
             }
         case SDL_MOUSEBUTTONDOWN:
             {
-                return consumeFocus(true);
+                if(m_UIPage_FRIEND.in(event.button.x, event.button.y)){
+                    return consumeFocus(true, &m_UIPage_FRIEND);
+                }
+                else{
+                    return consumeFocus(in(event.button.x, event.button.y));
+                }
+            }
+        case SDL_MOUSEWHEEL:
+            {
+                if(m_UIPage_FRIEND.focus()){
+                    m_UIPage_FRIEND.processEvent(event, true);
+                    return consumeFocus(true, &m_UIPage_FRIEND);
+                }
+                return consumeFocus(focus());
             }
         default:
             {
