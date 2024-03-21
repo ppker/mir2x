@@ -126,14 +126,14 @@ struct FriendChatPreviewItem: public Widget
               this->w(),
               this->h(),
 
-              [](const Widget *self, int drawDstX, int drawDstY)
+              [this](const Widget *, int drawDstX, int drawDstY)
               {
-                  if(self->focus()){
-                      g_sdlDevice->fillRectangle(colorf::GREEN              + colorf::A_SHF(128), drawDstX, drawDstY, self->w(), self->h());
-                      g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(192), drawDstX, drawDstY, self->w(), self->h());
+                  if(focus()){
+                      g_sdlDevice->fillRectangle(colorf::GREEN              + colorf::A_SHF(128), drawDstX, drawDstY, w(), h());
+                      g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(192), drawDstX, drawDstY, w(), h());
                   }
                   else{
-                      g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF( 64), drawDstX, drawDstY, self->w(), self->h());
+                      g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF( 64), drawDstX, drawDstY, w(), h());
                   }
               },
 
@@ -159,13 +159,16 @@ struct FriendChatPreviewPage: public Widget
         switch(event.type){
             case SDL_KEYDOWN:
                 {
-                    switch(event.key.keysym.sym){
-                        case SDLK_RETURN:
-                        default:
-                            {
-                                return consumeFocus(true);
-                            }
+                    if(focus()){
+                        switch(event.key.keysym.sym){
+                            case SDLK_RETURN:
+                            default:
+                                {
+                                    return consumeFocus(true);
+                                }
+                        }
                     }
+                    return false;
                 }
             case SDL_MOUSEBUTTONDOWN:
                 {
@@ -185,7 +188,7 @@ struct FriendChatPreviewPage: public Widget
                 }
             default:
                 {
-                    return consumeFocus(false);
+                    return false;
                 }
         }
     }
@@ -418,18 +421,21 @@ bool FriendChatBoard::processEvent(const SDL_Event &event, bool valid)
     switch(event.type){
         case SDL_KEYDOWN:
             {
-                switch(event.key.keysym.sym){
-                    case SDLK_ESCAPE:
-                        {
-                            setShow(false);
-                            setFocus(false);
-                            return true;
-                        }
-                    default:
-                        {
-                            return consumeFocus(false);
-                        }
+                if(focus()){
+                    switch(event.key.keysym.sym){
+                        case SDLK_ESCAPE:
+                            {
+                                setShow(false);
+                                setFocus(false);
+                                return true;
+                            }
+                        default:
+                            {
+                                return false;
+                            }
+                    }
                 }
+                return false;
             }
         case SDL_MOUSEMOTION:
             {
@@ -464,7 +470,7 @@ bool FriendChatBoard::processEvent(const SDL_Event &event, bool valid)
             }
         default:
             {
-                return consumeFocus(false);
+                return false;
             }
     }
 }
