@@ -6,6 +6,118 @@
 extern PNGTexDB *g_progUseDB;
 extern SDLDevice *g_sdlDevice;
 
+struct FriendChatPreviewItem: public Widget
+{
+    static constexpr int WIDTH  = 400;
+    static constexpr int HEIGHT = 100;
+
+    static constexpr int GAP = 10;
+    static constexpr int AVATAR_WIDTH = 80;
+
+    //        GAP
+    //       |<->|
+    // +-+---+  +------+         -
+    // |1|   |  | name |         ^
+    // +-+   |  +------+         | HEIGHT
+    // | IMG |  +--------------+ |
+    // |     |  |latest message| v
+    // +-----+  +--------------+ -
+    //
+    // |<--->|
+    // AVATAR_WIDTH
+    //
+    // |<--------------------->|
+    //           WIDTH
+
+    ImageBoard  avatar;
+    LabelBoard  name;
+    LayoutBoard message;
+
+    FriendChatPreviewItem(dir8_t argDir, int argX, int argY, const char8_t *nameStr, std::function<SDL_Texture *(const ImageBoard *)> argLoadImageFunc, Widget *argParent, bool argAutoDelete)
+        : Widget
+          {
+              argDir,
+              argX,
+              argY,
+
+              FriendChatPreviewItem::WIDTH,
+              FriendChatPreviewItem::HEIGHT,
+
+              {},
+
+              argParent,
+              argAutoDelete,
+          }
+
+        , avatar
+          {
+              DIR_UPLEFT,
+              0,
+              0,
+
+              FriendChatPreviewItem::AVATAR_WIDTH,
+              FriendChatPreviewItem::HEIGHT,
+
+              std::move(argLoadImageFunc),
+
+              false,
+              false,
+              0,
+
+              colorf::WHITE + colorf::A_SHF(0XFF),
+
+              this,
+              false,
+          }
+
+        , name
+          {
+              DIR_UPLEFT,
+              FriendChatPreviewItem::AVATAR_WIDTH + FriendChatPreviewItem::GAP,
+              0,
+
+              nameStr,
+
+              0,
+              10,
+              0,
+              colorf::WHITE + colorf::A_SHF(255),
+
+              this,
+              false,
+          }
+
+        , message
+          {
+              DIR_DOWNRIGHT,
+              FriendChatPreviewItem::WIDTH  - 1,
+              FriendChatPreviewItem::HEIGHT - 1,
+
+              FriendChatPreviewItem::WIDTH - FriendChatPreviewItem::AVATAR_WIDTH - FriendChatPreviewItem::GAP,
+
+              false,
+              {0, 0, 0, 0},
+
+              false,
+
+              0,
+              10,
+              0,
+              colorf::WHITE + colorf::A_SHF(255),
+              0,
+
+              LALIGN_LEFT,
+              0,
+              0,
+
+              nullptr,
+
+              this,
+              false,
+          }
+    {}
+};
+
 FriendChatBoard::FriendChatBoard(int argX, int argY, int argW, int argH, ProcessRun *runPtr, Widget *widgetPtr, bool autoDelete)
     : Widget
       {
@@ -128,16 +240,47 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, int argW, int argH, Process
           true,
           this,
       }
+
+    , m_UIPage_FRIEND
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          500,
+          500,
+
+          {},
+
+          this,
+          false,
+      }
 {
     setShow(false);
-}
+    m_UIPage_FRIEND.addChild(new FriendChatPreviewItem
+    {
+        DIR_UPLEFT,
+        13,
+        54,
 
+        u8"绝地武士",
+        [](const ImageBoard *)
+        {
+            return g_progUseDB->retrieve(0X02000000);
+        },
+
+        nullptr,
+        false,
+
+    }, true);
+}
 
 void FriendChatBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
 {
     for(const auto &p:
     {
         static_cast<const Widget *>(&m_backgroundCropDup),
+        static_cast<const Widget *>(&m_UIPage_FRIEND),
         static_cast<const Widget *>(&m_frameCropDup),
         static_cast<const Widget *>(&m_slider),
         static_cast<const Widget *>(&m_close),

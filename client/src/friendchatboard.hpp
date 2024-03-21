@@ -43,6 +43,9 @@ class FriendChatBoard: public Widget
         TritexButton m_close;
 
     private:
+        Widget m_UIPage_FRIEND;
+
+    private:
         std::list<FriendMessage> m_friendMessageList;
 
     public:
