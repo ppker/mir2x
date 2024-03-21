@@ -417,8 +417,14 @@ class Widget
             if(argFocus){
                 if(child){
                     if(hasChild(child)){
-                        setFocus(false);
-                        child->setFocus(true);
+                        if(child->focus()){
+                            // don't setup here
+                            // when we setup focus in a deep call, this preserve focus of deep sub-widget
+                        }
+                        else{
+                            setFocus(false);
+                            child->setFocus(true);
+                        }
                     }
                     else{
                         throw fflerror("widget has no child: %p", to_cvptr(child));

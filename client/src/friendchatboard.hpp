@@ -10,8 +10,9 @@ class ProcessRun;
 class FriendChatBoard: public Widget
 {
     private:
-        static constexpr int UIPage_MESSAGE = 1;
-        static constexpr int UIPage_FRIEND  = 2;
+        static constexpr int UIPage_CHAT        = 1;
+        static constexpr int UIPage_CHATPREVIEW = 2;
+        static constexpr int UIPage_FRIENDLIST  = 3;
 
     private:
         static constexpr int UIPage_MARGIN[4]
@@ -32,7 +33,7 @@ class FriendChatBoard: public Widget
         };
 
     private:
-        int m_uiPage = UIPage_MESSAGE;
+        int m_uiPage = UIPage_CHATPREVIEW;
 
     private:
         ProcessRun *m_processRun;
@@ -52,7 +53,7 @@ class FriendChatBoard: public Widget
         TritexButton m_close;
 
     private:
-        Widget m_UIPage_FRIEND;
+        Widget *m_UIPage_CHATPREVIEW;
 
     private:
         std::list<FriendMessage> m_friendMessageList;

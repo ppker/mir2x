@@ -143,6 +143,54 @@ struct FriendChatPreviewItem: public Widget
     {}
 };
 
+struct FriendChatPreviewPage: public Widget
+{
+    using Widget::Widget;
+    bool processEvent(const SDL_Event &event, bool valid) override
+    {
+        if(!valid){
+            return consumeFocus(false);
+        }
+
+        if(!show()){
+            return consumeFocus(false);
+        }
+
+        switch(event.type){
+            case SDL_KEYDOWN:
+                {
+                    switch(event.key.keysym.sym){
+                        case SDLK_RETURN:
+                        default:
+                            {
+                                return consumeFocus(true);
+                            }
+                    }
+                }
+            case SDL_MOUSEBUTTONDOWN:
+                {
+                    Widget *clicked = nullptr;
+                    for(auto &child: m_childList){
+                        if(child.widget->in(event.button.x, event.button.y)){
+                            clicked = child.widget;
+                            break;
+                        }
+                    }
+
+                    if(clicked){
+                        return consumeFocus(true, clicked);
+                    }
+
+                    return consumeFocus(in(event.button.x, event.button.y));
+                }
+            default:
+                {
+                    return consumeFocus(false);
+                }
+        }
+    }
+};
+
 FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget *widgetPtr, bool autoDelete)
     : Widget
       {
@@ -268,7 +316,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
           this,
       }
 
-    , m_UIPage_FRIEND
+    , m_UIPage_CHATPREVIEW(new FriendChatPreviewPage
       {
           DIR_UPLEFT,
           UIPage_MARGIN[2],
@@ -280,11 +328,11 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
           {},
 
           this,
-          false,
-      }
+          true,
+      })
 {
     setShow(false);
-    m_UIPage_FRIEND.addChild(new FriendChatPreviewItem
+    m_UIPage_CHATPREVIEW->addChild(new FriendChatPreviewItem
     {
         DIR_UPLEFT,
         0,
@@ -302,7 +350,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
     }, true);
 
 
-    m_UIPage_FRIEND.addChild(new FriendChatPreviewItem
+    m_UIPage_CHATPREVIEW->addChild(new FriendChatPreviewItem
     {
         DIR_UPLEFT,
         0,
@@ -325,7 +373,7 @@ void FriendChatBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, i
     for(const auto &p:
     {
         static_cast<const Widget *>(&m_backgroundCropDup),
-        static_cast<const Widget *>(&m_UIPage_FRIEND),
+        static_cast<const Widget *>( m_UIPage_CHATPREVIEW),
         static_cast<const Widget *>(&m_frameCropDup),
         static_cast<const Widget *>(&m_slider),
         static_cast<const Widget *>(&m_close),
@@ -399,18 +447,18 @@ bool FriendChatBoard::processEvent(const SDL_Event &event, bool valid)
             }
         case SDL_MOUSEBUTTONDOWN:
             {
-                if(m_UIPage_FRIEND.in(event.button.x, event.button.y)){
-                    return consumeFocus(true, &m_UIPage_FRIEND);
+                if(m_uiPage == UIPage_CHATPREVIEW && m_UIPage_CHATPREVIEW->in(event.button.x, event.button.y)){
+                    if(m_UIPage_CHATPREVIEW->processEvent(event, true)){
+                        return consumeFocus(true, m_UIPage_CHATPREVIEW);
+                    }
                 }
-                else{
-                    return consumeFocus(in(event.button.x, event.button.y));
-                }
+                return consumeFocus(in(event.button.x, event.button.y));
             }
         case SDL_MOUSEWHEEL:
             {
-                if(m_UIPage_FRIEND.focus()){
-                    m_UIPage_FRIEND.processEvent(event, true);
-                    return consumeFocus(true, &m_UIPage_FRIEND);
+                if(m_UIPage_CHATPREVIEW->focus()){
+                    m_UIPage_CHATPREVIEW->processEvent(event, true);
+                    return consumeFocus(true, m_UIPage_CHATPREVIEW);
                 }
                 return consumeFocus(focus());
             }
