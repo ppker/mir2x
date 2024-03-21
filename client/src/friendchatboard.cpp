@@ -9,7 +9,7 @@ extern SDLDevice *g_sdlDevice;
 struct FriendChatPreviewItem: public Widget
 {
     static constexpr int WIDTH  = 400;
-    static constexpr int HEIGHT = 60;
+    static constexpr int HEIGHT = 50;
 
     static constexpr int GAP = 10;
     static constexpr int AVATAR_WIDTH = HEIGHT * 84 / 94; // original avatar size: 84 x 94
@@ -29,9 +29,10 @@ struct FriendChatPreviewItem: public Widget
     // |<--------------------->|
     //           WIDTH
 
-    ImageBoard  avatar;
-    LabelBoard  name;
-    LayoutBoard message;
+    ImageBoard     avatar;
+    LabelBoard     name;
+    LayoutBoard    message;
+    ShapeClipBoard selected;
 
     FriendChatPreviewItem(dir8_t argDir, int argX, int argY, const char8_t *nameStr, std::function<SDL_Texture *(const ImageBoard *)> argLoadImageFunc, Widget *argParent, bool argAutoDelete)
         : Widget
@@ -78,8 +79,8 @@ struct FriendChatPreviewItem: public Widget
 
               nameStr,
 
-              0,
-              10,
+              1,
+              12,
               0,
               colorf::WHITE + colorf::A_SHF(255),
 
@@ -100,8 +101,8 @@ struct FriendChatPreviewItem: public Widget
 
               false,
 
-              0,
-              10,
+              1,
+              12,
               0,
               colorf::WHITE + colorf::A_SHF(255),
               0,
@@ -111,6 +112,30 @@ struct FriendChatPreviewItem: public Widget
               0,
 
               nullptr,
+
+              this,
+              false,
+          }
+
+        , selected
+          {
+              DIR_UPLEFT,
+              0,
+              0,
+
+              this->w(),
+              this->h(),
+
+              [](const Widget *self, int drawDstX, int drawDstY)
+              {
+                  if(self->focus()){
+                      g_sdlDevice->fillRectangle(colorf::GREEN              + colorf::A_SHF(128), drawDstX, drawDstY, self->w(), self->h());
+                      g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(192), drawDstX, drawDstY, self->w(), self->h());
+                  }
+                  else{
+                      g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF( 64), drawDstX, drawDstY, self->w(), self->h());
+                  }
+              },
 
               this,
               false,
@@ -269,6 +294,24 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
         [](const ImageBoard *)
         {
             return g_progUseDB->retrieve(0X02000000);
+        },
+
+        nullptr,
+        false,
+
+    }, true);
+
+
+    m_UIPage_FRIEND.addChild(new FriendChatPreviewItem
+    {
+        DIR_UPLEFT,
+        0,
+        FriendChatPreviewItem::HEIGHT,
+
+        u8"恭喜发财",
+        [](const ImageBoard *)
+        {
+            return g_progUseDB->retrieve(0X02000001);
         },
 
         nullptr,
