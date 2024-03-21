@@ -129,11 +129,11 @@ struct FriendChatPreviewItem: public Widget
               [this](const Widget *, int drawDstX, int drawDstY)
               {
                   if(focus()){
-                      g_sdlDevice->fillRectangle(colorf::GREEN              + colorf::A_SHF(128), drawDstX, drawDstY, w(), h());
-                      g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(192), drawDstX, drawDstY, w(), h());
+                      g_sdlDevice->fillRectangle(colorf::GREEN              + colorf::A_SHF(96), drawDstX, drawDstY, w(), h());
+                      g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(96), drawDstX, drawDstY, w(), h());
                   }
                   else{
-                      g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF( 64), drawDstX, drawDstY, w(), h());
+                      g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
                   }
               },
 
