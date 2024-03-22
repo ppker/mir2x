@@ -105,13 +105,13 @@ class LayoutBoard: public Widget
                 }
             }
 
-            if(m_parNodeConfig.lineWidth <= m_parNodeConfig.margin[2] + m_parNodeConfig.margin[3]){
+            if((m_parNodeConfig.lineWidth > 0) && (m_parNodeConfig.lineWidth <= m_parNodeConfig.margin[2] + m_parNodeConfig.margin[3])){
                 throw fflerror("invalid default paragraph parameters");
             }
         }
 
     public:
-        void loadXML(const char *);
+        void loadXML(const char *, size_t = 0);
 
     public:
         void addParXML(int, const std::array<int, 4> &, const char *);

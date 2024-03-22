@@ -11,7 +11,7 @@
 extern Log *g_log;
 extern FontexDB *g_fontexDB;
 
-void LayoutBoard::loadXML(const char *xmlString)
+void LayoutBoard::loadXML(const char *xmlString, size_t parLimit)
 {
     if(!xmlString){
         throw fflerror("null xmlString");
@@ -42,7 +42,8 @@ void LayoutBoard::loadXML(const char *xmlString)
         g_log->addLog(LOGTYPE_WARNING, "Layout XML doesn't accept attributes, ignored.");
     }
 
-    for(auto p = rootElem->FirstChild(); p; p = p->NextSibling()){
+    size_t addedParCount = 0;
+    for(auto p = rootElem->FirstChild(); p && (parLimit == 0 || addedParCount < parLimit); p = p->NextSibling()){
         if(!p->ToElement()){
             g_log->addLog(LOGTYPE_WARNING, "Not an element: %s", p->Value());
             continue;
@@ -62,6 +63,7 @@ void LayoutBoard::loadXML(const char *xmlString)
         }
 
         addPar(parCount(), m_parNodeConfig.margin, p, false);
+        addedParCount++;
     }
 
     setupSize();
@@ -96,20 +98,24 @@ void LayoutBoard::addPar(int loc, const std::array<int, 4> &parMargin, const tin
 
     const int lineWidth = [elemNode, this]()
     {
+        if(m_parNodeConfig.lineWidth <= 0){
+            return -1;
+        }
+
         // even we use default size
         // we won't let it create one-line mode by default
         // user should explicitly note that they want this special mode
 
-        int lineWidth = std::max<int>(m_parNodeConfig.lineWidth - (m_parNodeConfig.margin[2] + m_parNodeConfig.margin[3]), 1);
-        elemNode->QueryIntAttribute("lineWidth", &lineWidth);
-
-        // TODO should I force all lineWidth to be less than defaut lineWidth?
-        //      should I jsut disable to support lineWidth attribute and force all typeset uses global lineWidth?
-
-        if(lineWidth < -1){
-            throw fflerror("invalid line width: %d", lineWidth);
+        if(int lineWidth = m_parNodeConfig.lineWidth - m_parNodeConfig.margin[2] - m_parNodeConfig.margin[3]; lineWidth <= 0){
+            throw fflerror("invalid default paragraph parameters");
         }
-        return lineWidth;
+        else{
+            elemNode->QueryIntAttribute("lineWidth", &lineWidth);
+            if(lineWidth < -1){
+                throw fflerror("invalid line width: %d", lineWidth);
+            }
+            return lineWidth;
+        }
     }();
 
     const int lineAlign = [elemNode, this]()

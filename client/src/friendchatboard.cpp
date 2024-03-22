@@ -12,16 +12,17 @@ struct FriendChatPreviewItem: public Widget
     static constexpr int HEIGHT = 50;
 
     static constexpr int GAP = 10;
+    static constexpr int NAME_HEIGHT = 30;
     static constexpr int AVATAR_WIDTH = HEIGHT * 84 / 94; // original avatar size: 84 x 94
 
     //        GAP
     //       |<->|
-    // +-+---+  +------+         -
-    // |1|   |  | name |         ^
-    // +-+   |  +------+         | HEIGHT
-    // | IMG |  +--------------+ |
-    // |     |  |latest message| v
-    // +-----+  +--------------+ -
+    // +-+---+  +------+          -             -
+    // |1|   |  | name |          | NAME_HEIGHT ^
+    // +-+   |  +------+          -             | HEIGHT
+    // | IMG |  +--------------+                |
+    // |     |  |latest message|                v
+    // +-----+  +--------------+                -
     //
     // |<--->|
     // AVATAR_WIDTH
@@ -29,9 +30,11 @@ struct FriendChatPreviewItem: public Widget
     // |<--------------------->|
     //           WIDTH
 
-    ImageBoard     avatar;
-    LabelBoard     name;
-    LayoutBoard    message;
+    ImageBoard  avatar;
+    LabelBoard  name;
+    LayoutBoard message;
+
+    ShapeClipBoard preview;
     ShapeClipBoard selected;
 
     FriendChatPreviewItem(dir8_t argDir, int argX, int argY, const char8_t *nameStr, std::function<SDL_Texture *(const ImageBoard *)> argLoadImageFunc, Widget *argParent, bool argAutoDelete)
@@ -73,14 +76,14 @@ struct FriendChatPreviewItem: public Widget
 
         , name
           {
-              DIR_UPLEFT,
+              DIR_LEFT,
               FriendChatPreviewItem::AVATAR_WIDTH + FriendChatPreviewItem::GAP,
-              0,
+              FriendChatPreviewItem::NAME_HEIGHT / 2,
 
               nameStr,
 
               1,
-              12,
+              14,
               0,
               colorf::WHITE + colorf::A_SHF(255),
 
@@ -90,28 +93,35 @@ struct FriendChatPreviewItem: public Widget
 
         , message
           {
-              DIR_DOWNRIGHT,
-              FriendChatPreviewItem::WIDTH  - 1,
-              FriendChatPreviewItem::HEIGHT - 1,
-
-              FriendChatPreviewItem::WIDTH - FriendChatPreviewItem::AVATAR_WIDTH - FriendChatPreviewItem::GAP,
+              DIR_UPLEFT,
+              0,
+              0,
+              0, // line width
 
               false,
-              {0, 0, 0, 0},
+              {},
 
               false,
 
               1,
               12,
               0,
-              colorf::WHITE + colorf::A_SHF(255),
-              0,
+              colorf::GREY + colorf::A_SHF(255),
+          }
 
-              LALIGN_LEFT,
-              0,
-              0,
+        , preview
+          {
+              DIR_UPLEFT,
+              FriendChatPreviewItem::AVATAR_WIDTH + FriendChatPreviewItem::GAP,
+              FriendChatPreviewItem::NAME_HEIGHT,
 
-              nullptr,
+              FriendChatPreviewItem::WIDTH - FriendChatPreviewItem::AVATAR_WIDTH - FriendChatPreviewItem::GAP,
+              FriendChatPreviewItem::HEIGHT - FriendChatPreviewItem::NAME_HEIGHT,
+
+              [this](const Widget *, int drawDstX, int drawDstY)
+              {
+                  message.drawEx(drawDstX, drawDstY, 0, 0, message.w(), message.h());
+              },
 
               this,
               false,
