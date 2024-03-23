@@ -622,9 +622,9 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
               new PageButtonList
               {
                   DIR_RIGHT,
-                  m_frameCropDup.w() - 40,
+                  m_frameCropDup.w() - 42,
                   29,
-                  1,
+                  2,
 
                   {
                       {
@@ -659,6 +659,54 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                               0,
 
                               {0X000008B0, 0X000008B0, 0X000008B1},
+                              {
+                                  SYS_U32NIL,
+                                  SYS_U32NIL,
+                                  0X01020000 + 105,
+                              },
+
+                              nullptr,
+                              nullptr,
+                              [this](ButtonBase *)
+                              {
+                              },
+                          },
+
+                          true,
+                      },
+
+                      {
+                          new TritexButton
+                          {
+                              DIR_UPLEFT,
+                              0,
+                              0,
+
+                              {0X00000830, 0X00000830, 0X00000831},
+                              {
+                                  SYS_U32NIL,
+                                  SYS_U32NIL,
+                                  0X01020000 + 105,
+                              },
+
+                              nullptr,
+                              nullptr,
+                              [this](ButtonBase *)
+                              {
+                              },
+                          },
+
+                          true,
+                      },
+
+                      {
+                          new TritexButton
+                          {
+                              DIR_UPLEFT,
+                              0,
+                              0,
+
+                              {0X000008E0, 0X000008E0, 0X000008E1},
                               {
                                   SYS_U32NIL,
                                   SYS_U32NIL,
@@ -755,9 +803,9 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
               new PageButtonList
               {
                   DIR_RIGHT,
-                  m_frameCropDup.w() - 40,
+                  m_frameCropDup.w() - 42,
                   28,
-                  1,
+                  2,
 
                   {
                       {
