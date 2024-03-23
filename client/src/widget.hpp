@@ -4,6 +4,7 @@
 #pragma once
 #include <any>
 #include <list>
+#include <utility>
 #include <tuple>
 #include <array>
 #include <cstdint>
@@ -140,10 +141,48 @@ class Widget
         }
 
     public:
+        static int sizeOff(int size, int index)
+        {
+            /**/ if(index <  0) return        0;
+            else if(index == 0) return size / 2;
+            else                return size - 1;
+        }
+
+        static int xSizeOff(dir8_t argDir, int argW)
+        {
+            switch(argDir){
+                case DIR_UPLEFT   : return sizeOff(argW, -1);
+                case DIR_UP       : return sizeOff(argW,  0);
+                case DIR_UPRIGHT  : return sizeOff(argW,  1);
+                case DIR_RIGHT    : return sizeOff(argW,  1);
+                case DIR_DOWNRIGHT: return sizeOff(argW,  1);
+                case DIR_DOWN     : return sizeOff(argW,  0);
+                case DIR_DOWNLEFT : return sizeOff(argW, -1);
+                case DIR_LEFT     : return sizeOff(argW, -1);
+                default           : return sizeOff(argW,  0);
+            }
+        }
+
+        static int ySizeOff(dir8_t argDir, int argH)
+        {
+            switch(argDir){
+                case DIR_UPLEFT   : return sizeOff(argH, -1);
+                case DIR_UP       : return sizeOff(argH, -1);
+                case DIR_UPRIGHT  : return sizeOff(argH, -1);
+                case DIR_RIGHT    : return sizeOff(argH,  0);
+                case DIR_DOWNRIGHT: return sizeOff(argH,  1);
+                case DIR_DOWN     : return sizeOff(argH,  1);
+                case DIR_DOWNLEFT : return sizeOff(argH,  1);
+                case DIR_LEFT     : return sizeOff(argH,  0);
+                default           : return sizeOff(argH,  0);
+            }
+        }
+
+    public:
         void drawAt(
-                int dir,
-                int dstX,
-                int dstY,
+                dir8_t dstDir,
+                int    dstX,
+                int    dstY,
 
                 int dstRgnX = 0,
                 int dstRgnY = 0,
@@ -151,25 +190,10 @@ class Widget
                 int dstRgnW = -1,
                 int dstRgnH = -1) const
         {
-            const auto [dstUpLeftX, dstUpLeftY] = [dir, dstX, dstY, this]() -> std::array<int, 2>
-            {
-                switch(dir){
-                    case DIR_UPLEFT   : return {dstX                , dstY                };
-                    case DIR_UP       : return {dstX - (w() - 1) / 2, dstY                };
-                    case DIR_UPRIGHT  : return {dstX - (w() - 1)    , dstY                };
-                    case DIR_RIGHT    : return {dstX - (w() - 1)    , dstY - (h() - 1) / 2};
-                    case DIR_DOWNRIGHT: return {dstX - (w() - 1)    , dstY - (h() - 1)    };
-                    case DIR_DOWN     : return {dstX - (w() - 1) / 2, dstY - (h() - 1)    };
-                    case DIR_DOWNLEFT : return {dstX                , dstY - (h() - 1)    };
-                    case DIR_LEFT     : return {dstX                , dstY - (h() - 1) / 2};
-                    default           : return {dstX - (w() - 1) / 2, dstY - (h() - 1) / 2};
-                }
-            }();
-
             int srcXCrop = 0;
             int srcYCrop = 0;
-            int dstXCrop = dstUpLeftX;
-            int dstYCrop = dstUpLeftY;
+            int dstXCrop = dstX - xSizeOff(dstDir, w());
+            int dstYCrop = dstY - ySizeOff(dstDir, h());
             int srcWCrop = w();
             int srcHCrop = h();
 
@@ -247,52 +271,12 @@ class Widget
     public:
         virtual int x() const
         {
-            const auto anchorX = [this]() -> int
-            {
-                if(m_parent){
-                    return m_parent->x() + m_x;
-                }
-                else{
-                    return m_x;
-                }
-            }();
-
-            switch(m_dir){
-                case DIR_UPLEFT   : return anchorX;
-                case DIR_UP       : return anchorX - (w() - 0) / 2;
-                case DIR_UPRIGHT  : return anchorX - (w() - 1);
-                case DIR_RIGHT    : return anchorX - (w() - 1);
-                case DIR_DOWNRIGHT: return anchorX - (w() - 1);
-                case DIR_DOWN     : return anchorX - (w() - 0) / 2;
-                case DIR_DOWNLEFT : return anchorX;
-                case DIR_LEFT     : return anchorX;
-                default           : return anchorX - (w() - 0) / 2;
-            }
+            return m_x + (m_parent ? m_parent->x() : 0) - xSizeOff(m_dir, w());
         }
 
         virtual int y() const
         {
-            const auto anchorY = [this]() -> int
-            {
-                if(m_parent){
-                    return m_parent->y() + m_y;
-                }
-                else{
-                    return m_y;
-                }
-            }();
-
-            switch(m_dir){
-                case DIR_UPLEFT   : return anchorY;
-                case DIR_UP       : return anchorY;
-                case DIR_UPRIGHT  : return anchorY;
-                case DIR_RIGHT    : return anchorY - (h() - 0) / 2;
-                case DIR_DOWNRIGHT: return anchorY - (h() - 1);
-                case DIR_DOWN     : return anchorY - (h() - 1);
-                case DIR_DOWNLEFT : return anchorY - (h() - 1);
-                case DIR_LEFT     : return anchorY - (h() - 0) / 2;
-                default           : return anchorY - (h() - 0) / 2;
-            }
+            return m_y + (m_parent ? m_parent->y() : 0) - ySizeOff(m_dir, h());
         }
 
         virtual int w() const
@@ -340,12 +324,12 @@ class Widget
     public:
         virtual int dx() const
         {
-            return x() - (m_parent ? m_parent->x() : 0);
+            return m_x - xSizeOff(m_dir, w());
         }
 
         virtual int dy() const
         {
-            return y() - (m_parent ? m_parent->y() : 0);
+            return m_y - ySizeOff(m_dir, h());
         }
 
     public:

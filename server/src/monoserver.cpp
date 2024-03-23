@@ -344,13 +344,13 @@ void MonoServer::createDefaultDatabase()
 
         u8R"###( create table tbl_chatmessage(                                       )###"
         u8R"###(     fld_id             integer not null primary key autoincrement,  )###"
-        u8R"###(     fld_from           int unsigned not null,                       )###"
-        u8R"###(     fld_to             int unsigned not null,                       )###"
+        u8R"###(     fld_from           integer not null,                            )###"
+        u8R"###(     fld_to             integer not null,                            )###"
         u8R"###(     fld_timestamp      integer not null,                            )###"
         u8R"###(     fld_message        blob null default (x''),                     )###"
         u8R"###(                                                                     )###"
         u8R"###(     foreign key (fld_from) references tbl_char(fld_dbid),           )###"
-        u8R"###(     foreign key (fld_to  ) references tbl_char(fld_dbid),           )###"
+        u8R"###(     foreign key (fld_to  ) references tbl_char(fld_dbid)            )###"
         u8R"###( );                                                                  )###",
     };
 

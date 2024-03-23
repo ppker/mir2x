@@ -471,16 +471,8 @@ struct PageButtonList: public Widget
               argX,
               argY,
 
-              std::empty(argChildList) ? 0 : (argSpace * (argChildList.size() - 1) + std::accumulate(argChildList.begin(), argChildList.end(), 0, [](const auto &sum, const auto &elem)
-              {
-                  return sum + elem.first->w();
-              })),
-
-              std::empty(argChildList) ? 0 : std::max(argChildList, [](const auto &x, const auto &y)
-              {
-                  return x.first->h() < y.first->h();
-              }).first->h(),
-
+              {},
+              {},
               {},
 
               argParent,
