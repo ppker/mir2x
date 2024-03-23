@@ -1,3 +1,4 @@
+#include <initializer_list>
 #include "sdldevice.hpp"
 #include "pngtexdb.hpp"
 #include "processrun.hpp"
@@ -470,23 +471,26 @@ struct PageButtonList: public Widget
               argX,
               argY,
 
-              {},
-              {},
+              std::empty(argChildList) ? 0 : (argSpace * (argChildList.size() - 1) + std::accumulate(argChildList.begin(), argChildList.end(), 0, [](const auto &sum, const auto &elem)
+              {
+                  return sum + elem.first->w();
+              })),
+
+              std::empty(argChildList) ? 0 : std::max(argChildList, [](const auto &x, const auto &y)
+              {
+                  return x.first->h() < y.first->h();
+              }).first->h(),
+
               {},
 
               argParent,
               argAutoDelete,
           }
     {
-        const auto maxHeight = std::max(argChildList, [](const auto &x, const auto &y)
-        {
-            return x.first->h() < y.first->h();
-        }).first->h();
-
         int offX = 0;
         for(auto &[widgetPtr, autoDelete]: argChildList){
             addChild(widgetPtr, autoDelete);
-            widgetPtr->moveAt(DIR_UPLEFT, offX, (maxHeight - widgetPtr->h()) / 2);
+            widgetPtr->moveAt(DIR_UPLEFT, offX, (h() - widgetPtr->h()) / 2);
 
             offX += widgetPtr->w();
             offX += argSpace;
@@ -627,7 +631,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
               {
                   DIR_RIGHT,
                   m_frameCropDup.w() - 40,
-                  28,
+                  29,
                   1,
 
                   {
@@ -863,9 +867,9 @@ void FriendChatBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, i
     for(const auto &p:
     {
         static_cast<const Widget *>(&m_backgroundCropDup),
-        static_cast<const Widget *>( m_uiPageList[m_uiPage].first),
         static_cast<const Widget *>( m_uiPageList[m_uiPage].second),
         static_cast<const Widget *>(&m_frameCropDup),
+        static_cast<const Widget *>( m_uiPageList[m_uiPage].first),
         static_cast<const Widget *>(&m_slider),
         static_cast<const Widget *>(&m_close),
     }){
