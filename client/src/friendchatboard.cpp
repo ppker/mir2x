@@ -55,11 +55,11 @@ struct FriendChatItem: public Widget
     //           |                              |
     //           +-- startX of background       +-- endX of background
 
-    static constexpr int AVATAR_WIDTH  = 30;
+    static constexpr int AVATAR_WIDTH  = 35;
     static constexpr int AVATAR_HEIGHT = AVATAR_WIDTH * 94 / 84;
 
     static constexpr int GAP = 5;
-    static constexpr int NAME_HEIGHT = 30;
+    static constexpr int NAME_HEIGHT = 20;
 
     static constexpr int TRIANGLE_WIDTH  = 4;
     static constexpr int TRIANGLE_HEIGHT = 6;
@@ -67,7 +67,7 @@ struct FriendChatItem: public Widget
     static constexpr int MAX_WIDTH = UIPage_WIDTH - UIPage_MARGIN * 2 - FriendChatItem::TRIANGLE_WIDTH - FriendChatItem::GAP - FriendChatItem::AVATAR_WIDTH;
 
     static constexpr int MESSAGE_MARGIN = 5;
-    static constexpr int MESSAGE_CORNER = 5;
+    static constexpr int MESSAGE_CORNER = 3;
 
     static constexpr int MESSAGE_MIN_WIDTH  = 10; // handling small size message
     static constexpr int MESSAGE_MIN_HEIGHT = 10;
@@ -138,7 +138,7 @@ struct FriendChatItem: public Widget
               argNameStr,
 
               1,
-              12,
+              10,
           }
 
         , message
@@ -182,10 +182,10 @@ struct FriendChatItem: public Widget
                           FriendChatItem::MESSAGE_CORNER);
 
                   const auto triangleX1_avatarLeft = drawDstX;
-                  const auto triangleX2_avatarLeft = drawDstX + FriendChatItem::TRIANGLE_WIDTH;
-                  const auto triangleX3_avatarLeft = drawDstX + FriendChatItem::TRIANGLE_WIDTH;
+                  const auto triangleX2_avatarLeft = drawDstX + FriendChatItem::TRIANGLE_WIDTH - 1;
+                  const auto triangleX3_avatarLeft = drawDstX + FriendChatItem::TRIANGLE_WIDTH - 1;
 
-                  const auto triangleX1_avatarRight = drawDstX + FriendChatItem::MESSAGE_MARGIN * 2 + std::max<int>(message.w(), FriendChatItem::MESSAGE_MIN_WIDTH) + FriendChatItem::TRIANGLE_WIDTH;
+                  const auto triangleX1_avatarRight = drawDstX + FriendChatItem::MESSAGE_MARGIN * 2 + std::max<int>(message.w(), FriendChatItem::MESSAGE_MIN_WIDTH) + FriendChatItem::TRIANGLE_WIDTH - 1;
                   const auto triangleX2_avatarRight = drawDstX + FriendChatItem::MESSAGE_MARGIN * 2 + std::max<int>(message.w(), FriendChatItem::MESSAGE_MIN_WIDTH);
                   const auto triangleX3_avatarRight = drawDstX + FriendChatItem::MESSAGE_MARGIN * 2 + std::max<int>(message.w(), FriendChatItem::MESSAGE_MIN_WIDTH);
 
@@ -620,7 +620,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                       100,
 
                       u8"恭喜发财",
-                      u8"<layout><par>祝你发财！</par><par>收到请回复，谢谢！</par></layout>",
+                      u8"<layout><par>今天是大年初一，祝你新年发财！</par><par>老家的人都很想念你。</par><par>祝好！</par></layout>",
 
                       [](const ImageBoard *)
                       {
