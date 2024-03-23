@@ -8,18 +8,10 @@ extern SDLDevice *g_sdlDevice;
 
 static constexpr int UIPage_WIDTH  = 400;
 static constexpr int UIPage_HEIGHT = 400;
-static constexpr int UIPage_MARGIN =   2;
+static constexpr int UIPage_MARGIN =   4;
 
 struct FriendChatItem: public Widget
 {
-    // +-----+ /-------------\  <-- doesn't show name
-    // |     | | ........... |
-    // | IMG | < ........... |
-    // |     | | ........... |
-    // +-----+ | ........... |
-    //         | ........... |
-    //         \-------------/
-    //
     //          WIDTH
     // |<------------------->|
     //       GAP
@@ -59,6 +51,7 @@ struct FriendChatItem: public Widget
     static constexpr int AVATAR_HEIGHT = AVATAR_WIDTH * 94 / 84;
 
     static constexpr int GAP = 5;
+    static constexpr int ITEM_SPACE = 5;  // space between two items
     static constexpr int NAME_HEIGHT = 20;
 
     static constexpr int TRIANGLE_WIDTH  = 4;
@@ -93,7 +86,6 @@ struct FriendChatItem: public Widget
 
             bool argShowName,
             bool argAvatarLeft,
-
             uint32_t argBGColor,
 
             Widget *argParent  = nullptr,
@@ -588,11 +580,11 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
           new Widget // UIPage_CHAT
           {
               DIR_UPLEFT,
-              UIPage_BORDER[2],
-              UIPage_BORDER[0],
+              UIPage_BORDER[2] + UIPage_MARGIN,
+              UIPage_BORDER[0] + UIPage_MARGIN,
 
-              m_frameCropDup.w() - UIPage_BORDER[2] - UIPage_BORDER[3],
-              m_frameCropDup.h() - UIPage_BORDER[0] - UIPage_BORDER[1],
+              m_frameCropDup.w() - UIPage_BORDER[2] - UIPage_BORDER[3] - UIPage_MARGIN * 2,
+              m_frameCropDup.h() - UIPage_BORDER[0] - UIPage_BORDER[1] - UIPage_MARGIN * 2,
 
               {
                   {new FriendChatItem{
@@ -641,11 +633,11 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
           new FriendChatPreviewPage // UIPage_CHATPREVIEW
           {
               DIR_UPLEFT,
-              UIPage_BORDER[2],
-              UIPage_BORDER[0],
+              UIPage_BORDER[2] + UIPage_MARGIN,
+              UIPage_BORDER[0] + UIPage_MARGIN,
 
-              m_frameCropDup.w() - UIPage_BORDER[2] - UIPage_BORDER[3],
-              m_frameCropDup.h() - UIPage_BORDER[0] - UIPage_BORDER[1],
+              m_frameCropDup.w() - UIPage_BORDER[2] - UIPage_BORDER[3] - UIPage_MARGIN * 2,
+              m_frameCropDup.h() - UIPage_BORDER[0] - UIPage_BORDER[1] - UIPage_MARGIN * 2,
 
               {
                   {new FriendChatPreviewItem{
