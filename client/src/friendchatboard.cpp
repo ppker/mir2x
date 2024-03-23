@@ -450,6 +450,50 @@ struct FriendChatPreviewPage: public Widget
     }
 };
 
+struct PageButtonList: public Widget
+{
+    PageButtonList(dir8_t argDir,
+
+            int argX,
+            int argY,
+
+            int argSpace,
+
+            std::initializer_list<std::pair<Widget *, bool>> argChildList,
+
+            Widget *argParent     = nullptr,
+            bool    argAutoDelete = false)
+
+        : Widget
+          {
+              argDir,
+              argX,
+              argY,
+
+              {},
+              {},
+              {},
+
+              argParent,
+              argAutoDelete,
+          }
+    {
+        const auto maxHeight = std::max(argChildList, [](const auto &x, const auto &y)
+        {
+            return x.first->h() < y.first->h();
+        }).first->h();
+
+        int offX = 0;
+        for(auto &[widgetPtr, autoDelete]: argChildList){
+            addChild(widgetPtr, autoDelete);
+            widgetPtr->moveAt(DIR_UPLEFT, offX, (maxHeight - widgetPtr->h()) / 2);
+
+            offX += widgetPtr->w();
+            offX += argSpace;
+        }
+    }
+};
+
 FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget *widgetPtr, bool autoDelete)
     : Widget
       {
@@ -577,101 +621,237 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
 
     , m_uiPageList
       {
-          new Widget // UIPage_CHAT
+          std::pair<Widget *, Widget *> // UIPage_CHAT
           {
-              DIR_UPLEFT,
-              UIPage_BORDER[2] + UIPage_MARGIN,
-              UIPage_BORDER[0] + UIPage_MARGIN,
-
-              m_frameCropDup.w() - UIPage_BORDER[2] - UIPage_BORDER[3] - UIPage_MARGIN * 2,
-              m_frameCropDup.h() - UIPage_BORDER[0] - UIPage_BORDER[1] - UIPage_MARGIN * 2,
-
+              new PageButtonList
               {
-                  {new FriendChatItem{
-                      DIR_UPLEFT,
-                      0,
-                      0,
+                  DIR_RIGHT,
+                  m_frameCropDup.w() - 40,
+                  28,
+                  1,
 
-                      u8"绝地武士",
-                      u8"<layout><par>你好呀！</par></layout>",
-
-                      [](const ImageBoard *)
+                  {
                       {
-                          return g_progUseDB->retrieve(0X02000000);
+                          new TritexButton
+                          {
+                              DIR_UPLEFT,
+                              0,
+                              0,
+
+                              {0X00000023, 0X00000023, 0X00000024},
+                              {
+                                  SYS_U32NIL,
+                                  SYS_U32NIL,
+                                  0X01020000 + 105,
+                              },
+
+                              nullptr,
+                              nullptr,
+                              [this](ButtonBase *)
+                              {
+                              },
+                          },
+
+                          true,
                       },
 
-                      true,
-                      true,
-
-                      colorf::RED + colorf::A_SHF(128),
-                  }, DIR_UPLEFT, 0, 0, true},
-
-                  {new FriendChatItem{
-                      DIR_UPLEFT,
-                      0,
-                      100,
-
-                      u8"恭喜发财",
-                      u8"<layout><par>今天是大年初一，祝你新年发财！</par><par>老家的人都很想念你。</par><par>祝好！</par></layout>",
-
-                      [](const ImageBoard *)
                       {
-                          return g_progUseDB->retrieve(0X02000001);
+                          new TritexButton
+                          {
+                              DIR_UPLEFT,
+                              0,
+                              0,
+
+                              {0X000008B0, 0X000008B0, 0X000008B1},
+                              {
+                                  SYS_U32NIL,
+                                  SYS_U32NIL,
+                                  0X01020000 + 105,
+                              },
+
+                              nullptr,
+                              nullptr,
+                              [this](ButtonBase *)
+                              {
+                              },
+                          },
+
+                          true,
                       },
+                  },
 
-                      false,
-                      false,
-
-                      colorf::GREEN + colorf::A_SHF(128),
-                  }, DIR_UPLEFT, 0, 50, true},
+                  this,
+                  true,
               },
 
-              this,
-              true,
+              new Widget
+              {
+                  DIR_UPLEFT,
+                  UIPage_BORDER[2] + UIPage_MARGIN,
+                  UIPage_BORDER[0] + UIPage_MARGIN,
+
+                  m_frameCropDup.w() - UIPage_BORDER[2] - UIPage_BORDER[3] - UIPage_MARGIN * 2,
+                  m_frameCropDup.h() - UIPage_BORDER[0] - UIPage_BORDER[1] - UIPage_MARGIN * 2,
+
+                  {
+                      {
+                          new FriendChatItem
+                          {
+                              DIR_UPLEFT,
+                              0,
+                              0,
+
+                              u8"绝地武士",
+                              u8"<layout><par>你好呀！</par></layout>",
+
+                              [](const ImageBoard *)
+                              {
+                                  return g_progUseDB->retrieve(0X02000000);
+                              },
+
+                              true,
+                              true,
+
+                              colorf::RED + colorf::A_SHF(128),
+                          },
+
+                          DIR_UPLEFT,
+                          0,
+                          0,
+                          true,
+                      },
+
+                      {
+                          new FriendChatItem
+                          {
+                              DIR_UPLEFT,
+                              0,
+                              100,
+
+                              u8"恭喜发财",
+                              u8"<layout><par>今天是大年初一，祝你新年发财！</par><par>老家的人都很想念你。</par><par>祝好！</par></layout>",
+
+                              [](const ImageBoard *)
+                              {
+                                  return g_progUseDB->retrieve(0X02000001);
+                              },
+
+                              false,
+                              false,
+
+                              colorf::GREEN + colorf::A_SHF(128),
+                          },
+
+                          DIR_UPLEFT,
+                          0,
+                          50,
+                          true,
+                      },
+                  },
+
+                  this,
+                  true,
+              },
           },
 
-          new FriendChatPreviewPage // UIPage_CHATPREVIEW
+          std::pair<Widget *, Widget *> // UIPage_CHATPREVIEW
           {
-              DIR_UPLEFT,
-              UIPage_BORDER[2] + UIPage_MARGIN,
-              UIPage_BORDER[0] + UIPage_MARGIN,
-
-              m_frameCropDup.w() - UIPage_BORDER[2] - UIPage_BORDER[3] - UIPage_MARGIN * 2,
-              m_frameCropDup.h() - UIPage_BORDER[0] - UIPage_BORDER[1] - UIPage_MARGIN * 2,
-
+              new PageButtonList
               {
-                  {new FriendChatPreviewItem{
-                      DIR_UPLEFT,
-                      0,
-                      0,
+                  DIR_RIGHT,
+                  m_frameCropDup.w() - 40,
+                  28,
+                  1,
 
-                      u8"绝地武士",
-                      u8"<layout><par>你好呀！</par></layout>",
-
-                      [](const ImageBoard *)
+                  {
                       {
-                          return g_progUseDB->retrieve(0X02000000);
+                          new TritexButton
+                          {
+                              DIR_UPLEFT,
+                              0,
+                              0,
+
+                              {0X00000170, 0X00000170, 0X00000171},
+                              {
+                                  SYS_U32NIL,
+                                  SYS_U32NIL,
+                                  0X01020000 + 105,
+                              },
+
+                              nullptr,
+                              nullptr,
+                              [this](ButtonBase *)
+                              {
+                              },
+                          },
+
+                          true,
                       },
-                  },  DIR_UPLEFT, 0, 0, true},
+                  },
 
-
-                  {new FriendChatPreviewItem{
-                      DIR_UPLEFT,
-                      0,
-                      FriendChatPreviewItem::HEIGHT,
-
-                      u8"恭喜发财",
-                      u8"<layout><par>祝你发财！</par><par>收到请回复，谢谢！</par></layout>",
-
-                      [](const ImageBoard *)
-                      {
-                          return g_progUseDB->retrieve(0X02000001);
-                      },
-                  },DIR_UPLEFT, 0, FriendChatPreviewItem::HEIGHT, true},
+                  this,
+                  true,
               },
 
-              this,
-              true,
+              new FriendChatPreviewPage
+              {
+                  DIR_UPLEFT,
+                  UIPage_BORDER[2] + UIPage_MARGIN,
+                  UIPage_BORDER[0] + UIPage_MARGIN,
+
+                  m_frameCropDup.w() - UIPage_BORDER[2] - UIPage_BORDER[3] - UIPage_MARGIN * 2,
+                  m_frameCropDup.h() - UIPage_BORDER[0] - UIPage_BORDER[1] - UIPage_MARGIN * 2,
+
+                  {
+                      {
+                          new FriendChatPreviewItem
+                          {
+                              DIR_UPLEFT,
+                              0,
+                              0,
+
+                              u8"绝地武士",
+                              u8"<layout><par>你好呀！</par></layout>",
+
+                              [](const ImageBoard *)
+                              {
+                                  return g_progUseDB->retrieve(0X02000000);
+                              },
+                          },
+
+                          DIR_UPLEFT,
+                          0,
+                          0,
+                          true,
+                      },
+
+
+                      {
+                          new FriendChatPreviewItem
+                          {
+                              DIR_UPLEFT,
+                              0,
+                              FriendChatPreviewItem::HEIGHT,
+
+                              u8"恭喜发财",
+                              u8"<layout><par>祝你发财！</par><par>收到请回复，谢谢！</par></layout>",
+
+                              [](const ImageBoard *)
+                              {
+                                  return g_progUseDB->retrieve(0X02000001);
+                              },
+                          },
+
+                          DIR_UPLEFT,
+                          0,
+                          FriendChatPreviewItem::HEIGHT,
+                          true,
+                      },
+                  },
+
+                  this,
+                  true,
+              },
           },
       }
 {
@@ -683,7 +863,8 @@ void FriendChatBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, i
     for(const auto &p:
     {
         static_cast<const Widget *>(&m_backgroundCropDup),
-        static_cast<const Widget *>( m_uiPageList[m_uiPage]),
+        static_cast<const Widget *>( m_uiPageList[m_uiPage].first),
+        static_cast<const Widget *>( m_uiPageList[m_uiPage].second),
         static_cast<const Widget *>(&m_frameCropDup),
         static_cast<const Widget *>(&m_slider),
         static_cast<const Widget *>(&m_close),
@@ -722,8 +903,9 @@ bool FriendChatBoard::processEvent(const SDL_Event &event, bool valid)
         return consumeFocus(false);
     }
 
-    if(m_close .processEvent(event, valid)){ return true; }
-    if(m_slider.processEvent(event, valid)){ return true; }
+    if(m_close                      .processEvent(event, valid)){ return true; }
+    if(m_slider                     .processEvent(event, valid)){ return true; }
+    if(m_uiPageList[m_uiPage].first->processEvent(event, valid)){ return true; }
 
     switch(event.type){
         case SDL_KEYDOWN:
@@ -760,18 +942,18 @@ bool FriendChatBoard::processEvent(const SDL_Event &event, bool valid)
             }
         case SDL_MOUSEBUTTONDOWN:
             {
-                if(m_uiPageList[m_uiPage]->in(event.button.x, event.button.y)){
-                    if(m_uiPageList[m_uiPage]->processEvent(event, true)){
-                        return consumeFocus(true, m_uiPageList[m_uiPage]);
+                if(m_uiPageList[m_uiPage].second->in(event.button.x, event.button.y)){
+                    if(m_uiPageList[m_uiPage].second->processEvent(event, true)){
+                        return consumeFocus(true, m_uiPageList[m_uiPage].second);
                     }
                 }
                 return consumeFocus(in(event.button.x, event.button.y));
             }
         case SDL_MOUSEWHEEL:
             {
-                if(m_uiPageList[m_uiPage]->focus()){
-                    if(m_uiPageList[m_uiPage]->processEvent(event, true)){
-                        return consumeFocus(true, m_uiPageList[m_uiPage]);
+                if(m_uiPageList[m_uiPage].second->focus()){
+                    if(m_uiPageList[m_uiPage].second->processEvent(event, true)){
+                        return consumeFocus(true, m_uiPageList[m_uiPage].second);
                     }
                 }
                 return false;

@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include "widget.hpp"
 #include "serdesmsg.hpp"
 #include "texslider.hpp"
@@ -55,7 +56,7 @@ class FriendChatBoard: public Widget
 
     private:
         int m_uiPage = UIPage_CHAT;
-        const std::array<Widget *, UIPage_END> m_uiPageList;
+        const std::array<std::pair<Widget *, Widget *>, UIPage_END> m_uiPageList; // {buttons, page}
 
     private:
         std::list<FriendMessage> m_friendMessageList;
