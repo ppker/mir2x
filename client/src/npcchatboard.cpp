@@ -23,8 +23,11 @@ NPCChatBoard::NPCChatBoard(ProcessRun *proc, Widget *pwidget, bool autoDelete)
           m_margin,
           386 - m_margin * 2,
 
-          false,
+          nullptr,
+          0,
+
           {0, 5, 0, 0},
+          false,
           false,
 
           1,

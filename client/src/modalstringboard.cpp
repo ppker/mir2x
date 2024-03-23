@@ -68,16 +68,18 @@ void ModalStringBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int, int) 
     }
 
     if(!xmlCopy.empty()){
-        LayoutBoard board
+        const LayoutBoard board
         {
             DIR_NONE,
             0,
             0,
             300,
 
-            false,
-            {0, 0, 0, 0},
+            to_cstr(xmlCopy),
+            0,
 
+            {},
+            false,
             false,
 
             1,
@@ -89,7 +91,6 @@ void ModalStringBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int, int) 
             LALIGN_JUSTIFY, // LALIGN_CENTER,
         };
 
-        board.loadXML(to_cstr(xmlCopy));
         board.drawAt(DIR_NONE, dstX - srcX + w() / 2, dstY - srcY + h() / 2 + 20);
     }
 }

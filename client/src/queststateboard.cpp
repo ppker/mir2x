@@ -31,8 +31,11 @@ QuestStateBoard::QuestStateBoard(int argX, int argY, ProcessRun *runPtr, Widget 
           m_despY,
           m_despW,
 
-          false,
+          nullptr,
+          0,
+
           {0, 5, 0, 0},
+          false,
           false,
 
           1,

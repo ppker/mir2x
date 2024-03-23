@@ -137,16 +137,18 @@ void InputStringBoard::drawEx(int dstX, int dstY, int, int, int, int) const
     m_yesButton.draw();
     m_nopButton.draw();
 
-    LayoutBoard textInfoBoard
+    const LayoutBoard textInfoBoard
     {
         DIR_UPLEFT,
         0,
         0,
         250,
 
-        false,
-        {0, 0, 0, 0},
+        to_cstr(m_parXMLString),
+        0,
 
+        {},
+        false,
         false,
 
         1,
@@ -158,7 +160,6 @@ void InputStringBoard::drawEx(int dstX, int dstY, int, int, int, int) const
         LALIGN_JUSTIFY,
     };
 
-    textInfoBoard.loadXML(to_cstr(m_parXMLString));
     textInfoBoard.drawAt(DIR_NONE, x() + w() / 2, y() + 120);
 
     if(m_input.focus()){

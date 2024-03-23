@@ -6,6 +6,247 @@
 extern PNGTexDB *g_progUseDB;
 extern SDLDevice *g_sdlDevice;
 
+static constexpr int UIPage_WIDTH  = 400;
+static constexpr int UIPage_HEIGHT = 400;
+static constexpr int UIPage_MARGIN =   2;
+
+struct FriendChatItem: public Widget
+{
+    // +-----+ /-------------\  <-- doesn't show name
+    // |     | | ........... |
+    // | IMG | < ........... |
+    // |     | | ........... |
+    // +-----+ | ........... |
+    //         | ........... |
+    //         \-------------/
+    //
+    //          WIDTH
+    // |<------------------->|
+    //       GAP
+    //     ->| |<-
+    // +-----+     +--------+      -
+    // |     |     |  name  |      | NAME_HEIGHT
+    // |     |     +--------+      -
+    // |     |     /-------------\             <----+
+    // | IMG |     | ........... |                  |
+    // |     |     | ........... |                  |
+    // |     |    /  ........... |                  |
+    // |     |  <    ........... |                  |
+    // |     |    \  ........... |                  |
+    // |     |  ^  | ........... |                  | background includes messsage round-corner background box and the triangle area
+    // +-----+  |  | ........... |                  |
+    //          |  | ........... |                  |
+    //          |  \-------------/<- MESSAGE_CORNER |
+    //          |            ->| |<-                |
+    //          |             MESSAGE_MARGIN        |
+    //          +-----------------------------------+
+    //
+    //
+    //            -->|  |<-- TRIANGLE_WIDTH
+    //                2 +                + 2                    -
+    //      -----+     /|                |\     +-----          ^
+    //           |    / |                | \    |               |
+    //    avatar | 1 +  |                |  + 1 | avatar        | TRIANGLE_HEIGHT
+    //           |    \ |                | /    |               |
+    //      -----+     \|                |/     +-----          v
+    //                3 +                + 3                    -
+    //           |<---->|                |<---->|
+    //           ^  GAP                     GAP ^
+    //           |                              |
+    //           +-- startX of background       +-- endX of background
+
+    static constexpr int AVATAR_WIDTH  = 30;
+    static constexpr int AVATAR_HEIGHT = AVATAR_WIDTH * 94 / 84;
+
+    static constexpr int GAP = 5;
+    static constexpr int NAME_HEIGHT = 30;
+
+    static constexpr int TRIANGLE_WIDTH  = 4;
+    static constexpr int TRIANGLE_HEIGHT = 6;
+
+    static constexpr int MAX_WIDTH = UIPage_WIDTH - UIPage_MARGIN * 2 - FriendChatItem::TRIANGLE_WIDTH - FriendChatItem::GAP - FriendChatItem::AVATAR_WIDTH;
+
+    static constexpr int MESSAGE_MARGIN = 5;
+    static constexpr int MESSAGE_CORNER = 5;
+
+    static constexpr int MESSAGE_MIN_WIDTH  = 10; // handling small size message
+    static constexpr int MESSAGE_MIN_HEIGHT = 10;
+
+    const bool showName;
+    const bool avatarLeft;
+    const uint32_t bgColor;
+
+    ImageBoard avatar;
+    LabelBoard name;
+
+    LayoutBoard    message;
+    ShapeClipBoard background;
+
+    FriendChatItem(dir8_t argDir,
+            int argX,
+            int argY,
+
+            const char8_t *argNameStr,
+            const char8_t *argMessageStr,
+
+            std::function<SDL_Texture *(const ImageBoard *)> argLoadImageFunc,
+
+            bool argShowName,
+            bool argAvatarLeft,
+
+            uint32_t argBGColor,
+
+            Widget *argParent  = nullptr,
+            bool argAutoDelete = false)
+
+        : Widget
+          {
+              argDir,
+              argX,
+              argY,
+
+              {},
+              {},
+              {},
+
+              argParent,
+              argAutoDelete,
+          }
+
+        , showName(argShowName)
+        , avatarLeft(argAvatarLeft)
+        , bgColor(argBGColor)
+
+        , avatar
+          {
+              DIR_UPLEFT,
+              0,
+              0,
+
+              FriendChatItem::AVATAR_WIDTH,
+              FriendChatItem::AVATAR_HEIGHT,
+
+              std::move(argLoadImageFunc),
+          }
+
+        , name
+          {
+              DIR_UPLEFT,
+              0,
+              0,
+
+              argNameStr,
+
+              1,
+              12,
+          }
+
+        , message
+          {
+              DIR_UPLEFT,
+              0,
+              0,
+              FriendChatItem::MAX_WIDTH - FriendChatItem::AVATAR_WIDTH - FriendChatItem::GAP - FriendChatItem::TRIANGLE_WIDTH - FriendChatItem::MESSAGE_MARGIN * 2,
+
+              to_cstr(argMessageStr),
+              0,
+
+              {},
+              false,
+              false,
+
+              1,
+              12,
+          }
+
+        , background
+          {
+              DIR_UPLEFT,
+              0,
+              0,
+
+              FriendChatItem::MESSAGE_MARGIN * 2 + std::max<int>(message.w(), FriendChatItem::MESSAGE_MIN_WIDTH ) + FriendChatItem::TRIANGLE_WIDTH,
+              FriendChatItem::MESSAGE_MARGIN * 2 + std::max<int>(message.h(), FriendChatItem::MESSAGE_MIN_HEIGHT),
+
+              [this](const Widget *, int drawDstX, int drawDstY)
+              {
+                  g_sdlDevice->fillRectangle(
+                          bgColor,
+
+                          drawDstX + (avatarLeft ? FriendChatItem::TRIANGLE_WIDTH : 0),
+                          drawDstY,
+
+                          std::max<int>(message.w(), FriendChatItem::MESSAGE_MIN_WIDTH ) + FriendChatItem::MESSAGE_MARGIN * 2,
+                          std::max<int>(message.h(), FriendChatItem::MESSAGE_MIN_HEIGHT) + FriendChatItem::MESSAGE_MARGIN * 2,
+
+                          FriendChatItem::MESSAGE_CORNER);
+
+                  const auto triangleX1_avatarLeft = drawDstX;
+                  const auto triangleX2_avatarLeft = drawDstX + FriendChatItem::TRIANGLE_WIDTH;
+                  const auto triangleX3_avatarLeft = drawDstX + FriendChatItem::TRIANGLE_WIDTH;
+
+                  const auto triangleX1_avatarRight = drawDstX + FriendChatItem::MESSAGE_MARGIN * 2 + std::max<int>(message.w(), FriendChatItem::MESSAGE_MIN_WIDTH) + FriendChatItem::TRIANGLE_WIDTH;
+                  const auto triangleX2_avatarRight = drawDstX + FriendChatItem::MESSAGE_MARGIN * 2 + std::max<int>(message.w(), FriendChatItem::MESSAGE_MIN_WIDTH);
+                  const auto triangleX3_avatarRight = drawDstX + FriendChatItem::MESSAGE_MARGIN * 2 + std::max<int>(message.w(), FriendChatItem::MESSAGE_MIN_WIDTH);
+
+                  const auto triangleY1_showName = drawDstY + (FriendChatItem::AVATAR_HEIGHT - FriendChatItem::NAME_HEIGHT) / 2;
+                  const auto triangleY2_showName = drawDstY + (FriendChatItem::AVATAR_HEIGHT - FriendChatItem::NAME_HEIGHT) / 2 - FriendChatItem::TRIANGLE_HEIGHT / 2;
+                  const auto triangleY3_showName = drawDstY + (FriendChatItem::AVATAR_HEIGHT - FriendChatItem::NAME_HEIGHT) / 2 + FriendChatItem::TRIANGLE_HEIGHT / 2;
+
+                  const auto triangleY1_hideName = drawDstY + FriendChatItem::AVATAR_HEIGHT / 2;
+                  const auto triangleY2_hideName = drawDstY + FriendChatItem::AVATAR_HEIGHT / 2 - FriendChatItem::TRIANGLE_HEIGHT / 2;
+                  const auto triangleY3_hideName = drawDstY + FriendChatItem::AVATAR_HEIGHT / 2 + FriendChatItem::TRIANGLE_HEIGHT / 2;
+
+                  if(avatarLeft){
+                      if(showName) g_sdlDevice->fillTriangle(bgColor, triangleX1_avatarLeft, triangleY1_showName, triangleX2_avatarLeft, triangleY2_showName, triangleX3_avatarLeft, triangleY3_showName);
+                      else         g_sdlDevice->fillTriangle(bgColor, triangleX1_avatarLeft, triangleY1_hideName, triangleX2_avatarLeft, triangleY2_hideName, triangleX3_avatarLeft, triangleY3_hideName);
+                  }
+                  else{
+                      if(showName) g_sdlDevice->fillTriangle(bgColor, triangleX1_avatarRight, triangleY1_showName, triangleX2_avatarRight, triangleY2_showName, triangleX3_avatarRight, triangleY3_showName);
+                      else         g_sdlDevice->fillTriangle(bgColor, triangleX1_avatarRight, triangleY1_hideName, triangleX2_avatarRight, triangleY2_hideName, triangleX3_avatarRight, triangleY3_hideName);
+                  }
+              },
+          }
+    {
+        const auto fnMoveAdd = [this](Widget *widgetPtr, dir8_t dstDir, int dstX, int dstY)
+        {
+            widgetPtr->moveAt(dstDir, dstX, dstY);
+            addChild(widgetPtr, false);
+        };
+
+        if(avatarLeft){
+            fnMoveAdd(&avatar, DIR_UPLEFT, 0, 0);
+            if(showName){
+                fnMoveAdd(&name      , DIR_LEFT  ,                  FriendChatItem::AVATAR_WIDTH + FriendChatItem::GAP + FriendChatItem::TRIANGLE_WIDTH                                 , FriendChatItem::NAME_HEIGHT / 2                             );
+                fnMoveAdd(&background, DIR_UPLEFT,                  FriendChatItem::AVATAR_WIDTH + FriendChatItem::GAP                                                                  , FriendChatItem::NAME_HEIGHT                                 );
+                fnMoveAdd(&message   , DIR_UPLEFT,                  FriendChatItem::AVATAR_WIDTH + FriendChatItem::GAP + FriendChatItem::TRIANGLE_WIDTH + FriendChatItem::MESSAGE_MARGIN, FriendChatItem::NAME_HEIGHT + FriendChatItem::MESSAGE_MARGIN);
+            }
+            else{
+                fnMoveAdd(&background, DIR_UPLEFT,                  FriendChatItem::AVATAR_WIDTH + FriendChatItem::GAP                                                                  , 0                                                           );
+                fnMoveAdd(&message   , DIR_UPLEFT,                  FriendChatItem::AVATAR_WIDTH + FriendChatItem::GAP + FriendChatItem::TRIANGLE_WIDTH + FriendChatItem::MESSAGE_MARGIN, FriendChatItem::MESSAGE_MARGIN                              );
+            }
+        }
+        else{
+            const auto realWidth = FriendChatItem::AVATAR_WIDTH + FriendChatItem::GAP + FriendChatItem::TRIANGLE_WIDTH + std::max<int>(message.w(), FriendChatItem::MESSAGE_MIN_WIDTH) + FriendChatItem::MESSAGE_MARGIN * 2;
+            fnMoveAdd(&avatar, DIR_UPRIGHT, realWidth - 1, 0);
+
+            if(showName){
+                fnMoveAdd(&name      , DIR_RIGHT  , realWidth - 1 - FriendChatItem::AVATAR_WIDTH - FriendChatItem::GAP - FriendChatItem::TRIANGLE_WIDTH                                 , FriendChatItem::NAME_HEIGHT / 2                             );
+                fnMoveAdd(&background, DIR_UPRIGHT, realWidth - 1 - FriendChatItem::AVATAR_WIDTH - FriendChatItem::GAP                                                                  , FriendChatItem::NAME_HEIGHT                                 );
+                fnMoveAdd(&message   , DIR_UPRIGHT, realWidth - 1 - FriendChatItem::AVATAR_WIDTH - FriendChatItem::GAP - FriendChatItem::TRIANGLE_WIDTH - FriendChatItem::MESSAGE_MARGIN, FriendChatItem::NAME_HEIGHT + FriendChatItem::MESSAGE_MARGIN);
+            }
+            else{
+                fnMoveAdd(&background, DIR_UPRIGHT, realWidth - 1 - FriendChatItem::AVATAR_WIDTH - FriendChatItem::GAP                                                                  , 0                                                           );
+                fnMoveAdd(&message   , DIR_UPRIGHT, realWidth - 1 - FriendChatItem::AVATAR_WIDTH - FriendChatItem::GAP - FriendChatItem::TRIANGLE_WIDTH - FriendChatItem::MESSAGE_MARGIN, FriendChatItem::MESSAGE_MARGIN                              );
+            }
+        }
+    }
+};
+
+struct FriendChatPage: public Widget
+{
+};
+
 struct FriendChatPreviewItem: public Widget
 {
     static constexpr int WIDTH  = 400;
@@ -37,7 +278,18 @@ struct FriendChatPreviewItem: public Widget
     ShapeClipBoard preview;
     ShapeClipBoard selected;
 
-    FriendChatPreviewItem(dir8_t argDir, int argX, int argY, const char8_t *nameStr, std::function<SDL_Texture *(const ImageBoard *)> argLoadImageFunc, Widget *argParent, bool argAutoDelete)
+    FriendChatPreviewItem(dir8_t argDir,
+            int argX,
+            int argY,
+
+            const char8_t *argNameStr,
+            const char8_t *argChatXMLStr,
+
+            std::function<SDL_Texture *(const ImageBoard *)> argLoadImageFunc,
+
+            Widget *argParent    = nullptr,
+            bool   argAutoDelete = false)
+
         : Widget
           {
               argDir,
@@ -80,7 +332,7 @@ struct FriendChatPreviewItem: public Widget
               FriendChatPreviewItem::AVATAR_WIDTH + FriendChatPreviewItem::GAP,
               FriendChatPreviewItem::NAME_HEIGHT / 2,
 
-              nameStr,
+              argNameStr,
 
               1,
               14,
@@ -98,9 +350,11 @@ struct FriendChatPreviewItem: public Widget
               0,
               0, // line width
 
-              false,
-              {},
+              to_cstr(argChatXMLStr),
+              1,
 
+              {},
+              false,
               false,
 
               1,
@@ -211,8 +465,8 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
           argX,
           argY,
 
-          UIPage_MARGIN[2] + FriendChatPreviewItem::WIDTH      + UIPage_MARGIN[3],
-          UIPage_MARGIN[0] + FriendChatPreviewItem::HEIGHT * 8 + UIPage_MARGIN[1],
+          UIPage_BORDER[2] + FriendChatPreviewItem::WIDTH      + UIPage_BORDER[3],
+          UIPage_BORDER[0] + FriendChatPreviewItem::HEIGHT * 8 + UIPage_BORDER[1],
 
           {},
 
@@ -329,56 +583,107 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
           this,
       }
 
-    , m_UIPage_CHATPREVIEW(new FriendChatPreviewPage
+    , m_uiPageList
       {
-          DIR_UPLEFT,
-          UIPage_MARGIN[2],
-          UIPage_MARGIN[0],
+          new Widget // UIPage_CHAT
+          {
+              DIR_UPLEFT,
+              UIPage_BORDER[2],
+              UIPage_BORDER[0],
 
-          m_frameCropDup.w() - UIPage_MARGIN[2] - UIPage_MARGIN[3],
-          m_frameCropDup.h() - UIPage_MARGIN[0] - UIPage_MARGIN[1],
+              m_frameCropDup.w() - UIPage_BORDER[2] - UIPage_BORDER[3],
+              m_frameCropDup.h() - UIPage_BORDER[0] - UIPage_BORDER[1],
 
-          {},
+              {
+                  {new FriendChatItem{
+                      DIR_UPLEFT,
+                      0,
+                      0,
 
-          this,
-          true,
-      })
+                      u8"绝地武士",
+                      u8"<layout><par>你好呀！</par></layout>",
+
+                      [](const ImageBoard *)
+                      {
+                          return g_progUseDB->retrieve(0X02000000);
+                      },
+
+                      true,
+                      true,
+
+                      colorf::RED + colorf::A_SHF(128),
+                  }, DIR_UPLEFT, 0, 0, true},
+
+                  {new FriendChatItem{
+                      DIR_UPLEFT,
+                      0,
+                      100,
+
+                      u8"恭喜发财",
+                      u8"<layout><par>祝你发财！</par><par>收到请回复，谢谢！</par></layout>",
+
+                      [](const ImageBoard *)
+                      {
+                          return g_progUseDB->retrieve(0X02000001);
+                      },
+
+                      false,
+                      false,
+
+                      colorf::GREEN + colorf::A_SHF(128),
+                  }, DIR_UPLEFT, 0, 50, true},
+              },
+
+              this,
+              true,
+          },
+
+          new FriendChatPreviewPage // UIPage_CHATPREVIEW
+          {
+              DIR_UPLEFT,
+              UIPage_BORDER[2],
+              UIPage_BORDER[0],
+
+              m_frameCropDup.w() - UIPage_BORDER[2] - UIPage_BORDER[3],
+              m_frameCropDup.h() - UIPage_BORDER[0] - UIPage_BORDER[1],
+
+              {
+                  {new FriendChatPreviewItem{
+                      DIR_UPLEFT,
+                      0,
+                      0,
+
+                      u8"绝地武士",
+                      u8"<layout><par>你好呀！</par></layout>",
+
+                      [](const ImageBoard *)
+                      {
+                          return g_progUseDB->retrieve(0X02000000);
+                      },
+                  },  DIR_UPLEFT, 0, 0, true},
+
+
+                  {new FriendChatPreviewItem{
+                      DIR_UPLEFT,
+                      0,
+                      FriendChatPreviewItem::HEIGHT,
+
+                      u8"恭喜发财",
+                      u8"<layout><par>祝你发财！</par><par>收到请回复，谢谢！</par></layout>",
+
+                      [](const ImageBoard *)
+                      {
+                          return g_progUseDB->retrieve(0X02000001);
+                      },
+                  },DIR_UPLEFT, 0, FriendChatPreviewItem::HEIGHT, true},
+              },
+
+              this,
+              true,
+          },
+      }
 {
     setShow(false);
-    m_UIPage_CHATPREVIEW->addChild(new FriendChatPreviewItem
-    {
-        DIR_UPLEFT,
-        0,
-        0,
-
-        u8"绝地武士",
-        [](const ImageBoard *)
-        {
-            return g_progUseDB->retrieve(0X02000000);
-        },
-
-        nullptr,
-        false,
-
-    }, true);
-
-
-    m_UIPage_CHATPREVIEW->addChild(new FriendChatPreviewItem
-    {
-        DIR_UPLEFT,
-        0,
-        FriendChatPreviewItem::HEIGHT,
-
-        u8"恭喜发财",
-        [](const ImageBoard *)
-        {
-            return g_progUseDB->retrieve(0X02000001);
-        },
-
-        nullptr,
-        false,
-
-    }, true);
 }
 
 void FriendChatBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
@@ -386,7 +691,7 @@ void FriendChatBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, i
     for(const auto &p:
     {
         static_cast<const Widget *>(&m_backgroundCropDup),
-        static_cast<const Widget *>( m_UIPage_CHATPREVIEW),
+        static_cast<const Widget *>( m_uiPageList[m_uiPage]),
         static_cast<const Widget *>(&m_frameCropDup),
         static_cast<const Widget *>(&m_slider),
         static_cast<const Widget *>(&m_close),
@@ -463,20 +768,21 @@ bool FriendChatBoard::processEvent(const SDL_Event &event, bool valid)
             }
         case SDL_MOUSEBUTTONDOWN:
             {
-                if(m_uiPage == UIPage_CHATPREVIEW && m_UIPage_CHATPREVIEW->in(event.button.x, event.button.y)){
-                    if(m_UIPage_CHATPREVIEW->processEvent(event, true)){
-                        return consumeFocus(true, m_UIPage_CHATPREVIEW);
+                if(m_uiPageList[m_uiPage]->in(event.button.x, event.button.y)){
+                    if(m_uiPageList[m_uiPage]->processEvent(event, true)){
+                        return consumeFocus(true, m_uiPageList[m_uiPage]);
                     }
                 }
                 return consumeFocus(in(event.button.x, event.button.y));
             }
         case SDL_MOUSEWHEEL:
             {
-                if(m_UIPage_CHATPREVIEW->focus()){
-                    m_UIPage_CHATPREVIEW->processEvent(event, true);
-                    return consumeFocus(true, m_UIPage_CHATPREVIEW);
+                if(m_uiPageList[m_uiPage]->focus()){
+                    if(m_uiPageList[m_uiPage]->processEvent(event, true)){
+                        return consumeFocus(true, m_uiPageList[m_uiPage]);
+                    }
                 }
-                return consumeFocus(focus());
+                return false;
             }
         default:
             {

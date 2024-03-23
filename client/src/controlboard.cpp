@@ -767,9 +767,12 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
           9,
           0, // need reset
           341 + (boardW - 800),
-          false,
 
-          {0, 0, 0, 0},
+          nullptr,
+          0,
+
+          {},
+          false,
           false,
 
           1,

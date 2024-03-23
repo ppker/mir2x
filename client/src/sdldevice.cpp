@@ -914,6 +914,64 @@ void SDLDevice::fillRectangle(uint32_t nRGBA, int argX, int argY, int argW, int 
     }
 }
 
+void SDLDevice::drawTriangle(int argX1, int argY1, int argX2, int argY2, int argX3, int argY3)
+{
+    Uint8 r = 0;
+    Uint8 g = 0;
+    Uint8 b = 0;
+    Uint8 a = 0;
+
+    if(SDL_GetRenderDrawColor(getRenderer(), &r, &g, &b, &a)){
+        throw fflerror("get renderer draw color failed: %s", SDL_GetError());
+    }
+
+    if(a == 0){
+        return;
+    }
+
+    if(aatrigonRGBA(getRenderer(), argX1, argY1, argX2, argY2, argX3, argY3, r, g, b, a)){
+        throw fflerror("aatrigonRGBA() failed");
+    }
+}
+
+void SDLDevice::drawTriangle(uint32_t argColor, int argX1, int argY1, int argX2, int argY2, int argX3, int argY3)
+{
+    if(colorf::A(argColor)){
+        SDLDeviceHelper::EnableRenderColor enableColor(argColor, this);
+        SDLDeviceHelper::EnableRenderBlendMode enableBlendMode(SDL_BLENDMODE_BLEND, this);
+        drawTriangle(argX1, argY1, argX2, argY2, argX3, argY3);
+    }
+}
+
+void SDLDevice::fillTriangle(int argX1, int argY1, int argX2, int argY2, int argX3, int argY3)
+{
+    Uint8 r = 0;
+    Uint8 g = 0;
+    Uint8 b = 0;
+    Uint8 a = 0;
+
+    if(SDL_GetRenderDrawColor(getRenderer(), &r, &g, &b, &a)){
+        throw fflerror("get renderer draw color failed: %s", SDL_GetError());
+    }
+
+    if(a == 0){
+        return;
+    }
+
+    if(filledTrigonRGBA(getRenderer(), argX1, argY1, argX2, argY2, argX3, argY3, r, g, b, a)){
+        throw fflerror("filledTrigonRGBA() failed");
+    }
+}
+
+void SDLDevice::fillTriangle(uint32_t argColor, int argX1, int argY1, int argX2, int argY2, int argX3, int argY3)
+{
+    if(colorf::A(argColor)){
+        SDLDeviceHelper::EnableRenderColor enableColor(argColor, this);
+        SDLDeviceHelper::EnableRenderBlendMode enableBlendMode(SDL_BLENDMODE_BLEND, this);
+        fillTriangle(argX1, argY1, argX2, argY2, argX3, argY3);
+    }
+}
+
 void SDLDevice::drawRectangle(int argX, int argY, int argW, int argH, int argRad)
 {
     // hack for roundedRectangleRGBA

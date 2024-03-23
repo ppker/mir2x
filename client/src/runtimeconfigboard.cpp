@@ -714,9 +714,11 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
 
           to_dround(m_leftMenuBackground.w() * 0.7),
 
-          false,
-          {},
+          nullptr,
+          0,
 
+          {},
+          false,
           false,
 
           1,

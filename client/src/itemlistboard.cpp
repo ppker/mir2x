@@ -228,16 +228,18 @@ void ItemListBoard::drawGridHoverLayout(size_t index) const
     fflassert(pageCount() > 0);
     fflassert(index < itemCount());
 
-    LayoutBoard hoverTextBoard
+    const LayoutBoard hoverTextBoard
     {
         DIR_UPLEFT,
         0,
         0,
         200,
 
-        false,
-        {0, 0, 0, 0},
+        to_cstr(getGridHoverLayout(index)),
+        0,
 
+        {},
+        false,
         false,
 
         1,
@@ -249,7 +251,6 @@ void ItemListBoard::drawGridHoverLayout(size_t index) const
         LALIGN_JUSTIFY,
     };
 
-    hoverTextBoard.loadXML(to_cstr(getGridHoverLayout(index)));
 
     const int margin = 20;
     const int maxWidth = 200;

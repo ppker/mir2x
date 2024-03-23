@@ -62,9 +62,12 @@ class LayoutBoard: public Widget
                 int y,
                 int lineWidth,
 
-                bool            canSelect = false,
+                const char *initXML = nullptr,
+                size_t parLimit = 0,
+
                 std::array<int, 4> margin = {0, 0, 0, 0},
 
+                bool canSelect  = false,
                 bool canThrough = false,
 
                 uint8_t  font        =  0,
@@ -107,6 +110,10 @@ class LayoutBoard: public Widget
 
             if((m_parNodeConfig.lineWidth > 0) && (m_parNodeConfig.lineWidth <= m_parNodeConfig.margin[2] + m_parNodeConfig.margin[3])){
                 throw fflerror("invalid default paragraph parameters");
+            }
+
+            if(initXML){
+                loadXML(initXML, parLimit);
             }
         }
 

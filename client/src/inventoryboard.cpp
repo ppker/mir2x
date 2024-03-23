@@ -550,16 +550,18 @@ std::tuple<int, int> InventoryBoard::getInvGrid(int locPX, int locPY) const
 
 void InventoryBoard::drawItemHoverText(const PackBin &bin) const
 {
-    LayoutBoard hoverTextBoard
+    const LayoutBoard hoverTextBoard
     {
         DIR_UPLEFT,
         0,
         0,
         200,
 
-        false,
-        {0, 0, 0, 0},
+        to_cstr(bin.item.getXMLLayout().c_str()),
+        0,
 
+        {},
+        false,
         false,
 
         1,
@@ -571,7 +573,6 @@ void InventoryBoard::drawItemHoverText(const PackBin &bin) const
         LALIGN_JUSTIFY,
     };
 
-    hoverTextBoard.loadXML(to_cstr(bin.item.getXMLLayout().c_str()));
     const auto [mousePX, mousePY] = SDLDeviceHelper::getMousePLoc();
     const auto textBoxW = std::max<int>(hoverTextBoard.w(), 200) + 20;
     const auto textBoxH = hoverTextBoard.h() + 20;

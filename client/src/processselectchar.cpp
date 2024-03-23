@@ -182,25 +182,6 @@ void ProcessSelectChar::drawCharName() const
         fflassert(!name.empty());
         fflassert(!jobList.empty());
 
-        LayoutBoard charBoard
-        {
-            DIR_UPLEFT,
-            0,
-            0,
-            200,
-
-            false,
-            {0, 0, 0, 0},
-
-            false,
-
-            1,
-            15,
-            0,
-            colorf::WHITE + colorf::A_SHF(255),
-            0,
-        };
-
         std::u8string xmlStr;
         xmlStr += str_printf(u8R"###( <layout> )###""\n");
         xmlStr += str_printf(u8R"###(     <par color='RGB(237,226,200)'>角色：%s</par> )###""\n", to_cstr(name));
@@ -209,7 +190,24 @@ void ProcessSelectChar::drawCharName() const
             xmlStr += str_printf(u8R"###( <par color='RGB(231,231,189)'>职业：%s</par> )###""\n", to_cstr(jobf::jobName(job)));
         }
         xmlStr += str_printf(u8R"###( </layout> )###""\n");
-        charBoard.loadXML(to_cstr(xmlStr));
+
+        const LayoutBoard charBoard
+        {
+            DIR_UPLEFT,
+            0,
+            0,
+            200,
+
+            to_cstr(xmlStr),
+            0,
+
+            {},
+            false,
+            false,
+
+            1,
+            15,
+        };
 
         const int drawBoardX = 120;
         const int drawBoardY = 260 - charBoard.h();

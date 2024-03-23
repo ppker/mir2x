@@ -423,16 +423,18 @@ void PlayerStateBoard::drawItemHoverText(int wltype) const
     const auto &ir = DBCOM_ITEMRECORD(item.itemID);
     fflassert(ir);
 
-    LayoutBoard hoverTextBoard
+    const LayoutBoard hoverTextBoard
     {
         DIR_UPLEFT,
         0,
         0,
         200,
 
-        false,
-        {0, 0, 0, 0},
+        to_cstr(item.getXMLLayout().c_str()),
+        0,
 
+        {},
+        false,
         false,
 
         1,
@@ -444,7 +446,6 @@ void PlayerStateBoard::drawItemHoverText(int wltype) const
         LALIGN_JUSTIFY,
     };
 
-    hoverTextBoard.loadXML(to_cstr(item.getXMLLayout().c_str()));
     const auto [mousePX, mousePY] = SDLDeviceHelper::getMousePLoc();
     const auto textBoxW = std::max<int>(hoverTextBoard.w(), 200) + 20;
     const auto textBoxH = hoverTextBoard.h() + 20;
