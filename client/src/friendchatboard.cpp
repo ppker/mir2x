@@ -78,7 +78,7 @@ struct FriendItem: public Widget
 
               [this](const Widget *, int drawDstX, int drawDstY)
               {
-                  if(focus()){
+                  if(const auto [mousePX, mousePY] = SDLDeviceHelper::getMousePLoc(); in(mousePX, mousePY)){
                       g_sdlDevice->fillRectangle(colorf::GREEN              + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
                       g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
                   }
@@ -1401,8 +1401,13 @@ void FriendChatBoard::setUIPage(int uiPage, const char *titleStr)
     fflassert(uiPage >= 0, uiPage);
     fflassert(uiPage < UIPage_END, uiPage);
 
-    m_uiPage = uiPage;
-    if(titleStr){
-        m_uiPageList[m_uiPage].title->setText(to_u8cstr(titleStr));
+    if(m_uiPage != uiPage){
+        m_uiPageList[  uiPage].page->setFocus(false);
+        m_uiPageList[m_uiPage].page->setFocus(true );
+
+        m_uiPage = uiPage;
+        if(titleStr){
+            m_uiPageList[m_uiPage].title->setText(to_u8cstr(titleStr));
+        }
     }
 }
