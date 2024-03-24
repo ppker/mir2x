@@ -129,6 +129,31 @@ struct FriendItem: public Widget
               false,
           }
     {}
+
+    bool processEvent(const SDL_Event &event, bool valid) override
+    {
+        if(!valid){
+            return consumeFocus(false);
+        }
+
+        if(!show()){
+            return consumeFocus(false);
+        }
+
+        switch(event.type){
+            case SDL_MOUSEBUTTONDOWN:
+                {
+                    if(in(event.button.x, event.button.y)){
+                        dynamic_cast<FriendChatBoard *>(this->parent()->parent())->setUIPage(FriendChatBoard::UIPage_CHAT);
+                    }
+                    return false;
+                }
+            default:
+                {
+                    return false;
+                }
+        }
+    }
 };
 
 struct FriendListPage: public Widget
@@ -1369,4 +1394,11 @@ void FriendChatBoard::addMessage(const SDChatMessage &newmsg)
             return x.timestamp < y.timestamp;
         });
     }
+}
+
+void FriendChatBoard::setUIPage(int uiPage)
+{
+    fflassert(uiPage >= 0, uiPage);
+    fflassert(uiPage < UIPage_END, uiPage);
+    m_uiPage = uiPage;
 }

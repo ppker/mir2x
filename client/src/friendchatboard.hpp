@@ -10,7 +10,7 @@
 class ProcessRun;
 class FriendChatBoard: public Widget
 {
-    private:
+    public:
         enum UIPageType: int
         {
             UIPage_CHAT = 0,
@@ -81,4 +81,7 @@ class FriendChatBoard: public Widget
     public:
         void addMessage(const SDChatMessage &);
         void setFriendList(const SDFriendList &);
+
+    public:
+        void setUIPage(int);
 };
