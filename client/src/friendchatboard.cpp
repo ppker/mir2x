@@ -13,21 +13,20 @@ static constexpr int UIPage_MARGIN =   4;
 
 struct FriendItem: public Widget
 {
-    //   ITEM_MARGIN
-    // ->| |<-
-    //   +--------------------------+
-    //   | +-----+                  |
-    //   | |     | +------+         |
-    //   | | IMG | | NAME |         |
-    //   | |     | +------+         |
-    //   | +-----+                  |
-    //   +--------------------------+
+    //   ITEM_MARGIN                    | ITRM_MARGIN
+    // ->| |<-                          v
+    //   +--------------------------+ - -
+    //   | +-----+                  | ^ -
+    //   | |     | +------+         | | ^
+    //   | | IMG | | NAME |         | | HEIGHT
+    //   | |     | +------+         | |
+    //   | +-----+                  | v
+    //   +--------------------------+ -
     //         ->| |<-
     //           GAP
+    //   |<------------------------>| UIPage_WIDTH - UIPage_MARGIN * 2
 
-    static constexpr int WIDTH  = UIPage_WIDTH - UIPage_MARGIN * 2;
     static constexpr int HEIGHT = 40;
-
     static constexpr int ITEM_MARGIN = 3;
     static constexpr int AVATAR_WIDTH = (HEIGHT - ITEM_MARGIN * 2) * 84 / 94;
 
@@ -57,7 +56,7 @@ struct FriendItem: public Widget
               argX,
               argY,
 
-              FriendItem::WIDTH,
+              UIPage_WIDTH - UIPage_MARGIN * 2,
               FriendItem::HEIGHT,
               {},
 
@@ -388,6 +387,37 @@ struct FriendChatItem: public Widget
 
 struct FriendChatPage: public Widget
 {
+    // chat page is different, it uses the UIPage_MARGIN area
+    // because we fill different color to chat area and input area
+
+    //                          ->||<- UIPage_MARGIN
+    //   |<----UIPage_WIDTH--------->|
+    //   +---------------------------+
+    //   |+-------------------------+| -
+    //   || +------+                || ^
+    //   || |******|                || |
+    //   || +------+                || |
+    //   ||                +------+ || |
+    //   ||                |******| || |
+    //   ||                +------+ || |
+    //   || +------------+          || | CHAT_HEIGHT
+    //   || |************|          || |
+    //   || |*****       |          || |
+    //   || +------------+          || |
+    //   ||                         || |
+    //   ||       chat area         || |
+    //   ||                         || v
+    //   |+-------------------------+| -
+    //   +---------------------------+   UIPage_MARGIN + 1 + UIPage_MARGIN
+    //   |  +---------------------+  | -
+    //   | / ********|             \ | ^
+    //   ||       input area        || | UIPage_HEIGHT - UIPage_MARGIN * 4 - 1 - CHAT_HEIGHT
+    //   | \                       / | v
+    //   |  +---------------------+  | -
+    //   +---------------------------+ - UIPage_MARGIN
+    // ->||<- UIPage_MARGIN          ^
+    // -->| |<-- INPUT_CORNER        |
+
     using Widget::Widget;
 };
 
