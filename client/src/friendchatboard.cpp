@@ -388,6 +388,7 @@ struct FriendChatItem: public Widget
 
 struct FriendChatPage: public Widget
 {
+    using Widget::Widget;
 };
 
 struct FriendChatPreviewItem: public Widget
@@ -894,7 +895,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                   true,
               },
 
-              .page = new Widget
+              .page = new FriendChatPage
               {
                   DIR_UPLEFT,
                   UIPage_BORDER[2] + UIPage_MARGIN,
