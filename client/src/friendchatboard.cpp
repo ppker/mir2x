@@ -11,6 +11,131 @@ static constexpr int UIPage_WIDTH  = 400;
 static constexpr int UIPage_HEIGHT = 400;
 static constexpr int UIPage_MARGIN =   4;
 
+struct FriendItem: public Widget
+{
+    //   ITEM_MARGIN
+    // ->| |<-
+    //   +--------------------------+
+    //   | +-----+                  |
+    //   | |     | +------+         |
+    //   | | IMG | | NAME |         |
+    //   | |     | +------+         |
+    //   | +-----+                  |
+    //   +--------------------------+
+    //         ->| |<-
+    //           GAP
+
+    static constexpr int WIDTH  = UIPage_WIDTH - UIPage_MARGIN * 2;
+    static constexpr int HEIGHT = 40;
+
+    static constexpr int ITEM_MARGIN = 3;
+    static constexpr int AVATAR_WIDTH = (HEIGHT - ITEM_MARGIN * 2) * 84 / 94;
+
+    static constexpr int GAP = 5;
+
+    uint32_t dbid;
+    ShapeClipBoard hovered;
+
+    ImageBoard avatar;
+    LabelBoard name;
+
+    FriendItem(dir8_t argDir,
+            int argX,
+            int argY,
+
+            uint32_t argDBID,
+            const char8_t *argNameStr,
+
+            std::function<SDL_Texture *(const ImageBoard *)> argLoadImageFunc,
+
+            Widget *argParent  = nullptr,
+            bool argAutoDelete = false)
+
+        : Widget
+          {
+              argDir,
+              argX,
+              argY,
+
+              FriendItem::WIDTH,
+              FriendItem::HEIGHT,
+              {},
+
+              argParent,
+              argAutoDelete,
+          }
+
+        , dbid(argDBID)
+
+        , hovered
+          {
+              DIR_UPLEFT,
+              0,
+              0,
+
+              this->w(),
+              this->h(),
+
+              [this](const Widget *, int drawDstX, int drawDstY)
+              {
+                  if(focus()){
+                      g_sdlDevice->fillRectangle(colorf::GREEN              + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
+                      g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
+                  }
+                  else{
+                      g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(32), drawDstX, drawDstY, w(), h());
+                  }
+              },
+
+              this,
+              false,
+          }
+
+        , avatar
+          {
+              DIR_UPLEFT,
+              FriendItem::ITEM_MARGIN,
+              FriendItem::ITEM_MARGIN,
+
+              FriendItem::AVATAR_WIDTH,
+              FriendItem::HEIGHT - FriendItem::ITEM_MARGIN * 2,
+
+              std::move(argLoadImageFunc),
+
+              false,
+              false,
+              0,
+
+              colorf::WHITE + colorf::A_SHF(0XFF),
+
+              this,
+              false,
+          }
+
+        , name
+          {
+              DIR_LEFT,
+              FriendItem::ITEM_MARGIN + FriendItem::AVATAR_WIDTH + FriendItem::GAP,
+              FriendItem::HEIGHT / 2,
+
+              argNameStr,
+
+              1,
+              14,
+              0,
+              colorf::WHITE + colorf::A_SHF(255),
+
+              this,
+              false,
+          }
+    {}
+};
+
+struct FriendListPage: public Widget
+{
+    using Widget::Widget;
+};
+
 struct FriendChatItem: public Widget
 {
     //          WIDTH
@@ -706,7 +831,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                               0,
                               0,
 
-                              {0X000008E0, 0X000008E0, 0X000008E1},
+                              {0X000008F0, 0X000008F0, 0X000008F1},
                               {
                                   SYS_U32NIL,
                                   SYS_U32NIL,
@@ -889,6 +1014,105 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                           DIR_UPLEFT,
                           0,
                           FriendChatPreviewItem::HEIGHT,
+                          true,
+                      },
+                  },
+
+                  this,
+                  true,
+              },
+          },
+
+          std::pair<Widget *, Widget *> // UIPage_FRIENDLIST
+          {
+              new PageButtonList
+              {
+                  DIR_RIGHT,
+                  m_frameCropDup.w() - 42,
+                  28,
+                  2,
+
+                  {
+                      {
+                          new TritexButton
+                          {
+                              DIR_UPLEFT,
+                              0,
+                              0,
+
+                              {0X00000170, 0X00000170, 0X00000171},
+                              {
+                                  SYS_U32NIL,
+                                  SYS_U32NIL,
+                                  0X01020000 + 105,
+                              },
+
+                              nullptr,
+                              nullptr,
+                              [this](ButtonBase *)
+                              {
+                              },
+                          },
+
+                          true,
+                      },
+                  },
+
+                  this,
+                  true,
+              },
+
+              new FriendListPage
+              {
+                  DIR_UPLEFT,
+                  UIPage_BORDER[2] + UIPage_MARGIN,
+                  UIPage_BORDER[0] + UIPage_MARGIN,
+
+                  m_frameCropDup.w() - UIPage_BORDER[2] - UIPage_BORDER[3] - UIPage_MARGIN * 2,
+                  m_frameCropDup.h() - UIPage_BORDER[0] - UIPage_BORDER[1] - UIPage_MARGIN * 2,
+
+                  {
+                      {
+                          new FriendItem
+                          {
+                              DIR_UPLEFT,
+                              0,
+                              0,
+
+                              123,
+                              u8"绝地武士",
+
+                              [](const ImageBoard *)
+                              {
+                                  return g_progUseDB->retrieve(0X02000000);
+                              },
+                          },
+
+                          DIR_UPLEFT,
+                          0,
+                          0,
+                          true,
+                      },
+
+                      {
+                          new FriendItem
+                          {
+                              DIR_UPLEFT,
+                              0,
+                              FriendItem::HEIGHT,
+
+                              123,
+                              u8"书剑飞扬",
+
+                              [](const ImageBoard *)
+                              {
+                                  return g_progUseDB->retrieve(0X02000001);
+                              },
+                          },
+
+                          DIR_UPLEFT,
+                          0,
+                          0,
                           true,
                       },
                   },
