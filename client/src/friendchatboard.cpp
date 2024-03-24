@@ -524,6 +524,17 @@ struct FriendChatPage: public Widget
                           UIPage_HEIGHT - UIPage_MARGIN * 4 - 1 - FriendChatPage::CHAT_HEIGHT,
 
                           FriendChatPage::INPUT_CORNER);
+
+                  g_sdlDevice->drawRectangle(
+                          colorf::RGBA(231, 231, 189, 96),
+
+                          drawDstX + UIPage_MARGIN,
+                          drawDstY + FriendChatPage::CHAT_HEIGHT + UIPage_MARGIN * 3 + 1,
+
+                          UIPage_WIDTH - UIPage_MARGIN * 2,
+                          UIPage_HEIGHT - UIPage_MARGIN * 4 - 1 - FriendChatPage::CHAT_HEIGHT,
+
+                          FriendChatPage::INPUT_CORNER);
               },
 
               this,
