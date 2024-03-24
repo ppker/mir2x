@@ -418,7 +418,188 @@ struct FriendChatPage: public Widget
     // ->||<- UIPage_MARGIN          ^
     // -->| |<-- INPUT_CORNER        |
 
-    using Widget::Widget;
+    static constexpr int CHAT_HEIGHT = 200;
+    static constexpr int INPUT_CORNER = 5;
+
+    struct FriendChatItemContainer: public Widget
+    {
+        FriendChatItemContainer(dir8_t argDir,
+
+                int argX,
+                int argY,
+
+                Widget *argParent     = nullptr,
+                bool    argAutoDelete = false)
+
+            : Widget
+              {
+                  argDir,
+                  argX,
+                  argY,
+
+                  UIPage_WIDTH - UIPage_MARGIN * 2,
+                  {},
+                  {},
+
+                  argParent,
+                  argAutoDelete,
+              }
+        {}
+
+        void append(FriendChatItem *chatItem, bool autoDelete)
+        {
+            const auto startY = m_childList.empty() ? 0 : (h() + FriendChatItem::ITEM_SPACE);
+            if(chatItem->avatarLeft){
+                chatItem->moveAt(DIR_UPLEFT, 0, startY);
+            }
+            else{
+                chatItem->moveAt(DIR_UPRIGHT, w() - 1, startY);
+            }
+
+            addChild(chatItem, autoDelete);
+        }
+    };
+
+    ShapeClipBoard background;
+    FriendChatItemContainer container;
+
+    FriendChatPage(dir8_t argDir,
+
+            int argX,
+            int argY,
+
+            Widget *argParent,
+            bool argAutoDelete)
+
+        : Widget
+          {
+              argDir,
+              argX,
+              argY,
+
+              UIPage_WIDTH,
+              UIPage_HEIGHT,
+
+              {},
+
+              argParent,
+              argAutoDelete,
+          }
+
+        , background
+          {
+              DIR_UPLEFT,
+              0,
+              0,
+              UIPage_WIDTH,
+              UIPage_HEIGHT,
+
+              [this](const Widget *, int drawDstX, int drawDstY)
+              {
+                  g_sdlDevice->drawLine(
+                          colorf::RGBA(231, 231, 189, 64),
+
+                          drawDstX,
+                          drawDstY + FriendChatPage::CHAT_HEIGHT + UIPage_MARGIN * 2,
+
+                          drawDstX + UIPage_WIDTH,
+                          drawDstY + FriendChatPage::CHAT_HEIGHT + UIPage_MARGIN * 2);
+
+                  g_sdlDevice->fillRectangle(
+                          colorf::RGBA(231, 231, 189, 32),
+
+                          drawDstX,
+                          drawDstY + FriendChatPage::CHAT_HEIGHT + UIPage_MARGIN * 2 + 1,
+
+                          UIPage_WIDTH,
+                          UIPage_HEIGHT - FriendChatPage::CHAT_HEIGHT - UIPage_MARGIN * 2 - 1);
+
+                  g_sdlDevice->fillRectangle(
+                          colorf::BLACK + colorf::A_SHF(255),
+
+                          drawDstX + UIPage_MARGIN,
+                          drawDstY + FriendChatPage::CHAT_HEIGHT + UIPage_MARGIN * 3 + 1,
+
+                          UIPage_WIDTH - UIPage_MARGIN * 2,
+                          UIPage_HEIGHT - UIPage_MARGIN * 4 - 1 - FriendChatPage::CHAT_HEIGHT,
+
+                          FriendChatPage::INPUT_CORNER);
+              },
+
+              this,
+              false,
+          }
+
+        , container
+          {
+              DIR_UPLEFT,
+              UIPage_MARGIN,
+              UIPage_MARGIN,
+
+              this,
+              false,
+          }
+    {
+        container.append(new FriendChatItem
+        {
+            DIR_UPLEFT,
+            0,
+            0,
+
+            u8"绝地武士",
+            u8"<layout><par>你好呀，好久没你消息了！</par></layout>",
+
+            [](const ImageBoard *)
+            {
+                return g_progUseDB->retrieve(0X02000000);
+            },
+
+            true,
+            true,
+
+            colorf::RED + colorf::A_SHF(128),
+        }, true);
+
+        container.append(new FriendChatItem
+        {
+            DIR_UPLEFT,
+            0,
+            100,
+
+            u8"恭喜发财",
+            u8"<layout><par>今天是大年初一，祝你新年发财！</par><par>老家的人都很想念你。</par><par>祝好！</par></layout>",
+
+            [](const ImageBoard *)
+            {
+                return g_progUseDB->retrieve(0X02000001);
+            },
+
+            false,
+            false,
+
+            colorf::GREEN + colorf::A_SHF(128),
+        }, true);
+
+        container.append(new FriendChatItem
+        {
+            DIR_UPLEFT,
+            0,
+            0,
+
+            u8"绝地武士",
+            u8"<layout><par>好的，谢谢！</par></layout>",
+
+            [](const ImageBoard *)
+            {
+                return g_progUseDB->retrieve(0X02000000);
+            },
+
+            true,
+            true,
+
+            colorf::RED + colorf::A_SHF(128),
+        }, true);
+    }
 };
 
 struct FriendChatPreviewItem: public Widget
@@ -928,67 +1109,8 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
               .page = new FriendChatPage
               {
                   DIR_UPLEFT,
-                  UIPage_BORDER[2] + UIPage_MARGIN,
-                  UIPage_BORDER[0] + UIPage_MARGIN,
-
-                  m_frameCropDup.w() - UIPage_BORDER[2] - UIPage_BORDER[3] - UIPage_MARGIN * 2,
-                  m_frameCropDup.h() - UIPage_BORDER[0] - UIPage_BORDER[1] - UIPage_MARGIN * 2,
-
-                  {
-                      {
-                          new FriendChatItem
-                          {
-                              DIR_UPLEFT,
-                              0,
-                              0,
-
-                              u8"绝地武士",
-                              u8"<layout><par>你好呀！</par></layout>",
-
-                              [](const ImageBoard *)
-                              {
-                                  return g_progUseDB->retrieve(0X02000000);
-                              },
-
-                              true,
-                              true,
-
-                              colorf::RED + colorf::A_SHF(128),
-                          },
-
-                          DIR_UPLEFT,
-                          0,
-                          0,
-                          true,
-                      },
-
-                      {
-                          new FriendChatItem
-                          {
-                              DIR_UPLEFT,
-                              0,
-                              100,
-
-                              u8"恭喜发财",
-                              u8"<layout><par>今天是大年初一，祝你新年发财！</par><par>老家的人都很想念你。</par><par>祝好！</par></layout>",
-
-                              [](const ImageBoard *)
-                              {
-                                  return g_progUseDB->retrieve(0X02000001);
-                              },
-
-                              false,
-                              false,
-
-                              colorf::GREEN + colorf::A_SHF(128),
-                          },
-
-                          DIR_UPLEFT,
-                          0,
-                          50,
-                          true,
-                      },
-                  },
+                  UIPage_BORDER[2],
+                  UIPage_BORDER[0],
 
                   this,
                   true,
@@ -1433,10 +1555,13 @@ void FriendChatBoard::setUIPage(int uiPage, const char *titleStr)
     fflassert(uiPage < UIPage_END, uiPage);
 
     if(m_uiPage != uiPage){
-        m_uiPageList[  uiPage].page->setFocus(false);
-        m_uiPageList[m_uiPage].page->setFocus(true );
+        m_uiLastPage = m_uiPage;
+        m_uiPage     = uiPage;
 
-        m_uiPage = uiPage;
+        m_uiPageList[m_uiLastPage].page->setFocus(false);
+        m_uiPageList[m_uiPage    ].page->setFocus(true );
+
+
         if(titleStr){
             m_uiPageList[m_uiPage].title->setText(to_u8cstr(titleStr));
         }
