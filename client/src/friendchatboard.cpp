@@ -1125,9 +1125,9 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                           {
                               DIR_UPLEFT,
                               0,
-                              FriendItem::HEIGHT,
+                              0,
 
-                              123,
+                              456,
                               u8"书剑飞扬",
 
                               [](const ImageBoard *)
@@ -1138,7 +1138,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
 
                           DIR_UPLEFT,
                           0,
-                          0,
+                          FriendItem::HEIGHT,
                           true,
                       },
                   },
