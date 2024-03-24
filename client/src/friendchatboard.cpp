@@ -742,9 +742,10 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
 
     , m_uiPageList
       {
-          std::pair<Widget *, Widget *> // UIPage_CHAT
+          UIPageWidgetGroup // UIPage_CHAT
           {
-              new PageButtonList
+              .title = nullptr,
+              .buttonList = new PageButtonList
               {
                   DIR_RIGHT,
                   m_frameCropDup.w() - 42,
@@ -854,7 +855,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                   true,
               },
 
-              new Widget
+              .page = new Widget
               {
                   DIR_UPLEFT,
                   UIPage_BORDER[2] + UIPage_MARGIN,
@@ -924,9 +925,10 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
               },
           },
 
-          std::pair<Widget *, Widget *> // UIPage_CHATPREVIEW
+          UIPageWidgetGroup // UIPage_CHATPREVIEW
           {
-              new PageButtonList
+              .title = nullptr,
+              .buttonList = new PageButtonList
               {
                   DIR_RIGHT,
                   m_frameCropDup.w() - 42,
@@ -988,7 +990,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                   true,
               },
 
-              new FriendChatPreviewPage
+              .page = new FriendChatPreviewPage
               {
                   DIR_UPLEFT,
                   UIPage_BORDER[2] + UIPage_MARGIN,
@@ -1049,9 +1051,10 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
               },
           },
 
-          std::pair<Widget *, Widget *> // UIPage_FRIENDLIST
+          UIPageWidgetGroup // UIPage_FRIENDLIST
           {
-              new PageButtonList
+              .title = nullptr,
+              .buttonList = new PageButtonList
               {
                   DIR_RIGHT,
                   m_frameCropDup.w() - 42,
@@ -1113,7 +1116,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                   true,
               },
 
-              new FriendListPage
+              .page = new FriendListPage
               {
                   DIR_UPLEFT,
                   UIPage_BORDER[2] + UIPage_MARGIN,
@@ -1182,9 +1185,9 @@ void FriendChatBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, i
     for(const auto &p:
     {
         static_cast<const Widget *>(&m_backgroundCropDup),
-        static_cast<const Widget *>( m_uiPageList[m_uiPage].second),
+        static_cast<const Widget *>( m_uiPageList[m_uiPage].page),
         static_cast<const Widget *>(&m_frameCropDup),
-        static_cast<const Widget *>( m_uiPageList[m_uiPage].first),
+        static_cast<const Widget *>( m_uiPageList[m_uiPage].buttonList),
         static_cast<const Widget *>(&m_slider),
         static_cast<const Widget *>(&m_close),
     }){
@@ -1222,9 +1225,9 @@ bool FriendChatBoard::processEvent(const SDL_Event &event, bool valid)
         return consumeFocus(false);
     }
 
-    if(m_close                      .processEvent(event, valid)){ return true; }
-    if(m_slider                     .processEvent(event, valid)){ return true; }
-    if(m_uiPageList[m_uiPage].first->processEvent(event, valid)){ return true; }
+    if(m_close                           .processEvent(event, valid)){ return true; }
+    if(m_slider                          .processEvent(event, valid)){ return true; }
+    if(m_uiPageList[m_uiPage].buttonList->processEvent(event, valid)){ return true; }
 
     switch(event.type){
         case SDL_KEYDOWN:
@@ -1261,18 +1264,18 @@ bool FriendChatBoard::processEvent(const SDL_Event &event, bool valid)
             }
         case SDL_MOUSEBUTTONDOWN:
             {
-                if(m_uiPageList[m_uiPage].second->in(event.button.x, event.button.y)){
-                    if(m_uiPageList[m_uiPage].second->processEvent(event, true)){
-                        return consumeFocus(true, m_uiPageList[m_uiPage].second);
+                if(m_uiPageList[m_uiPage].page->in(event.button.x, event.button.y)){
+                    if(m_uiPageList[m_uiPage].page->processEvent(event, true)){
+                        return consumeFocus(true, m_uiPageList[m_uiPage].page);
                     }
                 }
                 return consumeFocus(in(event.button.x, event.button.y));
             }
         case SDL_MOUSEWHEEL:
             {
-                if(m_uiPageList[m_uiPage].second->focus()){
-                    if(m_uiPageList[m_uiPage].second->processEvent(event, true)){
-                        return consumeFocus(true, m_uiPageList[m_uiPage].second);
+                if(m_uiPageList[m_uiPage].page->focus()){
+                    if(m_uiPageList[m_uiPage].page->processEvent(event, true)){
+                        return consumeFocus(true, m_uiPageList[m_uiPage].page);
                     }
                 }
                 return false;

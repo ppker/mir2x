@@ -20,6 +20,14 @@ class FriendChatBoard: public Widget
         };
 
     private:
+        struct UIPageWidgetGroup
+        {
+            LabelBoard * const title      = nullptr;
+            Widget     * const buttonList = nullptr;
+            Widget     * const page       = nullptr;
+        };
+
+    private:
         static constexpr int UIPage_BORDER[4]
         {
             54,
@@ -56,7 +64,7 @@ class FriendChatBoard: public Widget
 
     private:
         int m_uiPage = UIPage_CHAT;
-        const std::array<std::pair<Widget *, Widget *>, UIPage_END> m_uiPageList; // {buttons, page}
+        const std::array<UIPageWidgetGroup, UIPage_END> m_uiPageList; // {buttons, page}
 
     private:
         std::list<FriendMessage> m_friendMessageList;
