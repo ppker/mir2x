@@ -7,7 +7,7 @@
 extern PNGTexDB *g_progUseDB;
 extern SDLDevice *g_sdlDevice;
 
-static constexpr int UIPage_WIDTH  = 400;
+static constexpr int UIPage_WIDTH  = 400; // the area excludes border area, margin included
 static constexpr int UIPage_HEIGHT = 400;
 static constexpr int UIPage_MARGIN =   4;
 
@@ -393,7 +393,7 @@ struct FriendChatPage: public Widget
 
 struct FriendChatPreviewItem: public Widget
 {
-    static constexpr int WIDTH  = 400;
+    static constexpr int WIDTH  = UIPage_WIDTH - UIPage_MARGIN * 2;
     static constexpr int HEIGHT = 50;
 
     static constexpr int GAP = 10;
@@ -648,8 +648,8 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
           argX,
           argY,
 
-          UIPage_BORDER[2] + FriendChatPreviewItem::WIDTH      + UIPage_BORDER[3],
-          UIPage_BORDER[0] + FriendChatPreviewItem::HEIGHT * 8 + UIPage_BORDER[1],
+          UIPage_BORDER[2] + UIPage_WIDTH  + UIPage_BORDER[3],
+          UIPage_BORDER[0] + UIPage_HEIGHT + UIPage_BORDER[1],
 
           {},
 
