@@ -842,6 +842,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                               nullptr,
                               [this](ButtonBase *)
                               {
+                                  m_uiPage = UIPage_CHATPREVIEW;
                               },
                           },
 
@@ -951,6 +952,31 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                               nullptr,
                               [this](ButtonBase *)
                               {
+                              },
+                          },
+
+                          true,
+                      },
+
+                      {
+                          new TritexButton
+                          {
+                              DIR_UPLEFT,
+                              0,
+                              0,
+
+                              {0X00000160, 0X00000160, 0X00000161},
+                              {
+                                  SYS_U32NIL,
+                                  SYS_U32NIL,
+                                  0X01020000 + 105,
+                              },
+
+                              nullptr,
+                              nullptr,
+                              [this](ButtonBase *)
+                              {
+                                  m_uiPage = UIPage_FRIENDLIST;
                               },
                           },
 
