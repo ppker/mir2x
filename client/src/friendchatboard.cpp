@@ -144,7 +144,7 @@ struct FriendItem: public Widget
             case SDL_MOUSEBUTTONDOWN:
                 {
                     if(in(event.button.x, event.button.y)){
-                        dynamic_cast<FriendChatBoard *>(this->parent()->parent())->setUIPage(FriendChatBoard::UIPage_CHAT);
+                        dynamic_cast<FriendChatBoard *>(this->parent()->parent())->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
                     }
                     return false;
                 }
@@ -773,7 +773,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
               {
                   DIR_NONE,
                   45 + (m_frameCropDup.w() - 45 - 190) / 2,
-                  28,
+                  29,
 
                   u8"好友名称",
                   1,
@@ -970,7 +970,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
               {
                   DIR_NONE,
                   45 + (m_frameCropDup.w() - 45 - 190) / 2,
-                  28,
+                  29,
 
                   u8"【聊天记录】",
                   1,
@@ -1110,7 +1110,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
               {
                   DIR_NONE,
                   45 + (m_frameCropDup.w() - 45 - 190) / 2,
-                  28,
+                  29,
 
                   u8"【好友列表】",
                   1,
@@ -1396,9 +1396,13 @@ void FriendChatBoard::addMessage(const SDChatMessage &newmsg)
     }
 }
 
-void FriendChatBoard::setUIPage(int uiPage)
+void FriendChatBoard::setUIPage(int uiPage, const char *titleStr)
 {
     fflassert(uiPage >= 0, uiPage);
     fflassert(uiPage < UIPage_END, uiPage);
+
     m_uiPage = uiPage;
+    if(titleStr){
+        m_uiPageList[m_uiPage].title->setText(to_u8cstr(titleStr));
+    }
 }
