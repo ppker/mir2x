@@ -576,9 +576,9 @@ struct FriendChatPreviewPage: public Widget
     }
 };
 
-struct PageButtonList: public Widget
+struct PageControl: public Widget
 {
-    PageButtonList(dir8_t argDir,
+    PageControl(dir8_t argDir,
 
             int argX,
             int argY,
@@ -744,8 +744,22 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
       {
           UIPageWidgetGroup // UIPage_CHAT
           {
-              .title = nullptr,
-              .buttonList = new PageButtonList
+              .title = new LabelBoard
+              {
+                  DIR_NONE,
+                  45 + (m_frameCropDup.w() - 45 - 190) / 2,
+                  28,
+
+                  u8"好友名称",
+                  1,
+                  14,
+                  0,colorf::WHITE + colorf::A_SHF(255),
+
+                  this,
+                  true,
+              },
+
+              .control = new PageControl
               {
                   DIR_RIGHT,
                   m_frameCropDup.w() - 42,
@@ -927,8 +941,22 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
 
           UIPageWidgetGroup // UIPage_CHATPREVIEW
           {
-              .title = nullptr,
-              .buttonList = new PageButtonList
+              .title = new LabelBoard
+              {
+                  DIR_NONE,
+                  45 + (m_frameCropDup.w() - 45 - 190) / 2,
+                  28,
+
+                  u8"【聊天记录】",
+                  1,
+                  14,
+                  0,colorf::WHITE + colorf::A_SHF(255),
+
+                  this,
+                  true,
+              },
+
+              .control = new PageControl
               {
                   DIR_RIGHT,
                   m_frameCropDup.w() - 42,
@@ -1053,8 +1081,22 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
 
           UIPageWidgetGroup // UIPage_FRIENDLIST
           {
-              .title = nullptr,
-              .buttonList = new PageButtonList
+              .title = new LabelBoard
+              {
+                  DIR_NONE,
+                  45 + (m_frameCropDup.w() - 45 - 190) / 2,
+                  28,
+
+                  u8"【好友列表】",
+                  1,
+                  14,
+                  0,colorf::WHITE + colorf::A_SHF(255),
+
+                  this,
+                  true,
+              },
+
+              .control = new PageControl
               {
                   DIR_RIGHT,
                   m_frameCropDup.w() - 42,
@@ -1187,7 +1229,8 @@ void FriendChatBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, i
         static_cast<const Widget *>(&m_backgroundCropDup),
         static_cast<const Widget *>( m_uiPageList[m_uiPage].page),
         static_cast<const Widget *>(&m_frameCropDup),
-        static_cast<const Widget *>( m_uiPageList[m_uiPage].buttonList),
+        static_cast<const Widget *>( m_uiPageList[m_uiPage].title),
+        static_cast<const Widget *>( m_uiPageList[m_uiPage].control),
         static_cast<const Widget *>(&m_slider),
         static_cast<const Widget *>(&m_close),
     }){
@@ -1225,9 +1268,9 @@ bool FriendChatBoard::processEvent(const SDL_Event &event, bool valid)
         return consumeFocus(false);
     }
 
-    if(m_close                           .processEvent(event, valid)){ return true; }
-    if(m_slider                          .processEvent(event, valid)){ return true; }
-    if(m_uiPageList[m_uiPage].buttonList->processEvent(event, valid)){ return true; }
+    if(m_close                        .processEvent(event, valid)){ return true; }
+    if(m_slider                       .processEvent(event, valid)){ return true; }
+    if(m_uiPageList[m_uiPage].control->processEvent(event, valid)){ return true; }
 
     switch(event.type){
         case SDL_KEYDOWN:

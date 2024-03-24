@@ -22,9 +22,9 @@ class FriendChatBoard: public Widget
     private:
         struct UIPageWidgetGroup
         {
-            LabelBoard * const title      = nullptr;
-            Widget     * const buttonList = nullptr;
-            Widget     * const page       = nullptr;
+            LabelBoard * const title   = nullptr;
+            Widget     * const control = nullptr;
+            Widget     * const page    = nullptr;
         };
 
     private:
