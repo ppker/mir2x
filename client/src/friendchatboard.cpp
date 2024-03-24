@@ -419,7 +419,7 @@ struct FriendChatPage: public Widget
     // -->| |<-- INPUT_CORNER        |
 
     static constexpr int CHAT_HEIGHT = 200;
-    static constexpr int INPUT_CORNER = 5;
+    static constexpr int INPUT_CORNER = 10;
 
     struct FriendChatItemContainer: public Widget
     {
