@@ -425,13 +425,13 @@ void TeamStateBoard::refresh()
 
 void TeamStateBoard::adjustButtonPos()
 {
-    const auto buttonY = m_uidRegionY + lineShowCount() * lineHeight() + 14;
+    const int buttonY = m_uidRegionY + lineShowCount() * lineHeight() + 14;
 
-    m_switchShow  .moveTo({}, buttonY);
-    m_addMember   .moveTo({}, buttonY);
-    m_deleteMember.moveTo({}, buttonY);
-    m_refresh     .moveTo({}, buttonY);
-    m_close       .moveTo({}, buttonY + 8);
+    m_switchShow  .moveYTo(buttonY);
+    m_addMember   .moveYTo(buttonY);
+    m_deleteMember.moveYTo(buttonY);
+    m_refresh     .moveYTo(buttonY);
+    m_close       .moveYTo(buttonY + 8);
 }
 
 void TeamStateBoard::addTeamCandidate(SDTeamCandidate sdTC)

@@ -348,7 +348,7 @@ inline std::string str_any(const std::monostate &)
 
 template<typename R, typename... Args> std::string str_any(const std::function<R(Args...)> &func)
 {
-    return str_any(&func);
+    return func.target_type().name();
 }
 
 namespace _str_any_details

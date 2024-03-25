@@ -22,7 +22,75 @@
 class Widget
 {
     public:
-        using VarSize = std::variant<std::monostate, int, std::function<int(const Widget *)>>;
+        using VarDir    = std::variant<             dir8_t, std::function<dir8_t(const Widget *)>>;
+        using VarOffset = std::variant<                int, std::function<   int(const Widget *)>>;
+        using VarSize   = std::variant<std::monostate, int, std::function<   int(const Widget *)>>;
+
+    public:
+        static bool hasIntDir(const Widget::VarDir &varDir)
+        {
+            return varDir.index() == 0;
+        }
+
+        static bool hasFuncDir(const Widget::VarDir &varDir)
+        {
+            return varDir.index() == 1;
+        }
+
+        static dir8_t  asIntDir(const Widget::VarDir &varDir) { return std::get<dir8_t>(varDir); }
+        static dir8_t &asIntDir(      Widget::VarDir &varDir) { return std::get<dir8_t>(varDir); }
+
+        static const std::function<dir8_t(const Widget *)> &asFuncDir(const Widget::VarDir &varDir) { return std::get<std::function<dir8_t(const Widget *)>>(varDir); }
+        static       std::function<dir8_t(const Widget *)> &asFuncDir(      Widget::VarDir &varDir) { return std::get<std::function<dir8_t(const Widget *)>>(varDir); }
+
+        static dir8_t evalDir(const Widget::VarDir &varDir, const Widget *widgetPtr)
+        {
+            return std::visit(varDispatcher
+            {
+                [](const dir8_t &arg)
+                {
+                    return arg;
+                },
+
+                [widgetPtr](const auto &arg)
+                {
+                    return arg ? arg(widgetPtr) : throw fflerror("invalid argument");
+                },
+            }, varDir);
+        }
+
+    public:
+        static bool hasIntOffset(const Widget::VarOffset &varOff)
+        {
+            return varOff.index() == 0;
+        }
+
+        static bool hasFuncOffset(const Widget::VarOffset &varOff)
+        {
+            return varOff.index() == 1;
+        }
+
+        static int  asIntOffset(const Widget::VarOffset &varOff) { return std::get<int>(varOff); }
+        static int &asIntOffset(      Widget::VarOffset &varOff) { return std::get<int>(varOff); }
+
+        static const std::function<int(const Widget *)> &asFuncOffset(const Widget::VarOffset &varOff) { return std::get<std::function<int(const Widget *)>>(varOff); }
+        static       std::function<int(const Widget *)> &asFuncOffset(      Widget::VarOffset &varOff) { return std::get<std::function<int(const Widget *)>>(varOff); }
+
+        static int evalOffset(const Widget::VarOffset &varOffset, const Widget *widgetPtr)
+        {
+            return std::visit(varDispatcher
+            {
+                [](const int &arg)
+                {
+                    return arg;
+                },
+
+                [widgetPtr](const auto &arg)
+                {
+                    return arg ? arg(widgetPtr) : throw fflerror("invalid argument");
+                },
+            }, varOffset);
+        }
 
     public:
         static bool hasSize(const Widget::VarSize &varSize)
@@ -58,11 +126,11 @@ class Widget
         std::any m_data;
 
     private:
-        dir8_t m_dir;
+        Widget::VarDir m_dir;
 
     private:
-        int m_x;
-        int m_y;
+        Widget::VarOffset m_x;
+        Widget::VarOffset m_y;
 
     protected:
         Widget::VarSize m_w;
@@ -78,25 +146,25 @@ class Widget
         std::list<ChildWidgetElement> m_childList;
 
     public:
-        Widget(dir8_t argDir,
+        Widget(Widget::VarDir argDir,
 
-                int argX,
-                int argY,
+                Widget::VarOffset argX,
+                Widget::VarOffset argY,
 
                 Widget::VarSize argW = {},
                 Widget::VarSize argH = {},
 
-                std::initializer_list<std::tuple<Widget *, dir8_t, int, int, bool>> argChildList = {},
+                std::initializer_list<std::tuple<Widget *, Widget::VarDir, Widget::VarOffset, Widget::VarOffset, bool>> argChildList = {},
 
                 Widget *argParent     = nullptr,
                 bool    argAutoDelete = false)
 
             : m_parent(argParent)
-            , m_dir(argDir)
-            , m_x(argX)
-            , m_y(argY)
-            , m_w(std::move(argW))
-            , m_h(std::move(argH))
+            , m_dir(std::move(argDir))
+            , m_x  (std::move(argX))
+            , m_y  (std::move(argY))
+            , m_w  (std::move(argW))
+            , m_h  (std::move(argH))
         {
             if(m_parent){
                 m_parent->addChild(this, argAutoDelete);
@@ -105,8 +173,14 @@ class Widget
             // don't check if w/h is a function
             // because it may refers to sub-widget which has not be initialized yet
 
-            if(Widget::hasIntSize(m_w)){ fflassert(std::get<int>(m_w) >= 0, std::get<int>(m_w)); }
-            if(Widget::hasIntSize(m_h)){ fflassert(std::get<int>(m_h) >= 0, std::get<int>(m_h)); }
+            if(Widget::hasFuncDir   (m_dir)){ fflassert(Widget::asFuncDir   (m_dir), m_dir); }
+            if(Widget::hasFuncOffset(m_x  )){ fflassert(Widget::asFuncOffset(m_x  ), m_x  ); }
+            if(Widget::hasFuncOffset(m_y  )){ fflassert(Widget::asFuncOffset(m_y  ), m_y  ); }
+            if(Widget::hasFuncSize  (m_w  )){ fflassert(Widget::asFuncSize  (m_w  ), m_w  ); }
+            if(Widget::hasFuncSize  (m_h  )){ fflassert(Widget::asFuncSize  (m_h  ), m_h  ); }
+
+            if(Widget::hasIntSize(m_w)){ fflassert(Widget::asIntSize(m_w) >= 0, m_w); }
+            if(Widget::hasIntSize(m_h)){ fflassert(Widget::asIntSize(m_h) >= 0, m_h); }
 
             for(const auto &[childPtr, offDir, offX, offY, autoDelete]: argChildList){
                 addChild(childPtr, autoDelete);
@@ -299,14 +373,19 @@ class Widget
         }
 
     public:
+        virtual dir8_t dir() const
+        {
+            return Widget::evalDir(m_dir, this);
+        }
+
         virtual int x() const
         {
-            return m_x + (m_parent ? m_parent->x() : 0) - xSizeOff(m_dir, w());
+            return Widget::evalOffset(m_x, this) + (m_parent ? m_parent->x() : 0) - xSizeOff(dir(), w());
         }
 
         virtual int y() const
         {
-            return m_y + (m_parent ? m_parent->y() : 0) - ySizeOff(m_dir, h());
+            return Widget::evalOffset(m_y, this) + (m_parent ? m_parent->y() : 0) - ySizeOff(dir(), h());
         }
 
         virtual int w() const
@@ -436,12 +515,12 @@ class Widget
     public:
         virtual int dx() const
         {
-            return m_x - xSizeOff(m_dir, w());
+            return Widget::evalOffset(m_x, this) - xSizeOff(dir(), w());
         }
 
         virtual int dy() const
         {
-            return m_y - ySizeOff(m_dir, h());
+            return Widget::evalOffset(m_y, this) - ySizeOff(dir(), h());
         }
 
     public:
@@ -591,23 +670,40 @@ class Widget
         }
 
     public:
-        void moveBy(std::optional<int> dx, std::optional<int> dy)
+        void moveBy(Widget::VarOffset dx, Widget::VarOffset dy)
         {
-            m_x += dx.value_or(0);
-            m_y += dy.value_or(0);
+            const auto fnOp = [](Widget::VarOffset u, Widget::VarOffset v) -> Widget::VarOffset
+            {
+                if(Widget::hasIntOffset(u) && Widget::hasIntOffset(v)){
+                    return Widget::asIntOffset(u) + Widget::asIntOffset(v);
+                }
+
+                return [u = std::move(u), v = std::move(v)](const Widget *widgetPtr)
+                {
+                    return (Widget::hasFuncOffset(u) ? Widget::asFuncOffset(u)(widgetPtr) : Widget::asIntOffset(u))
+                        +  (Widget::hasFuncOffset(v) ? Widget::asFuncOffset(v)(widgetPtr) : Widget::asIntOffset(v));
+                };
+            };
+
+            m_x = fnOp(std::move(m_x), std::move(dx));
+            m_y = fnOp(std::move(m_y), std::move(dy));
         }
 
-        void moveTo(std::optional<int> x, std::optional<int> y)
+        void moveAt(Widget::VarDir argDir, Widget::VarOffset argX, Widget::VarOffset argY)
         {
-            m_x = x.value_or(m_x);
-            m_y = y.value_or(m_y);
+            m_dir = std::move(argDir);
+            m_x   = std::move(argX  );
+            m_y   = std::move(argY  );
         }
 
-        void moveAt(std::optional<dir8_t> dir, std::optional<int> x, std::optional<int> y)
+    public:
+        void moveXTo(Widget::VarOffset arg) { m_x = std::move(arg); }
+        void moveYTo(Widget::VarOffset arg) { m_y = std::move(arg); }
+
+        void moveTo(Widget::VarOffset argX, Widget::VarOffset argY)
         {
-            m_dir = dir.value_or(m_dir);
-            m_x = x.value_or(m_x);
-            m_y = y.value_or(m_y);
+            m_x = std::move(argX);
+            m_y = std::move(argY);
         }
 
     public:

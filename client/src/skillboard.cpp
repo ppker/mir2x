@@ -376,7 +376,7 @@ SkillBoard::SkillBoard(int argX, int argY, ProcessRun *runPtr, Widget *widgetPtr
               auto pagePtr = m_skillPageList.at(m_selectedTabIndex);
 
               if(r[3] < pagePtr->h()){
-                  pagePtr->moveTo(r[0], r[1] - (pagePtr->h() - r[3]) * value);
+                  pagePtr->moveTo(r[0], r[1] - to_d((pagePtr->h() - r[3]) * value));
               }
           },
           this,
@@ -529,7 +529,7 @@ bool SkillBoard::processEvent(const SDL_Event &event, bool valid)
                 auto pagePtr = m_skillPageList.at(m_selectedTabIndex);
                 if(captureEvent && (r[3] < pagePtr->h())){
                     m_slider.addValue(event.wheel.y * -0.1f, false);
-                    pagePtr->moveTo(r[0], r[1] - (pagePtr->h() - r[3]) * m_slider.getValue());
+                    pagePtr->moveTo(r[0], r[1] - to_d((pagePtr->h() - r[3]) * m_slider.getValue()));
                 }
                 return consumeFocus(true);
             }
