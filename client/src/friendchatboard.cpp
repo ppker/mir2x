@@ -1503,7 +1503,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
 
         [](const ImageBoard *)
         {
-            return g_progUseDB->retrieve(0X02000000);
+            return g_progUseDB->retrieve(0X02000001);
         },
     }, true);
 
