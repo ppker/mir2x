@@ -143,7 +143,7 @@ struct FriendItem: public Widget
             case SDL_MOUSEBUTTONDOWN:
                 {
                     if(in(event.button.x, event.button.y)){
-                        dynamic_cast<FriendChatBoard *>(this->parent()->parent())->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
+                        dynamic_cast<FriendChatBoard *>(this->parent()->parent()->parent())->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
                     }
                     return false;
                 }
@@ -157,7 +157,50 @@ struct FriendItem: public Widget
 
 struct FriendListPage: public Widget
 {
-    using Widget::Widget;
+    Widget canvas;
+    FriendListPage(Widget::VarDir argDir,
+
+            Widget::VarOffset argX,
+            Widget::VarOffset argY,
+
+            Widget *argParent     = nullptr,
+            bool    argAutoDelete = false)
+
+        : Widget
+          {
+              std::move(argDir),
+              std::move(argX),
+              std::move(argY),
+
+              UIPage_WIDTH  - UIPage_MARGIN * 2,
+              UIPage_HEIGHT - UIPage_MARGIN * 2,
+
+              {},
+
+              argParent,
+              argAutoDelete,
+          }
+
+        , canvas
+          {
+              DIR_UPLEFT,
+              0,
+              0,
+
+              this->w(),
+              {},
+              {},
+
+              this,
+              false,
+          }
+    {}
+
+    void append(FriendItem *item, bool autoDelete)
+    {
+        item->moveAt(DIR_UPLEFT, 0, canvas.h());
+        canvas.addChild(item, autoDelete);
+    }
 };
 
 struct FriendChatItem: public Widget
@@ -910,7 +953,7 @@ struct FriendChatPreviewItem: public Widget
             case SDL_MOUSEBUTTONDOWN:
                 {
                     if(in(event.button.x, event.button.y)){
-                        dynamic_cast<FriendChatBoard *>(this->parent()->parent())->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
+                        dynamic_cast<FriendChatBoard *>(this->parent()->parent()->parent())->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
                     }
                     return false;
                 }
@@ -924,7 +967,50 @@ struct FriendChatPreviewItem: public Widget
 
 struct FriendChatPreviewPage: public Widget
 {
-    using Widget::Widget;
+    Widget canvas;
+    FriendChatPreviewPage(Widget::VarDir argDir,
+
+            Widget::VarOffset argX,
+            Widget::VarOffset argY,
+
+            Widget *argParent     = nullptr,
+            bool    argAutoDelete = false)
+
+        : Widget
+          {
+              std::move(argDir),
+              std::move(argX),
+              std::move(argY),
+
+              UIPage_WIDTH  - UIPage_MARGIN * 2,
+              UIPage_HEIGHT - UIPage_MARGIN * 2,
+
+              {},
+
+              argParent,
+              argAutoDelete,
+          }
+
+        , canvas
+          {
+              DIR_UPLEFT,
+              0,
+              0,
+
+              this->w(),
+              {},
+              {},
+
+              this,
+              false,
+          }
+    {}
+
+    void append(FriendChatPreviewItem *item, bool autoDelete)
+    {
+        item->moveAt(DIR_UPLEFT, 0, canvas.h());
+        canvas.addChild(item, autoDelete);
+    }
 };
 
 struct PageControl: public Widget
@@ -1293,56 +1379,6 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                   UIPage_BORDER[2] + UIPage_MARGIN,
                   UIPage_BORDER[0] + UIPage_MARGIN,
 
-                  m_frameCropDup.w() - UIPage_BORDER[2] - UIPage_BORDER[3] - UIPage_MARGIN * 2,
-                  m_frameCropDup.h() - UIPage_BORDER[0] - UIPage_BORDER[1] - UIPage_MARGIN * 2,
-
-                  {
-                      {
-                          new FriendChatPreviewItem
-                          {
-                              DIR_UPLEFT,
-                              0,
-                              0,
-
-                              u8"绝地武士",
-                              u8"<layout><par>你好呀！</par></layout>",
-
-                              [](const ImageBoard *)
-                              {
-                                  return g_progUseDB->retrieve(0X02000000);
-                              },
-                          },
-
-                          DIR_UPLEFT,
-                          0,
-                          0,
-                          true,
-                      },
-
-
-                      {
-                          new FriendChatPreviewItem
-                          {
-                              DIR_UPLEFT,
-                              0,
-                              FriendChatPreviewItem::HEIGHT,
-
-                              u8"恭喜发财",
-                              u8"<layout><par>祝你发财！</par><par>收到请回复，谢谢！</par></layout>",
-
-                              [](const ImageBoard *)
-                              {
-                                  return g_progUseDB->retrieve(0X02000001);
-                              },
-                          },
-
-                          DIR_UPLEFT,
-                          0,
-                          FriendChatPreviewItem::HEIGHT,
-                          true,
-                      },
-                  },
-
                   this,
                   true,
               },
@@ -1433,55 +1469,6 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                   UIPage_BORDER[2] + UIPage_MARGIN,
                   UIPage_BORDER[0] + UIPage_MARGIN,
 
-                  m_frameCropDup.w() - UIPage_BORDER[2] - UIPage_BORDER[3] - UIPage_MARGIN * 2,
-                  m_frameCropDup.h() - UIPage_BORDER[0] - UIPage_BORDER[1] - UIPage_MARGIN * 2,
-
-                  {
-                      {
-                          new FriendItem
-                          {
-                              DIR_UPLEFT,
-                              0,
-                              0,
-
-                              123,
-                              u8"绝地武士",
-
-                              [](const ImageBoard *)
-                              {
-                                  return g_progUseDB->retrieve(0X02000000);
-                              },
-                          },
-
-                          DIR_UPLEFT,
-                          0,
-                          0,
-                          true,
-                      },
-
-                      {
-                          new FriendItem
-                          {
-                              DIR_UPLEFT,
-                              0,
-                              0,
-
-                              456,
-                              u8"书剑飞扬",
-
-                              [](const ImageBoard *)
-                              {
-                                  return g_progUseDB->retrieve(0X02000001);
-                              },
-                          },
-
-                          DIR_UPLEFT,
-                          0,
-                          FriendItem::HEIGHT,
-                          true,
-                      },
-                  },
-
                   this,
                   true,
               },
@@ -1489,6 +1476,66 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
       }
 {
     setShow(false);
+
+    dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(new FriendItem
+    {
+        DIR_UPLEFT,
+        0,
+        0,
+
+        123,
+        u8"绝地武士",
+
+        [](const ImageBoard *)
+        {
+            return g_progUseDB->retrieve(0X02000000);
+        },
+    }, true);
+
+    dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(new FriendItem
+    {
+        DIR_UPLEFT,
+        0,
+        0,
+
+        123,
+        u8"尤达大师的妈妈",
+
+        [](const ImageBoard *)
+        {
+            return g_progUseDB->retrieve(0X02000000);
+        },
+    }, true);
+
+    dynamic_cast<FriendChatPreviewPage *>(m_uiPageList[UIPage_CHATPREVIEW].page)->append(new FriendChatPreviewItem
+    {
+        DIR_UPLEFT,
+        0,
+        0,
+
+        u8"绝地武士",
+        u8"<layout><par>你好呀！</par></layout>",
+
+        [](const ImageBoard *)
+        {
+            return g_progUseDB->retrieve(0X02000000);
+        },
+    }, true);
+
+    dynamic_cast<FriendChatPreviewPage *>(m_uiPageList[UIPage_CHATPREVIEW].page)->append(new FriendChatPreviewItem
+    {
+        DIR_UPLEFT,
+        0,
+        0,
+
+        u8"尤达大师的妈妈",
+        u8"<layout><par>祝你发财！</par><par>收到请回复，谢谢！</par></layout>",
+
+        [](const ImageBoard *)
+        {
+            return g_progUseDB->retrieve(0X02000001);
+        },
+    }, true);
 }
 
 void FriendChatBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const

@@ -390,17 +390,6 @@ class Widget
 
         virtual int w() const
         {
-            const auto fnMaxW = [this]
-            {
-                int maxW = 0;
-                for(const auto &child: m_childList){
-                    if(child.widget->show()){
-                        maxW = std::max<int>(maxW, child.widget->dx() + child.widget->w());
-                    }
-                }
-                return maxW;
-            };
-
             const auto width = std::visit(varDispatcher
             {
                 [](const int &arg)
@@ -408,14 +397,20 @@ class Widget
                     return arg;
                 },
 
-                [&fnMaxW, this](const std::function<int(const Widget *)> &arg)
+                [this](const std::function<int(const Widget *)> &arg)
                 {
-                    return arg ? arg(this) : fnMaxW();
+                    return arg ? arg(this) : throw fflerror("invalid argument");
                 },
 
-                [&fnMaxW, this](const auto &)
+                [this](const auto &)
                 {
-                    return fnMaxW();
+                    int maxW = 0;
+                    for(const auto &child: m_childList){
+                        if(child.widget->show()){
+                            maxW = std::max<int>(maxW, child.widget->dx() + child.widget->w());
+                        }
+                    }
+                    return maxW;
                 }
             }, m_w);
 
@@ -425,32 +420,27 @@ class Widget
 
         virtual int h() const
         {
-            const auto fnMaxH = [this]
-            {
-                int maxH = 0;
-                for(const auto &child: m_childList){
-                    if(child.widget->show()){
-                        maxH = std::max<int>(maxH, child.widget->dy() + child.widget->h());
-                    }
-                }
-                return maxH;
-            };
-
             const auto height = std::visit(varDispatcher
             {
-                [](const int &argH)
+                [](const int &arg)
                 {
-                    return argH;
+                    return arg;
                 },
 
-                [&fnMaxH, this](const std::function<int(const Widget *)> &argH)
+                [this](const std::function<int(const Widget *)> &arg)
                 {
-                    return argH ? argH(this) : fnMaxH();
+                    return arg ? arg(this) : throw fflerror("invalid argument");
                 },
 
-                [&fnMaxH, this](const auto &)
+                [this](const auto &)
                 {
-                    return fnMaxH();
+                    int maxH = 0;
+                    for(const auto &child: m_childList){
+                        if(child.widget->show()){
+                            maxH = std::max<int>(maxH, child.widget->dy() + child.widget->h());
+                        }
+                    }
+                    return maxH;
                 }
             }, m_h);
 
@@ -458,70 +448,13 @@ class Widget
             return height;
         }
 
-        virtual int px() const
-        {
-            int minX = 0;
-            for(const auto &child: m_childList){
-                if(child.widget->show()){
-                    minX = std::min<int>(minX, child.widget->dx());
-                }
-            }
-            return minX;
-        }
-
-        virtual int py() const
-        {
-            int minY = 0;
-            for(const auto &child: m_childList){
-                if(child.widget->show()){
-                    minY = std::min<int>(minY, child.widget->dy());
-                }
-            }
-            return minY;
-        }
-
-        virtual int pw() const
-        {
-            int maxW = 0;
-            for(const auto &child: m_childList){
-                if(child.widget->show()){
-                    maxW = std::max<int>(maxW, child.widget->dx() + child.widget->pw());
-                }
-            }
-            return maxW - px();
-        }
-
-        virtual int ph() const
-        {
-            int maxH = 0;
-            for(const auto &child: m_childList){
-                if(child.widget->show()){
-                    maxH = std::max<int>(maxH, child.widget->dy() + child.widget->ph());
-                }
-            }
-            return maxH - py();
-        }
-
-        Widget * parent()
-        {
-            return m_parent;
-        }
-
-        const Widget * parent() const
-        {
-            return m_parent;
-        }
+    public:
+        /* */ Widget * parent()       { return m_parent; }
+        const Widget * parent() const { return m_parent; }
 
     public:
-        virtual int dx() const
-        {
-            return Widget::evalOffset(m_x, this) - xSizeOff(dir(), w());
-        }
-
-        virtual int dy() const
-        {
-            return Widget::evalOffset(m_y, this) - ySizeOff(dir(), h());
-        }
+        virtual int dx() const { return Widget::evalOffset(m_x, this) - xSizeOff(dir(), w()); }
+        virtual int dy() const { return Widget::evalOffset(m_y, this) - ySizeOff(dir(), h()); }
 
     public:
         std::any &data()
