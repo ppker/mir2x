@@ -1146,6 +1146,31 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                               0,
                               0,
 
+                              {0X000008F0, 0X000008F0, 0X000008F1},
+                              {
+                                  SYS_U32NIL,
+                                  SYS_U32NIL,
+                                  0X01020000 + 105,
+                              },
+
+                              nullptr,
+                              nullptr,
+                              [this](ButtonBase *)
+                              {
+                                  setUIPage(UIPage_CHATPREVIEW);
+                              },
+                          },
+
+                          true,
+                      },
+
+                      {
+                          new TritexButton
+                          {
+                              DIR_UPLEFT,
+                              0,
+                              0,
+
                               {0X00000023, 0X00000023, 0X00000024},
                               {
                                   SYS_U32NIL,
@@ -1194,7 +1219,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                               0,
                               0,
 
-                              {0X00000830, 0X00000830, 0X00000831},
+                              {0X00000590, 0X00000590, 0X00000591},
                               {
                                   SYS_U32NIL,
                                   SYS_U32NIL,
@@ -1211,30 +1236,6 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                           true,
                       },
 
-                      {
-                          new TritexButton
-                          {
-                              DIR_UPLEFT,
-                              0,
-                              0,
-
-                              {0X000008F0, 0X000008F0, 0X000008F1},
-                              {
-                                  SYS_U32NIL,
-                                  SYS_U32NIL,
-                                  0X01020000 + 105,
-                              },
-
-                              nullptr,
-                              nullptr,
-                              [this](ButtonBase *)
-                              {
-                                  m_uiPage = UIPage_CHATPREVIEW;
-                              },
-                          },
-
-                          true,
-                      },
                   },
 
                   this,
@@ -1277,30 +1278,6 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                   2,
 
                   {
-                      {
-                          new TritexButton
-                          {
-                              DIR_UPLEFT,
-                              0,
-                              0,
-
-                              {0X00000170, 0X00000170, 0X00000171},
-                              {
-                                  SYS_U32NIL,
-                                  SYS_U32NIL,
-                                  0X01020000 + 105,
-                              },
-
-                              nullptr,
-                              nullptr,
-                              [this](ButtonBase *)
-                              {
-                              },
-                          },
-
-                          true,
-                      },
-
                       {
                           new TritexButton
                           {
