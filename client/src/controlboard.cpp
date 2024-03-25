@@ -1312,7 +1312,7 @@ void ControlBoard::onWindowResize(int winW, int winH)
         m_stretchH = maxStretchH;
     }
 
-    m_middle.setSize(w() - 178 - 166, {});
+    m_middle.setW(w() - 178 - 166);
     setButtonLoc();
 }
 

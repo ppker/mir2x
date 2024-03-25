@@ -111,7 +111,9 @@ CheckLabel::CheckLabel(
           false,
       }
 {
-    setSize(m_checkBox.w() + std::max<int>(argGap, 0) + m_labelBoard.w(), std::max<int>(m_checkBox.h(), m_labelBoard.h()));
+    setW(m_checkBox.w() + std::max<int>(argGap, 0) + m_labelBoard.w());
+    setH(std::max<int>(m_checkBox.h(), m_labelBoard.h()));
+
     if(argBoxFirst){
         m_checkBox  .moveAt(DIR_LEFT ,       0, h() / 2);
         m_labelBoard.moveAt(DIR_RIGHT, w() - 1, h() / 2);

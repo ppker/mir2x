@@ -7,9 +7,9 @@
 extern PNGTexDB *g_progUseDB;
 extern SDLDevice *g_sdlDevice;
 
-static constexpr int UIPage_WIDTH  = 400; // the area excludes border area, margin included
-static constexpr int UIPage_HEIGHT = 400;
-static constexpr int UIPage_MARGIN =   4;
+constexpr static int UIPage_WIDTH  = 400; // the area excludes border area, margin included
+constexpr static int UIPage_HEIGHT = 400;
+constexpr static int UIPage_MARGIN =   4;
 
 struct FriendItem: public Widget
 {
@@ -26,11 +26,11 @@ struct FriendItem: public Widget
     //           GAP
     //   |<------------------------>| UIPage_WIDTH - UIPage_MARGIN * 2
 
-    static constexpr int HEIGHT = 40;
-    static constexpr int ITEM_MARGIN = 3;
-    static constexpr int AVATAR_WIDTH = (HEIGHT - ITEM_MARGIN * 2) * 84 / 94;
+    constexpr static int HEIGHT = 40;
+    constexpr static int ITEM_MARGIN = 3;
+    constexpr static int AVATAR_WIDTH = (HEIGHT - ITEM_MARGIN * 2) * 84 / 94;
 
-    static constexpr int GAP = 5;
+    constexpr static int GAP = 5;
 
     uint32_t dbid;
     ShapeClipBoard hovered;
@@ -197,23 +197,23 @@ struct FriendChatItem: public Widget
     //           |                              |
     //           +-- startX of background       +-- endX of background
 
-    static constexpr int AVATAR_WIDTH  = 35;
-    static constexpr int AVATAR_HEIGHT = AVATAR_WIDTH * 94 / 84;
+    constexpr static int AVATAR_WIDTH  = 35;
+    constexpr static int AVATAR_HEIGHT = AVATAR_WIDTH * 94 / 84;
 
-    static constexpr int GAP = 5;
-    static constexpr int ITEM_SPACE = 5;  // space between two items
-    static constexpr int NAME_HEIGHT = 20;
+    constexpr static int GAP = 5;
+    constexpr static int ITEM_SPACE = 5;  // space between two items
+    constexpr static int NAME_HEIGHT = 20;
 
-    static constexpr int TRIANGLE_WIDTH  = 4;
-    static constexpr int TRIANGLE_HEIGHT = 6;
+    constexpr static int TRIANGLE_WIDTH  = 4;
+    constexpr static int TRIANGLE_HEIGHT = 6;
 
-    static constexpr int MAX_WIDTH = UIPage_WIDTH - UIPage_MARGIN * 2 - FriendChatItem::TRIANGLE_WIDTH - FriendChatItem::GAP - FriendChatItem::AVATAR_WIDTH;
+    constexpr static int MAX_WIDTH = UIPage_WIDTH - UIPage_MARGIN * 2 - FriendChatItem::TRIANGLE_WIDTH - FriendChatItem::GAP - FriendChatItem::AVATAR_WIDTH;
 
-    static constexpr int MESSAGE_MARGIN = 5;
-    static constexpr int MESSAGE_CORNER = 3;
+    constexpr static int MESSAGE_MARGIN = 5;
+    constexpr static int MESSAGE_CORNER = 3;
 
-    static constexpr int MESSAGE_MIN_WIDTH  = 10; // handling small size message
-    static constexpr int MESSAGE_MIN_HEIGHT = 10;
+    constexpr static int MESSAGE_MIN_WIDTH  = 10; // handling small size message
+    constexpr static int MESSAGE_MIN_HEIGHT = 10;
 
     const bool showName;
     const bool avatarLeft;
@@ -389,41 +389,119 @@ struct FriendChatPage: public Widget
 {
     // chat page is different, it uses the UIPage_MARGIN area
     // because we fill different color to chat area and input area
+    //
+    //         |<----- UIPage_WIDTH ------>|
+    //       ->||<---- UIPage_MARGIN                     v
+    //       - +---------------------------+             -
+    //       ^ |+-------------------------+|           - -
+    //       | || +------+                ||           ^ ^
+    //       | || |******|                ||           | |
+    //       | || +------+                ||           | + UIPage_MARGIN
+    //       | ||                +------+ ||           |
+    //  U    | ||                |******| ||           |
+    //  I    | ||                +------+ ||           |
+    //  P    | || +------------+          ||           +-- UIPage_HEIGHT - UIPage_MARGIN * 4 - INPUT_MARGIN * 2 - 1 - input.h()
+    //  a    | || |************|          ||           |
+    //  g ---+ || |*****       |          ||           |
+    //  e    | || +------------+          ||           |
+    //  |    | ||                         ||           |
+    //  H    | ||       chat area         ||         | |
+    //  E    | ||                         ||         v v
+    //  I    | |+-------------------------+|       | - -
+    //  G    | +===========================+       v   UIPage_MARGIN * 2 + 1
+    //  H    | |  +---------------------+  |       - -
+    //  T    | | / +-------------------+ \ |     - -<- INPUT_MARGIN
+    //       | ||  |*******************|  ||     ^ ^
+    //       | ||  |****input area*****|  ||   | +---- input.h()
+    //       | ||  |*******************|  || | v v
+    //       | | \ +-------------------+ / | v - -
+    //       v |  +---------------------+  | - -
+    //       - +---------------------------+ - ^
+    //       ->||<---- UIPage_MARGIN         ^ |
+    //       -->| |<--  INPUT_CORNER         | +------  INPUT_MARGIN
+    //       -->|  |<-  INPUT_MARGIN         +-------- UIPage_MARGIN
+    //             |<--- input.w() --->|
 
-    //                          ->||<- UIPage_MARGIN
-    //   |<----UIPage_WIDTH--------->|
-    //   +---------------------------+
-    //   |+-------------------------+| -
-    //   || +------+                || ^
-    //   || |******|                || |
-    //   || +------+                || |
-    //   ||                +------+ || |
-    //   ||                |******| || |
-    //   ||                +------+ || |
-    //   || +------------+          || | CHAT_HEIGHT
-    //   || |************|          || |
-    //   || |*****       |          || |
-    //   || +------------+          || |
-    //   ||                         || |
-    //   ||       chat area         || |
-    //   ||                         || v
-    //   |+-------------------------+| -
-    //   +---------------------------+   UIPage_MARGIN + 1 + UIPage_MARGIN
-    //   |  +---------------------+  | -
-    //   | / ********|             \ | ^
-    //   ||       input area        || | UIPage_HEIGHT - UIPage_MARGIN * 4 - 1 - CHAT_HEIGHT
-    //   | \                       / | v
-    //   |  +---------------------+  | -
-    //   +---------------------------+ - UIPage_MARGIN
-    // ->||<- UIPage_MARGIN          ^
-    // -->| |<-- INPUT_CORNER        |
+    constexpr static int INPUT_CORNER = 10;
+    constexpr static int INPUT_MARGIN = 5;
 
-    static constexpr int CHAT_HEIGHT = 200;
-    static constexpr int INPUT_CORNER = 10;
+    constexpr static int INPUT_MIN_HEIGHT =  20;
+    constexpr static int INPUT_MAX_HEIGHT = 200;
 
     struct FriendChatItemContainer: public Widget
     {
+        // use canvas to hold all chat item
+        // then we can align canvas always to buttom when needed
+        //
+        // when scroll we can only move canvas inside this container
+        // no need to move chat item only by one
+        //
+        // canvas height is flexible
+        // ShapeClipBoard can achieve this on drawing, but prefer ShapeClipBoard when drawing primitives
+
+        Widget canvas;
         FriendChatItemContainer(dir8_t argDir,
+
+                int argX,
+                int argY,
+
+                Widget::VarSize argH,
+
+                Widget *argParent     = nullptr,
+                bool    argAutoDelete = false)
+
+            : Widget
+              {
+                  argDir,
+                  argX,
+                  argY,
+
+                  UIPage_WIDTH - UIPage_MARGIN * 2,
+                  std::move(argH),
+
+                  {},
+
+                  argParent,
+                  argAutoDelete,
+              }
+
+            , canvas
+              {
+                  DIR_DOWNLEFT,
+                  0,
+                  this->h() - 1,
+
+                  this->w(),
+                  [this](const Widget *self)
+                  {
+                      return std::max<int>(self->ph(), this->h());
+                  },
+
+                  {},
+
+                  this,
+                  false,
+              }
+        {}
+
+        void append(FriendChatItem *chatItem, bool autoDelete)
+        {
+            const auto startY = canvas.hasChild() ? (canvas.h() + FriendChatItem::ITEM_SPACE) : 0;
+            if(chatItem->avatarLeft){
+                chatItem->moveAt(DIR_UPLEFT, 0, startY);
+            }
+            else{
+                chatItem->moveAt(DIR_UPRIGHT, canvas.w() - 1, startY);
+            }
+
+            canvas.addChild(chatItem, autoDelete);
+        }
+    };
+
+    struct FriendChatInputContainer: public Widget
+    {
+        LayoutBoard layout;
+        FriendChatInputContainer(dir8_t argDir,
 
                 int argX,
                 int argY,
@@ -437,31 +515,53 @@ struct FriendChatPage: public Widget
                   argX,
                   argY,
 
-                  UIPage_WIDTH - UIPage_MARGIN * 2,
-                  {},
+                  UIPage_WIDTH - UIPage_MARGIN * 2 - FriendChatPage::INPUT_MARGIN * 2,
+                  [this](const Widget *)
+                  {
+                      return mathf::bound<int>(layout.h(), FriendChatPage::INPUT_MIN_HEIGHT, FriendChatPage::INPUT_MAX_HEIGHT);
+                  },
+
                   {},
 
                   argParent,
                   argAutoDelete,
               }
+
+            , layout
+              {
+                  DIR_DOWNLEFT,
+                  0,
+                  this->h() - 1,
+                  this->w(),
+
+                  "<layout><par>正在输入的内容。。。</par></layout>",
+                  0,
+
+                  {},
+                  false,
+                  false,
+
+                  1,
+                  12,
+                  0,
+                  colorf::WHITE + colorf::A_SHF(255),
+                  0,
+
+                  LALIGN_JUSTIFY,
+                  0,
+                  0,
+
+                  nullptr,
+
+                  this,
+                  false,
+              }
         {}
-
-        void append(FriendChatItem *chatItem, bool autoDelete)
-        {
-            const auto startY = m_childList.empty() ? 0 : (h() + FriendChatItem::ITEM_SPACE);
-            if(chatItem->avatarLeft){
-                chatItem->moveAt(DIR_UPLEFT, 0, startY);
-            }
-            else{
-                chatItem->moveAt(DIR_UPRIGHT, w() - 1, startY);
-            }
-
-            addChild(chatItem, autoDelete);
-        }
     };
 
     ShapeClipBoard background;
-    FriendChatItemContainer container;
+    FriendChatItemContainer chat;
+    FriendChatInputContainer input;
 
     FriendChatPage(dir8_t argDir,
 
@@ -500,28 +600,28 @@ struct FriendChatPage: public Widget
                           colorf::RGBA(231, 231, 189, 64),
 
                           drawDstX,
-                          drawDstY + FriendChatPage::CHAT_HEIGHT + UIPage_MARGIN * 2,
+                          drawDstY + UIPage_HEIGHT - UIPage_MARGIN * 2 - INPUT_MARGIN * 2 - input.h() - 1,
 
                           drawDstX + UIPage_WIDTH,
-                          drawDstY + FriendChatPage::CHAT_HEIGHT + UIPage_MARGIN * 2);
+                          drawDstY + UIPage_HEIGHT - UIPage_MARGIN * 2 - INPUT_MARGIN * 2 - input.h() - 1);
 
                   g_sdlDevice->fillRectangle(
                           colorf::RGBA(231, 231, 189, 32),
 
                           drawDstX,
-                          drawDstY + FriendChatPage::CHAT_HEIGHT + UIPage_MARGIN * 2 + 1,
+                          drawDstY + UIPage_HEIGHT - UIPage_MARGIN * 2 - INPUT_MARGIN * 2 - input.h(),
 
                           UIPage_WIDTH,
-                          UIPage_HEIGHT - FriendChatPage::CHAT_HEIGHT - UIPage_MARGIN * 2 - 1);
+                          UIPage_MARGIN * 2 + FriendChatPage::INPUT_MARGIN * 2 + input.h());
 
                   g_sdlDevice->fillRectangle(
                           colorf::BLACK + colorf::A_SHF(255),
 
                           drawDstX + UIPage_MARGIN,
-                          drawDstY + FriendChatPage::CHAT_HEIGHT + UIPage_MARGIN * 3 + 1,
+                          drawDstY + UIPage_HEIGHT - UIPage_MARGIN - INPUT_MARGIN * 2 - input.h(),
 
                           UIPage_WIDTH - UIPage_MARGIN * 2,
-                          UIPage_HEIGHT - UIPage_MARGIN * 4 - 1 - FriendChatPage::CHAT_HEIGHT,
+                          FriendChatPage::INPUT_MARGIN * 2 + input.h(),
 
                           FriendChatPage::INPUT_CORNER);
 
@@ -529,10 +629,10 @@ struct FriendChatPage: public Widget
                           colorf::RGBA(231, 231, 189, 96),
 
                           drawDstX + UIPage_MARGIN,
-                          drawDstY + FriendChatPage::CHAT_HEIGHT + UIPage_MARGIN * 3 + 1,
+                          drawDstY + UIPage_HEIGHT - UIPage_MARGIN - INPUT_MARGIN * 2 - input.h(),
 
                           UIPage_WIDTH - UIPage_MARGIN * 2,
-                          UIPage_HEIGHT - UIPage_MARGIN * 4 - 1 - FriendChatPage::CHAT_HEIGHT,
+                          FriendChatPage::INPUT_MARGIN * 2 + input.h(),
 
                           FriendChatPage::INPUT_CORNER);
               },
@@ -541,17 +641,32 @@ struct FriendChatPage: public Widget
               false,
           }
 
-        , container
+        , chat
           {
               DIR_UPLEFT,
               UIPage_MARGIN,
               UIPage_MARGIN,
 
+              [this](const Widget *)
+              {
+                  return UIPage_HEIGHT - UIPage_MARGIN * 4 - FriendChatPage::INPUT_MARGIN * 2 - input.h() - 1;
+              },
+
+              this,
+              false,
+          }
+
+        , input
+          {
+              DIR_DOWNLEFT,
+              UIPage_MARGIN + FriendChatPage::INPUT_MARGIN,
+              UIPage_HEIGHT - UIPage_MARGIN - FriendChatPage::INPUT_MARGIN,
+
               this,
               false,
           }
     {
-        container.append(new FriendChatItem
+        chat.append(new FriendChatItem
         {
             DIR_UPLEFT,
             0,
@@ -571,7 +686,7 @@ struct FriendChatPage: public Widget
             colorf::RED + colorf::A_SHF(128),
         }, true);
 
-        container.append(new FriendChatItem
+        chat.append(new FriendChatItem
         {
             DIR_UPLEFT,
             0,
@@ -591,7 +706,7 @@ struct FriendChatPage: public Widget
             colorf::GREEN + colorf::A_SHF(128),
         }, true);
 
-        container.append(new FriendChatItem
+        chat.append(new FriendChatItem
         {
             DIR_UPLEFT,
             0,
@@ -615,12 +730,12 @@ struct FriendChatPage: public Widget
 
 struct FriendChatPreviewItem: public Widget
 {
-    static constexpr int WIDTH  = UIPage_WIDTH - UIPage_MARGIN * 2;
-    static constexpr int HEIGHT = 50;
+    constexpr static int WIDTH  = UIPage_WIDTH - UIPage_MARGIN * 2;
+    constexpr static int HEIGHT = 50;
 
-    static constexpr int GAP = 10;
-    static constexpr int NAME_HEIGHT = 30;
-    static constexpr int AVATAR_WIDTH = HEIGHT * 84 / 94; // original avatar size: 84 x 94
+    constexpr static int GAP = 10;
+    constexpr static int NAME_HEIGHT = 30;
+    constexpr static int AVATAR_WIDTH = HEIGHT * 84 / 94; // original avatar size: 84 x 94
 
     //        GAP
     //       |<->|

@@ -74,8 +74,8 @@ ACButton::ACButton(dir8_t dir, int x, int y, ProcessRun *proc, const std::vector
     for(auto &p: m_texMap){
         if(auto texPtr = g_progUseDB->retrieve(p.second)){
             const auto [texW, texH] = SDLDeviceHelper::getTextureSize(texPtr);
-            m_w = std::max<int>(m_w.value_or(0), texW);
-            m_h = std::max<int>(m_h.value_or(0), texH);
+            setW(std::max<int>(w(), texW));
+            setH(std::max<int>(h(), texH));
             inited = true;
         }
     }

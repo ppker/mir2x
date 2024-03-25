@@ -166,9 +166,12 @@ TexSliderBar::TexSliderBar(
           [argHSlider, argOnChanged = std::move(argOnChanged), this](float val)
           {
               argOnChanged(val);
-              m_barCropDup.setSize(
-                      /* w */  argHSlider ? std::make_optional<int>(std::lround(val * (w() - 6))) : std::nullopt,
-                      /* h */ !argHSlider ? std::make_optional<int>(std::lround(val * (h() - 6))) : std::nullopt);
+              if(argHSlider){
+                  m_barCropDup.setW(to_dround(val * (w() - 6)));
+              }
+              else{
+                  m_barCropDup.setH(to_dround(val * (h() - 6)));
+              }
           },
 
           this,

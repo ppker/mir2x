@@ -420,7 +420,9 @@ RuntimeConfigBoard::LabelSliderBar::LabelSliderBar(
           false,
       }
 {
-    setSize(m_labelCrop.w() + m_slider.w(), std::max<int>({m_labelCrop.h(), m_slider.h()}));
+    setW(m_labelCrop.w() + m_slider.w());
+    setH(std::max<int>({m_labelCrop.h(), m_slider.h()}));
+
     m_labelCrop.moveAt(DIR_LEFT, 0                                 , h() / 2);
     m_slider   .moveAt(DIR_LEFT, m_labelCrop.dx() + m_labelCrop.w(), h() / 2);
 }
@@ -577,7 +579,7 @@ RuntimeConfigBoard::MenuPage::MenuPage(
         int argX,
         int argY,
 
-        std::optional<int> argSeperatorW,
+        Widget::VarSize argSeperatorW,
         int argGap,
 
         std::initializer_list<std::tuple<const char8_t *, Widget *, bool>> argTabList,
@@ -671,7 +673,10 @@ RuntimeConfigBoard::MenuPage::MenuPage(
         }
     }
 
-    m_buttonMask.setSize(argSeperatorW.has_value() ? std::nullopt : std::make_optional<int>(w()), h());
+    if(!Widget::hasSize(argSeperatorW)){
+        m_buttonMask.setW(w());
+    }
+    m_buttonMask.setH(h());
 }
 
 RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, ProcessRun *proc, Widget *widgetPtr, bool autoDelete)

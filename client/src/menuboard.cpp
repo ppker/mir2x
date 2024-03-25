@@ -8,7 +8,7 @@ MenuBoard::MenuBoard(dir8_t argDir,
         int argX,
         int argY,
 
-        std::optional<int> argWOpt,
+        Widget::VarSize argVarW,
 
         int argItemSpace,
         int argSeperatorSpace,
@@ -33,17 +33,33 @@ MenuBoard::MenuBoard(dir8_t argDir,
           argAutoDelete,
       }
 
-    , m_wOpt(argWOpt)
+    , m_varW(argVarW)
     , m_itemSpace(argItemSpace)
     , m_seperatorSpace(argSeperatorSpace)
     , m_onClickMenu(std::move(argOnClickMenu))
     , m_margin(argMargin)
 {
-    if(m_wOpt.has_value()){
-        fflassert(m_wOpt.value() > 0, m_wOpt);
+    if(Widget::hasIntSize(m_varW)){
+        fflassert(std::get<int>(m_varW) > 0, m_varW);
     }
 
-    setSize(m_wOpt.value_or(0) + m_margin[2] + m_margin[3], m_margin[0] + m_margin[1]);
+    setW([this]() -> Widget::VarSize
+    {
+        if(hasIntSize(m_varW)){
+            return std::get<int>(m_varW) + m_margin[2] + m_margin[3];
+        }
+        else if(hasFuncSize(m_varW)){
+            return [this](const Widget *)
+            {
+                return (Widget::asFuncSize(m_varW) ? Widget::asFuncSize(m_varW)(this) : 0) + m_margin[2] + m_margin[3];
+            };
+        }
+        else{
+            return m_margin[2] + m_margin[3];
+        }
+    }());
+
+    setH(m_margin[0] + m_margin[1]);
 
     for(auto p: argMenuItemList){
         addChild(p.first, p.second);
@@ -63,11 +79,11 @@ void MenuBoard::addChild(Widget *widget, bool autoDelete)
             widget->moveAt(DIR_UPLEFT, m_margin[2], h() - m_margin[1] + m_itemSpace / 2);
         }
 
-        if(!m_wOpt.has_value()){
-            m_w = std::max<int>(w(), widget->w() + m_margin[2] + m_margin[3]);
+        if(!Widget::hasSize(m_varW)){
+            setW(std::max<int>(w(), widget->w() + m_margin[2] + m_margin[3]));
         }
 
-        m_h = widget->dy() + widget->h() + (m_itemSpace - m_itemSpace / 2) + m_margin[1];
+        setH(widget->dy() + widget->h() + (m_itemSpace - m_itemSpace / 2) + m_margin[1]);
     }
 }
 

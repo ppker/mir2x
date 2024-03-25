@@ -78,5 +78,6 @@ void TrigfxButton::initButtonSize()
         maxH = std::max<int>(p->h(), maxH);
     }
 
-    setSize(maxW, maxH);
+    setW(maxW);
+    setH(maxH);
 }

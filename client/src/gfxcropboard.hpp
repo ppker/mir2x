@@ -58,9 +58,8 @@ class GfxCropBoard: public Widget
 
             , m_margin(argMargin)
         {
-            setSize(
-                    m_brdCropW + m_margin[2] + m_margin[3], // respect blank space by over-cropping
-                    m_brdCropH + m_margin[0] + m_margin[1]);
+            setW(m_brdCropW + m_margin[2] + m_margin[3]); // respect blank space by over-cropping
+            setH(m_brdCropH + m_margin[0] + m_margin[1]);
         }
 
     public:

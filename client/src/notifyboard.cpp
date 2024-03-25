@@ -83,12 +83,12 @@ void NotifyBoard::updateSize()
     m_h = 0;
 
     for(const auto &tp: m_boardList){
-        m_h.value() += tp.typeset->ph();
+        Widget::asIntSize(m_h) += tp.typeset->ph();
         if(m_lineW > 0){
             m_w = m_lineW;
         }
         else{
-            m_w = std::max<int>(m_w.value_or(0), tp.typeset->pw());
+            m_w = std::max<int>(asIntSize(m_w), tp.typeset->pw());
         }
     }
 }

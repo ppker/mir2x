@@ -7,6 +7,8 @@
 #include <utility>
 #include <tuple>
 #include <array>
+#include <functional>
+#include <variant>
 #include <cstdint>
 #include <optional>
 #include <initializer_list>
@@ -19,6 +21,31 @@
 
 class Widget
 {
+    public:
+        using VarSize = std::variant<std::monostate, int, std::function<int(const Widget *)>>;
+
+    public:
+        static bool hasSize(const Widget::VarSize &varSize)
+        {
+            return varSize.index() != 0;
+        }
+
+        static bool hasIntSize(const Widget::VarSize &varSize)
+        {
+            return varSize.index() == 1;
+        }
+
+        static bool hasFuncSize(const Widget::VarSize &varSize)
+        {
+            return varSize.index() == 2;
+        }
+
+        static int  asIntSize(const Widget::VarSize &varSize) { return std::get<int>(varSize); }
+        static int &asIntSize(      Widget::VarSize &varSize) { return std::get<int>(varSize); }
+
+        static const std::function<int(const Widget *)> &asFuncSize(const Widget::VarSize &varSize) { return std::get<std::function<int(const Widget *)>>(varSize); }
+        static       std::function<int(const Widget *)> &asFuncSize(      Widget::VarSize &varSize) { return std::get<std::function<int(const Widget *)>>(varSize); }
+
     protected:
         Widget * m_parent;
 
@@ -38,8 +65,8 @@ class Widget
         int m_y;
 
     protected:
-        std::optional<int> m_w;
-        std::optional<int> m_h;
+        Widget::VarSize m_w;
+        Widget::VarSize m_h;
 
     protected:
         struct ChildWidgetElement
@@ -56,8 +83,8 @@ class Widget
                 int argX,
                 int argY,
 
-                std::optional<int> argW = std::nullopt,
-                std::optional<int> argH = std::nullopt,
+                Widget::VarSize argW = {},
+                Widget::VarSize argH = {},
 
                 std::initializer_list<std::tuple<Widget *, dir8_t, int, int, bool>> argChildList = {},
 
@@ -68,15 +95,18 @@ class Widget
             , m_dir(argDir)
             , m_x(argX)
             , m_y(argY)
-            , m_w(argW)
-            , m_h(argH)
+            , m_w(std::move(argW))
+            , m_h(std::move(argH))
         {
             if(m_parent){
                 m_parent->addChild(this, argAutoDelete);
             }
 
-            fflassert(m_w.value_or(0) >= 0, m_w, m_h);
-            fflassert(m_h.value_or(0) >= 0, m_w, m_h);
+            // don't check if w/h is a function
+            // because it may refers to sub-widget which has not be initialized yet
+
+            if(Widget::hasIntSize(m_w)){ fflassert(std::get<int>(m_w) >= 0, std::get<int>(m_w)); }
+            if(Widget::hasIntSize(m_h)){ fflassert(std::get<int>(m_h) >= 0, std::get<int>(m_h)); }
 
             for(const auto &[childPtr, offDir, offX, offY, autoDelete]: argChildList){
                 addChild(childPtr, autoDelete);
@@ -140,7 +170,7 @@ class Widget
             }
         }
 
-    public:
+    private:
         static int sizeOff(int size, int index)
         {
             /**/ if(index <  0) return        0;
@@ -281,34 +311,116 @@ class Widget
 
         virtual int w() const
         {
-            if(m_w.has_value()){
-                return m_w.value();
-            }
-
-            int maxW = 0;
-            for(const auto &child: m_childList){
-                if(child.widget->show()){
-                    maxW = std::max<int>(maxW, child.widget->dx() + child.widget->w());
+            const auto fnMaxW = [this]
+            {
+                int maxW = 0;
+                for(const auto &child: m_childList){
+                    if(child.widget->show()){
+                        maxW = std::max<int>(maxW, child.widget->dx() + child.widget->w());
+                    }
                 }
-            }
+                return maxW;
+            };
 
-            return maxW;
+            const auto width = std::visit(varDispatcher
+            {
+                [](const int &arg)
+                {
+                    return arg;
+                },
+
+                [&fnMaxW, this](const std::function<int(const Widget *)> &arg)
+                {
+                    return arg ? arg(this) : fnMaxW();
+                },
+
+                [&fnMaxW, this](const auto &)
+                {
+                    return fnMaxW();
+                }
+            }, m_w);
+
+            fflassert(width >= 0, width, m_w);
+            return width;
         }
 
         virtual int h() const
         {
-            if(m_h.has_value()){
-                return m_h.value();
-            }
+            const auto fnMaxH = [this]
+            {
+                int maxH = 0;
+                for(const auto &child: m_childList){
+                    if(child.widget->show()){
+                        maxH = std::max<int>(maxH, child.widget->dy() + child.widget->h());
+                    }
+                }
+                return maxH;
+            };
 
+            const auto height = std::visit(varDispatcher
+            {
+                [](const int &argH)
+                {
+                    return argH;
+                },
+
+                [&fnMaxH, this](const std::function<int(const Widget *)> &argH)
+                {
+                    return argH ? argH(this) : fnMaxH();
+                },
+
+                [&fnMaxH, this](const auto &)
+                {
+                    return fnMaxH();
+                }
+            }, m_h);
+
+            fflassert(height >= 0, m_h);
+            return height;
+        }
+
+        virtual int px() const
+        {
+            int minX = 0;
+            for(const auto &child: m_childList){
+                if(child.widget->show()){
+                    minX = std::min<int>(minX, child.widget->dx());
+                }
+            }
+            return minX;
+        }
+
+        virtual int py() const
+        {
+            int minY = 0;
+            for(const auto &child: m_childList){
+                if(child.widget->show()){
+                    minY = std::min<int>(minY, child.widget->dy());
+                }
+            }
+            return minY;
+        }
+
+        virtual int pw() const
+        {
+            int maxW = 0;
+            for(const auto &child: m_childList){
+                if(child.widget->show()){
+                    maxW = std::max<int>(maxW, child.widget->dx() + child.widget->pw());
+                }
+            }
+            return maxW - px();
+        }
+
+        virtual int ph() const
+        {
             int maxH = 0;
             for(const auto &child: m_childList){
                 if(child.widget->show()){
-                    maxH = std::max<int>(maxH, child.widget->dy() + child.widget->h());
+                    maxH = std::max<int>(maxH, child.widget->dy() + child.widget->ph());
                 }
             }
-
-            return maxH;
+            return maxH - py();
         }
 
         Widget * parent()
@@ -370,7 +482,12 @@ class Widget
         }
 
     public:
-        bool hasChild(const Widget *child)
+        bool hasChild() const
+        {
+            return !m_childList.empty();
+        }
+
+        bool hasChild(const Widget *child) const
         {
             for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
                 if(p->widget == child){
@@ -494,30 +611,20 @@ class Widget
         }
 
     public:
-        void setSize(std::optional<int> argW, std::optional<int> argH)
+        void setW(Widget::VarSize argSize)
         {
-            if(argW.has_value()){
-                fflassert(argW.value() >= 0, argW);
-                m_w = argW.value();
-            }
-
-            if(argH.has_value()){
-                fflassert(argH.value() >= 0, argH);
-                m_h = argH.value();
-            }
+            m_w = std::move(argSize);
         }
 
-        template<typename T> void setSize(const T &t)
+        void setH(Widget::VarSize argSize)
         {
-            const auto [argW, argH] = t;
-            setSize(argW, argH);
+            m_h = std::move(argSize);
         }
 
-    public:
-        void setFlexibleSize(bool argW, bool argH)
+        void setSize(Widget::VarSize argW, Widget::VarSize argH)
         {
-            if(argW) m_w.reset();
-            if(argH) m_h.reset();
+            m_w = std::move(argW);
+            m_h = std::move(argH);
         }
 
     public:

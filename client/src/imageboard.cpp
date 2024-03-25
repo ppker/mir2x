@@ -10,8 +10,8 @@ ImageBoard::ImageBoard(
         int argX,
         int argY,
 
-        std::optional<int> argWOpt,
-        std::optional<int> argHOpt,
+        Widget::VarSize argW,
+        Widget::VarSize argH,
 
         std::function<SDL_Texture *(const ImageBoard *)> argLoadFunc,
 
@@ -52,9 +52,12 @@ ImageBoard::ImageBoard(
     }
 
     const auto [texW, texH] = SDLDeviceHelper::getTextureSize(texPtr);
-    setSize(
-            std::max<int>(0, (m_rotate % 2 == 0) ? argWOpt.value_or(texW) : argHOpt.value_or(texH)),
-            std::max<int>(0, (m_rotate % 2 == 0) ? argHOpt.value_or(texH) : argWOpt.value_or(texW)));
+
+    const auto varTexW = Widget::hasSize(argW) ? argW : Widget::VarSize(texW);
+    const auto varTexH = Widget::hasSize(argH) ? argH : Widget::VarSize(texH);
+
+    setW((m_rotate % 2 == 0) ? varTexW : varTexH);
+    setH((m_rotate % 2 == 0) ? varTexH : varTexW);
 }
 
 void ImageBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const

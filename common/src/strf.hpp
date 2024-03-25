@@ -77,6 +77,7 @@
 #include <unordered_map>
 #include <list>
 #include <vector>
+#include <functional>
 #include <deque>
 #include <string>
 #include <cstring>
@@ -343,6 +344,11 @@ inline std::string str_any(bool b)
 inline std::string str_any(const std::monostate &)
 {
     return "(monostate)";
+}
+
+template<typename R, typename... Args> std::string str_any(const std::function<R(Args...)> &func)
+{
+    return str_any(&func);
 }
 
 namespace _str_any_details

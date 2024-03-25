@@ -6,7 +6,7 @@
 class MenuBoard: public Widget
 {
     private:
-        const std::optional<int> m_wOpt;
+        const Widget::VarSize m_varW;
 
     private:
         const int m_itemSpace;
@@ -23,7 +23,7 @@ class MenuBoard: public Widget
                 int,
                 int,
 
-                std::optional<int>,
+                Widget::VarSize,
 
                 int,
                 int,

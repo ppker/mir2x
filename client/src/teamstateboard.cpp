@@ -233,8 +233,8 @@ TeamStateBoard::TeamStateBoard(int argX, int argY, ProcessRun *runPtr, Widget *w
         }
     }();
 
-    m_w = texW;
-    m_h = texH - m_uidRegionH + lineShowCount() * lineHeight();
+    setW(texW);
+    setH(texH - m_uidRegionH + to_d(lineShowCount()) * lineHeight());
 
     adjustButtonPos();
 

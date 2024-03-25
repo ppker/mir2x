@@ -105,8 +105,8 @@ void IMEBoard::updateSize()
         }
     }();
 
-    setSize(std::max<int>(minW, m_startX * 2 + totalLabelWidth()),
-            std::max<int>(minH, m_startY * 2 + m_fontTokenHeight + m_separatorSpace + m_fontTokenHeight));
+    setW(std::max<int>(minW, m_startX * 2 + totalLabelWidth()));
+    setH(std::max<int>(minH, m_startY * 2 + m_fontTokenHeight + m_separatorSpace + m_fontTokenHeight));
 }
 
 void IMEBoard::prepareLabelBoardList()

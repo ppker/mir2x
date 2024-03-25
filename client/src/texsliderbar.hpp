@@ -47,8 +47,11 @@ class TexSliderBar: public Widget
         void setValue(float val, bool triggerCallback)
         {
             m_slider.setValue(val, triggerCallback);
-            m_barCropDup.setSize(
-                    /* w */  m_slider.hslider() ? std::make_optional<int>(std::lround(val * (w() - 6))) : std::nullopt,
-                    /* h */ !m_slider.hslider() ? std::make_optional<int>(std::lround(val * (h() - 6))) : std::nullopt);
+            if(m_slider.hslider()){
+                m_barCropDup.setW(to_dround(val * (w() - 6)));
+            }
+            else{
+                m_barCropDup.setH(to_dround(val * (h() - 6)));
+            }
         }
 };
