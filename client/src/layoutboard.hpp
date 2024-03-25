@@ -51,6 +51,8 @@ class LayoutBoard: public Widget
 
     private:
         bool m_canSelect;
+        bool m_canEdit;
+        bool m_imeEnabled;
 
     private:
         const std::function<void(const std::unordered_map<std::string, std::string> &, int, int)> m_eventCB;
@@ -69,6 +71,8 @@ class LayoutBoard: public Widget
                 std::array<int, 4> argMargin = {0, 0, 0, 0},
 
                 bool argCanSelect  = false,
+                bool argCanEdit    = false,
+                bool argIMEEnabled = false,
                 bool argCanThrough = false,
 
                 uint8_t  argFont        =  0,
@@ -116,6 +120,8 @@ class LayoutBoard: public Widget
               }
 
             , m_canSelect(argCanSelect)
+            , m_canEdit(argCanEdit)
+            , m_imeEnabled(argIMEEnabled)
             , m_eventCB(argEventCB)
         {
             for(size_t i = 0; i < m_parNodeConfig.margin.size(); ++i){

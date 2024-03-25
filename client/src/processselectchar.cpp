@@ -204,6 +204,8 @@ void ProcessSelectChar::drawCharName() const
             {},
             false,
             false,
+            false,
+            false,
 
             1,
             15,

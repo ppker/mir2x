@@ -339,6 +339,8 @@ struct FriendChatItem: public Widget
               {},
               false,
               false,
+              false,
+              false,
 
               1,
               12,
@@ -582,6 +584,8 @@ struct FriendChatPage: public Widget
                   0,
 
                   {},
+                  false,
+                  false,
                   false,
                   false,
 
@@ -887,6 +891,8 @@ struct FriendChatPreviewItem: public Widget
               1,
 
               {},
+              false,
+              false,
               false,
               false,
 

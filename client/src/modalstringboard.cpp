@@ -81,6 +81,8 @@ void ModalStringBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int, int) 
             {},
             false,
             false,
+            false,
+            false,
 
             1,
             12,

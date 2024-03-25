@@ -725,6 +725,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           {},
           false,
           false,
+          false,
+          false,
 
           1,
           14,

@@ -563,6 +563,8 @@ void InventoryBoard::drawItemHoverText(const PackBin &bin) const
         {},
         false,
         false,
+        false,
+        false,
 
         1,
         12,

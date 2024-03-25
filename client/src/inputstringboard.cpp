@@ -150,6 +150,8 @@ void InputStringBoard::drawEx(int dstX, int dstY, int, int, int, int) const
         {},
         false,
         false,
+        false,
+        false,
 
         1,
         12,

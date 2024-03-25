@@ -606,6 +606,8 @@ void PurchaseBoard::drawExt1GridHoverText(int itemIndex) const
         {},
         false,
         false,
+        false,
+        false,
 
         1,
         12,

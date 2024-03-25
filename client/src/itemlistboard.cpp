@@ -241,6 +241,8 @@ void ItemListBoard::drawGridHoverLayout(size_t index) const
         {},
         false,
         false,
+        false,
+        false,
 
         1,
         12,

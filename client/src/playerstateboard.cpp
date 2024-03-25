@@ -436,6 +436,8 @@ void PlayerStateBoard::drawItemHoverText(int wltype) const
         {},
         false,
         false,
+        false,
+        false,
 
         1,
         12,
