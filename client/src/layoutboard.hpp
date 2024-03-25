@@ -57,50 +57,66 @@ class LayoutBoard: public Widget
 
     public:
         LayoutBoard(
-                dir8_t dir,
-                int x,
-                int y,
-                int lineWidth,
+                Widget::VarDir    argDir,
+                Widget::VarOffset argX,
+                Widget::VarOffset argY,
 
-                const char *initXML = nullptr,
-                size_t parLimit = 0,
+                int argLineWidth,
 
-                std::array<int, 4> margin = {0, 0, 0, 0},
+                const char *argInitXML = nullptr,
+                size_t argParLimit = 0,
 
-                bool canSelect  = false,
-                bool canThrough = false,
+                std::array<int, 4> argMargin = {0, 0, 0, 0},
 
-                uint8_t  font        =  0,
-                uint8_t  fontSize    = 10,
-                uint8_t  fontStyle   =  0,
-                uint32_t fontColor   =  colorf::WHITE + colorf::A_SHF(255),
-                uint32_t fontBGColor =  0,
+                bool argCanSelect  = false,
+                bool argCanThrough = false,
 
-                int lineAlign = LALIGN_LEFT,
-                int lineSpace = 0,
-                int wordSpace = 0,
+                uint8_t  argFont        =  0,
+                uint8_t  argFontSize    = 10,
+                uint8_t  argFontStyle   =  0,
+                uint32_t argFontColor   =  colorf::WHITE + colorf::A_SHF(255),
+                uint32_t argFontBGColor =  0,
 
-                const std::function<void(const std::unordered_map<std::string, std::string> &, int, int)> &eventCB = nullptr,
+                int argLineAlign = LALIGN_LEFT,
+                int argLineSpace = 0,
+                int argWordSpace = 0,
 
-                Widget *parent     =  nullptr,
-                bool    autoDelete =  false)
-            : Widget(dir, x, y, 0, 0, {}, parent, autoDelete)
+                const std::function<void(const std::unordered_map<std::string, std::string> &, int, int)> &argEventCB = nullptr,
+
+                Widget *argParent     = nullptr,
+                bool    argAutoDelete = false)
+
+            : Widget
+              {
+                  std::move(argDir),
+                  std::move(argX),
+                  std::move(argY),
+
+                  0,
+                  0,
+                  {},
+
+                  argParent,
+                  argAutoDelete,
+              }
+
             , m_parNodeConfig
               {
-                  lineWidth,
-                  margin,
-                  canThrough,
-                  font,
-                  fontSize,
-                  fontStyle,
-                  fontColor,
-                  fontBGColor,
-                  lineAlign,
-                  lineSpace,
-                  wordSpace,
+                  argLineWidth,
+                  argMargin,
+                  argCanThrough,
+                  argFont,
+                  argFontSize,
+                  argFontStyle,
+                  argFontColor,
+                  argFontBGColor,
+                  argLineAlign,
+                  argLineSpace,
+                  argWordSpace,
               }
-            , m_canSelect(canSelect)
-            , m_eventCB(eventCB)
+
+            , m_canSelect(argCanSelect)
+            , m_eventCB(argEventCB)
         {
             for(size_t i = 0; i < m_parNodeConfig.margin.size(); ++i){
                 if(m_parNodeConfig.margin[i] < 0){
@@ -112,8 +128,8 @@ class LayoutBoard: public Widget
                 throw fflerror("invalid default paragraph parameters");
             }
 
-            if(initXML){
-                loadXML(initXML, parLimit);
+            if(argInitXML){
+                loadXML(argInitXML, argParLimit);
             }
         }
 
