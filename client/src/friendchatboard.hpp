@@ -63,8 +63,8 @@ class FriendChatBoard: public Widget
         TritexButton m_close;
 
     private:
-        int m_uiLastPage = UIPage_CHAT;
-        int m_uiPage     = UIPage_CHAT;
+        int m_uiLastPage = UIPage_CHATPREVIEW;
+        int m_uiPage     = UIPage_CHATPREVIEW;
         const std::array<UIPageWidgetGroup, UIPage_END> m_uiPageList; // {buttons, page}
 
     private:

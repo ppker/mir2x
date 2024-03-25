@@ -895,11 +895,7 @@ struct FriendChatPreviewItem: public Widget
               false,
           }
     {}
-};
 
-struct FriendChatPreviewPage: public Widget
-{
-    using Widget::Widget;
     bool processEvent(const SDL_Event &event, bool valid) override
     {
         if(!valid){
@@ -911,34 +907,12 @@ struct FriendChatPreviewPage: public Widget
         }
 
         switch(event.type){
-            case SDL_KEYDOWN:
-                {
-                    if(focus()){
-                        switch(event.key.keysym.sym){
-                            case SDLK_RETURN:
-                            default:
-                                {
-                                    return consumeFocus(true);
-                                }
-                        }
-                    }
-                    return false;
-                }
             case SDL_MOUSEBUTTONDOWN:
                 {
-                    Widget *clicked = nullptr;
-                    for(auto &child: m_childList){
-                        if(child.widget->in(event.button.x, event.button.y)){
-                            clicked = child.widget;
-                            break;
-                        }
+                    if(in(event.button.x, event.button.y)){
+                        dynamic_cast<FriendChatBoard *>(this->parent()->parent())->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
                     }
-
-                    if(clicked){
-                        return consumeFocus(true, clicked);
-                    }
-
-                    return consumeFocus(in(event.button.x, event.button.y));
+                    return false;
                 }
             default:
                 {
@@ -946,6 +920,11 @@ struct FriendChatPreviewPage: public Widget
                 }
         }
     }
+};
+
+struct FriendChatPreviewPage: public Widget
+{
+    using Widget::Widget;
 };
 
 struct PageControl: public Widget
@@ -1296,7 +1275,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                               nullptr,
                               [this](ButtonBase *)
                               {
-                                  m_uiPage = UIPage_FRIENDLIST;
+                                  setUIPage(UIPage_FRIENDLIST);
                               },
                           },
 
@@ -1412,7 +1391,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                               nullptr,
                               [this](ButtonBase *)
                               {
-                                  m_uiPage = UIPage_CHATPREVIEW;
+                                  setUIPage(UIPage_CHATPREVIEW);
                               },
                           },
 
