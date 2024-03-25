@@ -568,8 +568,9 @@ struct FriendChatPage: public Widget
     };
 
     ShapeClipBoard background;
-    FriendChatItemContainer chat;
+
     FriendChatInputContainer input;
+    FriendChatItemContainer  chat;
 
     FriendChatPage(dir8_t argDir,
 
@@ -649,6 +650,16 @@ struct FriendChatPage: public Widget
               false,
           }
 
+        , input
+          {
+              DIR_DOWNLEFT,
+              UIPage_MARGIN                 + FriendChatPage::INPUT_MARGIN,
+              UIPage_HEIGHT - UIPage_MARGIN - FriendChatPage::INPUT_MARGIN - 1,
+
+              this,
+              false,
+          }
+
         , chat
           {
               DIR_UPLEFT,
@@ -659,16 +670,6 @@ struct FriendChatPage: public Widget
               {
                   return UIPage_HEIGHT - UIPage_MARGIN * 4 - FriendChatPage::INPUT_MARGIN * 2 - input.h() - 1;
               },
-
-              this,
-              false,
-          }
-
-        , input
-          {
-              DIR_DOWNLEFT,
-              UIPage_MARGIN                 + FriendChatPage::INPUT_MARGIN,
-              UIPage_HEIGHT - UIPage_MARGIN - FriendChatPage::INPUT_MARGIN - 1,
 
               this,
               false,
