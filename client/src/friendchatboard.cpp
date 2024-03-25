@@ -400,7 +400,7 @@ struct FriendChatPage: public Widget
     //       | ||                +------+ ||           |
     //  U    | ||                |******| ||           |
     //  I    | ||                +------+ ||           |
-    //  P    | || +------------+          ||           +-- UIPage_HEIGHT - UIPage_MARGIN * 4 - INPUT_MARGIN * 2 - 1 - input.h()
+    //  P    | || +------------+          ||           +-- UIPage_HEIGHT - UIPage_MARGIN * 4 - INPUT_MARGIN * 2 - input.h() - 1
     //  a    | || |************|          ||           |
     //  g ---+ || |*****       |          ||           |
     //  e    | || +------------+          ||           |
@@ -529,9 +529,10 @@ struct FriendChatPage: public Widget
 
             , layout
               {
-                  DIR_DOWNLEFT,
+                  DIR_UPLEFT,
                   0,
-                  this->h() - 1,
+                  0,
+
                   this->w(),
 
                   "<layout><par>正在输入的内容。。。</par></layout>",
@@ -556,7 +557,14 @@ struct FriendChatPage: public Widget
                   this,
                   false,
               }
-        {}
+        {
+            // there is mutual dependency
+            // height of input container depends on height of layout
+            //
+            // layout always attach to buttom of input container, so argX needs container height
+            // in initialization list we can not call this->h() since initialization of layout is not done yet
+            layout.moveAt(DIR_DOWNLEFT, 0, this->h() - 1);
+        }
     };
 
     ShapeClipBoard background;
@@ -659,8 +667,8 @@ struct FriendChatPage: public Widget
         , input
           {
               DIR_DOWNLEFT,
-              UIPage_MARGIN + FriendChatPage::INPUT_MARGIN,
-              UIPage_HEIGHT - UIPage_MARGIN - FriendChatPage::INPUT_MARGIN,
+              UIPage_MARGIN                 + FriendChatPage::INPUT_MARGIN,
+              UIPage_HEIGHT - UIPage_MARGIN - FriendChatPage::INPUT_MARGIN - 1,
 
               this,
               false,
