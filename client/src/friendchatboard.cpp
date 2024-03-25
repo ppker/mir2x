@@ -467,15 +467,12 @@ struct FriendChatPage: public Widget
 
             , canvas
               {
-                  DIR_DOWNLEFT,
+                  DIR_UPLEFT,
                   0,
-                  this->h() - 1,
+                  0,
 
                   this->w(),
-                  [this](const Widget *self)
-                  {
-                      return std::max<int>(self->ph(), this->h());
-                  },
+                  {},
 
                   {},
 
