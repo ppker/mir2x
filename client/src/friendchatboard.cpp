@@ -422,10 +422,10 @@ struct FriendChatPage: public Widget
     //       -->|  |<-  INPUT_MARGIN         +-------- UIPage_MARGIN
     //             |<--- input.w() --->|
 
-    constexpr static int INPUT_CORNER = 10;
-    constexpr static int INPUT_MARGIN = 5;
+    constexpr static int INPUT_CORNER = 8;
+    constexpr static int INPUT_MARGIN = 8;
 
-    constexpr static int INPUT_MIN_HEIGHT =  20;
+    constexpr static int INPUT_MIN_HEIGHT =  10;
     constexpr static int INPUT_MAX_HEIGHT = 200;
 
     struct FriendChatItemContainer: public Widget
