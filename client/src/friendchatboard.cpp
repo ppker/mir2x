@@ -585,8 +585,8 @@ struct FriendChatPage: public Widget
 
                   {},
                   false,
-                  false,
-                  false,
+                  true,
+                  true,
                   false,
 
                   1,

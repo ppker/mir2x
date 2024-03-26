@@ -1,7 +1,9 @@
+#include <utf8.h>
 #include "colorf.hpp"
 #include "fflerror.hpp"
 #include "fontexdb.hpp"
 #include "layoutboard.hpp"
+#include "imeboard.hpp"
 #include "log.hpp"
 #include "mathf.hpp"
 #include "strf.hpp"
@@ -10,6 +12,7 @@
 
 extern Log *g_log;
 extern FontexDB *g_fontexDB;
+extern IMEBoard *g_imeBoard;
 
 void LayoutBoard::loadXML(const char *xmlString, size_t parLimit)
 {
@@ -213,7 +216,7 @@ void LayoutBoard::addPar(int loc, const std::array<int, 4> &parMargin, const tin
     auto currNode = m_parNodeList.insert(ithParIterator(loc), {-1, parMargin, std::move(parNodePtr)});
 
     if(currNode == m_parNodeList.begin()){
-        currNode->startY = parMargin[1];
+        currNode->startY = parMargin[1]; // TODO should be 0 here ?
     }
     else{
         const auto prevNode = std::prev(currNode);
@@ -227,6 +230,31 @@ void LayoutBoard::addPar(int loc, const std::array<int, 4> &parMargin, const tin
 
     if(updateSize){
         setupSize();
+    }
+}
+
+void LayoutBoard::setupStartY(int fromPar)
+{
+    fflassert(fromPar >= 0, fromPar);
+    fflassert(fromPar < parCount(), fromPar, parCount());
+
+    int startY = [this, fromPar]
+    {
+        if(fromPar == 0){
+            return 0;
+        }
+
+        auto prev = std::prev(ithParIterator(fromPar));
+        return prev->startY + prev->margin[0] + prev->margin[1] + prev->tpset->ph();
+    }();
+
+    for(auto par = fromPar; par < parCount(); ++par){
+        auto parIter = ithParIterator(par);
+        parIter->startY = startY;
+
+        startY += parIter->margin[0];
+        startY += parIter->margin[1];
+        startY += parIter->tpset->ph();
     }
 }
 
@@ -313,73 +341,189 @@ bool LayoutBoard::processEvent(const SDL_Event &event, bool valid)
         return false;
     }
 
-    const auto fnHandleEvent = [&event, this](ParNode *node, bool currValid) -> bool
-    {
-        if(!currValid){
-            node->tpset->clearEvent(-1);
-            return false;
-        }
-
-        switch(event.type){
-            case SDL_MOUSEMOTION:
-                {
-                    const int dx = event.motion.x - (x()                + node->margin[2]);
-                    const int dy = event.motion.y - (y() + node->startY + node->margin[0]);
-
-                    const auto [tokenX, tokenY] = node->tpset->locToken(dx, dy, true);
-                    if(!node->tpset->tokenLocValid(tokenX, tokenY)){
-                        node->tpset->clearEvent(-1);
-                        return false;
-                    }
-
-                    const auto newEvent = (event.motion.state & SDL_BUTTON_LMASK) ? BEVENT_DOWN : BEVENT_ON;
-                    const auto leafID = node->tpset->getToken(tokenX, tokenY)->leaf;
-
-                    const auto oldEvent = node->tpset->markLeafEvent(leafID, newEvent);
-                    if(const auto attrListPtr = node->tpset->leafEvent(leafID); attrListPtr && m_eventCB){
-                        m_eventCB(*attrListPtr, oldEvent, newEvent);
-                    }
-                    node->tpset->clearEvent(leafID);
-                    return true;
-                }
-            case SDL_MOUSEBUTTONUP:
-            case SDL_MOUSEBUTTONDOWN:
-                {
-                    const int dx = event.button.x - (x()                + node->margin[2]);
-                    const int dy = event.button.y - (y() + node->startY + node->margin[0]);
-
-                    const auto [tokenX, tokenY] = node->tpset->locToken(dx, dy, true);
-                    if(!node->tpset->tokenLocValid(tokenX, tokenY)){
-                        node->tpset->clearEvent(-1);
-                        return false;
-                    }
-
-                    const auto newEvent = (event.type == SDL_MOUSEBUTTONUP) ? BEVENT_ON : BEVENT_DOWN;
-                    const auto leafID = node->tpset->getToken(tokenX, tokenY)->leaf;
-
-                    const auto oldEvent = node->tpset->markLeafEvent(leafID, newEvent);
-                    if(const auto attrListPtr = node->tpset->leafEvent(leafID); attrListPtr && m_eventCB){
-                        m_eventCB(*attrListPtr, oldEvent, newEvent);
-                    }
-                    node->tpset->clearEvent(leafID);
-                    return true;
-                }
-            default:
-                {
-                    // layout board only handle mouse motion/click events
-                    // ignore any other unexcepted events
-
-                    // for GNOME3 I found sometimes here comes SDL_KEYMAPCHANGED after SDL_MOUSEBUTTONDOWN
-                    // need to ignore this event, don't call clearEvent()
+    switch(event.type){
+        case SDL_KEYDOWN:
+            {
+                if(!focus()){
                     return false;
                 }
-        }
-    };
 
-    bool takeEvent = false;
-    for(auto &node: m_parNodeList){
-        takeEvent |= fnHandleEvent(&node, valid && !takeEvent);
+                switch(event.key.keysym.sym){
+                    case SDLK_TAB:
+                        {
+                            if(m_onTab){
+                                m_onTab();
+                            }
+                            return true;
+                        }
+                    case SDLK_RETURN:
+                        {
+                            if(m_onCR){
+                                m_onCR();
+                            }
+                            return true;
+                        }
+                    case SDLK_LEFT:
+                        {
+                            if(m_cursorLoc.x == 0 && m_cursorLoc.y == 0){
+                                if(m_cursorLoc.par == 0){
+                                }
+                                else{
+                                    m_cursorLoc.par--;
+                                    std::tie(m_cursorLoc.x, m_cursorLoc.y) = ithParIterator(m_cursorLoc.par)->tpset->lastTokenLoc();
+                                }
+                            }
+                            else{
+                                std::tie(m_cursorLoc.x, m_cursorLoc.y) = ithParIterator(m_cursorLoc.par)->tpset->prevTokenLoc(m_cursorLoc.x, m_cursorLoc.y);
+                            }
+
+                            m_cursorBlink = 0.0;
+                            return true;
+                        }
+                    case SDLK_RIGHT:
+                        {
+                            const auto [currLastX, currLastY] = ithParIterator(m_cursorLoc.par)->tpset->lastTokenLoc();
+                            if(currLastX + 1 == m_cursorLoc.x && currLastY == m_cursorLoc.y){
+                                if(m_cursorLoc.par + 1 < parCount()){
+                                    m_cursorLoc.par++;
+                                    m_cursorLoc.x = 0;
+                                    m_cursorLoc.y = 0;
+                                }
+                                else{
+                                }
+                            }
+                            else{
+                                std::tie(m_cursorLoc.x, m_cursorLoc.y) = ithParIterator(m_cursorLoc.par)->tpset->nextTokenLoc(m_cursorLoc.x, m_cursorLoc.y);
+                            }
+
+                            m_cursorBlink = 0.0;
+                            return true;
+                        }
+                    case SDLK_BACKSPACE:
+                        {
+                            m_cursorBlink = 0.0;
+                            return true;
+                        }
+                    case SDLK_ESCAPE:
+                        {
+                            setFocus(false);
+                            return true;
+                        }
+                    default:
+                        {
+                            const char keyChar = SDLDeviceHelper::getKeyChar(event, true);
+                            if(m_imeEnabled && g_imeBoard->active() && (keyChar >= 'a' && keyChar <= 'z')){
+                                g_imeBoard->gainFocus("", str_printf("%c", keyChar), this, [this](std::string s)
+                                {
+                                    ithParIterator(m_cursorLoc.par)->tpset->insertUTF8String(m_cursorLoc.x, m_cursorLoc.y, s.c_str());
+                                    for(size_t i = 0, count = utf8::distance(s.begin(), s.end()); i < count; ++i){
+                                        std::tie(m_cursorLoc.x, m_cursorLoc.y) = ithParIterator(m_cursorLoc.par)->tpset->nextTokenLoc(m_cursorLoc.x, m_cursorLoc.y);
+                                    }
+
+                                    setupStartY(m_cursorLoc.par);
+                                    setupSize();
+                                });
+                            }
+                            else if(keyChar != '\0'){
+                                ithParIterator(m_cursorLoc.par)->tpset->insertUTF8String(m_cursorLoc.x, m_cursorLoc.y, str_printf("%c", keyChar).c_str());
+                            }
+
+                            m_cursorBlink = 0.0;
+                            return true;
+                        }
+                }
+            }
+        case SDL_MOUSEMOTION:
+        case SDL_MOUSEBUTTONUP:
+        case SDL_MOUSEBUTTONDOWN:
+            {
+                int locX = -1;
+                int locY = -1;
+
+                const auto fnHandleEvent = [&event, &locX, &locY, this](ParNode *node, bool currValid) -> bool
+                {
+                    if(!currValid){
+                        node->tpset->clearEvent(-1);
+                        return false;
+                    }
+
+                    switch(event.type){
+                        case SDL_MOUSEMOTION:
+                            {
+                                locX = event.motion.x;
+                                locY = event.motion.y;
+
+                                const int dx = event.motion.x - (x()                + node->margin[2]);
+                                const int dy = event.motion.y - (y() + node->startY + node->margin[0]);
+
+                                const auto [tokenX, tokenY] = node->tpset->locToken(dx, dy, true);
+                                if(!node->tpset->tokenLocValid(tokenX, tokenY)){
+                                    node->tpset->clearEvent(-1);
+                                    return false;
+                                }
+
+                                const auto newEvent = (event.motion.state & SDL_BUTTON_LMASK) ? BEVENT_DOWN : BEVENT_ON;
+                                const auto leafID = node->tpset->getToken(tokenX, tokenY)->leaf;
+
+                                const auto oldEvent = node->tpset->markLeafEvent(leafID, newEvent);
+                                if(const auto attrListPtr = node->tpset->leafEvent(leafID); attrListPtr && m_eventCB){
+                                    m_eventCB(*attrListPtr, oldEvent, newEvent);
+                                }
+                                node->tpset->clearEvent(leafID);
+                                return true;
+                            }
+                        case SDL_MOUSEBUTTONUP:
+                        case SDL_MOUSEBUTTONDOWN:
+                            {
+                                locX = event.button.x;
+                                locY = event.button.y;
+
+                                const int dx = event.button.x - (x()                + node->margin[2]);
+                                const int dy = event.button.y - (y() + node->startY + node->margin[0]);
+
+                                const auto [tokenX, tokenY] = node->tpset->locToken(dx, dy, true);
+                                if(!node->tpset->tokenLocValid(tokenX, tokenY)){
+                                    node->tpset->clearEvent(-1);
+                                    return false;
+                                }
+
+                                const auto newEvent = (event.type == SDL_MOUSEBUTTONUP) ? BEVENT_ON : BEVENT_DOWN;
+                                const auto leafID = node->tpset->getToken(tokenX, tokenY)->leaf;
+
+                                const auto oldEvent = node->tpset->markLeafEvent(leafID, newEvent);
+                                if(const auto attrListPtr = node->tpset->leafEvent(leafID); attrListPtr && m_eventCB){
+                                    m_eventCB(*attrListPtr, oldEvent, newEvent);
+                                }
+                                node->tpset->clearEvent(leafID);
+                                return true;
+                            }
+                        default:
+                            {
+                                // layout board only handle mouse motion/click events
+                                // ignore any other unexcepted events
+
+                                // for GNOME3 I found sometimes here comes SDL_KEYMAPCHANGED after SDL_MOUSEBUTTONDOWN
+                                // need to ignore this event, don't call clearEvent()
+                                return false;
+                            }
+                    }
+                };
+
+                bool takeEvent = false;
+                for(auto &node: m_parNodeList){
+                    takeEvent |= fnHandleEvent(&node, valid && !takeEvent);
+                }
+
+                if(!takeEvent){
+                    takeEvent = in(locX, locY);
+                }
+
+                return takeEvent;
+            }
+
+        default:
+            {
+                return false;
+            }
     }
-
-    return takeEvent;
 }

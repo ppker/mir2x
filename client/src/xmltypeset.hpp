@@ -164,9 +164,9 @@ class XMLTypeset // means XMLParagraph typeset
             throw fflerror("invalid line specified: %d >= %d", nLine, lineCount());
         }
 
-    private:
+    public:
         std::tuple<int, int> prevTokenLoc(int, int) const;
-        std::tuple<int, int> NextTokenLoc(int, int) const;
+        std::tuple<int, int> nextTokenLoc(int, int) const;
 
     public:
         static bool locInToken(int, int, const TOKEN *, bool withPadding);
@@ -177,8 +177,8 @@ class XMLTypeset // means XMLParagraph typeset
     public:
         std::tuple<int, int> locCursor(int, int) const;
 
-    private:
-        std::tuple<int, int> LastTokenLoc() const
+    public:
+        std::tuple<int, int> lastTokenLoc() const
         {
             if(empty()){
                 throw fflerror("empty board");

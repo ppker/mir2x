@@ -872,7 +872,7 @@ std::tuple<int, int> XMLTypeset::prevTokenLoc(int nX, int nY) const
     }
 }
 
-std::tuple<int, int> XMLTypeset::NextTokenLoc(int nX, int nY) const
+std::tuple<int, int> XMLTypeset::nextTokenLoc(int nX, int nY) const
 {
     if(!tokenLocValid(nX, nY)){
         throw fflerror("invalid token location: (%d, %d)", nX, nY);

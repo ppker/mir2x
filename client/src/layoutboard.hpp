@@ -50,6 +50,16 @@ class LayoutBoard: public Widget
         } m_parNodeConfig;
 
     private:
+        struct ParCursorLoc
+        {
+            int par = -1;
+            int x   = -1;
+            int y   = -1;
+        } m_cursorLoc;
+
+        int m_cursorBlink;
+
+    private:
         bool m_canSelect;
         bool m_canEdit;
         bool m_imeEnabled;
@@ -144,6 +154,10 @@ class LayoutBoard: public Widget
             if(argInitXML){
                 loadXML(argInitXML, argParLimit);
             }
+
+            m_cursorLoc.par = 0;
+            m_cursorLoc.x   = 0;
+            m_cursorLoc.y   = 0;
         }
 
     public:
@@ -160,18 +174,31 @@ class LayoutBoard: public Widget
             }
         }
 
-    public:
-        int parCount() const
-        {
-            return to_d(m_parNodeList.size());
-        }
-
     private:
         auto ithParIterator(int i)
         {
             auto p = m_parNodeList.begin();
             std::advance(p, i);
             return p;
+        }
+
+        auto ithParIterator(int i) const
+        {
+            auto p = m_parNodeList.begin();
+            std::advance(p, i);
+            return p;
+        }
+
+    public:
+        bool cursorLocValid(int argPar, int argX, int argY) const
+        {
+            return argPar >= 0 && argPar < parCount() && ithParIterator(argPar)->tpset->cursorLocValid(argX, argY);
+        }
+
+    public:
+        int parCount() const
+        {
+            return to_d(m_parNodeList.size());
         }
 
     public:
@@ -225,6 +252,9 @@ class LayoutBoard: public Widget
     private:
         void setupSize();
         void addPar(int, const std::array<int, 4> &, const tinyxml2::XMLNode *, bool);
+
+    private:
+        void setupStartY(int);
 
     public:
         int getLineWidth() const
