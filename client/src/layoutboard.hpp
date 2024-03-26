@@ -11,7 +11,7 @@
 class LayoutBoard: public Widget
 {
     private:
-        struct parNode
+        struct ParNode
         {
             // margin[0]  up
             // margin[1]  down
@@ -24,10 +24,10 @@ class LayoutBoard: public Widget
         };
 
     private:
-        std::list<parNode> m_parNodeList;
+        std::list<ParNode> m_parNodeList;
 
     private:
-        struct parNodeConfig
+        struct ParNodeConfig
         {
             // default setup of paragraph in LayoutBoard
             // may needed this to support theme

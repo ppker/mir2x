@@ -313,7 +313,7 @@ bool LayoutBoard::processEvent(const SDL_Event &event, bool valid)
         return false;
     }
 
-    const auto fnHandleEvent = [&event, this](parNode *node, bool currValid) -> bool
+    const auto fnHandleEvent = [&event, this](ParNode *node, bool currValid) -> bool
     {
         if(!currValid){
             node->tpset->clearEvent(-1);
