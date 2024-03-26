@@ -43,6 +43,8 @@ NPCChatBoard::NPCChatBoard(ProcessRun *proc, Widget *pwidget, bool autoDelete)
           0,
           0,
 
+          nullptr,
+          nullptr,
           [this](const std::unordered_map<std::string, std::string> &attrList, int oldEvent, int newEvent)
           {
               if(oldEvent == BEVENT_DOWN && newEvent == BEVENT_ON){

@@ -738,6 +738,8 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           0,
           0,
 
+          nullptr,
+          nullptr,
           [this](const std::unordered_map<std::string, std::string> &attrList, int oldState, int newState)
           {
               if(oldState == BEVENT_DOWN && newState == BEVENT_ON){

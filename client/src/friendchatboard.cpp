@@ -600,6 +600,8 @@ struct FriendChatPage: public Widget
                   0,
 
                   nullptr,
+                  nullptr,
+                  nullptr,
 
                   this,
                   false,

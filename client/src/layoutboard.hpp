@@ -55,6 +55,8 @@ class LayoutBoard: public Widget
         bool m_imeEnabled;
 
     private:
+        const std::function<void()> m_onTab;
+        const std::function<void()> m_onCR;
         const std::function<void(const std::unordered_map<std::string, std::string> &, int, int)> m_eventCB;
 
     public:
@@ -85,7 +87,9 @@ class LayoutBoard: public Widget
                 int argLineSpace = 0,
                 int argWordSpace = 0,
 
-                const std::function<void(const std::unordered_map<std::string, std::string> &, int, int)> &argEventCB = nullptr,
+                std::function<void()> argOnTab = nullptr,
+                std::function<void()> argOnCR  = nullptr,
+                std::function<void(const std::unordered_map<std::string, std::string> &, int, int)> argEventCB = nullptr,
 
                 Widget *argParent     = nullptr,
                 bool    argAutoDelete = false)
@@ -122,7 +126,10 @@ class LayoutBoard: public Widget
             , m_canSelect(argCanSelect)
             , m_canEdit(argCanEdit)
             , m_imeEnabled(argIMEEnabled)
-            , m_eventCB(argEventCB)
+
+            , m_onTab(std::move(argOnTab))
+            , m_onCR(std::move(argOnCR))
+            , m_eventCB(std::move(argEventCB))
         {
             for(size_t i = 0; i < m_parNodeConfig.margin.size(); ++i){
                 if(m_parNodeConfig.margin[i] < 0){
