@@ -102,10 +102,10 @@ class XMLTypeset // means XMLParagraph typeset
         }
 
     public:
-        void loadXML(const char *szXMLString)
+        void loadXML(const char *xmlString)
         {
             clear();
-            m_paragraph.loadXML(szXMLString);
+            m_paragraph.loadXML(xmlString);
 
             if(m_paragraph.leafCount() > 0){
                 buildTypeset(0, 0);
@@ -138,9 +138,6 @@ class XMLTypeset // means XMLParagraph typeset
             m_lineList.clear();
             m_paragraph.clear();
         }
-
-    public:
-        XMLTypeset Break();
 
     private:
         void resetBoardPixelRegion();
@@ -253,7 +250,7 @@ class XMLTypeset // means XMLParagraph typeset
         void insertUTF8String(int, int, const char *);
 
     public:
-        void Break(int, int);
+        XMLTypeset *breakLine(int, int);
 
     public:
         void deleteToken(int, int, int);

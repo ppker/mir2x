@@ -1059,6 +1059,12 @@ void XMLTypeset::insertUTF8String(int x, int y, const char *text)
     buildTypeset(0, 0);
 }
 
+XMLTypeset *XMLTypeset::breakLine(int cursorX, int cursorY)
+{
+    fflassert(cursorLocValid(cursorX, cursorY));
+    return nullptr;
+}
+
 void XMLTypeset::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
 {
     if(!mathf::rectangleOverlap<int>(srcX, srcY, srcW, srcH, px(), py(), pw(), ph())){

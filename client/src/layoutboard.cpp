@@ -330,8 +330,12 @@ bool LayoutBoard::processEvent(const SDL_Event &event, bool valid)
                         }
                     case SDLK_RETURN:
                         {
-                            if(m_onCR){
-                                m_onCR();
+                            if((event.key.keysym.mod & KMOD_LSHIFT) || (event.key.keysym.mod & KMOD_RSHIFT)){
+                            }
+                            else{
+                                if(m_onCR){
+                                    m_onCR();
+                                }
                             }
                             return true;
                         }
