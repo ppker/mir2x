@@ -1,9 +1,11 @@
+#include <cmath>
 #include <utf8.h>
 #include "colorf.hpp"
 #include "fflerror.hpp"
 #include "fontexdb.hpp"
 #include "layoutboard.hpp"
 #include "imeboard.hpp"
+#include "sdldevice.hpp"
 #include "log.hpp"
 #include "mathf.hpp"
 #include "strf.hpp"
@@ -13,6 +15,8 @@
 extern Log *g_log;
 extern FontexDB *g_fontexDB;
 extern IMEBoard *g_imeBoard;
+extern SDLDevice *g_sdlDevice;
+
 
 void LayoutBoard::loadXML(const char *xmlString, size_t parLimit)
 {
@@ -65,14 +69,12 @@ void LayoutBoard::loadXML(const char *xmlString, size_t parLimit)
             continue;
         }
 
-        addPar(parCount(), m_parNodeConfig.margin, p, false);
+        addPar(parCount(), m_parNodeConfig.margin, p);
         addedParCount++;
     }
-
-    setupSize();
 }
 
-void LayoutBoard::addPar(int loc, const std::array<int, 4> &parMargin, const tinyxml2::XMLNode *node, bool updateSize)
+void LayoutBoard::addPar(int loc, const std::array<int, 4> &parMargin, const tinyxml2::XMLNode *node)
 {
     if(loc < 0 || loc > parCount()){
         throw fflerror("invalid location: %d", loc);
@@ -216,45 +218,40 @@ void LayoutBoard::addPar(int loc, const std::array<int, 4> &parMargin, const tin
     auto currNode = m_parNodeList.insert(ithParIterator(loc), {-1, parMargin, std::move(parNodePtr)});
 
     if(currNode == m_parNodeList.begin()){
-        currNode->startY = parMargin[1]; // TODO should be 0 here ?
+        currNode->startY = currNode->margin[0];
     }
     else{
         const auto prevNode = std::prev(currNode);
-        currNode->startY = prevNode->startY + prevNode->margin[0] + prevNode->margin[1] + prevNode->tpset->ph();
+        currNode->startY = prevNode->startY + prevNode->tpset->ph() + prevNode->margin[1] + currNode->margin[0];
     }
 
     const int extraH = currNode->tpset->ph() + currNode->margin[0] + currNode->margin[1];
     for(auto p = std::next(currNode); p != m_parNodeList.end(); ++p){
         p->startY += extraH;
     }
-
-    if(updateSize){
-        setupSize();
-    }
 }
 
 void LayoutBoard::setupStartY(int fromPar)
 {
     fflassert(fromPar >= 0, fromPar);
-    fflassert(fromPar < parCount(), fromPar, parCount());
+    if(fromPar < parCount()){
+        int offsetY = [this, fromPar]
+        {
+            if(fromPar == 0){
+                return 0;
+            }
 
-    int startY = [this, fromPar]
-    {
-        if(fromPar == 0){
-            return 0;
+            auto prevNode = std::prev(ithParIterator(fromPar));
+            return prevNode->startY + prevNode->tpset->ph() + prevNode->margin[1];
+        }();
+
+        for(auto par = ithParIterator(fromPar); par != m_parNodeList.end(); ++par){
+            offsetY += par->margin[0];
+            par->startY = offsetY;
+
+            offsetY += par->margin[1];
+            offsetY += par->tpset->ph();
         }
-
-        auto prev = std::prev(ithParIterator(fromPar));
-        return prev->startY + prev->margin[0] + prev->margin[1] + prev->tpset->ph();
-    }();
-
-    for(auto par = fromPar; par < parCount(); ++par){
-        auto parIter = ithParIterator(par);
-        parIter->startY = startY;
-
-        startY += parIter->margin[0];
-        startY += parIter->margin[1];
-        startY += parIter->tpset->ph();
     }
 }
 
@@ -265,7 +262,7 @@ void LayoutBoard::addParXML(int loc, const std::array<int, 4> &parMargin, const 
         throw fflerror("parse xml failed: %s", xmlString ? xmlString : "(null)");
     }
 
-    addPar(loc, parMargin, xmlDoc.RootElement(), true);
+    addPar(loc, parMargin, xmlDoc.RootElement());
 }
 
 void LayoutBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
@@ -286,33 +283,15 @@ void LayoutBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int s
                     w(),
                     h(),
 
-                    0, node.startY, node.tpset->pw(), node.tpset->ph(), 0, 0, -1, -1)){
+                    node.margin[2], node.startY, node.tpset->pw(), node.tpset->ph())){
             continue;
         }
         node.tpset->drawEx(dstXCrop, dstYCrop, srcXCrop - node.margin[2], srcYCrop - node.startY, srcWCrop, srcHCrop);
     }
-}
 
-void LayoutBoard::setupSize()
-{
-    m_w = [this]() -> int
-    {
-        int maxW = 0;
-        for(const auto &node: m_parNodeList){
-            maxW = std::max<int>(maxW, node.margin[2] + node.tpset->pw() + node.margin[3]);
-        }
-        return maxW;
-    }();
-
-    m_h = [this]() -> int
-    {
-        if(empty()){
-            return 0;
-        }
-
-        const auto &backNode = m_parNodeList.back();
-        return backNode.startY + backNode.margin[0] + backNode.margin[1] + backNode.tpset->ph();
-    }();
+    if(m_canEdit){
+        Widget::drawEx(dstX, dstY, srcX, srcY, srcW, srcH); // draw cursor
+    }
 }
 
 void LayoutBoard::setLineWidth(int lineWidth)
@@ -321,18 +300,7 @@ void LayoutBoard::setLineWidth(int lineWidth)
     for(auto &node: m_parNodeList){
         node.tpset->setLineWidth(lineWidth);
     }
-
-    for(auto p = m_parNodeList.begin(); p != m_parNodeList.end(); ++p){
-        if(p == m_parNodeList.begin()){
-            p->startY = p->margin[0];
-        }
-        else{
-            const auto prevNode = std::prev(p);
-            p->startY = prevNode->startY + prevNode->margin[0] + prevNode->margin[1] + prevNode->tpset->ph();
-        }
-    }
-
-    setupSize();
+    setupStartY(0);
 }
 
 bool LayoutBoard::processEvent(const SDL_Event &event, bool valid)
@@ -345,6 +313,10 @@ bool LayoutBoard::processEvent(const SDL_Event &event, bool valid)
         case SDL_KEYDOWN:
             {
                 if(!focus()){
+                    return false;
+                }
+
+                if(!m_canEdit){
                     return false;
                 }
 
@@ -370,11 +342,11 @@ bool LayoutBoard::processEvent(const SDL_Event &event, bool valid)
                                 }
                                 else{
                                     m_cursorLoc.par--;
-                                    std::tie(m_cursorLoc.x, m_cursorLoc.y) = ithParIterator(m_cursorLoc.par)->tpset->lastTokenLoc();
+                                    std::tie(m_cursorLoc.x, m_cursorLoc.y) = ithParIterator(m_cursorLoc.par)->tpset->lastCursorLoc();
                                 }
                             }
                             else{
-                                std::tie(m_cursorLoc.x, m_cursorLoc.y) = ithParIterator(m_cursorLoc.par)->tpset->prevTokenLoc(m_cursorLoc.x, m_cursorLoc.y);
+                                std::tie(m_cursorLoc.x, m_cursorLoc.y) = ithParIterator(m_cursorLoc.par)->tpset->prevCursorLoc(m_cursorLoc.x, m_cursorLoc.y);
                             }
 
                             m_cursorBlink = 0.0;
@@ -382,18 +354,16 @@ bool LayoutBoard::processEvent(const SDL_Event &event, bool valid)
                         }
                     case SDLK_RIGHT:
                         {
-                            const auto [currLastX, currLastY] = ithParIterator(m_cursorLoc.par)->tpset->lastTokenLoc();
-                            if(currLastX + 1 == m_cursorLoc.x && currLastY == m_cursorLoc.y){
-                                if(m_cursorLoc.par + 1 < parCount()){
-                                    m_cursorLoc.par++;
-                                    m_cursorLoc.x = 0;
-                                    m_cursorLoc.y = 0;
+                            if(auto par = ithParIterator(m_cursorLoc.par); std::tie(m_cursorLoc.x, m_cursorLoc.y) == par->tpset->lastCursorLoc()){
+                                if(m_cursorLoc.par + 1 >= parCount()){
                                 }
                                 else{
+                                    m_cursorLoc.par++;
+                                    std::tie(m_cursorLoc.x, m_cursorLoc.y) = ithParIterator(m_cursorLoc.par)->tpset->firstCursorLoc();
                                 }
                             }
                             else{
-                                std::tie(m_cursorLoc.x, m_cursorLoc.y) = ithParIterator(m_cursorLoc.par)->tpset->nextTokenLoc(m_cursorLoc.x, m_cursorLoc.y);
+                                std::tie(m_cursorLoc.x, m_cursorLoc.y) = par->tpset->nextCursorLoc(m_cursorLoc.x, m_cursorLoc.y);
                             }
 
                             m_cursorBlink = 0.0;
@@ -401,6 +371,12 @@ bool LayoutBoard::processEvent(const SDL_Event &event, bool valid)
                         }
                     case SDLK_BACKSPACE:
                         {
+                            if(m_cursorLoc.x > 0){
+                                ithParIterator(m_cursorLoc.par)->tpset->deleteToken(m_cursorLoc.x - 1, m_cursorLoc.y, 1);
+                                m_cursorLoc.x--;
+                                setupStartY(m_cursorLoc.y);
+                            }
+
                             m_cursorBlink = 0.0;
                             return true;
                         }
@@ -412,20 +388,23 @@ bool LayoutBoard::processEvent(const SDL_Event &event, bool valid)
                     default:
                         {
                             const char keyChar = SDLDeviceHelper::getKeyChar(event, true);
-                            if(m_imeEnabled && g_imeBoard->active() && (keyChar >= 'a' && keyChar <= 'z')){
-                                g_imeBoard->gainFocus("", str_printf("%c", keyChar), this, [this](std::string s)
-                                {
-                                    ithParIterator(m_cursorLoc.par)->tpset->insertUTF8String(m_cursorLoc.x, m_cursorLoc.y, s.c_str());
-                                    for(size_t i = 0, count = utf8::distance(s.begin(), s.end()); i < count; ++i){
-                                        std::tie(m_cursorLoc.x, m_cursorLoc.y) = ithParIterator(m_cursorLoc.par)->tpset->nextTokenLoc(m_cursorLoc.x, m_cursorLoc.y);
-                                    }
+                            const auto fnInsertString = [this](std::string s)
+                            {
+                                ithParIterator(m_cursorLoc.par)->tpset->insertUTF8String(m_cursorLoc.x, m_cursorLoc.y, s.c_str());
+                                for(size_t i = 0, count = utf8::distance(s.begin(), s.end()); i < count; ++i){
+                                    std::tie(m_cursorLoc.x, m_cursorLoc.y) = ithParIterator(m_cursorLoc.par)->tpset->nextCursorLoc(m_cursorLoc.x, m_cursorLoc.y);
+                                }
+                                setupStartY(m_cursorLoc.par);
+                            };
 
-                                    setupStartY(m_cursorLoc.par);
-                                    setupSize();
+                            if(m_imeEnabled && g_imeBoard->active() && (keyChar >= 'a' && keyChar <= 'z')){
+                                g_imeBoard->gainFocus("", str_printf("%c", keyChar), this, [fnInsertString, this](std::string s)
+                                {
+                                    fnInsertString(std::move(s));
                                 });
                             }
                             else if(keyChar != '\0'){
-                                ithParIterator(m_cursorLoc.par)->tpset->insertUTF8String(m_cursorLoc.x, m_cursorLoc.y, str_printf("%c", keyChar).c_str());
+                                fnInsertString(str_printf("%c", keyChar));
                             }
 
                             m_cursorBlink = 0.0;
@@ -437,76 +416,38 @@ bool LayoutBoard::processEvent(const SDL_Event &event, bool valid)
         case SDL_MOUSEBUTTONUP:
         case SDL_MOUSEBUTTONDOWN:
             {
-                int locX = -1;
-                int locY = -1;
+                const auto newEvent = [&event]
+                {
+                    if(event.type == SDL_MOUSEMOTION) return (event.motion.state & SDL_BUTTON_LMASK) ? BEVENT_DOWN : BEVENT_ON;
+                    else                              return (event.type == SDL_MOUSEBUTTONDOWN)     ? BEVENT_DOWN : BEVENT_ON;
+                }();
 
-                const auto fnHandleEvent = [&event, &locX, &locY, this](ParNode *node, bool currValid) -> bool
+                const auto [eventPX, eventPY] = SDLDeviceHelper::getEventPLoc(event).value();
+                const auto fnHandleEvent = [newEvent, eventPX, eventPY, this](ParNode *node, bool currValid) -> bool
                 {
                     if(!currValid){
                         node->tpset->clearEvent(-1);
                         return false;
                     }
 
-                    switch(event.type){
-                        case SDL_MOUSEMOTION:
-                            {
-                                locX = event.motion.x;
-                                locY = event.motion.y;
+                    const int xOff = eventPX - (x() + node->margin[2]);
+                    const int yOff = eventPY - (y() + node->startY);
 
-                                const int dx = event.motion.x - (x()                + node->margin[2]);
-                                const int dy = event.motion.y - (y() + node->startY + node->margin[0]);
+                    const auto [tokenX, tokenY] = node->tpset->locToken(xOff, yOff, true);
 
-                                const auto [tokenX, tokenY] = node->tpset->locToken(dx, dy, true);
-                                if(!node->tpset->tokenLocValid(tokenX, tokenY)){
-                                    node->tpset->clearEvent(-1);
-                                    return false;
-                                }
-
-                                const auto newEvent = (event.motion.state & SDL_BUTTON_LMASK) ? BEVENT_DOWN : BEVENT_ON;
-                                const auto leafID = node->tpset->getToken(tokenX, tokenY)->leaf;
-
-                                const auto oldEvent = node->tpset->markLeafEvent(leafID, newEvent);
-                                if(const auto attrListPtr = node->tpset->leafEvent(leafID); attrListPtr && m_eventCB){
-                                    m_eventCB(*attrListPtr, oldEvent, newEvent);
-                                }
-                                node->tpset->clearEvent(leafID);
-                                return true;
-                            }
-                        case SDL_MOUSEBUTTONUP:
-                        case SDL_MOUSEBUTTONDOWN:
-                            {
-                                locX = event.button.x;
-                                locY = event.button.y;
-
-                                const int dx = event.button.x - (x()                + node->margin[2]);
-                                const int dy = event.button.y - (y() + node->startY + node->margin[0]);
-
-                                const auto [tokenX, tokenY] = node->tpset->locToken(dx, dy, true);
-                                if(!node->tpset->tokenLocValid(tokenX, tokenY)){
-                                    node->tpset->clearEvent(-1);
-                                    return false;
-                                }
-
-                                const auto newEvent = (event.type == SDL_MOUSEBUTTONUP) ? BEVENT_ON : BEVENT_DOWN;
-                                const auto leafID = node->tpset->getToken(tokenX, tokenY)->leaf;
-
-                                const auto oldEvent = node->tpset->markLeafEvent(leafID, newEvent);
-                                if(const auto attrListPtr = node->tpset->leafEvent(leafID); attrListPtr && m_eventCB){
-                                    m_eventCB(*attrListPtr, oldEvent, newEvent);
-                                }
-                                node->tpset->clearEvent(leafID);
-                                return true;
-                            }
-                        default:
-                            {
-                                // layout board only handle mouse motion/click events
-                                // ignore any other unexcepted events
-
-                                // for GNOME3 I found sometimes here comes SDL_KEYMAPCHANGED after SDL_MOUSEBUTTONDOWN
-                                // need to ignore this event, don't call clearEvent()
-                                return false;
-                            }
+                    if(!node->tpset->tokenLocValid(tokenX, tokenY)){
+                        node->tpset->clearEvent(-1);
+                        return false;
                     }
+
+                    const auto leafID = node->tpset->getToken(tokenX, tokenY)->leaf;
+                    const auto oldEvent = node->tpset->markLeafEvent(leafID, newEvent);
+
+                    if(const auto attrListPtr = node->tpset->leafEvent(leafID); attrListPtr && m_eventCB){
+                        m_eventCB(*attrListPtr, oldEvent, newEvent);
+                    }
+                    node->tpset->clearEvent(leafID);
+                    return true;
                 };
 
                 bool takeEvent = false;
@@ -515,15 +456,82 @@ bool LayoutBoard::processEvent(const SDL_Event &event, bool valid)
                 }
 
                 if(!takeEvent){
-                    takeEvent = in(locX, locY);
+                    takeEvent = in(eventPX, eventPY);
                 }
 
-                return takeEvent;
+                return consumeFocus(takeEvent);
             }
 
         default:
             {
+                // layout board only handle mouse motion/click events
+                // ignore any other unexcepted events
+
+                // for GNOME3 I found sometimes here comes SDL_KEYMAPCHANGED after SDL_MOUSEBUTTONDOWN
+                // need to ignore this event, don't call clearEvent()
                 return false;
             }
     }
+}
+
+void LayoutBoard::drawCursorBlink(int drawDstX, int drawDstY) const
+{
+    if(!m_canEdit){
+        return;
+    }
+
+    if(!cursorLocValid(m_cursorLoc)){
+        throw fflerror("invalid cursor location: par %d, x %d, y %d", m_cursorLoc.par, m_cursorLoc.x, m_cursorLoc.y);
+    }
+
+    if(std::fmod(m_cursorBlink, 1000.0) > 500.0){
+        return;
+    }
+
+    const int cursorW = 5;
+    const int cursorH = 10;
+
+    const auto [cursorPX, cursorPY] = [cursorW, this]() -> std::tuple<int, int>
+    {
+        auto par = ithParIterator(m_cursorLoc.par);
+        if(par->tpset->empty()){
+            return
+            {
+                par->margin[2],
+                par->startY,
+            };
+        }
+        else if(m_cursorLoc.x < par->tpset->lineTokenCount(m_cursorLoc.y)){
+            const auto tokenPtr = par->tpset->getToken(m_cursorLoc.x, m_cursorLoc.y);
+            return
+            {
+                par->margin[2] + tokenPtr->Box.State.X - tokenPtr->Box.State.W1,
+                par->startY    + tokenPtr->Box.State.Y,
+            };
+        }
+        else{
+            // cursor is after last token
+            // we should draw it inside widget
+
+            const auto tokenPtr = par->tpset->getToken(m_cursorLoc.x - 1, m_cursorLoc.y);
+            return
+            {
+                par->margin[2] + tokenPtr->Box.State.X + tokenPtr->Box.Info.W + tokenPtr->Box.State.W2 - cursorW,
+                par->startY    + tokenPtr->Box.State.Y,
+            };
+        }
+    }();
+
+    g_sdlDevice->fillRectangle(colorf::RED + colorf::A_SHF(255), drawDstX + cursorPX, drawDstY + cursorPY, cursorW, cursorH);
+}
+
+std::string LayoutBoard::getXML() const
+{
+    std::string xmlString = "<layout>";
+    for(const auto &node: m_parNodeList){
+        xmlString.append(node.tpset->getXML());
+    }
+
+    xmlString.append("</layout>");
+    return xmlString;
 }

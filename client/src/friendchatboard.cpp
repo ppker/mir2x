@@ -1594,6 +1594,7 @@ bool FriendChatBoard::processEvent(const SDL_Event &event, bool valid)
 
     if(m_close                        .processEvent(event, valid)){ return true; }
     if(m_slider                       .processEvent(event, valid)){ return true; }
+    if(m_uiPageList[m_uiPage].page   ->processEvent(event, valid)){ return true; }
     if(m_uiPageList[m_uiPage].control->processEvent(event, valid)){ return true; }
 
     switch(event.type){

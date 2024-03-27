@@ -17,23 +17,23 @@ extern SDLDevice *g_sdlDevice;
 extern EmojiDB *g_emojiDB;
 extern ClientArgParser *g_clientArgParser;
 
-void XMLTypeset::SetTokenBoxWordSpace(int nLine)
+void XMLTypeset::SetTokenBoxWordSpace(int argLine)
 {
-    if(!lineValid(nLine)){
-        throw fflerror("invalid line: %d", nLine);
+    if(!lineValid(argLine)){
+        throw fflerror("invalid line: %d", argLine);
     }
 
     int nW1 = m_wordSpace / 2;
     int nW2 = m_wordSpace - nW1;
 
-    for(auto &rstToken: m_lineList[nLine].content){
+    for(auto &rstToken: m_lineList[argLine].content){
         rstToken.Box.State.W1 = nW1;
         rstToken.Box.State.W2 = nW2;
     }
 
-    if(!m_lineList[nLine].content.empty()){
-        m_lineList[nLine].content[0]    .Box.State.W1 = 0;
-        m_lineList[nLine].content.back().Box.State.W2 = 0;
+    if(!m_lineList[argLine].content.empty()){
+        m_lineList[argLine].content[0]    .Box.State.W1 = 0;
+        m_lineList[argLine].content.back().Box.State.W2 = 0;
     }
 }
 
@@ -42,15 +42,15 @@ void XMLTypeset::SetTokenBoxWordSpace(int nLine)
 //      token W/W1/W2 has been set
 // return:
 //      full line width
-int XMLTypeset::LineFullWidth(int nLine) const
+int XMLTypeset::LineFullWidth(int argLine) const
 {
-    if(!lineValid(nLine)){
-        throw fflerror("invalid line: %d", nLine);
+    if(!lineValid(argLine)){
+        throw fflerror("invalid line: %d", argLine);
     }
 
     int nWidth = 0;
-    for(int nIndex = 0; nIndex < lineTokenCount(nLine); ++nIndex){
-        auto pToken = getToken(nIndex, nLine);
+    for(int nIndex = 0; nIndex < lineTokenCount(argLine); ++nIndex){
+        auto pToken = getToken(nIndex, argLine);
         nWidth += (pToken->Box.State.W1 + pToken->Box.Info.W + pToken->Box.State.W2);
     }
     return nWidth;
@@ -64,20 +64,20 @@ int XMLTypeset::LineFullWidth(int nLine) const
 //      total token width, plus word space optionally
 //      negative if error
 // this function is used before we padding all tokens, to estimate how many pixels we need for current line
-int XMLTypeset::LineRawWidth(int nLine, bool bWithWordSpace) const
+int XMLTypeset::LineRawWidth(int argLine, bool bWithWordSpace) const
 {
-    if(!lineValid(nLine)){
-        throw fflerror("invalid line: %d", nLine);
+    if(!lineValid(argLine)){
+        throw fflerror("invalid line: %d", argLine);
     }
 
-    switch(lineTokenCount(nLine)){
+    switch(lineTokenCount(argLine)){
         case 0:
             {
                 return 0;
             }
         case 1:
             {
-                return getToken(0, nLine)->Box.Info.W;
+                return getToken(0, argLine)->Box.Info.W;
             }
         default:
             {
@@ -85,16 +85,16 @@ int XMLTypeset::LineRawWidth(int nLine, bool bWithWordSpace) const
                 // we need to check word spacing
 
                 int nWidth = 0;
-                for(int nX = 0; nX < lineTokenCount(nLine); ++nX){
-                    nWidth += getToken(nX, nLine)->Box.Info.W;
+                for(int nX = 0; nX < lineTokenCount(argLine); ++nX){
+                    nWidth += getToken(nX, argLine)->Box.Info.W;
                     if(bWithWordSpace){
-                        nWidth += GetTokenWordSpace(nX, nLine);
+                        nWidth += GetTokenWordSpace(nX, argLine);
                     }
                 }
 
                 if(bWithWordSpace){
-                    int nWordSpaceFirst = GetTokenWordSpace(0, nLine);
-                    int nWordSpaceLast  = GetTokenWordSpace(lineTokenCount(nLine) - 1, nLine);
+                    int nWordSpaceFirst = GetTokenWordSpace(0, argLine);
+                    int nWordSpaceLast  = GetTokenWordSpace(lineTokenCount(argLine) - 1, argLine);
 
                     nWidth -= (nWordSpaceFirst / 2);
                     nWidth -= (nWordSpaceLast - nWordSpaceLast / 2);
@@ -105,10 +105,10 @@ int XMLTypeset::LineRawWidth(int nLine, bool bWithWordSpace) const
     }
 }
 
-bool XMLTypeset::addRawTokenLine(int nLine, const std::vector<TOKEN> &tokenLine)
+bool XMLTypeset::addRawTokenLine(int argLine, const std::vector<TOKEN> &tokenLine)
 {
-    if(!lineValid(nLine)){
-        throw fflerror("invalid line: %d", nLine);
+    if(!lineValid(argLine)){
+        throw fflerror("invalid line: %d", argLine);
     }
 
     if(tokenLine.empty()){
@@ -116,7 +116,7 @@ bool XMLTypeset::addRawTokenLine(int nLine, const std::vector<TOKEN> &tokenLine)
     }
 
     if(m_lineWidth <= 0){
-        m_lineList[nLine].content.insert(m_lineList[nLine].content.end(), tokenLine.begin(), tokenLine.end());
+        m_lineList[argLine].content.insert(m_lineList[argLine].content.end(), tokenLine.begin(), tokenLine.end());
         return true;
     }
 
@@ -132,24 +132,24 @@ bool XMLTypeset::addRawTokenLine(int nLine, const std::vector<TOKEN> &tokenLine)
         return result;
     }();
 
-    if((lineTokenCount(nLine) == 0) && (m_lineWidth < to_d(rawExtraWidth + (tokenLine.size() - 1) * m_wordSpace))){
+    if((lineTokenCount(argLine) == 0) && (m_lineWidth < to_d(rawExtraWidth + (tokenLine.size() - 1) * m_wordSpace))){
         g_log->addLog(LOGTYPE_WARNING, "XMLTypeset width is too small to hold the token line: lineWidth = %d", m_lineWidth);
-        m_lineList[nLine].content.insert(m_lineList[nLine].content.end(), tokenLine.begin(), tokenLine.end());
+        m_lineList[argLine].content.insert(m_lineList[argLine].content.end(), tokenLine.begin(), tokenLine.end());
         return true;
     }
 
-    if(m_lineWidth < LineRawWidth(nLine, false) + rawExtraWidth + to_d(lineTokenCount(nLine) + tokenLine.size() - 1) * m_wordSpace){
+    if(m_lineWidth < LineRawWidth(argLine, false) + rawExtraWidth + to_d(lineTokenCount(argLine) + tokenLine.size() - 1) * m_wordSpace){
         return false;
     }
 
-    m_lineList[nLine].content.insert(m_lineList[nLine].content.end(), tokenLine.begin(), tokenLine.end());
+    m_lineList[argLine].content.insert(m_lineList[argLine].content.end(), tokenLine.begin(), tokenLine.end());
     return true;
 }
 
-void XMLTypeset::LinePadding(int nLine)
+void XMLTypeset::LinePadding(int argLine)
 {
-    if(!lineValid(nLine)){
-        throw fflerror("invalid line: %d", nLine);
+    if(!lineValid(argLine)){
+        throw fflerror("invalid line: %d", argLine);
     }
 }
 
@@ -161,20 +161,20 @@ void XMLTypeset::LineDistributedPadding(int)
 // assume:
 //      1. alreayd put all tokens into current line
 //      2. token has Box.W ready
-void XMLTypeset::LineJustifyPadding(int nLine)
+void XMLTypeset::LineJustifyPadding(int argLine)
 {
-    if(!lineValid(nLine)){
-        throw fflerror("invalid line: %d", nLine);
+    if(!lineValid(argLine)){
+        throw fflerror("invalid line: %d", argLine);
     }
 
     if(lineAlign() != LALIGN_JUSTIFY){
         throw fflerror("do line justify-padding while board align is configured as: %d", lineAlign());
     }
 
-    switch(lineTokenCount(nLine)){
+    switch(lineTokenCount(argLine)){
         case 0:
             {
-                throw fflerror("empty line detected: %d", nLine);
+                throw fflerror("empty line detected: %d", argLine);
             }
         case 1:
             {
@@ -193,11 +193,11 @@ void XMLTypeset::LineJustifyPadding(int nLine)
     // we allow to exceeds the line limitation..
     // when there is a huge token inderted to current line, but only for this exception
 
-    if((LineRawWidth(nLine, true) > MaxLineWidth()) && (lineTokenCount(nLine) > 1)){
+    if((LineRawWidth(argLine, true) > MaxLineWidth()) && (lineTokenCount(argLine) > 1)){
         throw fflerror("line raw width exceeds the fixed max line width: %d", MaxLineWidth());
     }
 
-    const auto fnLeafPadding = [this, y = nLine](const auto &fnCheckToken) -> int
+    const auto fnLeafPadding = [this, y = argLine](const auto &fnCheckToken) -> int
     {
         while(LineFullWidth(y) < MaxLineWidth()){
             int nCurrDWidth = MaxLineWidth() - LineFullWidth(y);
@@ -289,10 +289,10 @@ void XMLTypeset::LineJustifyPadding(int nLine)
     throw fflerror("can't do padding to width: %d", MaxLineWidth());
 }
 
-void XMLTypeset::resetOneLine(int nLine, bool bCREnd)
+void XMLTypeset::resetOneLine(int argLine, bool bCREnd)
 {
-    if(!lineValid(nLine)){
-        throw fflerror("invalid line: %d", nLine);
+    if(!lineValid(argLine)){
+        throw fflerror("invalid line: %d", argLine);
     }
 
     // some tokens may have non-zero W1/W2 when reach here
@@ -323,22 +323,22 @@ void XMLTypeset::resetOneLine(int nLine, bool bCREnd)
         }
     }();
 
-    for(int i = 0, tokenCnt = lineTokenCount(nLine); i < tokenCnt; ++i){
-        getToken(i, nLine)->Box.State.W1 = (i     == 0       ) ? 0 : wordSpace[0];
-        getToken(i, nLine)->Box.State.W2 = (i + 1 == tokenCnt) ? 0 : wordSpace[1];
+    for(int i = 0, tokenCnt = lineTokenCount(argLine); i < tokenCnt; ++i){
+        getToken(i, argLine)->Box.State.W1 = (i     == 0       ) ? 0 : wordSpace[0];
+        getToken(i, argLine)->Box.State.W2 = (i + 1 == tokenCnt) ? 0 : wordSpace[1];
     }
 
     switch(lineAlign()){
         case LALIGN_JUSTIFY:
             {
                 if(!bCREnd){
-                    LineJustifyPadding(nLine);
+                    LineJustifyPadding(argLine);
                 }
                 break;
             }
         case LALIGN_DISTRIBUTED:
             {
-                LineDistributedPadding(nLine);
+                LineDistributedPadding(argLine);
                 break;
             }
         default:
@@ -347,32 +347,32 @@ void XMLTypeset::resetOneLine(int nLine, bool bCREnd)
             }
     }
 
-    SetLineTokenStartX(nLine);
-    SetLineTokenStartY(nLine);
+    SetLineTokenStartX(argLine);
+    SetLineTokenStartY(argLine);
 }
 
-void XMLTypeset::SetLineTokenStartX(int nLine)
+void XMLTypeset::SetLineTokenStartX(int argLine)
 {
-    if(!lineValid(nLine)){
-        throw fflerror("invalid line: %d", nLine);
+    if(!lineValid(argLine)){
+        throw fflerror("invalid line: %d", argLine);
     }
 
     int nLineStartX = 0;
     switch(lineAlign()){
         case LALIGN_RIGHT:
             {
-                nLineStartX = MaxLineWidth() - LineFullWidth(nLine);
+                nLineStartX = MaxLineWidth() - LineFullWidth(argLine);
                 break;
             }
         case LALIGN_CENTER:
             {
-                nLineStartX = (MaxLineWidth() - LineFullWidth(nLine)) / 2;
+                nLineStartX = (MaxLineWidth() - LineFullWidth(argLine)) / 2;
                 break;
             }
     }
 
     int nCurrX = nLineStartX;
-    for(auto &rstToken: m_lineList[nLine].content){
+    for(auto &rstToken: m_lineList[argLine].content){
         nCurrX += rstToken.Box.State.W1;
         rstToken.Box.State.X = nCurrX;
 
@@ -383,12 +383,12 @@ void XMLTypeset::SetLineTokenStartX(int nLine)
 
 // get max H2 for an interval
 // assume:
-//      W1/W/W2/X of tokens in nLine is initialized
+//      W1/W/W2/X of tokens in argLine is initialized
 // return:
 //      max H2, or negative if there is no tokens for that interval
-int XMLTypeset::LineIntervalMaxH2(int nLine, int nIntervalStartX, int nIntervalWidth) const
+int XMLTypeset::LineIntervalMaxH2(int argLine, int nIntervalStartX, int nIntervalWidth) const
 {
-    //    This function only take care of nLine
+    //    This function only take care of argLine
     //    has nothing to do with (n-1)th or (n+1)th Line
     //
     // ---------+----+----+-------------+-------  <-BaseLine
@@ -411,8 +411,8 @@ int XMLTypeset::LineIntervalMaxH2(int nLine, int nIntervalStartX, int nIntervalW
     //  but token in (n + 1)-th line only count for the interval
     //  W1/W2 won't count for here, as shown
 
-    if(!lineValid(nLine)){
-        throw fflerror("invalid line: %d", nLine);
+    if(!lineValid(argLine)){
+        throw fflerror("invalid line: %d", argLine);
     }
 
     if(nIntervalWidth == 0){
@@ -420,8 +420,8 @@ int XMLTypeset::LineIntervalMaxH2(int nLine, int nIntervalStartX, int nIntervalW
     }
 
     int nMaxH2 = -1;
-    for(int nIndex = 0; nIndex < lineTokenCount(nLine); ++nIndex){
-        auto pToken = getToken(nIndex, nLine);
+    for(int nIndex = 0; nIndex < lineTokenCount(argLine); ++nIndex){
+        auto pToken = getToken(nIndex, argLine);
         int nW  = pToken->Box.Info .W;
         int nX  = pToken->Box.State.X;
         int nW1 = pToken->Box.State.W1;
@@ -447,22 +447,22 @@ int XMLTypeset::LineIntervalMaxH2(int nLine, int nIntervalStartX, int nIntervalW
 // for nth line we try to calculate possible minmal Y for each token then
 // take the max-min as the line start Y, here we don't permit tokens in nth
 // line go through upper than (n - 1)th baseLine
-int XMLTypeset::LineTokenBestY(int nLine, int nTokenX, int nTokenWidth, int nTokenHeight) const
+int XMLTypeset::LineTokenBestY(int argLine, int nTokenX, int nTokenWidth, int nTokenHeight) const
 {
-    if(!lineValid(nLine)){
-        throw fflerror("invalid line: %d", nLine);
+    if(!lineValid(argLine)){
+        throw fflerror("invalid line: %d", argLine);
     }
 
     if(nTokenWidth <= 0 || nTokenHeight <= 0){
         throw fflerror("invalid token size: width = %d, height = %d", nTokenWidth, nTokenHeight);
     }
 
-    if(nLine == 0){
+    if(argLine == 0){
         return nTokenHeight - 1;
     }
 
-    if(int nMaxH2 = LineIntervalMaxH2(nLine - 1, nTokenX, nTokenWidth); nMaxH2 >= 0){
-        return m_lineList[nLine - 1].startY + to_d(nMaxH2) + m_lineSpace + nTokenHeight;
+    if(int nMaxH2 = LineIntervalMaxH2(argLine - 1, nTokenX, nTokenWidth); nMaxH2 >= 0){
+        return m_lineList[argLine - 1].startY + to_d(nMaxH2) + m_lineSpace + nTokenHeight;
     }
 
     // negative nMaxH2 means the (n - 1)th line is not long enough
@@ -481,14 +481,14 @@ int XMLTypeset::LineTokenBestY(int nLine, int nTokenX, int nTokenWidth, int nTok
     //                +-------+-+----------+-------
     //                          |          |
     //                          +----------+
-    return m_lineList[nLine - 1].startY + m_lineSpace + nTokenHeight;
+    return m_lineList[argLine - 1].startY + m_lineSpace + nTokenHeight;
 }
 
 // get start Y of current line
 // assume:
 //      1. (nth - 1) line is valid
-//      2. nLine is padded already, StartX, W/W1/W2 are OK now
-int XMLTypeset::LineNewStartY(int nLine)
+//      2. argLine is padded already, StartX, W/W1/W2 are OK now
+int XMLTypeset::LineNewStartY(int argLine)
 {
     //           +----------+
     //           |          |
@@ -504,8 +504,8 @@ int XMLTypeset::LineNewStartY(int nLine)
     //                          |          |
     //                          +----------+
     //
-    // for nLine we use W only, but for nLine - 1, we use W1 + W + W2
-    // reason is clear since W1/2 of nLine won't show, then use them are
+    // for argLine we use W only, but for argLine - 1, we use W1 + W + W2
+    // reason is clear since W1/2 of argLine won't show, then use them are
     // wasteful for space
     //
     //          +---+-----+--+---+-------+
@@ -520,31 +520,31 @@ int XMLTypeset::LineNewStartY(int nLine)
     //                   |        |
     //
 
-    if(!lineValid(nLine)){
-        throw fflerror("invalid line: %d", nLine);
+    if(!lineValid(argLine)){
+        throw fflerror("invalid line: %d", argLine);
     }
 
-    if(nLine == 0){
+    if(argLine == 0){
         return LineMaxHk(0, 1);
     }
 
     if(!CanThrough()){
-        return LineReachMaxY(nLine - 1) + m_lineSpace + LineMaxHk(nLine, 1);
+        return LineReachMaxY(argLine - 1) + m_lineSpace + LineMaxHk(argLine, 1);
     }
 
-    if(lineTokenCount(nLine) == 0){
-        throw fflerror("empty line detected: %d", nLine);
+    if(lineTokenCount(argLine) == 0){
+        throw fflerror("empty line detected: %d", argLine);
     }
 
     int nCurrentY = -1;
-    for(int nIndex = 0; nIndex < lineTokenCount(nLine); ++nIndex){
-        auto pToken = getToken(nIndex, nLine);
+    for(int nIndex = 0; nIndex < lineTokenCount(argLine); ++nIndex){
+        auto pToken = getToken(nIndex, argLine);
         int nX  = pToken->Box.State.X;
         int nW  = pToken->Box.Info .W;
         int nH1 = pToken->Box.State.H1;
 
         // LineTokenBestY() already take m_lineSpace into consideration
-        nCurrentY = (std::max<int>)(nCurrentY, LineTokenBestY(nLine, nX, nW, nH1));
+        nCurrentY = (std::max<int>)(nCurrentY, LineTokenBestY(argLine, nX, nW, nH1));
     }
 
     // not done yet, think about the following situation
@@ -560,19 +560,19 @@ int XMLTypeset::LineNewStartY(int nLine)
     // -+--+--+----+ |    | ------ nth
     //               +----+
 
-    return to_d((std::max<int>)(nCurrentY, LineReachMaxY(nLine - 1) + 1));
+    return to_d((std::max<int>)(nCurrentY, LineReachMaxY(argLine - 1) + 1));
 }
 
-void XMLTypeset::SetLineTokenStartY(int nLine)
+void XMLTypeset::SetLineTokenStartY(int argLine)
 {
-    if(!lineValid(nLine)){
-        throw fflerror("invalid line: %d", nLine);
+    if(!lineValid(argLine)){
+        throw fflerror("invalid line: %d", argLine);
     }
 
-    m_lineList[nLine].startY = to_d(LineNewStartY(nLine));
-    for(int nIndex = 0; nIndex < lineTokenCount(nLine); ++nIndex){
-        auto pToken = getToken(nIndex, nLine);
-        pToken->Box.State.Y = m_lineList[nLine].startY - pToken->Box.State.H1;
+    m_lineList[argLine].startY = to_d(LineNewStartY(argLine));
+    for(int nIndex = 0; nIndex < lineTokenCount(argLine); ++nIndex){
+        auto pToken = getToken(nIndex, argLine);
+        pToken->Box.State.Y = m_lineList[argLine].startY - pToken->Box.State.H1;
     }
 }
 
@@ -838,15 +838,15 @@ void XMLTypeset::resetBoardPixelRegion()
     int nMinPX = INT_MAX;
     int nMinPY = INT_MAX;
 
-    for(int nLine = 0; lineValid(nLine); ++nLine){
-        if(!lineTokenCount(nLine)){
-            throw fflerror("found empty line in XMLTypeset: line = %d", nLine);
+    for(int argLine = 0; lineValid(argLine); ++argLine){
+        if(!lineTokenCount(argLine)){
+            throw fflerror("found empty line in XMLTypeset: line = %d", argLine);
         }
 
-        nMaxPX = (std::max<int>)(nMaxPX, LineReachMaxX(nLine));
-        nMaxPY = (std::max<int>)(nMaxPY, LineReachMaxY(nLine));
-        nMinPX = (std::min<int>)(nMinPX, LineReachMinX(nLine));
-        nMinPY = (std::min<int>)(nMinPY, LineReachMinY(nLine));
+        nMaxPX = (std::max<int>)(nMaxPX, LineReachMaxX(argLine));
+        nMaxPY = (std::max<int>)(nMaxPY, LineReachMaxY(argLine));
+        nMinPX = (std::min<int>)(nMinPX, LineReachMinX(argLine));
+        nMinPY = (std::min<int>)(nMinPY, LineReachMinY(argLine));
     }
 
     m_px = nMinPX;
@@ -865,9 +865,10 @@ std::tuple<int, int> XMLTypeset::prevTokenLoc(int nX, int nY) const
         throw fflerror("try find token before (0, 0)");
     }
 
-    if(nX){
+    if(nX > 0){
         return {nX - 1, nY};
-    }else{
+    }
+    else{
         return {lineTokenCount(nY - 1), nY - 1};
     }
 }
@@ -878,14 +879,51 @@ std::tuple<int, int> XMLTypeset::nextTokenLoc(int nX, int nY) const
         throw fflerror("invalid token location: (%d, %d)", nX, nY);
     }
 
-    if(nX == 0 && nY == 0){
-        throw fflerror("try find token location before (0, 0)");
+    if(std::tie(nX, nY) == lastTokenLoc()){
+        throw fflerror("try find token location after (%d, %d)", nX, nY);
     }
 
-    if(nX){
+    if(nX + 1 >= lineTokenCount(nY)){
+        return {0, nY + 1};
+    }
+    else{
+        return {nX + 1, nY};
+    }
+}
+
+std::tuple<int, int> XMLTypeset::prevCursorLoc(int nX, int nY) const
+{
+    if(!cursorLocValid(nX, nY)){
+        throw fflerror("invalid cursor location: (%d, %d)", nX, nY);
+    }
+
+    if(nX == 0 && nY == 0){
+        throw fflerror("try find cursor location before (0, 0)");
+    }
+
+    if(nX > 1){
         return {nX - 1, nY};
-    }else{
-        return {lineTokenCount(nY - 1), nY - 1};
+    }
+    else{
+        return {lineTokenCount(nY - 1) + 1, nY - 1};
+    }
+}
+
+std::tuple<int, int> XMLTypeset::nextCursorLoc(int nX, int nY) const
+{
+    if(!cursorLocValid(nX, nY)){
+        throw fflerror("invalid cursor location: (%d, %d)", nX, nY);
+    }
+
+    if(std::tie(nX, nY) == lastCursorLoc()){
+        throw fflerror("try find cursor location after (%d, %d)", nX, nY);
+    }
+
+    if(nX >= lineTokenCount(nY)){
+        return {1, nY + 1};
+    }
+    else{
+        return {nX + 1, nY};
     }
 }
 
@@ -913,7 +951,7 @@ void XMLTypeset::deleteToken(int x, int y, int tokenCount)
 void XMLTypeset::insertUTF8String(int x, int y, const char *text)
 {
     if(!cursorLocValid(x, y)){
-        throw fflerror("invalid location: (%d, %d)", x, y);
+        throw fflerror("invalid cursor location: (%d, %d)", x, y);
     }
 
     tinyxml2::XMLPrinter printer;
@@ -1163,56 +1201,56 @@ int XMLTypeset::GetTokenWordSpace(int nX, int nY) const
     return m_wordSpace;
 }
 
-int XMLTypeset::LineReachMaxX(int nLine) const
+int XMLTypeset::LineReachMaxX(int argLine) const
 {
-    if(!lineValid(nLine)){
-        throw fflerror("invalid line: %d", nLine);
+    if(!lineValid(argLine)){
+        throw fflerror("invalid line: %d", argLine);
     }
 
-    if(lineTokenCount(nLine) == 0){
-        throw fflerror("invalie empty line: %d", nLine);
+    if(lineTokenCount(argLine) == 0){
+        throw fflerror("invalie empty line: %d", argLine);
     }
 
-    auto pToken = GetLineBackToken(nLine);
+    auto pToken = GetLineBackToken(argLine);
     return pToken->Box.State.X + pToken->Box.Info.W;
 }
 
-int XMLTypeset::LineReachMaxY(int nLine) const
+int XMLTypeset::LineReachMaxY(int argLine) const
 {
-    if(!lineValid(nLine)){
-        throw fflerror("invalid line: %d", nLine);
+    if(!lineValid(argLine)){
+        throw fflerror("invalid line: %d", argLine);
     }
-    return m_lineList[nLine].startY + LineMaxHk(nLine, 2);
+    return m_lineList[argLine].startY + LineMaxHk(argLine, 2);
 }
 
-int XMLTypeset::LineReachMinX(int nLine) const
+int XMLTypeset::LineReachMinX(int argLine) const
 {
-    if(!lineValid(nLine)){
-        throw fflerror("invalid line: %d", nLine);
+    if(!lineValid(argLine)){
+        throw fflerror("invalid line: %d", argLine);
     }
 
-    if(lineTokenCount(nLine) == 0){
-        throw fflerror("invalie empty line: %d", nLine);
+    if(lineTokenCount(argLine) == 0){
+        throw fflerror("invalie empty line: %d", argLine);
     }
 
-    return getToken(0, nLine)->Box.State.X;
+    return getToken(0, argLine)->Box.State.X;
 }
 
-int XMLTypeset::LineReachMinY(int nLine) const
+int XMLTypeset::LineReachMinY(int argLine) const
 {
-    if(!lineValid(nLine)){
-        throw fflerror("invalid line: %d", nLine);
+    if(!lineValid(argLine)){
+        throw fflerror("invalid line: %d", argLine);
     }
-    return m_lineList[nLine].startY - LineMaxHk(nLine, 1) + 1;
+    return m_lineList[argLine].startY - LineMaxHk(argLine, 1) + 1;
 }
 
-int XMLTypeset::LineMaxHk(int nLine, int k) const
+int XMLTypeset::LineMaxHk(int argLine, int k) const
 {
     // nHk = 1: get MaxH1
     // nHk = 2: get MaxH2
 
-    if(!lineValid(nLine)){
-        throw fflerror("invalid line: %d", nLine);
+    if(!lineValid(argLine)){
+        throw fflerror("invalid line: %d", argLine);
     }
 
     if(k != 1 && k != 2){
@@ -1220,8 +1258,8 @@ int XMLTypeset::LineMaxHk(int nLine, int k) const
     }
 
     int nCurrMaxHk = 0;
-    for(int nIndex = 0; nIndex < lineTokenCount(nLine); ++nIndex){
-        nCurrMaxHk = (std::max<int>)(nCurrMaxHk, (k == 1) ? getToken(nIndex, nLine)->Box.State.H1 : getToken(nIndex, nLine)->Box.State.H2);
+    for(int nIndex = 0; nIndex < lineTokenCount(argLine); ++nIndex){
+        nCurrMaxHk = (std::max<int>)(nCurrMaxHk, (k == 1) ? getToken(nIndex, argLine)->Box.State.H1 : getToken(nIndex, argLine)->Box.State.H2);
     }
     return nCurrMaxHk;
 }

@@ -98,9 +98,9 @@ class LabelBoard: public Widget
         }
 
     public:
-        std::string PrintXML() const
+        std::string getXML() const
         {
-            return m_tpset.PrintXML();
+            return m_tpset.getXML();
         }
 
     public:

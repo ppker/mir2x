@@ -112,11 +112,11 @@ class XMLParagraph
         }
 
     public:
-        std::string PrintXML() const
+        std::string getXML() const
         {
-            tinyxml2::XMLPrinter stPrinter;
-            m_XMLDocument.Accept(&stPrinter);
-            return std::string(stPrinter.CStr());
+            tinyxml2::XMLPrinter printer;
+            m_XMLDocument.Accept(&printer);
+            return std::string(printer.CStr());
         }
 
     public:

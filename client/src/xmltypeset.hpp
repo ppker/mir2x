@@ -156,17 +156,21 @@ class XMLTypeset // means XMLParagraph typeset
             return to_d(m_lineList.size());
         }
 
-        int lineTokenCount(int nLine) const
+        int lineTokenCount(int argLine) const
         {
-            if(lineValid(nLine)){
-                return m_lineList[nLine].content.size();
+            if(lineValid(argLine)){
+                return m_lineList[argLine].content.size();
             }
-            throw fflerror("invalid line specified: %d >= %d", nLine, lineCount());
+            throw fflerror("invalid line specified: %d >= %d", argLine, lineCount());
         }
 
     public:
         std::tuple<int, int> prevTokenLoc(int, int) const;
         std::tuple<int, int> nextTokenLoc(int, int) const;
+
+    public:
+        std::tuple<int, int> prevCursorLoc(int, int) const;
+        std::tuple<int, int> nextCursorLoc(int, int) const;
 
     public:
         static bool locInToken(int, int, const TOKEN *, bool withPadding);
@@ -178,12 +182,37 @@ class XMLTypeset // means XMLParagraph typeset
         std::tuple<int, int> locCursor(int, int) const;
 
     public:
+        std::tuple<int, int> firstTokenLoc() const
+        {
+            if(empty()){
+                throw fflerror("empty typeset");
+            }
+            return {0, 0};
+        }
+
         std::tuple<int, int> lastTokenLoc() const
         {
             if(empty()){
                 throw fflerror("empty board");
             }
             return {lineTokenCount(lineCount() - 1) - 1, lineCount() - 1};
+        }
+
+    public:
+        std::tuple<int, int> firstCursorLoc() const
+        {
+            if(empty()){
+                return {0, 0};
+            }
+            return {1, 0};
+        }
+
+        std::tuple<int, int> lastCursorLoc() const
+        {
+            if(empty()){
+                return {0, 0};
+            }
+            return {lineTokenCount(lineCount() - 1), lineCount() - 1};
         }
 
     public:
@@ -196,14 +225,22 @@ class XMLTypeset // means XMLParagraph typeset
         }
 
     public:
-        bool tokenLocValid(int nX, int nY) const
+        bool tokenLocValid(int argX, int argY) const
         {
-            return lineValid(nY) && (nX >= 0) && (nX < lineTokenCount(nY));
+            return lineValid(argY) && (argX >= 0) && (argX < lineTokenCount(argY));
         }
 
-        bool cursorLocValid(int nX, int nY) const
+        bool cursorLocValid(int argX, int argY) const
         {
-            return (nX == 0 && nY == 0) || (lineValid(nY) && (nX >= 0) && (nX <= lineTokenCount(nY)));
+            if(empty()){
+                return argX == 0 && argY == 0;
+            }
+            else if(argY == 0){
+                return (argX >= 0) && (argX <= lineTokenCount(argY));
+            }
+            else{
+                return lineValid(argY) && (argX >= 1) && (argX <= lineTokenCount(argY));
+            }
         }
 
     public:
@@ -282,9 +319,9 @@ class XMLTypeset // means XMLParagraph typeset
         }
 
     public:
-        std::string PrintXML() const
+        std::string getXML() const
         {
-            return m_paragraph.PrintXML();
+            return m_paragraph.getXML();
         }
 
     public:
@@ -319,36 +356,36 @@ class XMLTypeset // means XMLParagraph typeset
         int LineFullWidth(int) const;
 
     public:
-        const TOKEN *getToken(int nX, int nY) const
+        const TOKEN *getToken(int argX, int argY) const
         {
-            if(!tokenLocValid(nX, nY)){
-                throw fflerror("invalid token location: (%d, %d)", nX, nY);
+            if(!tokenLocValid(argX, argY)){
+                throw fflerror("invalid token location: (%d, %d)", argX, argY);
             }
-            return &(m_lineList[nY].content[nX]);
+            return &(m_lineList[argY].content[argX]);
         }
 
-        TOKEN *getToken(int nX, int nY)
+        TOKEN *getToken(int argX, int argY)
         {
-            return const_cast<TOKEN *>(static_cast<const XMLTypeset *>(this)->getToken(nX, nY));
+            return const_cast<TOKEN *>(static_cast<const XMLTypeset *>(this)->getToken(argX, argY));
         }
 
     public:
-        const TOKEN *GetLineBackToken(int nLine) const
+        const TOKEN *GetLineBackToken(int argLine) const
         {
-            if(!lineValid(nLine)){
-                throw fflerror("invalid line: %d", nLine);
+            if(!lineValid(argLine)){
+                throw fflerror("invalid line: %d", argLine);
             }
 
-            if(lineTokenCount(nLine) == 0){
-                throw fflerror("invalie empty line: %d", nLine);
+            if(lineTokenCount(argLine) == 0){
+                throw fflerror("invalie empty line: %d", argLine);
             }
 
-            return getToken(lineTokenCount(nLine) - 1, nLine);
+            return getToken(lineTokenCount(argLine) - 1, argLine);
         }
 
-        TOKEN *GetLineBackToken(int nLine)
+        TOKEN *GetLineBackToken(int argLine)
         {
-            return const_cast<TOKEN *>(static_cast<const XMLTypeset *>(this)->GetLineBackToken(nLine));
+            return const_cast<TOKEN *>(static_cast<const XMLTypeset *>(this)->GetLineBackToken(argLine));
         }
 
     public:

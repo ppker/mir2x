@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include "widget.hpp"
 #include "xmltypeset.hpp"
+#include "shapeclipboard.hpp"
 
 class LayoutBoard: public Widget
 {
@@ -17,6 +18,12 @@ class LayoutBoard: public Widget
             // margin[1]  down
             // margin[2]  left
             // margin[3]  right
+
+            // x---------+  x: (0, 0)
+            // | C-----+ |  C: (margin[2], startY), margin not included
+            // | |*****| |
+            // | +-----+ |
+            // +---------+
 
             int startY = -1;
             std::array<int, 4> margin {0, 0, 0, 0};
@@ -57,7 +64,8 @@ class LayoutBoard: public Widget
             int y   = -1;
         } m_cursorLoc;
 
-        int m_cursorBlink;
+        int m_cursorBlink = 0;
+        ShapeClipBoard m_cursorClip;
 
     private:
         bool m_canSelect;
@@ -110,8 +118,25 @@ class LayoutBoard: public Widget
                   std::move(argX),
                   std::move(argY),
 
-                  0,
-                  0,
+                  [this](const Widget *)
+                  {
+                      int maxW = 0;
+                      for(const auto &node: m_parNodeList){
+                          maxW = std::max<int>(maxW, node.margin[2] + node.tpset->pw() + node.margin[3]);
+                      }
+                      return maxW;
+                  },
+
+                  [this](const Widget *)
+                  {
+                      if(empty()){
+                          return 0;
+                      }
+
+                      const auto &backNode = m_parNodeList.back();
+                      return backNode.startY + backNode.tpset->ph() + backNode.margin[1];
+                  },
+
                   {},
 
                   argParent,
@@ -131,6 +156,24 @@ class LayoutBoard: public Widget
                   argLineAlign,
                   argLineSpace,
                   argWordSpace,
+              }
+
+            , m_cursorClip
+              {
+                  DIR_UPLEFT,
+                  0,
+                  0,
+
+                  [this](const Widget *){ return this->w(); },
+                  [this](const Widget *){ return this->h(); },
+
+                  [this](const Widget *, int drawDstX, int drawDstY)
+                  {
+                      drawCursorBlink(drawDstX, drawDstY);
+                  },
+
+                  this,
+                  false,
               }
 
             , m_canSelect(argCanSelect)
@@ -155,9 +198,14 @@ class LayoutBoard: public Widget
                 loadXML(argInitXML, argParLimit);
             }
 
-            m_cursorLoc.par = 0;
-            m_cursorLoc.x   = 0;
-            m_cursorLoc.y   = 0;
+            if(m_canEdit){
+                if(empty()){
+                    loadXML("<layout><par></par></layout>");
+                }
+
+                m_cursorLoc.par = parCount() - 1;
+                std::tie(m_cursorLoc.x, m_cursorLoc.y) = m_parNodeList.rbegin()->tpset->lastCursorLoc();
+            }
         }
 
     public:
@@ -172,17 +220,18 @@ class LayoutBoard: public Widget
             for(const auto &node: m_parNodeList){
                 node.tpset->update(ms);
             }
+            m_cursorBlink += ms;
         }
 
     private:
-        auto ithParIterator(int i)
+        std::list<ParNode>::iterator ithParIterator(int i)
         {
             auto p = m_parNodeList.begin();
             std::advance(p, i);
             return p;
         }
 
-        auto ithParIterator(int i) const
+        std::list<ParNode>::const_iterator ithParIterator(int i) const
         {
             auto p = m_parNodeList.begin();
             std::advance(p, i);
@@ -195,11 +244,14 @@ class LayoutBoard: public Widget
             return argPar >= 0 && argPar < parCount() && ithParIterator(argPar)->tpset->cursorLocValid(argX, argY);
         }
 
-    public:
-        int parCount() const
+        bool cursorLocValid(const ParCursorLoc &parCursorLoc) const
         {
-            return to_d(m_parNodeList.size());
+            return cursorLocValid(parCursorLoc.par, parCursorLoc.x, parCursorLoc.y);
         }
+
+    public:
+        int parCount() const { return to_d(m_parNodeList.size()); }
+        int parCount()       { return to_d(m_parNodeList.size()); }
 
     public:
         bool empty() const
@@ -250,8 +302,7 @@ class LayoutBoard: public Widget
         bool processEvent(const SDL_Event &, bool) override;
 
     private:
-        void setupSize();
-        void addPar(int, const std::array<int, 4> &, const tinyxml2::XMLNode *, bool);
+        void addPar(int, const std::array<int, 4> &, const tinyxml2::XMLNode *);
 
     private:
         void setupStartY(int);
@@ -261,4 +312,10 @@ class LayoutBoard: public Widget
         {
             return m_parNodeConfig.lineWidth;
         }
+
+    private:
+        void drawCursorBlink(int, int) const;
+
+    public:
+        std::string getXML() const;
 };
