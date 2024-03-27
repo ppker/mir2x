@@ -129,7 +129,7 @@ class LayoutBoard: public Widget
                   {
                       int maxW = 0;
                       for(const auto &node: m_parNodeList){
-                          maxW = std::max<int>(maxW, node.margin[2] + node.tpset->pw() + node.margin[3]);
+                          maxW = std::max<int>({maxW, m_canEdit ? m_cursorWidth : 0, node.margin[2] + node.tpset->pw() + node.margin[3]});
                       }
                       return maxW;
                   },
@@ -141,7 +141,7 @@ class LayoutBoard: public Widget
                       }
 
                       const auto &backNode = m_parNodeList.back();
-                      return backNode.startY + backNode.tpset->ph() + backNode.margin[1];
+                      return backNode.startY + std::max<int>(backNode.tpset->ph(), m_canEdit ? backNode.tpset->getDefaultFontHeight() : 0) + backNode.margin[1];
                   },
 
                   {},
@@ -328,4 +328,11 @@ class LayoutBoard: public Widget
 
     public:
         std::string getXML() const;
+
+    public:
+        void setFocus(bool argFocus) override
+        {
+            Widget::setFocus(argFocus);
+            m_cursorBlink = 0.0;
+        }
 };

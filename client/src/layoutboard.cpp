@@ -222,10 +222,10 @@ void LayoutBoard::addPar(int loc, const std::array<int, 4> &parMargin, const tin
     }
     else{
         const auto prevNode = std::prev(currNode);
-        currNode->startY = prevNode->startY + prevNode->tpset->ph() + prevNode->margin[1] + currNode->margin[0];
+        currNode->startY = prevNode->startY + std::max<int>(prevNode->tpset->ph(), prevNode->tpset->getDefaultFontHeight()) + prevNode->margin[1] + currNode->margin[0];
     }
 
-    const int extraH = currNode->tpset->ph() + currNode->margin[0] + currNode->margin[1];
+    const int extraH = std::max<int>(currNode->tpset->ph(), currNode->tpset->getDefaultFontHeight()) + currNode->margin[0] + currNode->margin[1];
     for(auto p = std::next(currNode); p != m_parNodeList.end(); ++p){
         p->startY += extraH;
     }
@@ -242,7 +242,7 @@ void LayoutBoard::setupStartY(int fromPar)
             }
 
             auto prevNode = std::prev(ithParIterator(fromPar));
-            return prevNode->startY + prevNode->tpset->ph() + prevNode->margin[1];
+            return prevNode->startY + std::max<int>(prevNode->tpset->ph(), prevNode->tpset->getDefaultFontHeight()) + prevNode->margin[1];
         }();
 
         for(auto par = ithParIterator(fromPar); par != m_parNodeList.end(); ++par){
@@ -250,7 +250,7 @@ void LayoutBoard::setupStartY(int fromPar)
             par->startY = offsetY;
 
             offsetY += par->margin[1];
-            offsetY += par->tpset->ph();
+            offsetY += std::max<int>(par->tpset->ph(), par->tpset->getDefaultFontHeight());
         }
     }
 }
@@ -289,7 +289,7 @@ void LayoutBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int s
         node.tpset->drawEx(dstXCrop, dstYCrop, srcXCrop - node.margin[2], srcYCrop - node.startY, srcWCrop, srcHCrop);
     }
 
-    if(m_canEdit){
+    if(m_canEdit && focus()){
         Widget::drawEx(dstX, dstY, srcX, srcY, srcW, srcH); // draw cursor
     }
 }
