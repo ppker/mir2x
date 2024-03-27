@@ -599,6 +599,9 @@ struct FriendChatPage: public Widget
                   0,
                   0,
 
+                  2,
+                  colorf::WHITE + colorf::A_SHF(255),
+
                   nullptr,
                   nullptr,
                   nullptr,

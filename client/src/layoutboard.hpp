@@ -73,6 +73,10 @@ class LayoutBoard: public Widget
         bool m_imeEnabled;
 
     private:
+        int m_cursorWidth;
+        uint32_t m_cursorColor;
+
+    private:
         const std::function<void()> m_onTab;
         const std::function<void()> m_onCR;
         const std::function<void(const std::unordered_map<std::string, std::string> &, int, int)> m_eventCB;
@@ -104,6 +108,9 @@ class LayoutBoard: public Widget
                 int argLineAlign = LALIGN_LEFT,
                 int argLineSpace = 0,
                 int argWordSpace = 0,
+
+                int      argCursorWidth = 2,
+                uint32_t argCursorColor = colorf::WHITE + colorf::A_SHF(255),
 
                 std::function<void()> argOnTab = nullptr,
                 std::function<void()> argOnCR  = nullptr,
@@ -179,6 +186,9 @@ class LayoutBoard: public Widget
             , m_canSelect(argCanSelect)
             , m_canEdit(argCanEdit)
             , m_imeEnabled(argIMEEnabled)
+
+            , m_cursorWidth(argCursorWidth)
+            , m_cursorColor(argCursorColor)
 
             , m_onTab(std::move(argOnTab))
             , m_onCR(std::move(argOnCR))

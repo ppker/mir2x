@@ -738,6 +738,9 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
           0,
           0,
 
+          2,
+          colorf::WHITE + colorf::A_SHF(255),
+
           nullptr,
           nullptr,
           [this](const std::unordered_map<std::string, std::string> &attrList, int oldState, int newState)

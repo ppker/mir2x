@@ -373,10 +373,27 @@ bool LayoutBoard::processEvent(const SDL_Event &event, bool valid)
                         {
                             if(m_cursorLoc.x > 0){
                                 ithParIterator(m_cursorLoc.par)->tpset->deleteToken(m_cursorLoc.x - 1, m_cursorLoc.y, 1);
-                                m_cursorLoc.x--;
-                                setupStartY(m_cursorLoc.y);
+                                if(m_cursorLoc.x > 1 || m_cursorLoc.y == 0){
+                                    m_cursorLoc.x--;
+                                }
+                                else{
+                                    m_cursorLoc.y--;
+                                    m_cursorLoc.x = ithParIterator(m_cursorLoc.par)->tpset->lineTokenCount(m_cursorLoc.y);
+                                }
+                            }
+                            else{
+                                if(m_cursorLoc.y != 0){
+                                    throw fflerror("invalid cursor location: par %d, x %d, y %d", m_cursorLoc.par, m_cursorLoc.x, m_cursorLoc.y);
+                                }
+
+                                if(m_cursorLoc.par > 0){
+                                    m_parNodeList.erase(ithParIterator(m_cursorLoc.par));
+                                    m_cursorLoc.par--;
+                                    std::tie(m_cursorLoc.x, m_cursorLoc.y) = ithParIterator(m_cursorLoc.par)->tpset->lastCursorLoc();
+                                }
                             }
 
+                            setupStartY(m_cursorLoc.par);
                             m_cursorBlink = 0.0;
                             return true;
                         }
@@ -488,10 +505,7 @@ void LayoutBoard::drawCursorBlink(int drawDstX, int drawDstY) const
         return;
     }
 
-    const int cursorW = 5;
-    const int cursorH = 10;
-
-    const auto [cursorPX, cursorPY] = [cursorW, this]() -> std::tuple<int, int>
+    const auto [cursorPX, cursorPY, cursorPH] = [this]() -> std::tuple<int, int, int>
     {
         auto par = ithParIterator(m_cursorLoc.par);
         if(par->tpset->empty()){
@@ -499,6 +513,8 @@ void LayoutBoard::drawCursorBlink(int drawDstX, int drawDstY) const
             {
                 par->margin[2],
                 par->startY,
+
+                par->tpset->getDefaultFontHeight(),
             };
         }
         else if(m_cursorLoc.x < par->tpset->lineTokenCount(m_cursorLoc.y)){
@@ -507,6 +523,8 @@ void LayoutBoard::drawCursorBlink(int drawDstX, int drawDstY) const
             {
                 par->margin[2] + tokenPtr->Box.State.X - tokenPtr->Box.State.W1,
                 par->startY    + tokenPtr->Box.State.Y,
+
+                par->tpset->getToken(std::max<int>(0, m_cursorLoc.x - 1), m_cursorLoc.y)->Box.Info.H,
             };
         }
         else{
@@ -516,13 +534,15 @@ void LayoutBoard::drawCursorBlink(int drawDstX, int drawDstY) const
             const auto tokenPtr = par->tpset->getToken(m_cursorLoc.x - 1, m_cursorLoc.y);
             return
             {
-                par->margin[2] + tokenPtr->Box.State.X + tokenPtr->Box.Info.W + tokenPtr->Box.State.W2 - cursorW,
+                par->margin[2] + tokenPtr->Box.State.X + tokenPtr->Box.Info.W + tokenPtr->Box.State.W2 - m_cursorWidth,
                 par->startY    + tokenPtr->Box.State.Y,
+
+                tokenPtr->Box.Info.H,
             };
         }
     }();
 
-    g_sdlDevice->fillRectangle(colorf::RED + colorf::A_SHF(255), drawDstX + cursorPX, drawDstY + cursorPY, cursorW, cursorH);
+    g_sdlDevice->fillRectangle(colorf::RED + colorf::A_SHF(255), drawDstX + cursorPX, drawDstY + cursorPY, m_cursorWidth, cursorPH);
 }
 
 std::string LayoutBoard::getXML() const

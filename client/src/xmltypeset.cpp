@@ -869,7 +869,7 @@ std::tuple<int, int> XMLTypeset::prevTokenLoc(int nX, int nY) const
         return {nX - 1, nY};
     }
     else{
-        return {lineTokenCount(nY - 1), nY - 1};
+        return {lineTokenCount(nY - 1) - 1, nY - 1};
     }
 }
 
@@ -897,15 +897,21 @@ std::tuple<int, int> XMLTypeset::prevCursorLoc(int nX, int nY) const
         throw fflerror("invalid cursor location: (%d, %d)", nX, nY);
     }
 
-    if(nX == 0 && nY == 0){
-        throw fflerror("try find cursor location before (0, 0)");
-    }
-
-    if(nX > 1){
-        return {nX - 1, nY};
+    if(nY == 0){
+        if(nX == 0){
+            throw fflerror("try find cursor location before (0, 0)");
+        }
+        else{
+            return {nX - 1, nY};
+        }
     }
     else{
-        return {lineTokenCount(nY - 1) + 1, nY - 1};
+        if(nX > 1){
+            return {nX - 1, nY};
+        }
+        else{
+            return {lineTokenCount(nY - 1), nY - 1};
+        }
     }
 }
 
@@ -937,6 +943,21 @@ void XMLTypeset::deleteToken(int x, int y, int tokenCount)
         return;
     }
 
+    int newX = x;
+    int newY = y;
+
+    for(int i = 0; i < tokenCount; ++i){
+        if(!tokenLocValid(newX, newY)){
+            break;
+        }
+
+        if(newX == 0 && newY == 0){
+            break;
+        }
+
+        std::tie(newX, newY) = prevTokenLoc(newX, newY);
+    }
+
     const auto [leaf, leafOff] = leafLocInXMLParagraph(x, y);
     m_paragraph.deleteToken(leaf, leafOff, tokenCount);
 
@@ -944,7 +965,7 @@ void XMLTypeset::deleteToken(int x, int y, int tokenCount)
         clear();
     }
     else{
-        buildTypeset(x, y);
+        buildTypeset(newX, newY);
     }
 }
 
