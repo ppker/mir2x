@@ -1,5 +1,6 @@
 #pragma once
 #include <tuple>
+#include <deque>
 #include <memory>
 #include "token.hpp"
 #include "lalign.hpp"
@@ -15,7 +16,7 @@ class XMLTypeset // means XMLParagraph typeset
         struct contentLine
         {
             int startY;
-            std::vector<TOKEN> content;
+            std::deque<TOKEN> content;
         };
 
     private:
@@ -49,10 +50,10 @@ class XMLTypeset // means XMLParagraph typeset
         std::unique_ptr<XMLParagraph> m_paragraph;
 
     private:
-        std::vector<contentLine> m_lineList;
+        std::deque<contentLine> m_lineList;
 
     private:
-        std::vector<std::tuple<int, int>> m_leaf2TokenLoc;
+        std::deque<std::tuple<int, int>> m_leaf2TokenLoc;
 
     public:
         XMLTypeset(
