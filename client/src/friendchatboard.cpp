@@ -603,7 +603,30 @@ struct FriendChatPage: public Widget
                   colorf::WHITE + colorf::A_SHF(255),
 
                   nullptr,
-                  nullptr,
+                  [this]()
+                  {
+                      dynamic_cast<FriendChatPage *>(parent())->chat.append(new FriendChatItem
+                      {
+                          DIR_UPLEFT,
+                          0,
+                          0,
+
+                          u8"绝地武士",
+                          to_u8cstr(layout.getXML()),
+
+                          [](const ImageBoard *)
+                          {
+                              return g_progUseDB->retrieve(0X02000000);
+                          },
+
+                          true,
+                          true,
+
+                          colorf::RED + colorf::A_SHF(128),
+                      }, true);
+
+                      layout.clear();
+                  },
                   nullptr,
 
                   this,
