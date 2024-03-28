@@ -1,5 +1,6 @@
 #pragma once
 #include <tuple>
+#include <memory>
 #include "token.hpp"
 #include "lalign.hpp"
 #include "xmlf.hpp"
@@ -39,13 +40,13 @@ class XMLTypeset // means XMLParagraph typeset
         uint32_t m_imageMaskColor;
 
     private:
-        int m_px;
-        int m_py;
-        int m_pw;
-        int m_ph;
+        int m_px = 0;
+        int m_py = 0;
+        int m_pw = 0;
+        int m_ph = 0;
 
     private:
-        XMLParagraph m_paragraph;
+        std::unique_ptr<XMLParagraph> m_paragraph;
 
     private:
         std::vector<contentLine> m_lineList;
@@ -77,12 +78,7 @@ class XMLTypeset // means XMLParagraph typeset
             , m_fontColor(defaultFontColor)
             , m_fontBGColor(defaultFontBGColor)
             , m_imageMaskColor(defaultImageMaskColor)
-            , m_px(0)
-            , m_py(0)
-            , m_pw(0)
-            , m_ph(0)
-            , m_paragraph()
-            , m_lineList()
+            , m_paragraph(std::make_unique<XMLParagraph>())
         {
             checkDefaultFontEx();
         }
@@ -93,7 +89,7 @@ class XMLTypeset // means XMLParagraph typeset
     public:
         bool empty() const
         {
-            return m_paragraph.empty();
+            return m_paragraph->empty();
         }
 
         bool lineEmpty(int line) const
@@ -105,9 +101,9 @@ class XMLTypeset // means XMLParagraph typeset
         void loadXML(const char *xmlString)
         {
             clear();
-            m_paragraph.loadXML(xmlString);
+            m_paragraph->loadXML(xmlString);
 
-            if(m_paragraph.leafCount() > 0){
+            if(m_paragraph->leafCount() > 0){
                 buildTypeset(0, 0);
             }
             else{
@@ -118,9 +114,9 @@ class XMLTypeset // means XMLParagraph typeset
         void loadXMLNode(const tinyxml2::XMLNode *node)
         {
             clear();
-            m_paragraph.loadXMLNode(node);
+            m_paragraph->loadXMLNode(node);
 
-            if(m_paragraph.leafCount() > 0){
+            if(m_paragraph->leafCount() > 0){
                 buildTypeset(0, 0);
             }
             else{
@@ -136,7 +132,7 @@ class XMLTypeset // means XMLParagraph typeset
             m_pw = 0;
             m_ph = 0;
             m_lineList.clear();
-            m_paragraph.clear();
+            m_paragraph->clear();
         }
 
     private:
@@ -258,7 +254,7 @@ class XMLTypeset // means XMLParagraph typeset
     public:
         int leafCount() const
         {
-            return m_paragraph.leafCount();
+            return m_paragraph->leafCount();
         }
 
         bool leafValid(int leaf) const
@@ -269,16 +265,16 @@ class XMLTypeset // means XMLParagraph typeset
     public:
         void clearEvent(int currLeaf = -1)
         {
-            for(int leaf = 0; leaf < m_paragraph.leafCount(); ++leaf){
+            for(int leaf = 0; leaf < m_paragraph->leafCount(); ++leaf){
                 if(leaf != currLeaf){
-                    m_paragraph.leafRef(leaf).markEvent(BEVENT_OFF);
+                    m_paragraph->leafRef(leaf).markEvent(BEVENT_OFF);
                 }
             }
         }
 
         int markLeafEvent(int leaf, int event)
         {
-            return m_paragraph.leafRef(leaf).markEvent(event);
+            return m_paragraph->leafRef(leaf).markEvent(event);
         }
 
     public:
@@ -318,7 +314,7 @@ class XMLTypeset // means XMLParagraph typeset
     public:
         std::string getXML() const
         {
-            return m_paragraph.getXML();
+            return m_paragraph->getXML();
         }
 
     public:
@@ -327,7 +323,7 @@ class XMLTypeset // means XMLParagraph typeset
     public:
         const auto leafEvent(int leafID) const
         {
-            return m_paragraph.leafRef(leafID).hasEvent();
+            return m_paragraph->leafRef(leafID).hasEvent();
         }
 
     private:
@@ -492,7 +488,7 @@ class XMLTypeset // means XMLParagraph typeset
     public:
         std::string getRawString() const
         {
-            return m_paragraph.getRawString();
+            return m_paragraph->getRawString();
         }
 
         void setLineWidth(int);

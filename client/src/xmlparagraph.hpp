@@ -78,7 +78,7 @@ class XMLParagraph
         }
 
     public:
-        XMLParagraph breakLine();
+        XMLParagraph *breakLine();
 
     public:
         void loadXML(const char *);

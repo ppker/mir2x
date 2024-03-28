@@ -247,7 +247,7 @@ void XMLTypeset::LineJustifyPadding(int argLine)
     if(fnLeafPadding([this](int x, int y) -> bool
     {
         const auto tokenPtr = getToken(x, y);
-        switch(m_paragraph.leafRef(tokenPtr->leaf).type()){
+        switch(m_paragraph->leafRef(tokenPtr->leaf).type()){
             case LEAF_IMAGE:
             case LEAF_EMOJI: return tokenPtr->Box.State.W1 + tokenPtr->Box.State.W2 < tokenPtr->Box.Info.W / 5;
             default        : return false;
@@ -271,7 +271,7 @@ void XMLTypeset::LineJustifyPadding(int argLine)
 
     if(fnLeafPadding([this](int x, int y) -> bool
     {
-        return m_paragraph.leafRef(getToken(x, y)->leaf).type() == LEAF_UTF8GROUP;
+        return m_paragraph->leafRef(getToken(x, y)->leaf).type() == LEAF_UTF8GROUP;
     }) == MaxLineWidth()){
         return;
     }
@@ -667,7 +667,7 @@ TOKEN XMLTypeset::buildEmojiToken(int leaf, uint32_t emoji) const
 
 TOKEN XMLTypeset::createToken(int leaf, int leafOff) const
 {
-    switch(auto &rstLeaf = m_paragraph.leafRef(leaf); rstLeaf.type()){
+    switch(auto &rstLeaf = m_paragraph->leafRef(leaf); rstLeaf.type()){
         case LEAF_UTF8GROUP:
             {
                 auto nFont      = rstLeaf.font()     .value_or(m_font);
@@ -698,7 +698,7 @@ std::vector<TOKEN> XMLTypeset::createTokenLine(int leaf, int leafOff, std::vecto
     }
 
     tokenList.clear();
-    if(m_paragraph.leafRef(leaf).wrap().value_or(true)){
+    if(m_paragraph->leafRef(leaf).wrap().value_or(true)){
         tokenList.push_back(createToken(leaf, leafOff));
     }
     else{
@@ -706,11 +706,11 @@ std::vector<TOKEN> XMLTypeset::createTokenLine(int leaf, int leafOff, std::vecto
             throw fflerror("pick up token in middle of non-wrap leaf");
         }
 
-        if(m_paragraph.leafRef(leaf).type() != LEAF_UTF8GROUP){
+        if(m_paragraph->leafRef(leaf).type() != LEAF_UTF8GROUP){
             throw fflerror("non-text leaf node has wrap attribute disabled");
         }
 
-        for(int i = 0; i < m_paragraph.leafRef(leaf).length(); ++i){
+        for(int i = 0; i < m_paragraph->leafRef(leaf).length(); ++i){
             tokenList.push_back(createToken(leaf, i));
         }
     }
@@ -741,7 +741,7 @@ void XMLTypeset::buildTypeset(int x, int y)
         const auto [prevLeaf, prevLeafOff] = leafLocInXMLParagraph(prevX, prevY);
 
         int advanced = 0;
-        std::tie(leaf, leafOff, advanced) = m_paragraph.nextLeafOff(prevLeaf, prevLeafOff, 1);
+        std::tie(leaf, leafOff, advanced) = m_paragraph->nextLeafOff(prevLeaf, prevLeafOff, 1);
 
         if(advanced == 0){
             // only prev location is valid
@@ -770,7 +770,7 @@ void XMLTypeset::buildTypeset(int x, int y)
     int advanced = -1;
 
     std::vector<TOKEN> tokenList;
-    for(; (advanced < 0) || (advanced == to_d(tokenList.size())); std::tie(leaf, leafOff, advanced) = m_paragraph.nextLeafOff(leaf, leafOff, tokenList.size())){
+    for(; (advanced < 0) || (advanced == to_d(tokenList.size())); std::tie(leaf, leafOff, advanced) = m_paragraph->nextLeafOff(leaf, leafOff, tokenList.size())){
         tokenList = createTokenLine(leaf, leafOff, &tokenList); // TODO: well-defined ???
         if(addRawTokenLine(currLine, tokenList)){
             if(leafOff == 0){
@@ -959,9 +959,9 @@ void XMLTypeset::deleteToken(int x, int y, int tokenCount)
     }
 
     const auto [leaf, leafOff] = leafLocInXMLParagraph(x, y);
-    m_paragraph.deleteToken(leaf, leafOff, tokenCount);
+    m_paragraph->deleteToken(leaf, leafOff, tokenCount);
 
-    if(m_paragraph.empty()){
+    if(m_paragraph->empty()){
         clear();
     }
     else{
@@ -996,9 +996,9 @@ void XMLTypeset::insertUTF8String(int x, int y, const char *text)
         return printer.CStr();
     };
 
-    if(m_paragraph.empty()){
-        m_paragraph.loadXML(fnParXMLString(text));
-        if(m_paragraph.leafCount() > 0){
+    if(m_paragraph->empty()){
+        m_paragraph->loadXML(fnParXMLString(text));
+        if(m_paragraph->leafCount() > 0){
             buildTypeset(0, 0);
         }
         return;
@@ -1008,11 +1008,11 @@ void XMLTypeset::insertUTF8String(int x, int y, const char *text)
     // need to parse here
 
     if(x == 0 && y == 0){
-        if(m_paragraph.leafRef(0).type() != LEAF_UTF8GROUP){
-            m_paragraph.insertLeafXML(0, fnParXMLString(text));
+        if(m_paragraph->leafRef(0).type() != LEAF_UTF8GROUP){
+            m_paragraph->insertLeafXML(0, fnParXMLString(text));
         }
         else{
-            m_paragraph.insertUTF8String(0, 0, text);
+            m_paragraph->insertUTF8String(0, 0, text);
         }
         buildTypeset(0, 0);
         return;
@@ -1022,11 +1022,11 @@ void XMLTypeset::insertUTF8String(int x, int y, const char *text)
     // can't call prevTokenLoc() because this tokenLoc is invalid
 
     if((y == lineCount() - 1) && (x == lineTokenCount(y))){
-        if(m_paragraph.backLeafRef().type() != LEAF_UTF8GROUP){
-            m_paragraph.insertLeafXML(leafCount(), fnParXMLString(text));
+        if(m_paragraph->backLeafRef().type() != LEAF_UTF8GROUP){
+            m_paragraph->insertLeafXML(leafCount(), fnParXMLString(text));
         }
         else{
-            m_paragraph.insertUTF8String(leafCount() - 1, m_paragraph.backLeafRef().utf8CharOffRef().size(), text);
+            m_paragraph->insertUTF8String(leafCount() - 1, m_paragraph->backLeafRef().utf8CharOffRef().size(), text);
         }
         buildTypeset(0, 0);
         return;
@@ -1037,22 +1037,22 @@ void XMLTypeset::insertUTF8String(int x, int y, const char *text)
     const auto prevLeaf = getToken(prevTX, prevTY)->leaf;
 
     if(prevLeaf == currLeaf){
-        if(m_paragraph.leafRef(prevLeaf).type() != LEAF_UTF8GROUP){
+        if(m_paragraph->leafRef(prevLeaf).type() != LEAF_UTF8GROUP){
             throw fflerror("only UTF8 leaf can have length great than 1");
         }
 
         const auto [leaf, leafOff] = leafLocInXMLParagraph(x, y);
-        m_paragraph.insertUTF8String(currLeaf, leafOff, text);
+        m_paragraph->insertUTF8String(currLeaf, leafOff, text);
     }
     else{
-        if(m_paragraph.leafRef(prevLeaf).type() == LEAF_UTF8GROUP){
-            m_paragraph.insertUTF8String(prevLeaf, m_paragraph.leafRef(prevLeaf).utf8CharOffRef().size(), text);
+        if(m_paragraph->leafRef(prevLeaf).type() == LEAF_UTF8GROUP){
+            m_paragraph->insertUTF8String(prevLeaf, m_paragraph->leafRef(prevLeaf).utf8CharOffRef().size(), text);
         }
-        if(m_paragraph.leafRef(currLeaf).type() == LEAF_UTF8GROUP){
-            m_paragraph.insertUTF8String(currLeaf, 0, text);
+        if(m_paragraph->leafRef(currLeaf).type() == LEAF_UTF8GROUP){
+            m_paragraph->insertUTF8String(currLeaf, 0, text);
         }
         else{
-            m_paragraph.insertLeafXML(currLeaf, fnParXMLString(text));
+            m_paragraph->insertLeafXML(currLeaf, fnParXMLString(text));
         }
     }
 
@@ -1081,7 +1081,7 @@ void XMLTypeset::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int sr
     for(int line = 0; line < lineCount(); ++line){
         for(int token = 0; token < lineTokenCount(line); ++token){
             const auto tokenPtr = getToken(token, line);
-            const auto &leaf = m_paragraph.leafRef(tokenPtr->leaf);
+            const auto &leaf = m_paragraph->leafRef(tokenPtr->leaf);
 
             if(lastLeaf != tokenPtr->leaf){
                 fgColorVal  = leaf.  color().value_or(  color());
@@ -1172,8 +1172,8 @@ void XMLTypeset::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int sr
 
 void XMLTypeset::update(double fMS)
 {
-    for(int leaf = 0; leaf < m_paragraph.leafCount(); ++leaf){
-        if(m_paragraph.leafRef(leaf).type() == LEAF_EMOJI){
+    for(int leaf = 0; leaf < m_paragraph->leafCount(); ++leaf){
+        if(m_paragraph->leafRef(leaf).type() == LEAF_EMOJI){
             const auto [x, y] = leafTokenLoc(leaf);
             if(auto pToken= getToken(x, y); pToken->Emoji.FPS != 0){
                 double fPeroidMS = 1000.0 / pToken->Emoji.FPS;
@@ -1190,24 +1190,24 @@ void XMLTypeset::update(double fMS)
 std::string XMLTypeset::getText(bool textOnly) const
 {
     std::string plainString;
-    for(int i = 0; i < m_paragraph.leafCount(); ++i){
-        switch(auto leafType = m_paragraph.leafRef(i).type()){
+    for(int i = 0; i < m_paragraph->leafCount(); ++i){
+        switch(auto leafType = m_paragraph->leafRef(i).type()){
             case LEAF_UTF8GROUP:
                 {
-                    plainString += m_paragraph.leafRef(i).UTF8Text();
+                    plainString += m_paragraph->leafRef(i).UTF8Text();
                     break;
                 }
             case LEAF_IMAGE:
                 {
                     if(!textOnly){
-                        plainString += str_printf("\\image{0x%016" PRIx64 "}", m_paragraph.leafRef(i).ImageU64Key());
+                        plainString += str_printf("\\image{0x%016" PRIx64 "}", m_paragraph->leafRef(i).ImageU64Key());
                     }
                     break;
                 }
             case LEAF_EMOJI:
                 {
                     if(!textOnly){
-                        plainString += str_printf("\\emoji{0x%016" PRIu64 "}", to_u64(m_paragraph.leafRef(i).emojiU32Key()));
+                        plainString += str_printf("\\emoji{0x%016" PRIu64 "}", to_u64(m_paragraph->leafRef(i).emojiU32Key()));
                     }
                     break;
                 }
@@ -1381,7 +1381,7 @@ bool XMLTypeset::blankToken(int x, int y) const
     }
 
     const auto tokenPtr = getToken(x, y);
-    const auto &leaf = m_paragraph.leafRef(tokenPtr->leaf);
+    const auto &leaf = m_paragraph->leafRef(tokenPtr->leaf);
 
     const auto fnCheckBlank = [](uint64_t u64Key)
     {

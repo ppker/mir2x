@@ -14,17 +14,6 @@ constexpr int LEAF_UTF8GROUP = 0;
 constexpr int LEAF_IMAGE     = 1;
 constexpr int LEAF_EMOJI     = 2;
 
-struct xmlLeafData
-{
-    struct _currData
-    {
-    } currData;
-
-    struct _accuData
-    {
-    } accuData;
-};
-
 class XMLParagraphLeaf
 {
     private:
@@ -137,11 +126,12 @@ class XMLParagraphLeaf
         std::optional<uint8_t> fontStyle() const;
 
     public:
-        const xmlLeafData *leafData() const
+        template<typename T> T *leafData() const
         {
-            return reinterpret_cast<xmlLeafData *>(m_node->GetUserData());
+            return reinterpret_cast<T *>(m_node->GetUserData());
         }
 
+    public:
         const std::unordered_map<std::string, std::string> *hasEvent() const
         {
             return m_attrListOpt.has_value() ? std::addressof(m_attrListOpt.value()) : nullptr;
