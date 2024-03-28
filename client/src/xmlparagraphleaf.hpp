@@ -20,7 +20,7 @@ class XMLParagraphLeaf
         friend class XMLParapragh;
 
     private:
-        const tinyxml2::XMLNode *m_node;
+        tinyxml2::XMLNode *m_node;
 
     private:
         int m_type;
@@ -136,4 +136,7 @@ class XMLParagraphLeaf
         {
             return m_attrListOpt.has_value() ? std::addressof(m_attrListOpt.value()) : nullptr;
         }
+
+    public:
+        std::tuple<tinyxml2::XMLNode *, tinyxml2::XMLNode *> split(int, tinyxml2::XMLDocument &, tinyxml2::XMLDocument &);
 };

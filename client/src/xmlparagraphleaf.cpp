@@ -199,3 +199,60 @@ std::optional<bool> XMLParagraphLeaf::wrap() const
     }
     return {};
 }
+
+std::tuple<tinyxml2::XMLNode *, tinyxml2::XMLNode *> XMLParagraphLeaf::split(int cursor, tinyxml2::XMLDocument &doc1, tinyxml2::XMLDocument &doc2)
+{
+    fflassert(cursor >= 0 && cursor <= length(), cursor, length());
+
+    tinyxml2::XMLNode *node1 = nullptr;
+    tinyxml2::XMLNode *node2 = nullptr;
+
+    if(cursor == 0){
+        if(m_node->GetDocument() == &doc2){
+            node2 = m_node;
+        }
+        else{
+            node2 = m_node->DeepClone(&doc2);
+        }
+    }
+    else if(cursor == length() || hasEvent() || !wrap().value_or(true)){
+
+        if(m_node->GetDocument() == &doc1){
+            node1 = m_node;
+        }
+        else{
+            node1 = m_node->DeepClone(&doc1);
+        }
+    }
+    else{
+        if(type() != LEAF_UTF8GROUP){
+            throw fflerror("invalid leaf type: %d", type());
+        }
+
+        const auto text1 = std::string(UTF8Text() , m_utf8CharOff.at(cursor));
+        const auto text2 = std::string(UTF8Text() + m_utf8CharOff.at(cursor));
+
+        if(m_node->GetDocument() == &doc1){
+            node1 = m_node;
+        }
+        else{
+            node1 = m_node->DeepClone(&doc1);
+        }
+
+        if(m_node->GetDocument() == &doc2){
+            node2 = m_node;
+        }
+        else{
+            node2 = m_node->DeepClone(&doc1);
+        }
+
+        node1->SetValue(text1.c_str());
+        node2->SetValue(text2.c_str());
+
+        if(node1 == m_node || node2 == m_node){
+            m_utf8CharOff = utf8f::buildUTF8Off(UTF8Text());
+        }
+    }
+
+    return {node1, node2};
+}

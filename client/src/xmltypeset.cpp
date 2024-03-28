@@ -1059,10 +1059,40 @@ void XMLTypeset::insertUTF8String(int x, int y, const char *text)
     buildTypeset(0, 0);
 }
 
-XMLTypeset *XMLTypeset::breakLine(int cursorX, int cursorY)
+XMLTypeset *XMLTypeset::split(int cursorX, int cursorY)
 {
     fflassert(cursorLocValid(cursorX, cursorY));
-    return nullptr;
+    const auto [leaf, leafOff] = leafLocInXMLParagraph(cursorX, cursorY);
+    auto par = m_paragraph->split(leaf, leafOff);
+
+    auto newTpset = new XMLTypeset
+    {
+        MaxLineWidth(),
+        m_lineAlign,
+        CanThrough(),
+
+        m_font,
+        m_fontSize,
+        m_fontStyle,
+        m_fontColor,
+        m_fontBGColor,
+        m_imageMaskColor,
+
+        m_lineSpace,
+        m_wordSpace,
+    };
+
+    newTpset->m_paragraph.reset(par);
+    newTpset->m_lineList.insert(newTpset->m_lineList.end(), m_lineList.begin(), m_lineList.begin() + cursorY);
+    newTpset->m_leaf2TokenLoc.insert(newTpset->m_leaf2TokenLoc.end(), m_leaf2TokenLoc.begin(), m_leaf2TokenLoc.begin() + leaf);
+
+    m_lineList.erase(m_lineList.begin(), m_lineList.begin() + cursorY);
+    m_leaf2TokenLoc.erase(m_leaf2TokenLoc.begin(), m_leaf2TokenLoc.begin() + leaf);
+
+    newTpset->buildTypeset(cursorX, 0);
+    buildTypeset(0, 0);
+
+    return newTpset;
 }
 
 void XMLTypeset::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const

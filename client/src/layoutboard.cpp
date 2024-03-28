@@ -331,6 +331,15 @@ bool LayoutBoard::processEvent(const SDL_Event &event, bool valid)
                     case SDLK_RETURN:
                         {
                             if((event.key.keysym.mod & KMOD_LSHIFT) || (event.key.keysym.mod & KMOD_RSHIFT)){
+                                auto currPar = ithParIterator(m_cursorLoc.par);
+                                auto  newPar = currPar->tpset->split(m_cursorLoc.x, m_cursorLoc.y);
+
+                                m_parNodeList.insert(currPar, {-1, currPar->margin, std::unique_ptr<XMLTypeset>(newPar)});
+                                setupStartY(m_cursorLoc.par);
+
+                                m_cursorLoc.par++;
+                                m_cursorLoc.x = 0;
+                                m_cursorLoc.y = 0;
                             }
                             else{
                                 if(m_onCR){

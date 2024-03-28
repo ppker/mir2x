@@ -12,6 +12,39 @@
 #include "xmlparagraph.hpp"
 
 extern Log *g_log;
+XMLParagraph *XMLParagraph::split(int leaf, int cursorLoc)
+{
+    fflassert(leafValid(leaf));
+    fflassert(cursorLoc >= 0 && cursorLoc <= leafRef(leaf).length());
+
+    XMLParagraph * newPar = new XMLParagraph{};
+    XMLParagraph *fromPar = this;
+    XMLParagraph *  toPar = newPar;
+
+    if(leaf * 2 > leafCount()){
+        std::swap(fromPar->m_xmlDocument, toPar->m_xmlDocument);
+        std::swap(fromPar->m_leafList   , toPar->m_leafList   );
+        std::swap(fromPar               , toPar               );
+    }
+
+    for(int i = 0; i < leaf - 1; ++i){
+        auto node = m_leafList.front().xmlNode()->DeepClone(newPar->m_xmlDocument.get());
+        newPar->m_xmlDocument->FirstChild()->InsertEndChild(node);
+        newPar->m_leafList.emplace_back(node);
+
+        m_xmlDocument->FirstChild()->DeleteChild(m_leafList.front().xmlNode());
+        m_leafList.pop_front();
+    }
+
+    auto [node1, node2] = m_leafList.at(leaf).split(cursorLoc, *newPar->m_xmlDocument, *m_xmlDocument);
+    if(node1){
+        newPar->m_xmlDocument->FirstChild()->InsertEndChild(node1);
+        newPar->m_leafList.emplace_back(node1);
+    }
+
+    return newPar;
+}
+
 void XMLParagraph::deleteLeaf(int leaf)
 {
     auto node   = leafRef(leaf).xmlNode();
@@ -26,7 +59,7 @@ void XMLParagraph::deleteLeaf(int leaf)
         parent->DeleteChild(node);
     }
     else{
-        m_XMLDocument.Clear();
+        m_xmlDocument->Clear();
     }
     m_leafList.erase(m_leafList.begin() + leaf);
 }
@@ -247,54 +280,14 @@ std::tuple<int, int, int> XMLParagraph::nextLeafOff(int leaf, int leafOff, int t
     return {nCurrLeaf, nCurrLeafOff, nAdvancedToken};
 }
 
-// // lowest common ancestor
-// const tinyxml2::XMLNode *XMLParagraph::leafCommonAncestor(int, int) const
-// {
-//     return nullptr;
-// }
-//
-// tinyxml2::XMLNode *XMLParagraph::Clone(tinyxml2::XMLDocument *pDoc, int leaf, int leafOff, int tokenCount)
-// {
-//     auto [nEndLeaf, nEndLeafOff, nAdvancedToken] = nextLeafOff(leaf, leafOff, tokenCount);
-//     if(nAdvancedToken != tokenCount){
-//         // reach end before finish the given count
-//     }
-//
-//     auto pClone = leafCommonAncestor(leaf, nEndLeaf)->DeepClone(pDoc);
-//
-//     if(leafOff != 0){
-//         if(leafRef(leaf).type() != LEAF_UTF8GROUP){
-//             throw fflerror("non-utf8 string leaf contains multiple tokens");
-//         }
-//
-//         // make a copy here, for safe
-//         // tinyxml2 doesn't specify if SetValue(Value()) works
-//         auto pCloneLeaf = xmlf::getTreeFirstLeaf(pClone);
-//         auto szNewValue = std::string(pCloneLeaf->Value() + leafRef(leaf).utf8CharOffRef()[leafOff]);
-//         pCloneLeaf->SetValue(szNewValue.c_str());
-//     }
-//
-//     if(nEndLeafOff != (leafRef(nEndLeaf).length() - 1)){
-//         if(leafRef(nEndLeaf).type() != LEAF_UTF8GROUP){
-//             throw fflerror("non-utf8 string leaf contains multiple tokens");
-//         }
-//
-//         auto pCloneLeaf = xmlf::getTreeLastLeaf(pClone);
-//         auto szNewValue = std::string(pCloneLeaf->Value(), pCloneLeaf->Value() + leafOff);
-//         pCloneLeaf->SetValue(szNewValue.c_str());
-//     }
-//
-//     return pClone;
-// }
-
 void XMLParagraph::Join(const XMLParagraph &rstInput)
 {
-    if(rstInput.m_XMLDocument.FirstChild() == nullptr){
+    if(rstInput.m_xmlDocument->FirstChild() == nullptr){
         return;
     }
 
-    for(auto pNode = rstInput.m_XMLDocument.FirstChild()->FirstChild(); pNode; pNode = pNode->NextSibling()){
-        m_XMLDocument.FirstChild()->InsertEndChild(pNode->DeepClone(m_XMLDocument.GetDocument()));
+    for(auto pNode = rstInput.m_xmlDocument->FirstChild()->FirstChild(); pNode; pNode = pNode->NextSibling()){
+        m_xmlDocument->FirstChild()->InsertEndChild(pNode->DeepClone(m_xmlDocument->GetDocument()));
     }
 }
 
@@ -338,16 +331,16 @@ void XMLParagraph::loadXMLNode(const tinyxml2::XMLNode *node)
         throw fflerror("not a paragraph node");
     }
 
-    m_XMLDocument.Clear();
-    if(auto pNew = node->DeepClone(&m_XMLDocument); pNew){
-        m_XMLDocument.InsertEndChild(pNew);
+    m_xmlDocument->Clear();
+    if(auto pNew = node->DeepClone(m_xmlDocument.get()); pNew){
+        m_xmlDocument->InsertEndChild(pNew);
     }
     else{
         throw fflerror("copy paragraph node failed");
     }
 
     m_leafList.clear();
-    for(auto pNode = xmlf::getTreeFirstLeaf(m_XMLDocument.FirstChild()); pNode; pNode = xmlf::getNextLeaf(pNode)){
+    for(auto pNode = xmlf::getTreeFirstLeaf(m_xmlDocument->FirstChild()); pNode; pNode = xmlf::getNextLeaf(pNode)){
         if(xmlf::checkValidLeaf(pNode)){
             m_leafList.emplace_back(pNode);
         }
@@ -368,7 +361,7 @@ void XMLParagraph::insertXMLAfter(tinyxml2::XMLNode *after, const char *xmlStrin
         throw fflerror("invalid argument: after = %p, xmlString = %p", to_cvptr(after), to_cvptr(xmlString));
     }
 
-    if(after->GetDocument() != &m_XMLDocument){
+    if(after->GetDocument() != m_xmlDocument.get()){
         throw fflerror("can't find after node in current XMLDocument");
     }
 
@@ -414,7 +407,7 @@ void XMLParagraph::insertXMLAfter(tinyxml2::XMLNode *after, const char *xmlStrin
     }
 
     for(auto p = xmlRoot->FirstChild(); p; p = p->NextSibling()){
-        if(auto cloneNode = p->DeepClone(&m_XMLDocument)){
+        if(auto cloneNode = p->DeepClone(m_xmlDocument.get())){
             if(after->Parent()->InsertAfterChild(after, cloneNode) != cloneNode){
                 throw fflerror("insert node failed");
             }
@@ -428,7 +421,7 @@ void XMLParagraph::insertXMLAfter(tinyxml2::XMLNode *after, const char *xmlStrin
     // this is not necessary, optimize later
 
     m_leafList.clear();
-    for(auto pNode = xmlf::getTreeFirstLeaf(m_XMLDocument.FirstChild()); pNode; pNode = xmlf::getNextLeaf(pNode)){
+    for(auto pNode = xmlf::getTreeFirstLeaf(m_xmlDocument->FirstChild()); pNode; pNode = xmlf::getNextLeaf(pNode)){
         if(xmlf::checkValidLeaf(pNode)){
             m_leafList.emplace_back(pNode);
         }

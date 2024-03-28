@@ -1,23 +1,27 @@
 #pragma once
-#include <vector>
-#include <stdexcept>
+#include <deque>
 #include <tinyxml2.h>
 
 #include "xmlf.hpp"
 #include "strf.hpp"
 #include "utf8f.hpp"
+#include "fflerror.hpp"
 #include "xmlparagraphleaf.hpp"
 
 class XMLParagraph
 {
     private:
-        tinyxml2::XMLDocument m_XMLDocument;
+        std::unique_ptr<tinyxml2::XMLDocument> m_xmlDocument; // leaf node refers to it
 
     private:
-        std::vector<XMLParagraphLeaf> m_leafList;
+        std::deque<XMLParagraphLeaf> m_leafList;
 
     public:
-        XMLParagraph() = default;
+        XMLParagraph(const char *xmlString = nullptr)
+            : m_xmlDocument(std::make_unique<tinyxml2::XMLDocument>())
+        {
+            loadXML(xmlString ? xmlString : "<par/>");
+        }
 
     public:
         ~XMLParagraph() = default;
@@ -78,7 +82,7 @@ class XMLParagraph
         }
 
     public:
-        XMLParagraph *breakLine();
+        XMLParagraph *split(int, int);
 
     public:
         void loadXML(const char *);
@@ -96,15 +100,6 @@ class XMLParagraph
     public:
         void insertUTF8String(int, int, const char *);
 
-    // public:
-    //     tinyxml2::XMLNode *Clone(tinyxml2::XMLDocument *pDoc)
-    //     {
-    //         return m_XMLDocument.RootElement()->DeepClone(pDoc);
-    //     }
-    //
-    // public:
-    //     tinyxml2::XMLNode *Clone(tinyxml2::XMLDocument *, int, int, int);
-
     public:
         tinyxml2::XMLNode *CloneLeaf(tinyxml2::XMLDocument *pDoc, int leaf) const
         {
@@ -115,7 +110,7 @@ class XMLParagraph
         std::string getXML() const
         {
             tinyxml2::XMLPrinter printer;
-            m_XMLDocument.Accept(&printer);
+            m_xmlDocument->Accept(&printer);
             return std::string(printer.CStr());
         }
 
@@ -131,14 +126,10 @@ class XMLParagraph
         std::tuple<int, int, int> prevLeafOff(int, int, int) const;
         std::tuple<int, int, int> nextLeafOff(int, int, int) const;
 
-    private:
-        const tinyxml2::XMLNode *leafCommonAncestor(int, int) const;
-
     public:
         void clear()
         {
-            m_leafList.clear();
-            m_XMLDocument.Clear();
+            loadXML("<par/>");
         }
 
     public:

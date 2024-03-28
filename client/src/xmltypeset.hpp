@@ -246,7 +246,7 @@ class XMLTypeset // means XMLParagraph typeset
         void insertUTF8String(int, int, const char *);
 
     public:
-        XMLTypeset *breakLine(int, int);
+        XMLTypeset *split(int, int);
 
     public:
         void deleteToken(int, int, int);
