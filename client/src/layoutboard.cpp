@@ -346,7 +346,9 @@ bool LayoutBoard::processEvent(const SDL_Event &event, bool valid)
                                     m_onCR();
                                 }
                             }
-                            return true;
+
+                            m_cursorBlink = 0.0;
+                            return consumeFocus(true);
                         }
                     case SDLK_LEFT:
                         {
@@ -363,7 +365,7 @@ bool LayoutBoard::processEvent(const SDL_Event &event, bool valid)
                             }
 
                             m_cursorBlink = 0.0;
-                            return true;
+                            return consumeFocus(true);
                         }
                     case SDLK_RIGHT:
                         {
@@ -380,7 +382,7 @@ bool LayoutBoard::processEvent(const SDL_Event &event, bool valid)
                             }
 
                             m_cursorBlink = 0.0;
-                            return true;
+                            return consumeFocus(true);
                         }
                     case SDLK_BACKSPACE:
                         {
@@ -408,7 +410,7 @@ bool LayoutBoard::processEvent(const SDL_Event &event, bool valid)
 
                             setupStartY(m_cursorLoc.par);
                             m_cursorBlink = 0.0;
-                            return true;
+                            return consumeFocus(true);
                         }
                     case SDLK_ESCAPE:
                         {
@@ -438,7 +440,7 @@ bool LayoutBoard::processEvent(const SDL_Event &event, bool valid)
                             }
 
                             m_cursorBlink = 0.0;
-                            return true;
+                            return consumeFocus(true);
                         }
                 }
             }
