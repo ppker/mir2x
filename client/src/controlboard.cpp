@@ -1144,7 +1144,7 @@ bool ControlBoard::processEvent(const SDL_Event &event, bool valid)
                 switch(event.key.keysym.sym){
                     case SDLK_RETURN:
                         {
-                            return m_cmdLine.consumeFocus(true);
+                            return valid && m_cmdLine.consumeFocus(true);
                         }
                     default:
                         {
