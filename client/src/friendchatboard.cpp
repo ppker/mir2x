@@ -841,7 +841,7 @@ struct FriendChatPage: public Widget
                             }
                     }
                 }
-            case SDL_MOUSEBUTTONUP:
+            case SDL_MOUSEBUTTONDOWN:
                 {
                     if(input.in(event.button.x, event.button.y)){
                         setFocus(false);

@@ -491,7 +491,10 @@ bool LayoutBoard::processEvent(const SDL_Event &event, bool valid)
                     takeEvent = in(eventPX, eventPY);
                 }
 
-                return consumeFocus(takeEvent);
+                if(takeEvent){
+                    return consumeFocus(true);
+                }
+                return false;
             }
 
         default:
