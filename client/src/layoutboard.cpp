@@ -17,7 +17,6 @@ extern FontexDB *g_fontexDB;
 extern IMEBoard *g_imeBoard;
 extern SDLDevice *g_sdlDevice;
 
-
 void LayoutBoard::loadXML(const char *xmlString, size_t parLimit)
 {
     if(!xmlString){

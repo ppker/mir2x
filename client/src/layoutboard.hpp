@@ -129,14 +129,22 @@ class LayoutBoard: public Widget
                   {
                       int maxW = 0;
                       for(const auto &node: m_parNodeList){
-                          maxW = std::max<int>({maxW, m_canEdit ? m_cursorWidth : 0, node.margin[2] + node.tpset->pw() + node.margin[3]});
+                          maxW = std::max<int>(maxW, node.margin[2] + node.tpset->pw() + node.margin[3]);
                       }
+
+                      if(m_canEdit){
+                          maxW = std::max<int>(maxW, m_cursorWidth);
+                      }
+
                       return maxW;
                   },
 
                   [this](const Widget *)
                   {
                       if(empty()){
+                          if(m_canEdit){
+                              throw fflerror("editable layout shall have at least one par");
+                          }
                           return 0;
                       }
 
@@ -272,9 +280,13 @@ class LayoutBoard: public Widget
     public:
         void clear()
         {
-            m_w = 0;
-            m_h = 0;
             m_parNodeList.clear();
+            if(m_canEdit){
+                loadXML("<layout><par></par></layout>");
+                m_cursorLoc.par = 0;
+                m_cursorLoc.x   = 0;
+                m_cursorLoc.y   = 0;
+            }
         }
 
     public:
