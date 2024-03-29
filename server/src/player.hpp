@@ -194,6 +194,7 @@ class Player final: public BattleObject
         void net_CM_CONSUMEITEM               (uint8_t, const uint8_t *, size_t);
         void net_CM_MAKEITEM                  (uint8_t, const uint8_t *, size_t);
         void net_CM_BUY                       (uint8_t, const uint8_t *, size_t);
+        void net_CM_CHATMESSAGE               (uint8_t, const uint8_t *, size_t);
         void net_CM_QUERYGOLD                 (uint8_t, const uint8_t *, size_t);
         void net_CM_NPCEVENT                  (uint8_t, const uint8_t *, size_t);
         void net_CM_REQUESTEQUIPWEAR          (uint8_t, const uint8_t *, size_t);
@@ -326,6 +327,7 @@ class Player final: public BattleObject
         void dbRemoveInventoryItem(uint32_t, uint32_t);
 
     private:
+        void dbSaveChatMessage(uint32_t, const SDXMLMessage &);
         SDChatMessageList dbRetrieveLatestChatMessage(const uint32_t *, size_t, size_t, bool, bool);
         // static std::vector<SDChatMessage> dbRetrieveChatMessageList(const DBRetrieveChatMessageListParams &);
 

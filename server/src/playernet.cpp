@@ -272,6 +272,12 @@ void Player::net_CM_QUERYPLAYERWLDESP(uint8_t, const uint8_t *buf, size_t)
     }
 }
 
+void Player::net_CM_CHATMESSAGE(uint8_t, const uint8_t *buf, size_t)
+{
+    const auto cmCM = ClientMsg::conv<CMChatMessage>(buf);
+    dbSaveChatMessage(cmCM.toDBID, cmCM.message.deserialize<SDXMLMessage>());
+}
+
 void Player::net_CM_BUY(uint8_t, const uint8_t *buf, size_t)
 {
     const auto cmB = ClientMsg::conv<CMBuy>(buf);

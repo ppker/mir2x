@@ -41,6 +41,7 @@ enum CMType: uint8_t
     CM_CONSUMEITEM,
     CM_MAKEITEM,
     CM_BUY,
+    CM_CHATMESSAGE,
     CM_REQUESTEQUIPWEAR,
     CM_REQUESTGRABWEAR,
     CM_REQUESTEQUIPBELT,
@@ -203,6 +204,12 @@ struct CMBuy
     uint32_t count;
 };
 
+struct CMChatMessage
+{
+    uint32_t toDBID;
+    FixedBuf<256> message;
+};
+
 struct CMRequestEquipWear
 {
     uint32_t itemID;
@@ -298,6 +305,7 @@ class ClientMsg final: public MsgBase
                 _add_client_msg_type_case(CM_CONSUMEITEM,                1, sizeof(CMConsumeItem)               )
                 _add_client_msg_type_case(CM_MAKEITEM,                   1, sizeof(CMMakeItem)                  )
                 _add_client_msg_type_case(CM_BUY,                        1, sizeof(CMBuy)                       )
+                _add_client_msg_type_case(CM_CHATMESSAGE,                1, sizeof(CMChatMessage)               )
                 _add_client_msg_type_case(CM_REQUESTEQUIPWEAR,           1, sizeof(CMRequestEquipWear)          )
                 _add_client_msg_type_case(CM_REQUESTGRABWEAR,            1, sizeof(CMRequestGrabWear)           )
                 _add_client_msg_type_case(CM_REQUESTEQUIPBELT,           1, sizeof(CMRequestEquipBelt)          )

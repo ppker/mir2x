@@ -719,6 +719,7 @@ void Player::operateNet(uint8_t nType, const uint8_t *pData, size_t nDataLen)
         _support_cm(CM_CONSUMEITEM               );
         _support_cm(CM_MAKEITEM                  );
         _support_cm(CM_BUY                       );
+        _support_cm(CM_CHATMESSAGE               );
         _support_cm(CM_QUERYGOLD                 );
         _support_cm(CM_NPCEVENT                  );
         _support_cm(CM_QUERYSELLITEMLIST         );

@@ -438,6 +438,7 @@ class ProcessRun: public Process
         void requestRemoveSecuredItem(uint32_t, uint32_t);
         void requestJoinTeam(uint64_t);
         void requestLeaveTeam(uint64_t);
+        void requestSendChatMessage(uint32_t, std::string);
         void requestLatestChatMessage(const std::vector<uint32_t> &, size_t, bool, bool);
 
     public:

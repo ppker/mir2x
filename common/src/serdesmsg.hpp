@@ -626,6 +626,8 @@ struct SDPlayerConfig
 };
 
 using SDFriendList = std::vector<uint32_t>;
+using SDXMLMessage = std::string;
+
 struct SDChatMessage
 {
     uint64_t id = 0;

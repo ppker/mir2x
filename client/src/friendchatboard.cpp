@@ -629,6 +629,7 @@ struct FriendChatPage: public Widget
                           colorf::RED + colorf::A_SHF(128),
                       }, true);
 
+                      dynamic_cast<FriendChatBoard *>(parent()->parent())->sendMessage(123, layout.getXML());
                       layout.clear();
                   },
                   nullptr,
@@ -1834,4 +1835,9 @@ void FriendChatBoard::setUIPage(int uiPage, const char *titleStr)
             m_uiPageList[m_uiPage].title->setText(to_u8cstr(titleStr));
         }
     }
+}
+
+void FriendChatBoard::sendMessage(uint32_t dbid, std::string chatMessage)
+{
+    m_processRun->requestSendChatMessage(dbid, std::move(chatMessage));
 }

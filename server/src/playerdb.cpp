@@ -500,6 +500,21 @@ void Player::dbLoadFriendList()
     }
 }
 
+void Player::dbSaveChatMessage(uint32_t toDBID, const SDXMLMessage &message)
+{
+    auto query = g_dbPod->createQuery(
+        u8R"###( insert into tbl_chatmessage(fld_from, fld_to, fld_timestamp, fld_message) )###"
+        u8R"###( values                                                                    )###"
+        u8R"###(     (%llu, %llu, %llu, ?);                                                )###",
+
+        to_llu(dbid()),
+        to_llu(toDBID),
+        to_llu(hres_tstamp::localtime()));
+
+    query.bind(1, cerealf::serialize(message));
+    query.exec();
+}
+
 SDChatMessageList Player::dbRetrieveLatestChatMessage(const uint32_t *dbidList, size_t dbidCount, size_t limitPerDBID, bool includeSend, bool includeRecv)
 {
     fflassert(dbidList);
