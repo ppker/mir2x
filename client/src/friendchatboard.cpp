@@ -827,11 +827,11 @@ struct FriendChatPage: public Widget
                     switch(event.key.keysym.sym){
                         case SDLK_RETURN:
                             {
-                                setFocus(false);
                                 if(input.focus()){
                                     return Widget::processEvent(event, valid);
                                 }
                                 else{
+                                    setFocus(false);
                                     return input.consumeFocus(true, std::addressof(input.layout));
                                 }
                             }
@@ -848,7 +848,7 @@ struct FriendChatPage: public Widget
                         return input.consumeFocus(true, std::addressof(input.layout));
                     }
 
-                    if(input.in(event.button.x, event.button.y)){
+                    if(in(event.button.x, event.button.y)){
                         return consumeFocus(true);
                     }
 
