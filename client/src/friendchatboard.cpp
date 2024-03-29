@@ -605,6 +605,10 @@ struct FriendChatPage: public Widget
                   nullptr,
                   [this]()
                   {
+                      if(!layout.hasToken()){
+                          return;
+                      }
+
                       dynamic_cast<FriendChatPage *>(parent())->chat.append(new FriendChatItem
                       {
                           DIR_UPLEFT,
@@ -620,7 +624,7 @@ struct FriendChatPage: public Widget
                           },
 
                           true,
-                          true,
+                          false,
 
                           colorf::RED + colorf::A_SHF(128),
                       }, true);

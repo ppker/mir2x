@@ -277,6 +277,18 @@ class LayoutBoard: public Widget
             return m_parNodeList.empty();
         }
 
+        bool hasToken() const
+        {
+            for(const auto &par: m_parNodeList){
+                for(int i = 0; i < par.tpset->lineCount(); ++i){
+                    if(par.tpset->lineTokenCount(i) > 0){
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
     public:
         void clear()
         {
