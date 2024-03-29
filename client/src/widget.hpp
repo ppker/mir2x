@@ -681,4 +681,10 @@ class Widget
                 }
             }
         }
+
+    public:
+        const char *name() const
+        {
+            return typeid(*this).name();
+        }
 };

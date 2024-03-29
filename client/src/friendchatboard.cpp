@@ -810,6 +810,51 @@ struct FriendChatPage: public Widget
             colorf::RED + colorf::A_SHF(128),
         }, true);
     }
+
+    bool processEvent(const SDL_Event &event, bool valid) override
+    {
+        if(!valid){
+            return consumeFocus(false);
+        }
+
+        if(!show()){
+            return consumeFocus(false);
+        }
+
+        switch(event.type){
+            case SDL_KEYDOWN:
+                {
+                    switch(event.key.keysym.sym){
+                        case SDLK_RETURN:
+                            {
+                                setFocus(false);
+                                return input.consumeFocus(true, std::addressof(input.layout));
+                            }
+                        default:
+                            {
+                                return Widget::processEvent(event, valid);
+                            }
+                    }
+                }
+            case SDL_MOUSEBUTTONUP:
+                {
+                    if(input.in(event.button.x, event.button.y)){
+                        setFocus(false);
+                        return input.consumeFocus(true, std::addressof(input.layout));
+                    }
+
+                    if(input.in(event.button.x, event.button.y)){
+                        return consumeFocus(true);
+                    }
+
+                    return false;
+                }
+            default:
+                {
+                    return Widget::processEvent(event, valid);
+                }
+        }
+    }
 };
 
 struct FriendChatPreviewItem: public Widget
