@@ -828,7 +828,12 @@ struct FriendChatPage: public Widget
                         case SDLK_RETURN:
                             {
                                 setFocus(false);
-                                return input.consumeFocus(true, std::addressof(input.layout));
+                                if(input.focus()){
+                                    return Widget::processEvent(event, valid);
+                                }
+                                else{
+                                    return input.consumeFocus(true, std::addressof(input.layout));
+                                }
                             }
                         default:
                             {
@@ -848,6 +853,10 @@ struct FriendChatPage: public Widget
                     }
 
                     return false;
+                }
+            case SDL_MOUSEMOTION:
+                {
+                    return true; // consume event but won't change any focus
                 }
             default:
                 {
