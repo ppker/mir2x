@@ -1565,35 +1565,35 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
 {
     setShow(false);
 
-    dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(new FriendItem
-    {
-        DIR_UPLEFT,
-        0,
-        0,
-
-        123,
-        u8"绝地武士",
-
-        [](const ImageBoard *)
-        {
-            return g_progUseDB->retrieve(0X02000000);
-        },
-    }, true);
-
-    dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(new FriendItem
-    {
-        DIR_UPLEFT,
-        0,
-        0,
-
-        123,
-        u8"尤达大师的妈妈",
-
-        [](const ImageBoard *)
-        {
-            return g_progUseDB->retrieve(0X02000001);
-        },
-    }, true);
+    // dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(new FriendItem
+    // {
+    //     DIR_UPLEFT,
+    //     0,
+    //     0,
+    //
+    //     123,
+    //     u8"绝地武士",
+    //
+    //     [](const ImageBoard *)
+    //     {
+    //         return g_progUseDB->retrieve(0X02000000);
+    //     },
+    // }, true);
+    //
+    // dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(new FriendItem
+    // {
+    //     DIR_UPLEFT,
+    //     0,
+    //     0,
+    //
+    //     123,
+    //     u8"尤达大师的妈妈",
+    //
+    //     [](const ImageBoard *)
+    //     {
+    //         return g_progUseDB->retrieve(0X02000001);
+    //     },
+    // }, true);
 
     dynamic_cast<FriendChatPreviewPage *>(m_uiPageList[UIPage_CHATPREVIEW].page)->append(new FriendChatPreviewItem
     {
@@ -1736,7 +1736,48 @@ bool FriendChatBoard::processEvent(const SDL_Event &event, bool valid)
 }
 
 void FriendChatBoard::setFriendList(const SDFriendList &)
-{}
+{
+    dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(new FriendItem
+    {
+        DIR_UPLEFT,
+        0,
+        0,
+
+        SYS_CHATDBID_SYSTEM,
+        u8"系统消息",
+
+        [](const ImageBoard *)
+        {
+            return g_progUseDB->retrieve(0X00001100);
+        },
+    }, true);
+
+    dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(new FriendItem
+    {
+        DIR_UPLEFT,
+        0,
+        0,
+
+        m_processRun->getMyHero()->dbid(),
+        to_u8cstr(m_processRun->getMyHero()->getName()),
+
+        [this](const ImageBoard *)
+        {
+            return g_progUseDB->retrieve(to_u32(0X02000000) + [this]() -> uint32_t
+            {
+                if(uidf::hasPlayerJob(m_processRun->getMyHero()->UID(), JOB_WARRIOR)){
+                    return 0;
+                }
+                else if(uidf::hasPlayerJob(m_processRun->getMyHero()->UID(), JOB_TAOIST)){
+                    return 2;
+                }
+                else{
+                    return 4;
+                }
+            }() + (uidf::getPlayerGender(m_processRun->getMyHero()->UID()) ? 0 : 1));
+        },
+    }, true);
+}
 
 void FriendChatBoard::addMessage(const SDChatMessage &newmsg)
 {

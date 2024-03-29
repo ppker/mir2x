@@ -98,6 +98,10 @@ constexpr uint32_t SYS_MONSEFFBASE(int lookID)
 constexpr uint32_t SYS_U32NIL = 0XFFFFFFFF;
 constexpr uint64_t SYS_U64NIL = 0XFFFFFFFFFFFFFFFFULL;
 
+constexpr uint32_t SYS_MAXDBID = 0XFFFFFF00;
+constexpr uint32_t SYS_CHATDBID_SYSTEM = SYS_MAXDBID + 1;
+constexpr uint32_t SYS_CHATDBID_AI     = SYS_MAXDBID + 2;
+
 constexpr int SYS_MAXNPCDISTANCE = 10;
 constexpr char SYS_GOLDNAME[] = "金币（小）"; // always use 金币（小）to represent the gold item
 constexpr char SYS_QUEST_TBL_PREFIX[] = "tbl_questdb_";
