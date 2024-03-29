@@ -620,7 +620,7 @@ struct FriendChatPage: public Widget
 
                           [](const ImageBoard *)
                           {
-                              return g_progUseDB->retrieve(0X02000000);
+                              return g_progUseDB->retrieve(0X00001100);
                           },
 
                           true,
@@ -857,10 +857,6 @@ struct FriendChatPage: public Widget
                     }
 
                     return false;
-                }
-            case SDL_MOUSEMOTION:
-                {
-                    return true; // consume event but won't change any focus
                 }
             default:
                 {
