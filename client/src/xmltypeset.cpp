@@ -1065,7 +1065,7 @@ XMLTypeset *XMLTypeset::split(int cursorX, int cursorY)
     const auto [leaf, cursorInLeaf] = [cursorX, cursorY, this]() -> std::tuple<int, int>
     {
         if(std::tie(cursorX, cursorY) == lastCursorLoc()){
-            return {m_paragraph->leafRef(m_paragraph->leafCount() - 1).length(), m_paragraph->leafCount() - 1};
+            return {m_paragraph->leafCount() - 1, m_paragraph->leafRef(m_paragraph->leafCount() - 1).length()};
         }
         else{
             return leafLocInXMLParagraph(cursorX, cursorY);
