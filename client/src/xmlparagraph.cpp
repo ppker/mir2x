@@ -28,18 +28,18 @@ XMLParagraph *XMLParagraph::split(int leaf, int cursorLoc)
     }
 
     for(int i = 0; i < leaf - 1; ++i){
-        auto node = m_leafList.front().xmlNode()->DeepClone(newPar->m_xmlDocument.get());
-        newPar->m_xmlDocument->FirstChild()->InsertEndChild(node);
-        newPar->m_leafList.emplace_back(node);
+        auto node = fromPar->m_leafList.front().xmlNode()->DeepClone(toPar->m_xmlDocument.get());
+        toPar->m_xmlDocument->FirstChild()->InsertEndChild(node);
+        toPar->m_leafList.emplace_back(node);
 
-        m_xmlDocument->FirstChild()->DeleteChild(m_leafList.front().xmlNode());
+        fromPar->m_xmlDocument->FirstChild()->DeleteChild(fromPar->m_leafList.front().xmlNode());
         m_leafList.pop_front();
     }
 
-    auto [node1, node2] = m_leafList.at(leaf).split(cursorLoc, *newPar->m_xmlDocument, *m_xmlDocument);
+    auto [node1, node2] = fromPar->m_leafList.front().split(cursorLoc, *toPar->m_xmlDocument, *fromPar->m_xmlDocument);
     if(node1){
-        newPar->m_xmlDocument->FirstChild()->InsertEndChild(node1);
-        newPar->m_leafList.emplace_back(node1);
+        toPar->m_xmlDocument->FirstChild()->InsertEndChild(node1);
+        toPar->m_leafList.emplace_back(node1);
     }
 
     return newPar;
