@@ -1072,7 +1072,6 @@ XMLTypeset *XMLTypeset::split(int cursorX, int cursorY)
         }
     }();
 
-    auto par = m_paragraph->split(leaf, cursorInLeaf);
     auto newTpset = new XMLTypeset
     {
         MaxLineWidth(),
@@ -1090,16 +1089,20 @@ XMLTypeset *XMLTypeset::split(int cursorX, int cursorY)
         m_wordSpace,
     };
 
-    newTpset->m_paragraph.reset(par);
-    newTpset->m_lineList.insert(newTpset->m_lineList.end(), m_lineList.begin(), m_lineList.begin() + cursorY);
-    newTpset->m_leaf2TokenLoc.insert(newTpset->m_leaf2TokenLoc.end(), m_leaf2TokenLoc.begin(), m_leaf2TokenLoc.begin() + leaf);
+    newTpset->m_lineList.insert(newTpset->m_lineList.end(), m_lineList.begin(), m_lineList.begin() + cursorY + (cursorX == lineTokenCount(cursorY)));
+    newTpset->m_leaf2TokenLoc.insert(newTpset->m_leaf2TokenLoc.end(), m_leaf2TokenLoc.begin(), m_leaf2TokenLoc.begin() + leaf + (cursorInLeaf == m_paragraph->leafRef(leaf).length()));
+    newTpset->m_paragraph.reset(m_paragraph->split(leaf, cursorInLeaf));
 
     m_lineList.clear();
     m_leaf2TokenLoc.clear();
 
-    newTpset->buildTypeset(0, cursorY);
-    buildTypeset(0, 0);
+    if(!newTpset->empty()){
+        newTpset->buildTypeset(0, cursorY);
+    }
 
+    if(!empty()){
+        buildTypeset(0, 0);
+    }
     return newTpset;
 }
 

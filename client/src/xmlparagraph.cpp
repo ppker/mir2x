@@ -27,17 +27,28 @@ XMLParagraph *XMLParagraph::split(int leaf, int cursorLoc)
         std::swap(fromPar               , toPar               );
     }
 
-    for(int i = 0; i < leaf - 1; ++i){
+    const auto fnMoveFrontLeaf = [fromPar, toPar]()
+    {
         auto node = fromPar->m_leafList.front().xmlNode()->DeepClone(toPar->m_xmlDocument.get());
         toPar->m_xmlDocument->FirstChild()->InsertEndChild(node);
         toPar->m_leafList.emplace_back(node);
 
         fromPar->m_xmlDocument->FirstChild()->DeleteChild(fromPar->m_leafList.front().xmlNode());
-        m_leafList.pop_front();
+        fromPar->m_leafList.pop_front();
+    };
+
+    for(int i = 0; i < leaf - 1; ++i){
+        fnMoveFrontLeaf();
     }
 
-    auto [node1, node2] = fromPar->m_leafList.front().split(cursorLoc, *toPar->m_xmlDocument, *fromPar->m_xmlDocument);
-    if(node1){
+    if(cursorLoc == 0){
+        // do nothing
+    }
+    else if(cursorLoc == fromPar->m_leafList.front().length()){
+        fnMoveFrontLeaf();
+    }
+    else{
+        auto [node1, node2] = fromPar->m_leafList.front().split(cursorLoc, *toPar->m_xmlDocument, *fromPar->m_xmlDocument);
         toPar->m_xmlDocument->FirstChild()->InsertEndChild(node1);
         toPar->m_leafList.emplace_back(node1);
     }
