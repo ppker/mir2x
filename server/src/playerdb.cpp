@@ -533,17 +533,20 @@ SDChatMessageList Player::dbRetrieveLatestChatMessage(const uint32_t *dbidList, 
     for(const auto other: std::span(dbidList, dbidCount)){
         queries.push_back("select * from tbl_chatmessage where ");
         if(includeSend){
-            queries.back().append("(fld_from = %llu and fld_to = %llu) ", to_llu(dbid()), to_llu(other));
+            queries.back().append(str_printf("(fld_from = %llu and fld_to = %llu) ", to_llu(dbid()), to_llu(other)));
         }
 
         if(includeRecv){
-            queries.back().append(" or (fld_from = %llu and fld_to = %llu) ", to_llu(other), to_llu(dbid()));
+            if(includeSend){
+                queries.back().append("or ");
+            }
+            queries.back().append(str_printf("(fld_from = %llu and fld_to = %llu) ", to_llu(other), to_llu(dbid())));
         }
 
-        queries.back().append("order by fld_timestamp desc");
+        queries.back().append("order by fld_timestamp desc ");
 
         if(limitPerDBID > 0){
-            queries.back().append(" limit %zu", limitPerDBID);
+            queries.back().append(str_printf("limit %zu ", limitPerDBID));
         }
     }
 
