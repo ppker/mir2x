@@ -225,6 +225,7 @@ void Client::onServerMessage(uint8_t headCode, const uint8_t *buf, size_t bufSiz
         _INSTALL_SM_HANDLER(ProcessRun, SM_EQUIPWEARERROR)
         _INSTALL_SM_HANDLER(ProcessRun, SM_EXP)
         _INSTALL_SM_HANDLER(ProcessRun, SM_FRIENDLIST)
+        _INSTALL_SM_HANDLER(ProcessRun, SM_CHATMESSAGELIST)
         _INSTALL_SM_HANDLER(ProcessRun, SM_GOLD)
         _INSTALL_SM_HANDLER(ProcessRun, SM_GRABBELT)
         _INSTALL_SM_HANDLER(ProcessRun, SM_GRABBELTERROR)
