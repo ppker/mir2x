@@ -98,6 +98,11 @@ class ServerObject
             forwardNetPackage(uid, type, buf.data(), buf.length());
         }
 
+        void forwardNetPackage(uint64_t uid, uint8_t type, const std::string_view &buf)
+        {
+            forwardNetPackage(uid, type, buf.data(), buf.size());
+        }
+
         template<typename T> void forwardNetPackage(uint64_t uid, uint8_t type, const T &t)
         {
             static_assert(std::is_trivially_copyable_v<T>);

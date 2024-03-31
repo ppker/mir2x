@@ -331,7 +331,7 @@ class Player final: public BattleObject
         void dbRemoveInventoryItem(uint32_t, uint32_t);
 
     private:
-        void dbSaveChatMessage(uint32_t, const std::string_view &);
+        std::tuple<uint64_t, uint64_t> dbSaveChatMessage(uint32_t, const std::string_view &);
         SDChatMessageList dbRetrieveLatestChatMessage(const uint32_t *, size_t, size_t, bool, bool);
         // static std::vector<SDChatMessage> dbRetrieveChatMessageList(const DBRetrieveChatMessageListParams &);
 

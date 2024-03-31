@@ -636,7 +636,7 @@ struct SDChatMessage
     uint32_t to   = 0;
 
     uint64_t timestamp = 0;
-    std::string message;
+    std::string message; // always serialized
 
     template<typename Archive> void serialize(Archive & ar)
     {

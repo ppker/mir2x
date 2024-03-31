@@ -275,7 +275,21 @@ void Player::net_CM_QUERYPLAYERWLDESP(uint8_t, const uint8_t *buf, size_t)
 void Player::net_CM_CHATMESSAGE(uint8_t, const uint8_t *buf, size_t)
 {
     const auto cmCM = ClientMsg::conv<CMChatMessage>(buf);
-    dbSaveChatMessage(cmCM.toDBID, cmCM.message.as_sv());
+    const auto [msgId, tstamp] = dbSaveChatMessage(cmCM.toDBID, cmCM.message.as_sv());
+
+    forwardNetPackage(uidf::getPlayerUID(cmCM.toDBID), SM_CHATMESSAGELIST, cerealf::serialize(SDChatMessageList
+    {
+        SDChatMessage
+        {
+            .id = msgId,
+
+            .from = dbid(),
+            .to   = cmCM.toDBID,
+
+            .timestamp = tstamp,
+            .message = cmCM.message.to_str(), // serialized
+        },
+    }));
 }
 
 void Player::net_CM_BUY(uint8_t, const uint8_t *buf, size_t)

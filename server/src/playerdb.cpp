@@ -500,19 +500,27 @@ void Player::dbLoadFriendList()
     }
 }
 
-void Player::dbSaveChatMessage(uint32_t toDBID, const std::string_view &sv)
+std::tuple<uint64_t, uint64_t> Player::dbSaveChatMessage(uint32_t toDBID, const std::string_view &sv)
 {
+    auto tstamp= hres_tstamp::localtime();
     auto query = g_dbPod->createQuery(
         u8R"###( insert into tbl_chatmessage(fld_from, fld_to, fld_timestamp, fld_message) )###"
         u8R"###( values                                                                    )###"
-        u8R"###(     (%llu, %llu, %llu, ?);                                                )###",
+        u8R"###(     (%llu, %llu, %llu, ?)                                                 )###"
+        u8R"###( returning                                                                 )###"
+        u8R"###(     fld_id;                                                               )###",
 
         to_llu(dbid()),
         to_llu(toDBID),
-        to_llu(hres_tstamp::localtime()));
+        to_llu(tstamp));
 
     query.bind(1, sv.data(), sv.size());
-    query.exec();
+    if(query.executeStep()){
+        return {query.getColumn("fld_id").getInt64(), tstamp};
+    }
+    else{
+        throw fflerror("failed to insert chat message to database");
+    }
 }
 
 SDChatMessageList Player::dbRetrieveLatestChatMessage(const uint32_t *dbidList, size_t dbidCount, size_t limitPerDBID, bool includeSend, bool includeRecv)
