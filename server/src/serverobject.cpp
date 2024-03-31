@@ -224,5 +224,5 @@ void ServerObject::forwardNetPackage(uint64_t uid, uint8_t type, const void *buf
     std::memset(&amSP, 0, sizeof(amSP));
 
     buildActorDataPackage(&(amSP.package), type, buf, bufLen);
-    m_actorPod->forward(uid, {AM_SENDPACKAGE, amSP});
+    m_actorPod->forward(uid, {AM_SENDPACKAGE, amSP}); // TODO when actor is offline, we should register callback to delete buffer allocated here
 }
