@@ -629,7 +629,7 @@ struct FriendChatPage: public Widget
                           colorf::RED + colorf::A_SHF(128),
                       }, true);
 
-                      dynamic_cast<FriendChatBoard *>(parent()->parent())->sendMessage(2, layout.getXML());
+                      dynamic_cast<FriendChatBoard *>(parent()->parent())->sendMessage(3, layout.getXML());
                       layout.clear();
                   },
                   nullptr,
