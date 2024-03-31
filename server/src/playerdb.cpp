@@ -500,7 +500,7 @@ void Player::dbLoadFriendList()
     }
 }
 
-void Player::dbSaveChatMessage(uint32_t toDBID, const SDXMLMessage &message)
+void Player::dbSaveChatMessage(uint32_t toDBID, const std::string_view &sv)
 {
     auto query = g_dbPod->createQuery(
         u8R"###( insert into tbl_chatmessage(fld_from, fld_to, fld_timestamp, fld_message) )###"
@@ -511,7 +511,7 @@ void Player::dbSaveChatMessage(uint32_t toDBID, const SDXMLMessage &message)
         to_llu(toDBID),
         to_llu(hres_tstamp::localtime()));
 
-    query.bind(1, cerealf::serialize(message));
+    query.bind(1, sv.data(), sv.size());
     query.exec();
 }
 
