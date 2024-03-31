@@ -509,6 +509,26 @@ class Widget
             return false;
         }
 
+        const Widget *hasChild(std::function<bool(const Widget *)> fnOp) const
+        {
+            for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
+                if(fnOp && fnOp(p->widget)){
+                    return p->widget;
+                }
+            }
+            return nullptr;
+        }
+
+        Widget *hasChild(std::function<bool(const Widget *)> fnOp)
+        {
+            for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
+                if(fnOp && fnOp(p->widget)){
+                    return p->widget;
+                }
+            }
+            return nullptr;
+        }
+
         // focus helper
         // we have tons of code like:
         //
@@ -677,6 +697,17 @@ class Widget
                     }
 
                     m_childList.erase(p);
+                    return;
+                }
+            }
+        }
+
+    public:
+        void moveFront(const Widget *child)
+        {
+            for(auto p = std::next(m_childList.begin()); p != m_childList.end(); ++p){
+                if(p->widget == child){
+                    m_childList.splice(m_childList.begin(), m_childList, p, std::next(p));
                     return;
                 }
             }

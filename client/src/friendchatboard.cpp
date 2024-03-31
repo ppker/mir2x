@@ -891,6 +891,8 @@ struct FriendChatPreviewItem: public Widget
     // |<--------------------->|
     //           WIDTH
 
+    const uint32_t dbid;
+
     ImageBoard  avatar;
     LabelBoard  name;
     LayoutBoard message;
@@ -901,6 +903,8 @@ struct FriendChatPreviewItem: public Widget
     FriendChatPreviewItem(dir8_t argDir,
             int argX,
             int argY,
+
+            uint32_t argDBID,
 
             const char8_t *argNameStr,
             const char8_t *argChatXMLStr,
@@ -925,6 +929,7 @@ struct FriendChatPreviewItem: public Widget
               argAutoDelete,
           }
 
+        , dbid(argDBID)
         , avatar
           {
               DIR_UPLEFT,
@@ -1099,6 +1104,46 @@ struct FriendChatPreviewPage: public Widget
     {
         item->moveAt(DIR_UPLEFT, 0, canvas.h());
         canvas.addChild(item, autoDelete);
+    }
+
+    void updateChatPreview(uint32_t argDBID, const std::string &argMsg)
+    {
+        FriendChatPreviewItem *child = dynamic_cast<FriendChatPreviewItem *>(canvas.hasChild([argDBID](const Widget *widgetPtr)
+        {
+            if(auto preview = dynamic_cast<const FriendChatPreviewItem *>(widgetPtr); preview && preview->dbid == argDBID){
+                return true;
+            }
+            return false;
+        }));
+
+        if(child){
+            child->message.loadXML(argMsg.c_str());
+        }
+        else{
+            child = new FriendChatPreviewItem
+            {
+                DIR_UPLEFT,
+                0,
+                0,
+
+                argDBID,
+
+                u8"绝地武士",
+                to_u8cstr(argMsg),
+
+                [](const ImageBoard *)
+                {
+                    return g_progUseDB->retrieve(0X02000000);
+                },
+            };
+            append(child, true);
+        }
+
+        canvas.moveFront(child);
+        for(int startY = 0; auto &node: m_childList){
+            node.widget->moveAt(DIR_UPLEFT, 0, startY);
+            startY += node.widget->h();
+        }
     }
 };
 
@@ -1596,35 +1641,35 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
     //     },
     // }, true);
 
-    dynamic_cast<FriendChatPreviewPage *>(m_uiPageList[UIPage_CHATPREVIEW].page)->append(new FriendChatPreviewItem
-    {
-        DIR_UPLEFT,
-        0,
-        0,
-
-        u8"绝地武士",
-        u8"<layout><par>你好呀！</par></layout>",
-
-        [](const ImageBoard *)
-        {
-            return g_progUseDB->retrieve(0X02000000);
-        },
-    }, true);
-
-    dynamic_cast<FriendChatPreviewPage *>(m_uiPageList[UIPage_CHATPREVIEW].page)->append(new FriendChatPreviewItem
-    {
-        DIR_UPLEFT,
-        0,
-        0,
-
-        u8"尤达大师的妈妈",
-        u8"<layout><par>祝你发财！</par><par>收到请回复，谢谢！</par></layout>",
-
-        [](const ImageBoard *)
-        {
-            return g_progUseDB->retrieve(0X02000001);
-        },
-    }, true);
+    // dynamic_cast<FriendChatPreviewPage *>(m_uiPageList[UIPage_CHATPREVIEW].page)->append(new FriendChatPreviewItem
+    // {
+    //     DIR_UPLEFT,
+    //     0,
+    //     0,
+    //
+    //     u8"绝地武士",
+    //     u8"<layout><par>你好呀！</par></layout>",
+    //
+    //     [](const ImageBoard *)
+    //     {
+    //         return g_progUseDB->retrieve(0X02000000);
+    //     },
+    // }, true);
+    //
+    // dynamic_cast<FriendChatPreviewPage *>(m_uiPageList[UIPage_CHATPREVIEW].page)->append(new FriendChatPreviewItem
+    // {
+    //     DIR_UPLEFT,
+    //     0,
+    //     0,
+    //
+    //     u8"尤达大师的妈妈",
+    //     u8"<layout><par>祝你发财！</par><par>收到请回复，谢谢！</par></layout>",
+    //
+    //     [](const ImageBoard *)
+    //     {
+    //         return g_progUseDB->retrieve(0X02000001);
+    //     },
+    // }, true);
 }
 
 void FriendChatBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const
@@ -1815,6 +1860,7 @@ void FriendChatBoard::addMessage(const SDChatMessage &newmsg)
         {
             return x.timestamp < y.timestamp;
         });
+        dynamic_cast<FriendChatPreviewPage *>(m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(saveInDBID, cerealf::deserialize<std::string>(p->list.back().message));
     }
 }
 
