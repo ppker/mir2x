@@ -287,7 +287,7 @@ void Player::net_CM_CHATMESSAGE(uint8_t, const uint8_t *buf, size_t)
             .to   = cmCM.toDBID,
 
             .timestamp = tstamp,
-            .message = cmCM.message.to_str(), // serialized
+            .message = cmCM.message.to_str(), // keep serialized
         },
     }));
 }

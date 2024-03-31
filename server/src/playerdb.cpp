@@ -562,7 +562,7 @@ SDChatMessageList Player::dbRetrieveLatestChatMessage(const uint32_t *dbidList, 
             .from      = check_cast<uint32_t, unsigned>(query.getColumn("fld_from")),
             .to        = check_cast<uint32_t, unsigned>(query.getColumn("fld_to")),
             .timestamp = check_cast<uint64_t, unsigned>(query.getColumn("fld_timestamp")),
-            .message   = cerealf::deserialize<std::string>(query.getColumn("fld_message")),
+            .message   = query.getColumn("fld_message").getString(),
         });
     }
     return result;
