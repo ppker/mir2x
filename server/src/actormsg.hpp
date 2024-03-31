@@ -571,6 +571,8 @@ struct AMCORecord
 
     struct _AMCORecord_Player
     {
+        uint8_t gender : 1;
+        uint8_t job    : 3;
         uint32_t Level;
     };
 

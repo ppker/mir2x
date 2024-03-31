@@ -1,4 +1,5 @@
 #include "strf.hpp"
+#include "jobf.hpp"
 #include "uidf.hpp"
 #include "mathf.hpp"
 #include "fflerror.hpp"
@@ -37,10 +38,10 @@ int CombatNode::randPickSC() const
     return mathf::rand<int>(minSC(), maxSC());
 }
 
-CombatNode getCombatNode(const SDWear & wear, const SDLearnedMagicList &magicList, uint64_t uid, int level)
+CombatNode getCombatNode(const SDWear & wear, const SDLearnedMagicList &magicList, int job, int level)
 {
-    fflassert(uidf::isPlayer(uid));
-    fflassert(level >= 0);
+    fflassert(jobf::jobValid(job), job);
+    fflassert(level >= 0, job);
 
     CombatNode node;
     for(size_t i = WLG_BEGIN; i < WLG_END; ++i){
@@ -104,17 +105,17 @@ CombatNode getCombatNode(const SDWear & wear, const SDLearnedMagicList &magicLis
     node.load.weapon += (10 + level * 2);
     node.load.inventory += (100 + level * 10);
 
-    if(uidf::hasPlayerJob(uid, JOB_WARRIOR)){
+    if(job & JOB_WARRIOR){
         node.dc[0] += (level / 2);
         node.dc[1] += (level / 2 + level % 2);
     }
 
-    if(uidf::hasPlayerJob(uid, JOB_TAOIST)){
+    if(job & JOB_TAOIST){
         node.sc[0] += (level / 2);
         node.sc[1] += (level / 2 + level % 2);
     }
 
-    if(uidf::hasPlayerJob(uid, JOB_WIZARD)){
+    if(job & JOB_WIZARD){
         node.mc[0] += (level / 2);
         node.mc[1] += (level / 2 + level % 2);
     }

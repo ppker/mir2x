@@ -52,6 +52,10 @@ class Player final: public BattleObject
         uint32_t m_exp;
 
     protected:
+        bool m_gender;
+        int  m_job;
+
+    protected:
         std::string m_name;
         uint32_t m_nameColor;
 
@@ -410,7 +414,12 @@ class Player final: public BattleObject
 
         bool gender() const
         {
-            return uidf::getPlayerGender(UID());
+            return m_gender;
+        }
+
+        int job() const
+        {
+            return m_job;
         }
 
     private:
@@ -438,8 +447,8 @@ class Player final: public BattleObject
         void notifySlaveGLoc();
 
     public:
-        static int maxHP(uint64_t, uint32_t);
-        static int maxMP(uint64_t, uint32_t);
+        int maxHP() const;
+        int maxMP() const;
 
     protected:
         void addWLOffTrigger(int wltype, std::function<void()> trigger)

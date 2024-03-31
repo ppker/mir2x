@@ -47,13 +47,16 @@ namespace uidf
 
     uint64_t getServiceCoreUID();
     uint64_t getServerLuaObjectUID(uint32_t);
+
     uint64_t getQuestUID(uint32_t);
+    uint64_t getPlayerUID(uint32_t);
     uint64_t getMapBaseUID(uint32_t);
-    uint64_t getPlayerUID(uint32_t, bool, const std::vector<int> &);
 }
 
 namespace uidf
 {
+    uint32_t getPlayerDBID(uint64_t);
+
     uint32_t getMapID(uint64_t);
     uint32_t getNPCID(uint64_t);
     uint32_t getQuestID(uint64_t);
@@ -64,13 +67,6 @@ namespace uidf
     uint32_t getMonsterSeq(uint64_t);
 
     uint64_t getReceiverSeq(uint64_t);
-}
-
-namespace uidf
-{
-    bool     hasPlayerJob   (uint64_t, int);
-    uint32_t getPlayerDBID  (uint64_t);
-    bool     getPlayerGender(uint64_t);
 }
 
 namespace uidf

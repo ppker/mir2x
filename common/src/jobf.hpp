@@ -12,51 +12,35 @@ namespace jobf
         return job >= JOB_BEGIN && job < JOB_END;
     }
 
-    inline const char8_t * jobName(int job)
+    inline int firstJob(int job)
     {
-        switch(job){
-            case JOB_WARRIOR: return u8"战士";
-            case JOB_TAOIST : return u8"道士";
-            case JOB_WIZARD : return u8"法师";
-            default         : return nullptr;
-        }
+        /**/ if(job & JOB_WARRIOR) return JOB_WARRIOR;
+        else if(job & JOB_TAOIST ) return JOB_TAOIST ;
+        else if(job & JOB_WIZARD ) return JOB_WIZARD ;
+        else                       return JOB_NONE   ;
     }
 
-    inline std::vector<int> getJobList(const std::string &s)
+    inline auto jobName(int job)
     {
-        std::vector<int> jobList;
-        if(s.find(to_cstr(u8"道士")) != std::string::npos){
-            jobList.push_back(JOB_TAOIST);
-        }
+        size_t i = 0;
+        std::array<const char8_t *, 3> result {};
 
-        if(s.find(to_cstr(u8"战士")) != std::string::npos){
-            jobList.push_back(JOB_WARRIOR);
-        }
+        if(job & JOB_WARRIOR) result[i++] = u8"战士";
+        if(job & JOB_TAOIST ) result[i++] = u8"道士";
+        if(job & JOB_WIZARD ) result[i++] = u8"法师";
 
-        if(s.find(to_cstr(u8"法师")) != std::string::npos){
-            jobList.push_back(JOB_WIZARD);
-        }
-        return jobList;
+        return result;
     }
 
-    inline std::u8string getJobString(const std::vector<int> &jobList)
+    inline auto jobGfxIndex(int job)
     {
-        if(jobList.empty()){
-            throw fflerror("empty job list");
-        }
+        size_t i = 0;
+        std::array<std::optional<int>, 3> result {};
 
-        std::u8string result;
-        for(const auto job: jobList){
-            if(const auto name = jobName(job); str_haschar(name)){
-                if(!result.empty()){
-                    result.push_back('|');
-                }
-                result += name;
-            }
-            else{
-                throw fflerror("invalid job id: %d", job);
-            }
-        }
+        if(job & JOB_WARRIOR) result[i++] = 0;
+        if(job & JOB_TAOIST ) result[i++] = 1;
+        if(job & JOB_WIZARD ) result[i++] = 2;
+
         return result;
     }
 }

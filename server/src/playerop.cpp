@@ -413,6 +413,8 @@ void Player::on_AM_CORECORD(const ActorMsgPack &mpk)
     switch(uidf::getUIDType(amCOR.UID)){
         case UID_PLY:
             {
+                smCOR.Player.gender = amCOR.Player.gender;
+                smCOR.Player.job = amCOR.Player.job;
                 smCOR.Player.Level = amCOR.Player.Level;
                 break;
             }

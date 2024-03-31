@@ -272,7 +272,7 @@ void ProcessRun::on_SM_CORECORD(const uint8_t *bufPtr, size_t)
             }
         case UID_PLY:
             {
-                m_coList[smCOR.UID].reset(new Hero(smCOR.UID, this, smCOR.action));
+                m_coList[smCOR.UID].reset(new Hero(smCOR.UID, smCOR.Player.gender, smCOR.Player.job, this, smCOR.action));
                 queryUIDBuff(smCOR.UID);
                 queryPlayerWLDesp(smCOR.UID);
                 break;

@@ -177,17 +177,20 @@ void ProcessSelectChar::drawCharName() const
     if(m_smChar.has_value() && !m_smChar.value().name.empty()){
         const auto exp = m_smChar.value().exp;
         const auto name = m_smChar.value().name.to_str();
-        const auto jobList = m_smChar.value().job.deserialize<std::vector<int>>();
 
-        fflassert(!name.empty());
-        fflassert(!jobList.empty());
+        fflassert(str_haschar(name));
 
         std::u8string xmlStr;
         xmlStr += str_printf(u8R"###( <layout> )###""\n");
         xmlStr += str_printf(u8R"###(     <par color='RGB(237,226,200)'>角色：%s</par> )###""\n", to_cstr(name));
         xmlStr += str_printf(u8R"###(     <par color='RGB(175,196,175)'>等级：%d</par> )###""\n", to_d(SYS_LEVEL(exp)));
-        for(const auto job: jobList){
-            xmlStr += str_printf(u8R"###( <par color='RGB(231,231,189)'>职业：%s</par> )###""\n", to_cstr(jobf::jobName(job)));
+        for(const auto jobStr: jobf::jobName(m_smChar.value().job)){
+            if(jobStr){
+                xmlStr += str_printf(u8R"###( <par color='RGB(231,231,189)'>职业：%s</par> )###""\n", to_cstr(jobStr));
+            }
+            else{
+                break;
+            }
         }
         xmlStr += str_printf(u8R"###( </layout> )###""\n");
 
@@ -225,11 +228,9 @@ uint32_t ProcessSelectChar::charFrameCount() const
 {
     if(m_smChar.has_value() && !m_smChar.value().name.empty()){
         const bool gender = m_smChar.value().gender;
-        const int job = m_smChar.value().job.deserialize<std::vector<int>>().at(0);
+        const int firstJob = jobf::firstJob(m_smChar.value().job);
 
-        fflassert(job >= JOB_BEGIN);
-        fflassert(job <  JOB_END);
-
+        fflassert(jobf::jobValid(firstJob), firstJob);
         fflassert(m_charAni >= 0);
         fflassert(m_charAni <  4);
 
@@ -246,7 +247,7 @@ uint32_t ProcessSelectChar::charFrameCount() const
             #include "selectcharframecount.inc"
         };
 
-        if(auto p = s_frameCount.find({job, gender, m_charAni}); p != s_frameCount.end()){
+        if(auto p = s_frameCount.find({firstJob, gender, m_charAni}); p != s_frameCount.end()){
             return p->second;
         }
     }
@@ -257,11 +258,9 @@ std::optional<uint32_t> ProcessSelectChar::charGfxBaseID() const
 {
     if(m_smChar.has_value() && !m_smChar.value().name.empty()){
         const bool gender = m_smChar.value().gender;
-        const int job = m_smChar.value().job.deserialize<std::vector<int>>().at(0);
+        const auto jobIndexOpt = jobf::jobGfxIndex(m_smChar.value().job).front();
 
-        fflassert(job >= JOB_BEGIN);
-        fflassert(job <  JOB_END);
-
+        fflassert(jobIndexOpt.has_value());
         fflassert(m_charAni >= 0);
         fflassert(m_charAni <  4);
 
@@ -273,9 +272,9 @@ std::optional<uint32_t> ProcessSelectChar::charGfxBaseID() const
         // 00 - 04: max = 32   frame
 
         return 0
-            + (to_u32(job - JOB_BEGIN) << 10)
-            + (to_u32(gender         ) <<  9)
-            + (to_u32(m_charAni      ) <<  5);
+            + (to_u32(jobIndexOpt.value()) << 10)
+            + (to_u32(gender             ) <<  9)
+            + (to_u32(m_charAni          ) <<  5);
     }
     return {};
 }
@@ -378,7 +377,7 @@ void ProcessSelectChar::switchCharGfx()
 
     if(m_charAni == 1){
         const int offGender = to_d(m_smChar.value().gender);
-        const int offJob = m_smChar.value().job.deserialize<std::vector<int>>().at(0) - JOB_BEGIN;
+        const int offJob = jobf::jobGfxIndex(m_smChar.value().job).front().value();
 
         const uint32_t seffID = UINT32_C(0X00010000) // base
             | (to_u32(offGender) << 4)               //

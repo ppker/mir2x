@@ -15,8 +15,8 @@ extern Log *g_log;
 extern Client *g_client;
 extern ClientArgParser *g_clientArgParser;
 
-MyHero::MyHero(uint64_t nUID, ProcessRun *pRun, const ActionNode &action)
-	: Hero(nUID, pRun, action)
+MyHero::MyHero(uint64_t nUID, bool argGender, int argJob, ProcessRun *pRun, const ActionNode &action)
+    : Hero(nUID, argGender, argJob, pRun, action)
 {}
 
 bool MyHero::moveNextMotion()

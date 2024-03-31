@@ -26,10 +26,12 @@ extern PNGTexOffDB *g_helmetDB;
 extern SoundEffectDB *g_seffDB;
 extern ClientArgParser *g_clientArgParser;
 
-Hero::Hero(uint64_t uid, ProcessRun *proc, const ActionNode &action)
+Hero::Hero(uint64_t uid, bool argGender, int argJob, ProcessRun *proc, const ActionNode &action)
     : CreatureMovable(uid, proc)
     , m_horse(0)
     , m_onHorse(false)
+    , m_gender(argGender)
+    , m_job(argJob)
 {
     m_currMotion.reset(new MotionNode
     {

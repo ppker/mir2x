@@ -492,8 +492,10 @@ Player::LuaThreadRunner::LuaThreadRunner(Player *playerPtr)
 }
 
 Player::Player(const SDInitPlayer &initParam, const ServerMap *mapPtr)
-    : BattleObject(mapPtr, uidf::getPlayerUID(initParam.dbid, initParam.gender, initParam.jobList), initParam.x, initParam.y, DIR_DOWN)
+    : BattleObject(mapPtr, uidf::getPlayerUID(initParam.dbid), initParam.x, initParam.y, DIR_DOWN)
     , m_exp(initParam.exp)
+    , m_gender(initParam.gender)
+    , m_job(initParam.job)
     , m_name(initParam.name)
     , m_nameColor(initParam.nameColor)
     , m_hair(initParam.hair)
@@ -502,8 +504,8 @@ Player::Player(const SDInitPlayer &initParam, const ServerMap *mapPtr)
     m_sdHealth.uid = UID();
     m_sdHealth.hp = initParam.hp;
     m_sdHealth.mp = initParam.mp;
-    m_sdHealth.maxHP = Player::maxHP(UID(), level());
-    m_sdHealth.maxMP = Player::maxMP(UID(), level());
+    m_sdHealth.maxHP = maxHP();
+    m_sdHealth.maxMP = maxMP();
     m_sdHealth.hpRecover = 1;
     m_sdHealth.hpRecover = 1;
 
@@ -760,6 +762,8 @@ void Player::reportCO(uint64_t toUID)
     amCOR.UID = UID();
     amCOR.mapID = mapID();
     amCOR.action = makeActionStand();
+    amCOR.Player.gender = gender();
+    amCOR.Player.job = job();
     amCOR.Player.Level = level();
     m_actorPod->forward(toUID, {AM_CORECORD, amCOR});
 }
@@ -1664,14 +1668,14 @@ void Player::gainExp(int addedExp)
     }
 
     const auto oldLevel = level();
-    const auto oldMaxHP = Player::maxHP(UID(), oldLevel);
-    const auto oldMaxMP = Player::maxMP(UID(), oldLevel);
+    const auto oldMaxHP = maxHP();
+    const auto oldMaxMP = maxMP();
 
     m_exp += addedExp;
     m_luaRunner->spawn(m_threadKey++, str_printf("_RSVD_NAME_trigger(SYS_ON_GAINEXP, %d)", addedExp));
 
-    const auto addedMaxHP = std::max<int>(Player::maxHP(UID(), level()) - oldMaxHP, 0);
-    const auto addedMaxMP = std::max<int>(Player::maxMP(UID(), level()) - oldMaxMP, 0);
+    const auto addedMaxHP = std::max<int>(maxHP() - oldMaxHP, 0);
+    const auto addedMaxMP = std::max<int>(maxMP() - oldMaxMP, 0);
 
     dbUpdateExp();
     postExp();
@@ -1805,6 +1809,8 @@ void Player::postOnlineOK()
     std::memset(&smOOK, 0, sizeof(smOOK));
 
     smOOK.uid = UID();
+    smOOK.gender = gender();
+    smOOK.job = job();
     smOOK.mapID = mapID();
     smOOK.action = makeActionStand();
 
@@ -2039,29 +2045,29 @@ void Player::notifySlaveGLoc()
     }
 }
 
-int Player::maxHP(uint64_t uid, uint32_t level)
+int Player::maxHP() const
 {
-    const int maxHPTaoist  = 100 + level *  50;
-    const int maxHPWarrior = 300 + level * 100;
-    const int maxHPWizard  =  50 + level *  20;
+    const int maxHPTaoist  = 100 + level() *  50;
+    const int maxHPWarrior = 300 + level() * 100;
+    const int maxHPWizard  =  50 + level() *  20;
 
     int result = 0;
-    if(uidf::hasPlayerJob(uid, JOB_WARRIOR)) result = std::max<int>(result, maxHPWarrior);
-    if(uidf::hasPlayerJob(uid, JOB_TAOIST )) result = std::max<int>(result, maxHPTaoist );
-    if(uidf::hasPlayerJob(uid, JOB_WIZARD )) result = std::max<int>(result, maxHPWizard );
+    if(job() & JOB_WARRIOR) result = std::max<int>(result, maxHPWarrior);
+    if(job() & JOB_TAOIST ) result = std::max<int>(result, maxHPTaoist );
+    if(job() & JOB_WIZARD ) result = std::max<int>(result, maxHPWizard );
     return result;
 }
 
-int Player::maxMP(uint64_t uid, uint32_t level)
+int Player::maxMP() const
 {
-    const int maxMPTaoist  = 200 + level *  50;
-    const int maxMPWarrior = 100 + level *  10;
-    const int maxMPWizard  = 500 + level * 200;
+    const int maxMPTaoist  = 200 + level() *  50;
+    const int maxMPWarrior = 100 + level() *  10;
+    const int maxMPWizard  = 500 + level() * 200;
 
     int result = 0;
-    if(uidf::hasPlayerJob(uid, JOB_WARRIOR)) result = std::max<int>(result, maxMPWarrior);
-    if(uidf::hasPlayerJob(uid, JOB_TAOIST )) result = std::max<int>(result, maxMPTaoist );
-    if(uidf::hasPlayerJob(uid, JOB_WIZARD )) result = std::max<int>(result, maxMPWizard );
+    if(job() & JOB_WARRIOR) result = std::max<int>(result, maxMPWarrior);
+    if(job() & JOB_TAOIST ) result = std::max<int>(result, maxMPTaoist );
+    if(job() & JOB_WIZARD ) result = std::max<int>(result, maxMPWizard );
     return result;
 }
 
@@ -2084,9 +2090,13 @@ bool Player::consumeBook(uint32_t itemID)
 
     if(!g_serverArgParser->disableLearnMagicCheckJob){
         bool hasJob = false;
-        for(const auto reqJob: jobf::getJobList(to_cstr(mr.req.job))){
-            if(uidf::hasPlayerJob(UID(), reqJob)){
-                hasJob = true;
+        for(const auto jobstr: jobf::jobName(job())){
+            if(jobstr){
+                if(to_u8sv(jobstr) == mr.req.job){
+                    hasJob = true;
+                }
+            }
+            else{
                 break;
             }
         }

@@ -105,9 +105,9 @@ struct SMChangePasswordError
 struct SMQueryCharOK
 {
     FixedBuf<SYS_NAMESIZE> name;
-    FixedBuf<128> job;
-    uint32_t exp;
     uint8_t gender;
+    uint8_t job;
+    uint32_t exp;
 };
 
 struct SMQueryCharError
@@ -128,6 +128,8 @@ struct SMDeleteCharError
 struct SMOnlineOK
 {
     uint64_t uid;
+    uint8_t gender : 1;
+    uint8_t job    : 3;
     uint32_t mapID;
     ActionNode action;
 };
@@ -157,6 +159,8 @@ struct SMCORecord
 
     struct _SMCORecord_Player
     {
+        uint8_t gender : 1;
+        uint8_t job    : 3;
         uint32_t Level;
     };
 
@@ -427,43 +431,7 @@ class ServerMsg final: public MsgBase
     public:
         template<typename T> static T conv(const uint8_t *buf, size_t bufLen = 0)
         {
-            static_assert(false
-                    || std::is_same_v<T, SMPing>
-                    || std::is_same_v<T, SMLoginError>
-                    || std::is_same_v<T, SMCreateAccountError>
-                    || std::is_same_v<T, SMChangePasswordError>
-                    || std::is_same_v<T, SMCreateCharError>
-                    || std::is_same_v<T, SMDeleteCharError>
-                    || std::is_same_v<T, SMQueryCharOK>
-                    || std::is_same_v<T, SMQueryCharError>
-                    || std::is_same_v<T, SMOnlineOK>
-                    || std::is_same_v<T, SMOnlineError>
-                    || std::is_same_v<T, SMAction>
-                    || std::is_same_v<T, SMCORecord>
-                    || std::is_same_v<T, SMNotifyDead>
-                    || std::is_same_v<T, SMDeadFadeOut>
-                    || std::is_same_v<T, SMExp>
-                    || std::is_same_v<T, SMBuff>
-                    || std::is_same_v<T, SMMiss>
-                    || std::is_same_v<T, SMCastMagic>
-                    || std::is_same_v<T, SMOffline>
-                    || std::is_same_v<T, SMRemoveGroundItem>
-                    || std::is_same_v<T, SMInvOpCost>
-                    || std::is_same_v<T, SMBuildVersion>
-                    || std::is_same_v<T, SMRemoveItem>
-                    || std::is_same_v<T, SMRemoveSecuredItem>
-                    || std::is_same_v<T, SMGold>
-                    || std::is_same_v<T, SMStrikeGrid>
-                    || std::is_same_v<T, SMBuySucceed>
-                    || std::is_same_v<T, SMBuyError>
-                    || std::is_same_v<T, SMPickUpError>
-                    || std::is_same_v<T, SMEquipWearError>
-                    || std::is_same_v<T, SMGrabWearError>
-                    || std::is_same_v<T, SMEquipBeltError>
-                    || std::is_same_v<T, SMGrabBeltError>
-                    || std::is_same_v<T, SMTeamError>
-                    || std::is_same_v<T, SMTeamMemberLeft>
-                    );
+            static_assert(std::is_trivially_copyable_v<T>);
 
             if(bufLen && bufLen != sizeof(T)){
                 throw fflerror("invalid buffer length");

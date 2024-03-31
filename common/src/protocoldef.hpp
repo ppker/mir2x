@@ -119,10 +119,10 @@ enum JobType: int
 {
     JOB_NONE    = 0,
     JOB_BEGIN   = 1,
-    JOB_WARRIOR = 1,
-    JOB_TAOIST,
-    JOB_WIZARD,
-    JOB_END,
+    JOB_WARRIOR = 1 << 0,
+    JOB_TAOIST  = 1 << 1,
+    JOB_WIZARD  = 1 << 2,
+    JOB_END     = 1 << 3,
 };
 
 // keep it POD

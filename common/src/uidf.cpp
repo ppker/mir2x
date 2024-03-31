@@ -125,61 +125,15 @@ uint64_t uidf::getMapBaseUID(uint32_t mapID)
     return (to_u64(UID_MAP) << 59) + (to_u64(mapID) << 32) + 1;
 }
 
-// for player UID:
-//
-//      63: unused
-//   62-59: UID_PLY
-//      58: player gender
-//      57: player jobTaoist
-//      56: player jobWarrior
-//      55: player jobWizard
-//   54-32: unused
-//   31-00: dbid
-
-static constexpr uint64_t s_playerUID_gender     = 1ULL << 58;
-static constexpr uint64_t s_playerUID_jobTaoist  = 1ULL << 57;
-static constexpr uint64_t s_playerUID_jobWarrior = 1ULL << 56;
-static constexpr uint64_t s_playerUID_jobWizard  = 1ULL << 55;
-
-uint64_t uidf::getPlayerUID(uint32_t dbid, bool gender, const std::vector<int> &jobList)
+uint64_t uidf::getPlayerUID(uint32_t dbid)
 {
-    uint64_t jobMask = 0;
-    for(int job: jobList){
-        switch(job){
-            case JOB_WARRIOR: jobMask |= s_playerUID_jobWarrior; break;
-            case JOB_TAOIST : jobMask |= s_playerUID_jobTaoist ; break;
-            case JOB_WIZARD : jobMask |= s_playerUID_jobWizard ; break;
-            default: throw fflerror("invalid job: %d", job);
-        }
-    }
-
-    if(jobMask == 0){
-        throw fflerror("no job specified");
-    }
-    return (to_u64(UID_PLY) << 59) | (gender ? s_playerUID_gender : 0ULL)  | jobMask | to_u64(dbid);
-}
-
-bool uidf::hasPlayerJob(uint64_t uid, int job)
-{
-    fflassert(uidf::getUIDType(uid) == UID_PLY, uid, uidf::getUIDString(uid));
-    switch(job){
-        case JOB_WARRIOR: return uid & s_playerUID_jobWarrior;
-        case JOB_TAOIST : return uid & s_playerUID_jobTaoist ;
-        case JOB_WIZARD : return uid & s_playerUID_jobWizard ;
-        default: throw fflvalue(uid, uidf::getUIDString(uid), job);
-    }
+    return (to_u64(UID_PLY) << 59) | to_u64(dbid);
 }
 
 uint32_t uidf::getPlayerDBID(uint64_t uid)
 {
     fflassert(uidf::getUIDType(uid) == UID_PLY, uid, uidf::getUIDString(uid));
     return to_u32(uid);
-}
-
-bool uidf::getPlayerGender(uint64_t uid)
-{
-    fflassert(uidf::getUIDType(uid) == UID_PLY, uid, uidf::getUIDString(uid));
-    return uid & s_playerUID_gender;
 }
 
 #define _def_get_UID_id_helper(funcName, uidType) \

@@ -46,14 +46,14 @@ struct SDInitPlayer
     int exp = 0;
     int gold = 0;
     bool gender = true;
-    std::vector<int> jobList = {};
+    int job = 0;
 
     int hair = 0;
     int hairColor = 0;
 
     template<typename Archive> void serialize(Archive & ar)
     {
-        ar(dbid, channID, name, nameColor, x, y, mapID, hp, mp, exp, gold, gender, jobList, hair, hairColor);
+        ar(dbid, channID, name, nameColor, x, y, mapID, hp, mp, exp, gold, gender, hair, hairColor);
     }
 };
 

@@ -82,7 +82,7 @@ void ServiceCore::net_CM_QUERYCHAR(uint32_t channID, uint8_t, const uint8_t *, s
     std::memset(&smQCOK, 0, sizeof(smQCOK));
 
     smQCOK.name.assign((std::string)(queryChar.getColumn("fld_name")));
-    smQCOK.job.serialize(jobf::getJobList(queryChar.getColumn("fld_job")));
+    smQCOK.job = queryChar.getColumn("fld_job");
     smQCOK.gender = queryChar.getColumn("fld_gender");
     smQCOK.exp = queryChar.getColumn("fld_exp");
     g_netDriver->post(channID, SM_QUERYCHAROK, &smQCOK, sizeof(smQCOK));
@@ -115,10 +115,7 @@ void ServiceCore::net_CM_ONLINE(uint32_t channID, uint8_t, const uint8_t *, size
         return;
     }
 
-    const int gender = queryChar.getColumn("fld_gender");
-    const auto jobList = jobf::getJobList(queryChar.getColumn("fld_job"));
-    const auto expectedUID = uidf::getPlayerUID(dbidOpt.value().first, gender, jobList);
-
+    const auto expectedUID = uidf::getPlayerUID(dbidOpt.value().first);
     fflassert(!g_actorPool->checkUIDValid(expectedUID));
 
     const int mapID = queryChar.getColumn("fld_map");
@@ -146,8 +143,8 @@ void ServiceCore::net_CM_ONLINE(uint32_t channID, uint8_t, const uint8_t *, size
         .mp        = queryChar.getColumn("fld_mp"),
         .exp       = queryChar.getColumn("fld_exp"),
         .gold      = queryChar.getColumn("fld_gold"),
-        .gender    = (bool)(gender),
-        .jobList   = jobList,
+        .gender    = queryChar.getColumn("fld_gender").getInt() > 0,
+        .job       = queryChar.getColumn("fld_job"),
         .hair      = queryChar.getColumn("fld_hair"),
         .hairColor = queryChar.getColumn("fld_haircolor"),
     }));
@@ -444,11 +441,11 @@ void ServiceCore::net_CM_CREATECHAR(uint32_t channID, uint8_t, const uint8_t *bu
         (
             u8R"###( insert into tbl_char(fld_dbid, fld_name, fld_job, fld_map, fld_mapx, fld_mapy, fld_gender) )###"
             u8R"###( values                                                                                     )###"
-            u8R"###(     (%llu, '%s', '%s', '%d', %d, %d, %d);                                                  )###",
+            u8R"###(     (%llu, '%s', %d, %d, %d, %d, %d);                                                      )###",
 
             to_llu(dbidOpt.value().first),
             to_cstr(cmCC.name),
-            to_cstr(jobf::jobName(cmCC.job)),
+            to_d(cmCC.job),
             to_d(DBCOM_MAPID(u8"道馆_1")),
             405,
             120,

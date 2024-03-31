@@ -72,7 +72,7 @@ class MonoServer final
 
     public:
         int  createAccount(const char *, const char *);
-        bool createAccountCharacter(const char *, const char *, bool, const char *);
+        bool createAccountCharacter(const char *, const char *, bool, int);
 
     public:
         void checkException();

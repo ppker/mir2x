@@ -24,7 +24,7 @@ class MyHero: public Hero
         bool m_nextStrike = false;
 
     public:
-        MyHero(uint64_t, ProcessRun *, const ActionNode &);
+        MyHero(uint64_t, bool, int, ProcessRun *, const ActionNode &);
 
     public:
         ~MyHero() = default;

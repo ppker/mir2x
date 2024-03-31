@@ -27,13 +27,19 @@ class Hero: public CreatureMovable
         uint32_t     m_nameColor;
 
     protected:
+        bool m_gender;
+
+    protected:
+        int m_job;
+
+    protected:
         SDWLDesp m_sdWLDesp;
 
     protected:
         std::unordered_set<uint32_t> m_swingMagicList;
 
     public:
-        Hero(uint64_t, ProcessRun *, const ActionNode &);
+        Hero(uint64_t, bool, int, ProcessRun *, const ActionNode &);
 
     public:
        ~Hero() = default;
@@ -64,12 +70,17 @@ class Hero: public CreatureMovable
 
         bool gender() const
         {
-            return uidf::getPlayerGender(UID());
+            return m_gender;
         }
 
         uint32_t dbid() const
         {
             return uidf::getPlayerDBID(UID());
+        }
+
+        int job() const
+        {
+            return m_job;
         }
 
     public:

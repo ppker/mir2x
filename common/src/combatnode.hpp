@@ -62,4 +62,4 @@ struct CombatNode
 
 // server/client uses same CombatNode calculation
 // player's other attributes may affect how CombatNode -> DamageNode, but shall not affect CombatNode itself
-CombatNode getCombatNode(const SDWear &, const SDLearnedMagicList &, uint64_t, int);
+CombatNode getCombatNode(const SDWear &, const SDLearnedMagicList &, int, int);

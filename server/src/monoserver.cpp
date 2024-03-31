@@ -118,11 +118,11 @@ int MonoServer::createAccount(const char *id, const char *password)
     return CRTACCERR_NONE;
 }
 
-bool MonoServer::createAccountCharacter(const char *id, const char *charName, bool gender, const char *job)
+bool MonoServer::createAccountCharacter(const char *id, const char *charName, bool gender, int job)
 {
     fflassert(str_haschar(id));
     fflassert(str_haschar(charName));
-    fflassert(str_haschar(job));
+    fflassert(jobf::jobValid(job));
     fflassert(hasDatabase());
 
     if(hasCharacter(charName)){
@@ -135,40 +135,28 @@ bool MonoServer::createAccountCharacter(const char *id, const char *charName, bo
     }
 
     const auto dbid = check_cast<uint32_t, unsigned>(queryAccount.getColumn("fld_dbid"));
-    const auto jobList = jobf::getJobList(job);
-
-    if(jobList.empty()){
-        throw fflerror("invalid job string: %s", to_cstr(job));
-    }
-
-    const auto [mapID, mapx, mapy] = [&jobList]() -> std::tuple<uint32_t, int, int>
+    const auto [mapID, mapx, mapy] = [job]() -> std::tuple<uint32_t, int, int>
     {
-        switch(jobList.front()){
-            case JOB_WIZARD:
-            case JOB_WARRIOR:
-                {
-                    return {DBCOM_MAPID(u8"比奇县_0"), 441, 381};
-                }
-            case JOB_TAOIST:
-                {
-                    return {DBCOM_MAPID(u8"道馆_1"), 405, 120};
-                }
-            default:
-                {
-                    throw fflreach();
-                }
+        if(job & (JOB_WIZARD | JOB_WARRIOR)){
+            return {DBCOM_MAPID(u8"比奇县_0"), 441, 381};
         }
+
+        if(job & JOB_TAOIST){
+            return {DBCOM_MAPID(u8"道馆_1"), 405, 120};
+        }
+
+        throw fflerror("invalid job %d", job);
     }();
 
     g_dbPod->exec
     (
         u8R"###( insert into tbl_char(fld_dbid, fld_name, fld_job, fld_map, fld_mapx, fld_mapy, fld_gender) )###"
         u8R"###( values                                                                                     )###"
-        u8R"###(     (%llu, '%s', '%s', '%d', %d, %d, %d);                                                  )###",
+        u8R"###(     (%llu, '%s', %d, %d, %d, %d, %d);                                                      )###",
 
         to_llu(dbid),
         charName,
-        to_cstr(jobf::getJobString(jobList)),
+        job,
         to_d(mapID),
         mapx,
         mapy,
@@ -243,7 +231,7 @@ void MonoServer::createDefaultDatabase()
         u8R"###(     fld_dbid           integer      not null primary key,           )###"
         u8R"###(     fld_name           varchar(32)  not null,                       )###"
         u8R"###(     fld_namecolor      int unsigned default 0,                      )###"
-        u8R"###(     fld_job            varchar(32)  not null,                       )###"
+        u8R"###(     fld_job            int unsigned not null,                       )###"
         u8R"###(     fld_map            int unsigned not null,                       )###"
         u8R"###(     fld_mapx           int unsigned not null,                       )###"
         u8R"###(     fld_mapy           int unsigned not null,                       )###"
@@ -367,10 +355,10 @@ void MonoServer::createDefaultDatabase()
     createAccount("id_1", "123456");
     createAccount("id_2", "123456");
 
-    createAccountCharacter("test", to_cstr(u8"亚当"),  true, to_cstr(u8"道士|法师"));
-    createAccountCharacter("good", to_cstr(u8"夏娃"), false, to_cstr(u8"战士|法师"));
-    createAccountCharacter("id_1", to_cstr(u8"逗逼"),  true, to_cstr(u8"法师"));
-    createAccountCharacter("id_2", to_cstr(u8"搞笑"),  true, to_cstr(u8"法师"));
+    createAccountCharacter("test", to_cstr(u8"亚当"),  true, JOB_TAOIST  | JOB_WIZARD);
+    createAccountCharacter("good", to_cstr(u8"夏娃"), false, JOB_WARRIOR | JOB_WIZARD);
+    createAccountCharacter("id_1", to_cstr(u8"逗逼"),  true, JOB_WIZARD);
+    createAccountCharacter("id_2", to_cstr(u8"搞笑"),  true, JOB_WIZARD);
 
     addLog(LOGTYPE_INFO, "Create default sqlite3 database done");
 }

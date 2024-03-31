@@ -55,6 +55,8 @@ ProcessRun::ProcessRun(const SMOnlineOK &smOOK)
     m_coList.insert_or_assign(m_myHeroUID, std::unique_ptr<ClientCreature>(new MyHero
     {
         m_myHeroUID,
+        to_bool(smOOK.gender),
+        smOOK.job,
         this,
         ActionStand
         {

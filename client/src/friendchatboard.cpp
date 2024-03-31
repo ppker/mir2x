@@ -1766,16 +1766,16 @@ void FriendChatBoard::setFriendList(const SDFriendList &)
         {
             return g_progUseDB->retrieve(to_u32(0X02000000) + [this]() -> uint32_t
             {
-                if(uidf::hasPlayerJob(m_processRun->getMyHero()->UID(), JOB_WARRIOR)){
+                if(m_processRun->getMyHero()->job() & JOB_WARRIOR){
                     return 0;
                 }
-                else if(uidf::hasPlayerJob(m_processRun->getMyHero()->UID(), JOB_TAOIST)){
+                else if(m_processRun->getMyHero()->job() & JOB_TAOIST){
                     return 2;
                 }
                 else{
                     return 4;
                 }
-            }() + (uidf::getPlayerGender(m_processRun->getMyHero()->UID()) ? 0 : 1));
+            }() + (m_processRun->getMyHero()->gender() ? 0 : 1));
         },
     }, true);
 }
