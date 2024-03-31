@@ -1,8 +1,10 @@
 #pragma once
+#include <cstdint>
 #include <tuple>
 #include <array>
 #include <optional>
 #include "serdesmsg.hpp"
+#include "jobf.hpp"
 #include "creaturemovable.hpp"
 
 struct HeroFrameGfxSeq final
@@ -214,4 +216,10 @@ class Hero: public CreatureMovable
 
     public:
         bool isMyHero() const;
+
+    public:
+        uint32_t faceGfxID() const
+        {
+            return UINT32_C(0X02000000) + to_u32(jobf::jobGfxIndex(job()).front().value() * 2 + (gender() ? 0 : 1));
+        }
 };

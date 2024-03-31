@@ -1408,29 +1408,13 @@ void ControlBoard::drawFocusFace() const
 
     const auto [faceTexID, hpRatio, buffIDList] = [this]() -> std::tuple<uint32_t, double, const std::optional<SDBuffIDList> &>
     {
-        const auto fnGetHeroFaceKey = [](bool gender, int job) -> uint32_t
-        {
-            return to_u32(0X02000000) + [job]() -> uint32_t
-            {
-                if(job & JOB_WARRIOR){
-                    return 0;
-                }
-                else if(job & JOB_TAOIST){
-                    return 2;
-                }
-                else{
-                    return 4;
-                }
-            }() + (gender ? 0 : 1);
-        };
-
         if(const auto coPtr = m_processRun->findUID(m_processRun->getFocusUID(FOCUS_MOUSE))){
             switch(coPtr->type()){
                 case UID_PLY:
                     {
                         return
                         {
-                            fnGetHeroFaceKey(dynamic_cast<Hero *>(coPtr)->gender(), dynamic_cast<Hero *>(coPtr)->job()),
+                            dynamic_cast<Hero *>(coPtr)->faceGfxID(),
                             coPtr->getHealthRatio().at(0),
                             coPtr->getSDBuffIDList(),
                         };
@@ -1463,7 +1447,7 @@ void ControlBoard::drawFocusFace() const
 
         return
         {
-            fnGetHeroFaceKey(m_processRun->getMyHero()->gender(), m_processRun->getMyHero()->job()),
+            m_processRun->getMyHero()->faceGfxID(),
             m_processRun->getMyHero()->getHealthRatio().at(0),
             m_processRun->getMyHero()->getSDBuffIDList(),
         };
