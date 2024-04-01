@@ -143,7 +143,7 @@ struct FriendItem: public Widget
             case SDL_MOUSEBUTTONDOWN:
                 {
                     if(in(event.button.x, event.button.y)){
-                        dynamic_cast<FriendChatBoard *>(this->parent()->parent()->parent())->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
+                        dynamic_cast<FriendChatBoard *>(this->parent(2))->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
                     }
                     return false;
                 }
@@ -629,7 +629,7 @@ struct FriendChatPage: public Widget
                           colorf::RED + colorf::A_SHF(128),
                       }, true);
 
-                      dynamic_cast<FriendChatBoard *>(parent()->parent())->sendMessage(3, layout.getXML());
+                      dynamic_cast<FriendChatBoard *>(parent(1))->sendMessage(dynamic_cast<FriendChatPage *>(parent())->dbid, layout.getXML());
                       layout.clear();
                   },
                   nullptr,
@@ -996,7 +996,7 @@ struct FriendChatPreviewItem: public Widget
             case SDL_MOUSEBUTTONDOWN:
                 {
                     if(in(event.button.x, event.button.y)){
-                        if(auto chatBoard = dynamic_cast<FriendChatBoard *>(this->parent()->parent()->parent())){
+                        if(auto chatBoard = dynamic_cast<FriendChatBoard *>(this->parent(2))){
                             chatBoard->setChatPageDBID(this->dbid);
                             chatBoard->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
                         }

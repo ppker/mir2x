@@ -444,8 +444,25 @@ class Widget
         }
 
     public:
-        /* */ Widget * parent()       { return m_parent; }
-        const Widget * parent() const { return m_parent; }
+        Widget * parent(unsigned level = 0)
+        {
+            auto widptr = m_parent;
+            while(widptr && (level > 0)){
+                widptr = widptr->m_parent;
+                level--;
+            }
+            return widptr;
+        }
+
+        const Widget * parent(unsigned level = 0) const
+        {
+            auto widptr = m_parent;
+            while(widptr && (level > 0)){
+                widptr = widptr->m_parent;
+                level--;
+            }
+            return widptr;
+        }
 
     public:
         virtual int dx() const { return Widget::evalOffset(m_x, this) - xSizeOff(dir(), w()); }
