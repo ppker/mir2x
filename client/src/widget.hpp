@@ -191,12 +191,7 @@ class Widget
     public:
         virtual ~Widget()
         {
-            for(auto &child: m_childList){
-                if(child.autoDelete){
-                    delete child.widget;
-                }
-            }
-            m_childList.clear();
+            clearChild();
         }
 
     public:
@@ -491,6 +486,17 @@ class Widget
                 }
             }
             return m_focus;
+        }
+
+    public:
+        void clearChild()
+        {
+            for(auto &child: m_childList){
+                if(child.autoDelete){
+                    delete child.widget;
+                }
+            }
+            m_childList.clear();
         }
 
     public:

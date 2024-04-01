@@ -647,6 +647,7 @@ struct FriendChatPage: public Widget
         }
     };
 
+    uint32_t dbid = 0;
     ShapeClipBoard background;
 
     FriendChatInputContainer input;
@@ -754,67 +755,7 @@ struct FriendChatPage: public Widget
               this,
               false,
           }
-    {
-        chat.append(new FriendChatItem
-        {
-            DIR_UPLEFT,
-            0,
-            0,
-
-            u8"绝地武士",
-            u8"<layout><par>你好呀，好久没你消息了！</par></layout>",
-
-            [](const ImageBoard *)
-            {
-                return g_progUseDB->retrieve(0X02000000);
-            },
-
-            true,
-            true,
-
-            colorf::RED + colorf::A_SHF(128),
-        }, true);
-
-        chat.append(new FriendChatItem
-        {
-            DIR_UPLEFT,
-            0,
-            100,
-
-            u8"恭喜发财",
-            u8"<layout><par>今天是大年初一，祝你新年发财！</par><par>老家的人都很想念你。</par><par>祝好！</par></layout>",
-
-            [](const ImageBoard *)
-            {
-                return g_progUseDB->retrieve(0X02000001);
-            },
-
-            false,
-            false,
-
-            colorf::GREEN + colorf::A_SHF(128),
-        }, true);
-
-        chat.append(new FriendChatItem
-        {
-            DIR_UPLEFT,
-            0,
-            0,
-
-            u8"绝地武士",
-            u8"<layout><par>好的，谢谢！</par></layout>",
-
-            [](const ImageBoard *)
-            {
-                return g_progUseDB->retrieve(0X02000000);
-            },
-
-            true,
-            true,
-
-            colorf::RED + colorf::A_SHF(128),
-        }, true);
-    }
+    {}
 
     bool processEvent(const SDL_Event &event, bool valid) override
     {
@@ -1055,7 +996,10 @@ struct FriendChatPreviewItem: public Widget
             case SDL_MOUSEBUTTONDOWN:
                 {
                     if(in(event.button.x, event.button.y)){
-                        dynamic_cast<FriendChatBoard *>(this->parent()->parent()->parent())->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
+                        if(auto chatBoard = dynamic_cast<FriendChatBoard *>(this->parent()->parent()->parent())){
+                            chatBoard->setChatPageDBID(this->dbid);
+                            chatBoard->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
+                        }
                     }
                     return false;
                 }
@@ -1802,6 +1746,51 @@ void FriendChatBoard::addMessage(const SDChatMessage &newmsg)
             return x.timestamp < y.timestamp;
         });
         dynamic_cast<FriendChatPreviewPage *>(m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(saveInDBID, cerealf::deserialize<std::string>(p->list.back().message));
+    }
+}
+
+void FriendChatBoard::setChatPageDBID(uint32_t argDBID)
+{
+    auto chatPage = dynamic_cast<FriendChatPage *>(m_uiPageList[UIPage_CHAT].page);
+    if(chatPage->dbid != argDBID){
+        chatPage->dbid = argDBID;
+        chatPage->chat.canvas.clearChild();
+
+        for(const auto &node: m_friendMessageList){
+            if(node.dbid == argDBID){
+                for(const auto &msg: node.list){
+                    chatPage->chat.append(new FriendChatItem
+                    {
+                        DIR_UPLEFT,
+                        0,
+                        0,
+
+                        [chatPage]() -> const char8_t *
+                        {
+                            if(chatPage->dbid == SYS_CHATDBID_SYSTEM){
+                                return u8"系统消息";
+                            }
+                            return u8"绝地武士";
+                        }(),
+
+                        to_u8cstr(cerealf::deserialize<std::string>(msg.message)),
+
+                        [chatPage](const ImageBoard *)
+                        {
+                            if(chatPage->dbid == SYS_CHATDBID_SYSTEM){
+                                return g_progUseDB->retrieve(0X00001100);
+                            }
+                            return g_progUseDB->retrieve(0X02000000);
+                        },
+
+                        true,
+                        true,
+
+                        colorf::RED + colorf::A_SHF(128),
+                    }, true);
+                }
+            }
+        }
     }
 }
 

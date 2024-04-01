@@ -84,6 +84,7 @@ class FriendChatBoard: public Widget
         void setFriendList(const SDFriendList &);
 
     public:
+        void setChatPageDBID(uint32_t);
         void setUIPage(int, const char * = nullptr);
 
     public:
