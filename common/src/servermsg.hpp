@@ -81,7 +81,9 @@ enum SMType: uint8_t
     SM_END,
 };
 
+static_assert(SM_END < 128);
 #pragma pack(push, 1)
+
 struct SMPing
 {
     uint32_t Tick;

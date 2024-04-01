@@ -52,7 +52,9 @@ enum CMType: uint8_t
     CM_END,
 };
 
+static_assert(CM_END < 128);
 #pragma pack(push, 1)
+
 struct CMPing
 {
     uint32_t Tick;
