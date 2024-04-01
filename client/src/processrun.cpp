@@ -1185,7 +1185,7 @@ void ProcessRun::RegisterUserCommand()
 
     m_userCommandList.emplace_back("killPets", [this](const std::vector<std::string> &) -> int
     {
-        RequestKillPets();
+        requestKillPets();
         addCBLog(CBLOG_SYS, u8"杀死所有宝宝");
         return 0;
     });
@@ -1706,7 +1706,7 @@ void ProcessRun::requestLatestChatMessage(const std::vector<uint32_t> &dbids, si
     g_client->send(CM_REQUESTLATESTCHATMESSAGE, cmRLCM);
 }
 
-void ProcessRun::RequestKillPets()
+void ProcessRun::requestKillPets()
 {
     g_client->send(CM_REQUESTKILLPETS);
 }
