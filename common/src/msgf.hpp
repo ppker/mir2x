@@ -184,13 +184,20 @@ namespace msgf
             }
     };
 
-    inline size_t encodeLength(uint8_t *buf, size_t bufSize, std::integral auto length)
+    inline size_t encodeLength(uint8_t *buf, size_t bufSize, std::unsigned_integral auto length)
     {
         size_t bytes = 0;
-        while(bytes < bufSize && length > 0){
+        while(bytes < bufSize){
             const uint8_t bits = length & 0x7f;
             length >>= 7;
-            buf[bytes++] = (length > 0 ? 0x80 : 0x00) | bits;
+
+            if(length > 0){
+                buf[bytes++] = bits | 0x80;
+            }
+            else{
+                buf[bytes++] = bits;
+                break;
+            }
         }
 
         if(length > 0){
