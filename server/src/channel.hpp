@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <stdexcept>
 #include "strf.hpp"
+#include "clientmsg.hpp"
 #include "dispatcher.hpp"
 
 class ChannelError: public std::exception
@@ -69,13 +70,16 @@ class Channel final: public std::enable_shared_from_this<Channel>
 
     private:
         // for read channel packets
-        // only asio thread accesses these variables
-        uint8_t  m_readHeadCode = 0;
-        uint8_t  m_readLen[4]   = {0, 0, 0, 0};
-        uint32_t m_bodyLen      = 0;
+        // only asio thread accesses it
+        uint8_t m_readSBuf[16];
+        std::optional<uint64_t> m_respIDOpt;
 
     private:
-        std::vector<uint8_t> m_readBuf;
+        ClientMsg m_clientMsgBuf;
+        const ClientMsg *m_clientMsg = nullptr;
+
+    private:
+        std::vector<uint8_t> m_readDBuf;
         std::vector<uint8_t> m_decodeBuf;
 
     private:
@@ -122,27 +126,29 @@ class Channel final: public std::enable_shared_from_this<Channel>
         }
 
     private:
-        uint8_t *getReadBuf(size_t bufSize)
+        void checkErrcode(std::error_code ec)
         {
-            m_readBuf.resize(bufSize + 16);
-            return m_readBuf.data();
-        }
-
-        uint8_t *getDecodeBuf(size_t bufSize)
-        {
-            m_decodeBuf.resize(bufSize + 16);
-            return m_decodeBuf.data();
+            if(ec){
+                m_state = CS_STOPPED;
+                throw ChannelError(id(), "network error on channel %d: %s", id(), ec.message().c_str());
+            }
         }
 
     private:
-        void doReadPackHeadCode();
-        void doReadPackBody(size_t, size_t);
+        void afterReadPacketHeadCode();
+
+    private:
+        void doReadPacketHeadCode();
+        void doReadPacketResp(size_t);
+
+        void doReadPacketBodySize(size_t);
+        void doReadPacketBody(size_t, size_t);
 
     private:
         void doSendPack();
 
     private:
-        bool forwardActorMessage(uint8_t, const uint8_t *, size_t);
+        bool forwardActorMessage(uint8_t, const uint8_t *, size_t, uint64_t);
 
     private:
         void flushSendQ();
@@ -155,4 +161,11 @@ class Channel final: public std::enable_shared_from_this<Channel>
 
     public:
         void bindPlayer(uint64_t);
+
+    private:
+        void prepareClientMsg(uint8_t headCode)
+        {
+            m_clientMsgBuf.~ClientMsg();
+            m_clientMsg = new (&m_clientMsgBuf) ClientMsg(headCode);
+        }
 };

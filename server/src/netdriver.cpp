@@ -86,11 +86,11 @@ void NetDriver::acceptNewConnection()
     fflassert(to_uz(channID) > 0, channID);
     fflassert(to_uz(channID) < m_channelSlotList.size(), channID, m_channelSlotList.size());
 
-    auto &slotRef = m_channelSlotList[channID];
+    auto slotPtr = m_channelSlotList.data() + channID;
 
-    slotRef.sendBuf.clear();
-    slotRef.channPtr = std::make_shared<Channel>(m_io, channID, slotRef.lock, slotRef.sendBuf);
-    m_acceptor->async_accept(slotRef.channPtr->socket(), [channID, this](std::error_code ec)
+    slotPtr->sendBuf.clear();
+    slotPtr->channPtr = std::make_shared<Channel>(m_io, channID, slotPtr->lock, slotPtr->sendBuf);
+    m_acceptor->async_accept(slotPtr->channPtr->socket(), [channID, this](std::error_code ec)
     {
         if(ec){
             throw ChannelError(channID, "network error when accepting new connection: %s", ec.message().c_str());
@@ -104,90 +104,89 @@ void NetDriver::acceptNewConnection()
     });
 }
 
-std::array<std::tuple<const uint8_t *, size_t>, 2> NetDriver::encodePostBuf(uint8_t headCode, const void *buf, size_t bufSize, std::vector<uint8_t> &encodeBuf)
+std::array<std::tuple<const uint8_t *, size_t>, 2> NetDriver::encodePostBuf(uint8_t headCode, const void *buf, size_t bufSize, uint64_t respID, std::vector<uint8_t> &encodeBuf)
 {
     const ServerMsg smsg(headCode);
     fflassert(smsg.checkData(buf, bufSize));
+
+    encodeBuf.clear();
+
+    if(respID){
+        uint8_t respBuf[16];
+        const size_t respEncSize = msgf::encodeLength(respBuf, 16, respID);
+
+        encodeBuf.push_back(headCode | 0x80);
+        encodeBuf.insert(encodeBuf.end(), respBuf, respBuf + respEncSize);
+    }
+    else{
+        encodeBuf.push_back(headCode);
+    }
 
     switch(smsg.type()){
         case 0:
             {
                 return
                 {
-                    std::make_tuple(nullptr, 0),
+                    std::make_tuple(encodeBuf.data(), encodeBuf.size()),
                     std::make_tuple(nullptr, 0),
                 };
             }
         case 1:
             {
-                // not empty, fixed size, comperssed
-                // length encoding:
-                // [0 - 254]          : length in 0 ~ 254
-                // [    255][0 ~ 255] : length as 0 ~ 255 + 255
+                const size_t sizeStartOff = encodeBuf.size();
+                encodeBuf.resize(sizeStartOff + smsg.maskLen() + smsg.dataLen() + 64);
 
-                // use 1 or 2 bytes
-                // variant data length, support range in [0, 255 + 255]
+                /* */ auto sizeBuf = encodeBuf.data() + sizeStartOff;
+                /* */ auto compBuf = encodeBuf.data() + sizeStartOff + 16;
+                const auto compCnt = smsg.useXor64 () ? zcompf::xorEncode64(compBuf, (const uint8_t *)(buf), bufSize)
+                                                      : zcompf::xorEncode  (compBuf, (const uint8_t *)(buf), bufSize);
 
-                encodeBuf.resize(smsg.maskLen() + bufSize + 64);
-                /* */ auto compBuf = encodeBuf.data();
-                const auto compCnt = zcompf::xorEncode(compBuf + 2, (const uint8_t *)(buf), bufSize);
-
-                if(compCnt <= 254){
-                    compBuf[1] = to_u8(compCnt);
-                    return
-                    {
-                        std::make_tuple(compBuf + 1, 1 + smsg.maskLen() + to_uz(compCnt)),
-                        std::make_tuple(nullptr, 0),
-                    };
-                }
-                else if(compCnt <= (255 + 255)){
-                    compBuf[0] = 255;
-                    compBuf[1] = to_u8(compCnt - 255);
-                    return
-                    {
-                        std::make_tuple(compBuf, 2 + smsg.maskLen() + to_uz(compCnt)),
-                        std::make_tuple(nullptr, 0),
-                    };
-                }
-                else{
-                    throw fflerror("message length after compression is too long: %zu", compCnt);
-                }
+                const size_t sizeEncLength = msgf::encodeLength(sizeBuf, 4, compCnt);
+                return
+                {
+                    std::make_tuple(encodeBuf.data(), sizeStartOff + sizeEncLength),
+                    std::make_tuple(compBuf, smsg.maskLen() + to_uz(compCnt) * (smsg.useXor64() ? 8 : 1)),
+                };
             }
         case 2:
             {
-                // not empty, fixed size, not compressed
                 return
                 {
+                    std::make_tuple(encodeBuf.data(), encodeBuf.size()),
                     std::make_tuple((const uint8_t *)(buf), bufSize),
-                    std::make_tuple(nullptr, 0),
-
                 };
             }
         case 3:
             {
-                // not empty, not fixed size, not compressed
-                encodeBuf.resize(4);
+                const auto sizeStartOff = encodeBuf.size();
                 const uint32_t bufSizeU32 = to_u32(bufSize);
-                std::memcpy(encodeBuf.data(), &bufSizeU32, 4);
+
+                encodeBuf.resize(encodeBuf.size() + 4);
+                std::memcpy(encodeBuf.data() + sizeStartOff, &bufSizeU32, 4);
+
                 return
                 {
-                    std::make_tuple(encodeBuf.data(), 4),
+                    std::make_tuple(encodeBuf.data(), encodeBuf.size()),
                     std::make_tuple((const uint8_t *)(buf), bufSize),
                 };
             }
         default:
             {
-                throw fflvalue(smsg.type());
+                throw fflvalue(smsg.name());
             }
     }
 }
 
-void NetDriver::post(uint32_t channID, uint8_t headCode, const void *buf, size_t bufLen)
+void NetDriver::post(uint32_t channID, uint8_t headCode, const void *buf, size_t bufSize, uint64_t respID)
 {
     logProfiler();
     fflassert(to_uz(channID) > 0);
     fflassert(to_uz(channID) < m_channelSlotList.size());
-    fflassert(ServerMsg(headCode).checkData(buf, bufLen));
+    fflassert(ServerMsg(headCode).checkData(buf, bufSize));
+
+    if(headCode >= 0x80){
+        throw fflerror("invalid head code %02d", to_d(headCode));
+    }
 
     // post current message to sendBuf, which links to Channel::m_nextSendQ
     // this function is called by server thread only
@@ -200,15 +199,13 @@ void NetDriver::post(uint32_t channID, uint8_t headCode, const void *buf, size_t
     // but for Q2 since it's only used in ASIO main loop, we don't need to protect it
     //
     // idea from: https://stackoverflow.com/questions/4029448/thread-safety-for-stl-queue
-    auto &slotRef = m_channelSlotList[channID];
-    const auto encodedBufList = encodePostBuf(headCode, buf, bufLen, slotRef.encodeBuf);
+    auto slotPtr = m_channelSlotList.data() + channID;
+    const auto encodedBufList = encodePostBuf(headCode, buf, bufSize, respID, slotPtr->encodeBuf);
     {
-        std::lock_guard<std::mutex> lockGuard(slotRef.lock);
-        slotRef.sendBuf.push_back(headCode);
-
+        const std::lock_guard<std::mutex> lockGuard(slotPtr->lock);
         for(const auto &[encodedBuf, encodedBufSize]: encodedBufList){
             if(encodedBuf){
-                slotRef.sendBuf.insert(slotRef.sendBuf.end(), encodedBuf, encodedBuf + encodedBufSize);
+                slotPtr->sendBuf.insert(slotPtr->sendBuf.end(), encodedBuf, encodedBuf + encodedBufSize);
             }
         }
     }

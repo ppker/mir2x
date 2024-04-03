@@ -92,42 +92,42 @@ void ServiceCore::operateAM(const ActorMsgPack &rstMPK)
     }
 }
 
-void ServiceCore::operateNet(uint32_t channID, uint8_t cmType, const uint8_t *buf, size_t bufSize)
+void ServiceCore::operateNet(uint32_t channID, uint8_t cmType, const uint8_t *buf, size_t bufSize, uint64_t respID)
 {
     switch(cmType){
         case CM_LOGIN:
             {
-                net_CM_LOGIN(channID, cmType, buf, bufSize);
+                net_CM_LOGIN(channID, cmType, buf, bufSize, respID);
                 break;
             }
         case CM_ONLINE:
             {
-                net_CM_ONLINE(channID, cmType, buf, bufSize);
+                net_CM_ONLINE(channID, cmType, buf, bufSize, respID);
                 break;
             }
         case CM_QUERYCHAR:
             {
-                net_CM_QUERYCHAR(channID, cmType, buf, bufSize);
+                net_CM_QUERYCHAR(channID, cmType, buf, bufSize, respID);
                 break;
             }
         case CM_CREATECHAR:
             {
-                net_CM_CREATECHAR(channID, cmType, buf, bufSize);
+                net_CM_CREATECHAR(channID, cmType, buf, bufSize, respID);
                 break;
             }
         case CM_DELETECHAR:
             {
-                net_CM_DELETECHAR(channID, cmType, buf, bufSize);
+                net_CM_DELETECHAR(channID, cmType, buf, bufSize, respID);
                 break;
             }
         case CM_CREATEACCOUNT:
             {
-                net_CM_CREATEACCOUNT(channID, cmType, buf, bufSize);
+                net_CM_CREATEACCOUNT(channID, cmType, buf, bufSize, respID);
                 break;
             }
         case CM_CHANGEPASSWORD:
             {
-                net_CM_CHANGEPASSWORD(channID, cmType, buf, bufSize);
+                net_CM_CHANGEPASSWORD(channID, cmType, buf, bufSize, respID);
                 break;
             }
         default:

@@ -108,64 +108,14 @@ namespace zcompf
     // xor compression/decompression
     // used by default, gives about 2x compression in general
 
-    inline size_t countMask(const uint8_t *buf, size_t bufLen)
-    {
-        if(bufLen > 0){
-            fflassert(buf);
-            return popcnt(buf, bufLen);
-        }
-        return 0;
-    }
+    size_t countMask(const uint8_t *, size_t);
 
-    inline size_t countData(const uint8_t *buf, size_t bufLen)
-    {
-        size_t count = 0;
-        for(size_t i = 0; i < bufLen; ++i){
-            if(buf[i]){
-                count++;
-            }
-        }
-        return count;
-    }
+    size_t countData  (const uint8_t *, size_t);
+    size_t countData64(const uint8_t *, size_t);
 
-    inline size_t xorEncode(uint8_t *dst, const uint8_t *buf, size_t bufLen)
-    {
-        fflassert(dst);
-        fflassert(buf);
-        fflassert(bufLen);
+    size_t xorEncode  (uint8_t *, const uint8_t *, size_t);
+    size_t xorEncode64(uint8_t *, const uint8_t *, size_t);
 
-        const auto maskLen = (bufLen + 7) / 8;
-        const auto maskPtr = dst;
-        const auto compPtr = dst + maskLen;
-        std::memset(maskPtr, 0, maskLen);
-
-        size_t dataCount = 0;
-        for(size_t i = 0; i < bufLen; ++i){
-            if(buf[i]){
-                maskPtr[i / 8] |= (0X01 << (i % 8));
-                compPtr[dataCount++] = buf[i];
-            }
-        }
-        return dataCount;
-    }
-
-    inline size_t xorDecode(uint8_t *dst, size_t bufLen, const uint8_t *maskPtr, const uint8_t *compPtr)
-    {
-        fflassert(dst);
-        fflassert(bufLen);
-
-        fflassert(maskPtr);
-        fflassert(compPtr);
-
-        size_t decodeCount = 0;
-        for(size_t i = 0; i < bufLen; ++i){
-            if(maskPtr[i / 8] & (0x01 << (i % 8))){
-                dst[i] = compPtr[decodeCount++];
-            }
-            else{
-                dst[i] = 0;
-            }
-        }
-        return decodeCount;
-    }
+    size_t xorDecode  (uint8_t *, size_t, const uint8_t *, const uint8_t *);
+    size_t xorDecode64(uint8_t *, size_t, const uint8_t *, const uint8_t *);
 }

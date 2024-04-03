@@ -72,9 +72,9 @@ class NetDriver final
         // actor thread send/receive message by these interfaces
         // actor thread can invalidate channel by calling close(channID), asio loop can invalidate by catching exception
         // but no method to check channel is valid, after actor thread invalidate it, actor thread should keep flag to prevent access an invalidated channel
-        void close(uint32_t);                                   // request a channel to be closed
-        void bindPlayer(uint32_t, uint64_t);                    // request a channel to forward all net message to an UID
-        void post(uint32_t, uint8_t, const void *, size_t);     // post message to a channel
+        void close(uint32_t);                                           // request a channel to be closed
+        void bindPlayer(uint32_t, uint64_t);                            // request a channel to forward all net message to an UID
+        void post(uint32_t, uint8_t, const void *, size_t, uint64_t);   // post message to a channel
 
     private:
         void acceptNewConnection();
@@ -84,5 +84,5 @@ class NetDriver final
         void doClose(uint32_t);
 
     private:
-        std::array<std::tuple<const uint8_t *, size_t>, 2> encodePostBuf(uint8_t, const void *, size_t, std::vector<uint8_t> &);
+        std::array<std::tuple<const uint8_t *, size_t>, 2> encodePostBuf(uint8_t, const void *, size_t, uint64_t, std::vector<uint8_t> &);
 };

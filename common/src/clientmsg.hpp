@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <type_traits>
 #include <unordered_map>
-#include "msgbase.hpp"
+#include "msgf.hpp"
 #include "fixedbuf.hpp"
 #include "actionnode.hpp"
 
@@ -261,7 +261,61 @@ struct CMRequestLatestChatMessage
 // unfortunately this name has been taken by Xlib
 // and ClientMessage seems like a real message but actually this class only give general information
 
-class ClientMsg final: public MsgBase
+namespace
+{
+    inline const auto _RSVD_clientmsg_attribute_list = []
+    {
+        std::array<std::unique_ptr<const msgf::MsgAttribute>, std::min<size_t>(CM_END, 128)> result;
+#define _RSVD_register_clientmsg(type, ...) result.at(type) = std::make_unique<msgf::MsgAttribute>(#type, __VA_ARGS__)
+
+        //  0    :     empty
+        //  1    : not empty,     fixed size,     compressed
+        //  2    : not empty,     fixed size, not compressed
+        //  3    : not empty, not fixed size, not compressed
+        _RSVD_register_clientmsg(CM_NONE_0,                     0                                      );
+        _RSVD_register_clientmsg(CM_PING,                       2, sizeof(CMPing)                      );
+        _RSVD_register_clientmsg(CM_LOGIN,                      1, sizeof(CMLogin)                     );
+        _RSVD_register_clientmsg(CM_QUERYCHAR,                  0                                      );
+        _RSVD_register_clientmsg(CM_CREATECHAR,                 1, sizeof(CMCreateChar)                );
+        _RSVD_register_clientmsg(CM_DELETECHAR,                 1, sizeof(CMDeleteChar)                );
+        _RSVD_register_clientmsg(CM_ONLINE,                     0                                      );
+        _RSVD_register_clientmsg(CM_ACTION,                     1, sizeof(CMAction)                    );
+        _RSVD_register_clientmsg(CM_SETMAGICKEY,                1, sizeof(CMSetMagicKey)               );
+        _RSVD_register_clientmsg(CM_QUERYCORECORD,              1, sizeof(CMQueryCORecord)             );
+        _RSVD_register_clientmsg(CM_REQUESTADDEXP,              1, sizeof(CMRequestAddExp)             );
+        _RSVD_register_clientmsg(CM_REQUESTKILLPETS,            0                                      );
+        _RSVD_register_clientmsg(CM_REQUESTRETRIEVESECUREDITEM, 1, sizeof(CMRequestRetrieveSecuredItem));
+        _RSVD_register_clientmsg(CM_REQUESTSPACEMOVE,           1, sizeof(CMRequestSpaceMove)          );
+        _RSVD_register_clientmsg(CM_REQUESTMAGICDAMAGE,         1, sizeof(CMRequestMagicDamage)        );
+        _RSVD_register_clientmsg(CM_PICKUP,                     1, sizeof(CMPickUp)                    );
+        _RSVD_register_clientmsg(CM_QUERYGOLD,                  0                                      );
+        _RSVD_register_clientmsg(CM_QUERYUIDBUFF,               1, sizeof(CMQueryUIDBuff)              );
+        _RSVD_register_clientmsg(CM_QUERYPLAYERNAME,            1, sizeof(CMQueryPlayerName)           );
+        _RSVD_register_clientmsg(CM_QUERYPLAYERWLDESP,          1, sizeof(CMQueryPlayerWLDesp)         );
+        _RSVD_register_clientmsg(CM_CREATEACCOUNT,              1, sizeof(CMCreateAccount)             );
+        _RSVD_register_clientmsg(CM_CHANGEPASSWORD,             1, sizeof(CMChangePassword)            );
+        _RSVD_register_clientmsg(CM_SETRUNTIMECONFIG,           1, sizeof(CMSetRuntimeConfig)          );
+        _RSVD_register_clientmsg(CM_NPCEVENT,                   1, sizeof(CMNPCEvent)                  );
+        _RSVD_register_clientmsg(CM_QUERYSELLITEMLIST,          1, sizeof(CMQuerySellItemList)         );
+        _RSVD_register_clientmsg(CM_DROPITEM,                   1, sizeof(CMDropItem)                  );
+        _RSVD_register_clientmsg(CM_CONSUMEITEM,                1, sizeof(CMConsumeItem)               );
+        _RSVD_register_clientmsg(CM_MAKEITEM,                   1, sizeof(CMMakeItem)                  );
+        _RSVD_register_clientmsg(CM_BUY,                        1, sizeof(CMBuy)                       );
+        _RSVD_register_clientmsg(CM_CHATMESSAGE,                1, sizeof(CMChatMessage)               );
+        _RSVD_register_clientmsg(CM_REQUESTEQUIPWEAR,           1, sizeof(CMRequestEquipWear)          );
+        _RSVD_register_clientmsg(CM_REQUESTGRABWEAR,            1, sizeof(CMRequestGrabWear)           );
+        _RSVD_register_clientmsg(CM_REQUESTEQUIPBELT,           1, sizeof(CMRequestEquipBelt)          );
+        _RSVD_register_clientmsg(CM_REQUESTGRABBELT,            1, sizeof(CMRequestGrabBelt)           );
+        _RSVD_register_clientmsg(CM_REQUESTJOINTEAM,            1, sizeof(CMRequestJoinTeam)           );
+        _RSVD_register_clientmsg(CM_REQUESTLEAVETEAM,           1, sizeof(CMRequestLeaveTeam)          );
+        _RSVD_register_clientmsg(CM_REQUESTLATESTCHATMESSAGE,   1, sizeof(CMRequestLatestChatMessage)  );
+
+#undef _RSVD_register_clientmsg
+        return result;
+    }();
+}
+
+class ClientMsg final: public msgf::MsgBase
 {
     public:
         ClientMsg(uint8_t headCode)
@@ -269,59 +323,20 @@ class ClientMsg final: public MsgBase
         {}
 
     private:
-        const MsgAttribute &getAttribute() const override
+        const msgf::MsgAttribute &getAttribute() const override
         {
-            static const std::unordered_map<uint8_t, MsgAttribute> s_msgAttributeTable
-            {
-                //  0    :     empty
-                //  1    : not empty,     fixed size,     compressed
-                //  2    : not empty,     fixed size, not compressed
-                //  3    : not empty, not fixed size, not compressed
-#define _add_client_msg_type_case(type, encodeType, length) {type, {encodeType, length, #type}},
-                _add_client_msg_type_case(CM_NONE_0,                     0, 0                                   )
-                _add_client_msg_type_case(CM_PING,                       2, sizeof(CMPing)                      )
-                _add_client_msg_type_case(CM_LOGIN,                      1, sizeof(CMLogin)                     )
-                _add_client_msg_type_case(CM_QUERYCHAR,                  0, 0                                   )
-                _add_client_msg_type_case(CM_CREATECHAR,                 1, sizeof(CMCreateChar)                )
-                _add_client_msg_type_case(CM_DELETECHAR,                 1, sizeof(CMDeleteChar)                )
-                _add_client_msg_type_case(CM_ONLINE,                     0, 0                                   )
-                _add_client_msg_type_case(CM_ACTION,                     1, sizeof(CMAction)                    )
-                _add_client_msg_type_case(CM_SETMAGICKEY,                1, sizeof(CMSetMagicKey)               )
-                _add_client_msg_type_case(CM_QUERYCORECORD,              1, sizeof(CMQueryCORecord)             )
-                _add_client_msg_type_case(CM_REQUESTADDEXP,              1, sizeof(CMRequestAddExp)             )
-                _add_client_msg_type_case(CM_REQUESTKILLPETS,            0, 0                                   )
-                _add_client_msg_type_case(CM_REQUESTRETRIEVESECUREDITEM, 1, sizeof(CMRequestRetrieveSecuredItem))
-                _add_client_msg_type_case(CM_REQUESTSPACEMOVE,           1, sizeof(CMRequestSpaceMove)          )
-                _add_client_msg_type_case(CM_REQUESTMAGICDAMAGE,         1, sizeof(CMRequestMagicDamage)        )
-                _add_client_msg_type_case(CM_PICKUP,                     1, sizeof(CMPickUp)                    )
-                _add_client_msg_type_case(CM_QUERYGOLD,                  0, 0                                   )
-                _add_client_msg_type_case(CM_QUERYUIDBUFF,               1, sizeof(CMQueryUIDBuff)              )
-                _add_client_msg_type_case(CM_QUERYPLAYERNAME,            1, sizeof(CMQueryPlayerName)           )
-                _add_client_msg_type_case(CM_QUERYPLAYERWLDESP,          1, sizeof(CMQueryPlayerWLDesp)         )
-                _add_client_msg_type_case(CM_CREATEACCOUNT,              1, sizeof(CMCreateAccount)             )
-                _add_client_msg_type_case(CM_CHANGEPASSWORD,             1, sizeof(CMChangePassword)            )
-                _add_client_msg_type_case(CM_SETRUNTIMECONFIG,           1, sizeof(CMSetRuntimeConfig)          )
-                _add_client_msg_type_case(CM_NPCEVENT,                   1, sizeof(CMNPCEvent)                  )
-                _add_client_msg_type_case(CM_QUERYSELLITEMLIST,          1, sizeof(CMQuerySellItemList)         )
-                _add_client_msg_type_case(CM_DROPITEM,                   1, sizeof(CMDropItem)                  )
-                _add_client_msg_type_case(CM_CONSUMEITEM,                1, sizeof(CMConsumeItem)               )
-                _add_client_msg_type_case(CM_MAKEITEM,                   1, sizeof(CMMakeItem)                  )
-                _add_client_msg_type_case(CM_BUY,                        1, sizeof(CMBuy)                       )
-                _add_client_msg_type_case(CM_CHATMESSAGE,                1, sizeof(CMChatMessage)               )
-                _add_client_msg_type_case(CM_REQUESTEQUIPWEAR,           1, sizeof(CMRequestEquipWear)          )
-                _add_client_msg_type_case(CM_REQUESTGRABWEAR,            1, sizeof(CMRequestGrabWear)           )
-                _add_client_msg_type_case(CM_REQUESTEQUIPBELT,           1, sizeof(CMRequestEquipBelt)          )
-                _add_client_msg_type_case(CM_REQUESTGRABBELT,            1, sizeof(CMRequestGrabBelt)           )
-                _add_client_msg_type_case(CM_REQUESTJOINTEAM,            1, sizeof(CMRequestJoinTeam)           )
-                _add_client_msg_type_case(CM_REQUESTLEAVETEAM,           1, sizeof(CMRequestLeaveTeam)          )
-                _add_client_msg_type_case(CM_REQUESTLATESTCHATMESSAGE,   1, sizeof(CMRequestLatestChatMessage)  )
-#undef _add_client_msg_type_case
-            };
-
-            if(const auto p = s_msgAttributeTable.find(m_headCode); p != s_msgAttributeTable.end()){
-                return p->second;
+            if(auto attPtr = _RSVD_clientmsg_attribute_list[headCode()].get()){
+                return *attPtr;
             }
-            return s_msgAttributeTable.at(CM_NONE_0);
+            else{
+                throw fflerror("message not registered: %02d", (int)(headCode()));
+            }
+        }
+
+    public:
+        static const msgf::MsgAttribute *headCodeValid(uint8_t argHeadCode)
+        {
+            return _RSVD_clientmsg_attribute_list[argHeadCode & 0x7f].get();
         }
 
     public:

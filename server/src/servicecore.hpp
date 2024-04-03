@@ -24,7 +24,7 @@ class ServiceCore final: public ServerObject
 
     protected:
         void operateAM(const ActorMsgPack &) override;
-        void operateNet(uint32_t, uint8_t, const uint8_t *, size_t);
+        void operateNet(uint32_t, uint8_t, const uint8_t *, size_t, uint64_t);
 
     protected:
         void loadMap(uint32_t);
@@ -51,11 +51,11 @@ class ServiceCore final: public ServerObject
         void on_AM_QUERYQUESTUIDLIST     (const ActorMsgPack &);
 
     private:
-        void net_CM_LOGIN         (uint32_t, uint8_t, const uint8_t *, size_t);
-        void net_CM_ONLINE        (uint32_t, uint8_t, const uint8_t *, size_t);
-        void net_CM_QUERYCHAR     (uint32_t, uint8_t, const uint8_t *, size_t);
-        void net_CM_CREATECHAR    (uint32_t, uint8_t, const uint8_t *, size_t);
-        void net_CM_DELETECHAR    (uint32_t, uint8_t, const uint8_t *, size_t);
-        void net_CM_CREATEACCOUNT (uint32_t, uint8_t, const uint8_t *, size_t);
-        void net_CM_CHANGEPASSWORD(uint32_t, uint8_t, const uint8_t *, size_t);
+        void net_CM_LOGIN         (uint32_t, uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_ONLINE        (uint32_t, uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_QUERYCHAR     (uint32_t, uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_CREATECHAR    (uint32_t, uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_DELETECHAR    (uint32_t, uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_CREATEACCOUNT (uint32_t, uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_CHANGEPASSWORD(uint32_t, uint8_t, const uint8_t *, size_t, uint64_t);
 };

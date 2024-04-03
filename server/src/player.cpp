@@ -706,10 +706,10 @@ void Player::operateAM(const ActorMsgPack &rstMPK)
     }
 }
 
-void Player::operateNet(uint8_t nType, const uint8_t *pData, size_t nDataLen)
+void Player::operateNet(uint8_t nType, const uint8_t *pData, size_t nDataLen, uint64_t respID)
 {
     switch(nType){
-#define _support_cm(cm) case cm: net_##cm(nType, pData, nDataLen); break
+#define _support_cm(cm) case cm: net_##cm(nType, pData, nDataLen, respID); break
         _support_cm(CM_QUERYCORECORD             );
         _support_cm(CM_REQUESTADDEXP             );
         _support_cm(CM_REQUESTKILLPETS           );
@@ -1025,10 +1025,10 @@ bool Player::goOffline()
     return true;
 }
 
-void Player::postNetMessage(uint8_t headCode, const void *buf, size_t bufLen)
+void Player::postNetMessage(uint8_t headCode, const void *buf, size_t bufLen, uint64_t respID)
 {
     if(m_channID.has_value() && m_channID.value()){
-        g_netDriver->post(m_channID.value(), headCode, (const uint8_t *)(buf), bufLen);
+        g_netDriver->post(m_channID.value(), headCode, (const uint8_t *)(buf), bufLen, respID);
     }
     else{
         goOffline();

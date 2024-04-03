@@ -48,14 +48,14 @@ void Player::on_AM_BINDCHANNEL(const ActorMsgPack &rstMPK)
 void Player::on_AM_SENDPACKAGE(const ActorMsgPack &mpk)
 {
     /* const */ auto amSP = mpk.conv<AMSendPackage>();
-    postNetMessage(amSP.package.type, amSP.package.buf(), amSP.package.size);
+    postNetMessage(amSP.package.type, amSP.package.buf(), amSP.package.size, amSP.package.resp);
     freeActorDataPackage(&(amSP.package));
 }
 
 void Player::on_AM_RECVPACKAGE(const ActorMsgPack &mpk)
 {
     /* const */ auto amRP = mpk.conv<AMRecvPackage>();
-    operateNet(amRP.package.type, amRP.package.buf(), amRP.package.size);
+    operateNet(amRP.package.type, amRP.package.buf(), amRP.package.size, amRP.package.resp);
     freeActorDataPackage(&(amRP.package));
 }
 

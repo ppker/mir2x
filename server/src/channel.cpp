@@ -10,16 +10,10 @@ extern NetDriver *g_netDriver;
 extern MonoServer *g_monoServer;
 
 Channel::Channel(asio::io_service *ioPtr, uint32_t argChannID, std::mutex &sendLock, std::vector<uint8_t> &sendBuf)
-    : m_socket([ioPtr]() -> asio::io_service &
-      {
-          fflassert(ioPtr);
-          return *ioPtr;
-      }())
-    , m_id([argChannID]()
-      {
-          fflassert(argChannID);
-          return argChannID;
-      }())
+    : m_socket([ioPtr     ]() -> asio::io_service & { fflassert(ioPtr)     ; return *ioPtr    ; }())
+    , m_id    ([argChannID]() -> uint32_t           { fflassert(argChannID); return argChannID; }())
+
+    , m_clientMsgBuf(CM_NONE_0)
 
     // pass sendBuf and sendLock refs to channel
     // sendBuf and sendLock can outlive channel for thread-safe implementation
@@ -44,88 +38,50 @@ Channel::~Channel()
     }
 }
 
-// need to setup state by: channPtr->m_state = CS_STOPPED
-// otherwise if there are more completions handlers associated to this channel, they won't get acknowledged that this channel shouldn't be used any more
-#define _abort_channel_if_errcode(channPtr, ec) \
-do{ \
-    if(ec){ \
-        (channPtr)->m_state = CS_STOPPED; \
-        throw ChannelError((channPtr)->id(), "network error on channel %d: %s", (channPtr)->id(), (ec).message().c_str()); \
-    } \
-}while(0)
+void Channel::afterReadPacketHeadCode()
+{
+    switch(m_clientMsg->type()){
+        case 0:
+            {
+                forwardActorMessage(m_clientMsg->headCode(), nullptr, 0, m_respIDOpt.value_or(0));
+                doReadPacketHeadCode();
+                return;
+            }
+        case 1:
+        case 3:
+            {
+                doReadPacketBodySize(0);
+                return;
+            }
+        case 2:
+            {
+                doReadPacketBody(0, m_clientMsg->dataLen());
+                return;
+            }
+        default:
+            {
+                throw fflvalue(m_clientMsg->name());
+            }
+    }
+}
 
-void Channel::doReadPackHeadCode()
+void Channel::doReadPacketHeadCode()
 {
     switch(m_state){
         case CS_RUNNING:
             {
-                asio::async_read(m_socket, asio::buffer(&m_readHeadCode, 1), [channPtr = shared_from_this()](std::error_code ec, size_t)
+                asio::async_read(m_socket, asio::buffer(m_readSBuf, 1), [channPtr = shared_from_this(), this](std::error_code ec, size_t)
                 {
-                    _abort_channel_if_errcode(channPtr, ec);
-                    const ClientMsg cmsg(channPtr->m_readHeadCode);
-                    switch(cmsg.type()){
-                        case 0:
-                            {
-                                channPtr->forwardActorMessage(channPtr->m_readHeadCode, nullptr, 0);
-                                channPtr->doReadPackHeadCode();
-                                return;
-                            }
-                        case 1:
-                            {
-                                // not empty, fixed size, compressed
-                                asio::async_read(channPtr->m_socket, asio::buffer(channPtr->m_readLen, 1), [channPtr, cmsg](std::error_code ec, size_t)
-                                {
-                                    _abort_channel_if_errcode(channPtr, ec);
-                                    if(channPtr->m_readLen[0] != 255){
-                                        fflassert(to_uz(channPtr->m_readLen[0]) <= cmsg.dataLen(), to_d(channPtr->m_readLen[0]), cmsg.name());
-                                        channPtr->doReadPackBody(cmsg.maskLen(), channPtr->m_readLen[0]);
-                                    }
-                                    else{
-                                        // oooops, bytes[0] is 255
-                                        // we got a long message and need to read bytes[1]
-                                        asio::async_read(channPtr->m_socket, asio::buffer(channPtr->m_readLen + 1, 1), [channPtr, cmsg](std::error_code ec, size_t)
-                                        {
-                                            _abort_channel_if_errcode(channPtr, ec);
-                                            fflassert(channPtr->m_readLen[0] == 255);
-                                            const auto compSize = to_uz(channPtr->m_readLen[1]) + 255;
+                    checkErrcode(ec);
 
-                                            fflassert(compSize <= cmsg.dataLen());
-                                            channPtr->doReadPackBody(cmsg.maskLen(), compSize);
-                                        });
-                                    }
-                                });
-                                return;
-                            }
-                        case 2:
-                            {
-                                // not empty, fixed size, not compressed
+                    m_respIDOpt.reset();
+                    prepareClientMsg(m_readSBuf[0]);
 
-                                // it has no overhead, fast
-                                // this mode should be used for small messages
-                                channPtr->doReadPackBody(0, cmsg.dataLen());
-                                return;
-                            }
-                        case 3:
-                            {
-                                // not empty, not fixed size, not compressed
-
-                                // directly read four bytes as length
-                                // this mode is designed for transfering big chunk
-                                // for even bigger chunk we should send more than one time
-
-                                // and if we want to send big chunk of compressed data
-                                // we should compress it by other method and send it via this channel
-                                asio::async_read(channPtr->m_socket, asio::buffer(channPtr->m_readLen, 4), [channPtr](std::error_code ec, size_t)
-                                {
-                                    _abort_channel_if_errcode(channPtr, ec);
-                                    channPtr->doReadPackBody(0, to_uz(as_u32(channPtr->m_readLen)));
-                                });
-                                return;
-                            }
-                        default:
-                            {
-                                throw fflreach();
-                            }
+                    if(m_clientMsg->hasResp()){
+                        doReadPacketResp(0);
+                    }
+                    else{
+                        afterReadPacketHeadCode();
                     }
                 });
                 return;
@@ -141,39 +97,169 @@ void Channel::doReadPackHeadCode()
     }
 }
 
-void Channel::doReadPackBody(size_t maskSize, size_t bodySize)
+void Channel::doReadPacketResp(size_t offset)
 {
     switch(m_state){
         case CS_RUNNING:
             {
-                const ClientMsg cmsg(m_readHeadCode);
-                fflassert(cmsg.checkDataSize(maskSize, bodySize));
+                asio::async_read(m_socket, asio::buffer(m_readSBuf + offset, 1), [offset, channPtr = shared_from_this(), this](std::error_code ec, size_t)
+                {
+                    checkErrcode(ec);
 
-                if(const auto totalSize = maskSize + bodySize){
-                    auto readMemPtr = getReadBuf(totalSize);
-                    asio::async_read(m_socket, asio::buffer(readMemPtr, totalSize), [channPtr = shared_from_this(), maskSize, bodySize, readMemPtr, cmsg](std::error_code ec, size_t)
-                    {
-                        _abort_channel_if_errcode(channPtr, ec);
-                        uint8_t *decodeMemPtr = nullptr;
-                        if(maskSize){
-                            const auto bitCount = zcompf::countMask(readMemPtr, maskSize);
-                            fflassert(bitCount == bodySize);
-                            fflassert(bodySize <= cmsg.dataLen());
-
-                            decodeMemPtr = channPtr->getDecodeBuf(cmsg.dataLen());
-                            const auto decodeSize = zcompf::xorDecode(decodeMemPtr, cmsg.dataLen(), readMemPtr, readMemPtr + maskSize);
-                            fflassert(decodeSize == bodySize);
+                    if(m_readSBuf[offset] & 0x80){
+                        if(offset >= (64 + 6) / 7){ // support 64 bits respID
+                            throw fflerror("variant packet size uses more than %zu bytes", offset);
+                        }
+                        else{
+                            doReadPacketResp(offset + 1);
+                        }
+                    }
+                    else{
+                        uint64_t respID = 0;
+                        for(size_t i = 0; i < offset; ++i){
+                            respID = (respID << 7) | (m_readSBuf[offset - i] & 0x7f);
                         }
 
-                        channPtr->forwardActorMessage(channPtr->m_readHeadCode, decodeMemPtr ? decodeMemPtr : readMemPtr, maskSize ? cmsg.dataLen() : bodySize);
-                        channPtr->doReadPackHeadCode();
+                        if(!respID){
+                            throw fflerror("packet has response encoded but no response id provided");
+                        }
+
+                        m_respIDOpt = respID;
+                        afterReadPacketHeadCode();
+                    }
+                });
+                return;
+            }
+        case CS_STOPPED:
+            {
+                return;
+            }
+        default:
+            {
+                throw fflvalue(m_state);
+            }
+    }
+}
+
+void Channel::doReadPacketBodySize(size_t offset)
+{
+    switch(m_state){
+        case CS_RUNNING:
+            {
+                switch(m_clientMsg->type()){
+                    case 1:
+                        {
+                            asio::async_read(m_socket, asio::buffer(m_readSBuf + offset, 1), [offset, channPtr = shared_from_this(), this](std::error_code ec, size_t)
+                            {
+                                checkErrcode(ec);
+
+                                if(m_readSBuf[offset] & 0x80){
+                                    if(offset >= 4){
+                                        throw fflerror("variant packet size uses more than 4 bytes");
+                                    }
+                                    else{
+                                        doReadPacketBodySize(offset + 1);
+                                    }
+                                }
+                                else{
+                                    uint32_t dataSize = 0;
+                                    for(size_t i = 0; i < offset; ++i){
+                                        dataSize = (dataSize << 7) | (m_readSBuf[offset - i] & 0x7f);
+                                    }
+
+                                    doReadPacketBody(m_clientMsg->maskLen(), dataSize);
+                                }
+                            });
+                            return;
+                        }
+                    case 3:
+                        {
+                            asio::async_read(m_socket, asio::buffer(m_readSBuf, 4), [channPtr = shared_from_this(), this](std::error_code ec, size_t)
+                            {
+                                checkErrcode(ec);
+                                doReadPacketBody(0, as_u32(m_readSBuf));
+                            });
+                            return;
+                        }
+                    case 0:
+                    case 2:
+                    default:
+                        {
+                            throw fflvalue(m_clientMsg->name());
+                        }
+                }
+            }
+        case CS_STOPPED:
+            {
+                return;
+            }
+        default:
+            {
+                throw fflvalue(m_state);
+            }
+    }
+}
+
+void Channel::doReadPacketBody(size_t maskSize, size_t bodySize)
+{
+    switch(m_state){
+        case CS_RUNNING:
+            {
+                fflassert(m_clientMsg->checkDataSize(maskSize, bodySize));
+                switch(m_clientMsg->type()){
+                    case 1:
+                        {
+                            m_readDBuf.resize(maskSize + bodySize + 64 + m_clientMsg->dataLen());
+                            break;
+                        }
+                    case 2:
+                        {
+                            m_readDBuf.resize(m_clientMsg->dataLen());
+                            break;
+                        }
+                    case 3:
+                        {
+                            m_readDBuf.resize(bodySize);
+                            break;
+                        }
+                    case 0:
+                    default:
+                        {
+                            throw fflvalue(m_clientMsg->name());
+                        }
+                }
+
+                if(const auto totalSize = maskSize + bodySize){
+                    asio::async_read(m_socket, asio::buffer(m_readDBuf.data(), totalSize), [maskSize, bodySize, channPtr = shared_from_this(), this](std::error_code ec, size_t)
+                    {
+                        checkErrcode(ec);
+
+                        if(maskSize){
+                            const bool useWide = m_clientMsg->useXor64();
+                            const size_t dataRatio = useWide ? 8 : 1;
+                            const size_t dataCount = zcompf::countMask(m_readDBuf.data(), maskSize);
+
+                            fflassert(dataCount * dataRatio == bodySize);
+                            fflassert(bodySize <= m_clientMsg->dataLen());
+
+                            const auto maskDataPtr = m_readDBuf.data();
+                            const auto compDataPtr = m_readDBuf.data() + maskSize;
+                            /* */ auto origDataPtr = m_readDBuf.data() + ((maskSize + bodySize + 7) / 8) * 8;
+
+                            const auto decodedSize = useWide ? zcompf::xorDecode64(origDataPtr, m_clientMsg->dataLen(), maskDataPtr, compDataPtr)
+                                                             : zcompf::xorDecode  (origDataPtr, m_clientMsg->dataLen(), maskDataPtr, compDataPtr);
+
+                            fflassert(decodedSize == dataCount);
+                        }
+
+                        forwardActorMessage(m_clientMsg->headCode(), m_readDBuf.data() + (maskSize ? ((maskSize + bodySize + 7) / 8 * 8) : 0), maskSize ? m_clientMsg->dataLen() : bodySize, m_respIDOpt.value_or(0));
+                        doReadPacketHeadCode();
                     });
                 }
                 else{
-                    forwardActorMessage(m_readHeadCode, nullptr, 0);
-                    doReadPackHeadCode();
+                    forwardActorMessage(m_clientMsg->headCode(), nullptr, 0, m_respIDOpt.value_or(0));
+                    doReadPacketHeadCode();
                 }
-                return;
             }
         case CS_STOPPED:
             {
@@ -220,14 +306,15 @@ void Channel::doSendPack()
                 }
 
                 fflassert(!m_currSendQ.empty());
-                asio::async_write(m_socket, asio::buffer(m_currSendQ.data(), m_currSendQ.size()), [channPtr = shared_from_this(), sentCount = m_currSendQ.size()](std::error_code ec, size_t)
+                asio::async_write(m_socket, asio::buffer(m_currSendQ.data(), m_currSendQ.size()), [sentCount = m_currSendQ.size(), channPtr = shared_from_this(), this](std::error_code ec, size_t)
                 {
                     // validate the m_currSendQ size
                     // only asio event loop accesses m_currSendQ and its size should not change during sending
-                    _abort_channel_if_errcode(channPtr, ec);
-                    fflassert(sentCount == channPtr->m_currSendQ.size());
-                    channPtr->m_currSendQ.clear();
-                    channPtr->doSendPack();
+                    checkErrcode(ec);
+                    fflassert(sentCount == m_currSendQ.size());
+
+                    m_currSendQ.clear();
+                    doSendPack();
                 });
                 return;
             }
@@ -267,7 +354,7 @@ void Channel::flushSendQ()
     }
 }
 
-bool Channel::forwardActorMessage(uint8_t headCode, const uint8_t *dataPtr, size_t dataLen)
+bool Channel::forwardActorMessage(uint8_t headCode, const uint8_t *dataPtr, size_t dataLen, uint64_t respID)
 {
     fflassert(g_netDriver->isNetThread());
     fflassert(ClientMsg(headCode).checkData(dataPtr, dataLen));
@@ -276,7 +363,7 @@ bool Channel::forwardActorMessage(uint8_t headCode, const uint8_t *dataPtr, size
     std::memset(&amRP, 0, sizeof(amRP));
 
     amRP.channID = id();
-    buildActorDataPackage(&(amRP.package), headCode, dataPtr, dataLen);
+    buildActorDataPackage(&(amRP.package), headCode, dataPtr, dataLen, respID);
     return m_dispatcher.forward(m_playerUID ? m_playerUID : uidf::getServiceCoreUID(), {AM_RECVPACKAGE, amRP});
 }
 
@@ -328,7 +415,7 @@ void Channel::launch()
     fflassert(m_state == CS_NONE, m_state);
 
     m_state = CS_RUNNING,
-    doReadPackHeadCode();
+    doReadPacketHeadCode();
 }
 
 void Channel::bindPlayer(uint64_t uid)

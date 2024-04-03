@@ -29,6 +29,13 @@ class Client final
         };
 
     private:
+        struct ResponseHandler
+        {
+            uint64_t timeout;
+            std::function<void(uint8_t, const uint8_t *, size_t)> handler;
+        };
+
+    private:
         std::string m_token;
 
     private:
@@ -43,6 +50,8 @@ class Client final
 
     private:
         NetIO m_netIO;
+        uint64_t m_respHandlerIndex = 1;
+        std::unordered_map<uint64_t, ResponseHandler> m_respHandlers;
 
     private:
         int m_requestProcess = PROCESSID_NONE;
@@ -134,32 +143,44 @@ class Client final
         void sendSMsgLog(uint8_t);
 
     public:
-        void send(uint8_t headCode, const void *buf, size_t bufSize)
+        void send(uint8_t headCode, const void *buf, size_t bufSize, std::function<void(uint8_t, const uint8_t *, size_t)> fnOp = nullptr)
         {
-            m_netIO.send(headCode, static_cast<const uint8_t *>(buf), bufSize);
+            if(fnOp){
+                if(m_respHandlers.empty()){
+                    m_respHandlerIndex = 1;
+                }
+
+                m_respHandlers.emplace(m_respHandlerIndex, ResponseHandler{hres_tstamp::localtime() + 1000, std::move(fnOp)});
+                m_netIO.send(headCode, static_cast<const uint8_t *>(buf), bufSize, m_respHandlerIndex);
+                m_respHandlerIndex++;
+            }
+            else{
+                m_netIO.send(headCode, static_cast<const uint8_t *>(buf), bufSize, 0);
+            }
+
             sendCMsgLog(headCode);
         }
 
     public:
-        void send(uint8_t headCode)
+        void send(uint8_t headCode, std::function<void(uint8_t, const uint8_t *, size_t)> fnOp = nullptr)
         {
-            send(headCode, nullptr, 0);
+            send(headCode, nullptr, 0, std::move(fnOp));
         }
 
-        void send(uint8_t headCode, const std::string &buf)
+        void send(uint8_t headCode, const std::string &buf, std::function<void(uint8_t, const uint8_t *, size_t)> fnOp = nullptr)
         {
-            send(headCode, buf.data(), buf.size());
+            send(headCode, buf.data(), buf.size(), std::move(fnOp));
         }
 
-        void send(uint8_t headCode, const std::u8string &buf)
+        void send(uint8_t headCode, const std::u8string &buf, std::function<void(uint8_t, const uint8_t *, size_t)> fnOp = nullptr)
         {
-            send(headCode, buf.data(), buf.size());
+            send(headCode, buf.data(), buf.size(), std::move(fnOp));
         }
 
-        template<typename T> void send(uint8_t headCode, const T &t)
+        template<typename T> void send(uint8_t headCode, const T &t, std::function<void(uint8_t, const uint8_t *, size_t)> fnOp = nullptr)
         {
             static_assert(std::is_trivially_copyable_v<T>);
-            send(headCode, &t, sizeof(t));
+            send(headCode, &t, sizeof(t), std::move(fnOp));
         }
 
     public:

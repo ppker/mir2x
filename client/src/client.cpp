@@ -159,11 +159,22 @@ void Client::initASIO()
         return "5000";
     }();
 
-    m_netIO.start(ipStr.c_str(), portStr.c_str(), [this](uint8_t headCode, const uint8_t *pData, size_t nDataLen)
+    m_netIO.start(ipStr.c_str(), portStr.c_str(), [this](uint8_t headCode, const uint8_t *pData, size_t nDataLen, uint64_t respID)
     {
         // core should handle on fully recieved message from the serer
         // previously there are two steps (HC, Body) seperately handled, error-prone
-        onServerMessage(headCode, pData, nDataLen);
+
+        if(respID){
+            if(auto p = m_respHandlers.find(respID); p != m_respHandlers.end()){
+                p->second.handler(headCode, pData, nDataLen);
+            }
+            else{
+                throw fflerror("no handler found for response id %llu", to_llu(respID));
+            }
+        }
+        else{
+            onServerMessage(headCode, pData, nDataLen);
+        }
         switchProcess();
     });
 }

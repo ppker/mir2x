@@ -7,7 +7,7 @@
 #include "serverargparser.hpp"
 
 extern ServerArgParser *g_serverArgParser;
-void Player::net_CM_ACTION(uint8_t, const uint8_t *pBuf, size_t)
+void Player::net_CM_ACTION(uint8_t, const uint8_t *pBuf, size_t, uint64_t)
 {
     CMAction cmA;
     std::memcpy(&cmA, pBuf, sizeof(cmA));
@@ -32,7 +32,7 @@ void Player::net_CM_ACTION(uint8_t, const uint8_t *pBuf, size_t)
     }
 }
 
-void Player::net_CM_QUERYCORECORD(uint8_t, const uint8_t *pBuf, size_t)
+void Player::net_CM_QUERYCORECORD(uint8_t, const uint8_t *pBuf, size_t, uint64_t)
 {
     CMQueryCORecord stCMQCOR;
     std::memcpy(&stCMQCOR, pBuf, sizeof(stCMQCOR));
@@ -54,13 +54,13 @@ void Player::net_CM_QUERYCORECORD(uint8_t, const uint8_t *pBuf, size_t)
     }
 }
 
-void Player::net_CM_REQUESTRETRIEVESECUREDITEM(uint8_t, const uint8_t *buf, size_t)
+void Player::net_CM_REQUESTRETRIEVESECUREDITEM(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmRRSI = ClientMsg::conv<CMRequestRetrieveSecuredItem>(buf);
     removeSecuredItem(cmRRSI.itemID, cmRRSI.seqID);
 }
 
-void Player::net_CM_REQUESTSPACEMOVE(uint8_t, const uint8_t *buf, size_t)
+void Player::net_CM_REQUESTSPACEMOVE(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmRSM = ClientMsg::conv<CMRequestSpaceMove>(buf);
     if(cmRSM.mapID == mapID()){
@@ -77,24 +77,24 @@ void Player::net_CM_REQUESTSPACEMOVE(uint8_t, const uint8_t *buf, size_t)
     }
 }
 
-void Player::net_CM_REQUESTMAGICDAMAGE(uint8_t, const uint8_t *buf, size_t)
+void Player::net_CM_REQUESTMAGICDAMAGE(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmRMD = ClientMsg::conv<CMRequestMagicDamage>(buf);
     dispatchAttackDamage(cmRMD.aimUID, DBCOM_MAGICID(u8"物理攻击"), 0);
 }
 
-void Player::net_CM_REQUESTADDEXP(uint8_t, const uint8_t *buf, size_t)
+void Player::net_CM_REQUESTADDEXP(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmRAE = ClientMsg::conv<CMRequestAddExp>(buf);
     gainExp(to_d(cmRAE.addExp));
 }
 
-void Player::net_CM_REQUESTKILLPETS(uint8_t, const uint8_t *, size_t)
+void Player::net_CM_REQUESTKILLPETS(uint8_t, const uint8_t *, size_t, uint64_t)
 {
     RequestKillPets();
 }
 
-void Player::net_CM_PICKUP(uint8_t, const uint8_t *buf, size_t)
+void Player::net_CM_PICKUP(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmPU = ClientMsg::conv<CMPickUp>(buf);
     if(cmPU.mapID != m_map->ID()){
@@ -163,7 +163,7 @@ void Player::net_CM_PICKUP(uint8_t, const uint8_t *buf, size_t)
     });
 }
 
-void Player::net_CM_PING(uint8_t, const uint8_t *pBuf, size_t)
+void Player::net_CM_PING(uint8_t, const uint8_t *pBuf, size_t, uint64_t)
 {
     SMPing smP;
     std::memset(&smP, 0, sizeof(smP));
@@ -171,12 +171,12 @@ void Player::net_CM_PING(uint8_t, const uint8_t *pBuf, size_t)
     postNetMessage(SM_PING, smP);
 }
 
-void Player::net_CM_QUERYGOLD(uint8_t, const uint8_t *, size_t)
+void Player::net_CM_QUERYGOLD(uint8_t, const uint8_t *, size_t, uint64_t)
 {
     reportGold();
 }
 
-void Player::net_CM_NPCEVENT(uint8_t, const uint8_t *buf, size_t bufLen)
+void Player::net_CM_NPCEVENT(uint8_t, const uint8_t *buf, size_t bufLen, uint64_t)
 {
     const auto cmNPCE = ClientMsg::conv<CMNPCEvent>(buf, bufLen);
     m_actorPod->forward(cmNPCE.uid, {AM_NPCEVENT, cerealf::serialize(SDNPCEvent
@@ -197,7 +197,7 @@ void Player::net_CM_NPCEVENT(uint8_t, const uint8_t *buf, size_t bufLen)
     })});
 }
 
-void Player::net_CM_QUERYSELLITEMLIST(uint8_t, const uint8_t *buf, size_t)
+void Player::net_CM_QUERYSELLITEMLIST(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmQSIL = ClientMsg::conv<CMQuerySellItemList>(buf);
     AMQuerySellItemList amQSIL;
@@ -207,7 +207,7 @@ void Player::net_CM_QUERYSELLITEMLIST(uint8_t, const uint8_t *buf, size_t)
     m_actorPod->forward(cmQSIL.npcUID, {AM_QUERYSELLITEMLIST, amQSIL});
 }
 
-void Player::net_CM_QUERYUIDBUFF(uint8_t, const uint8_t *buf, size_t)
+void Player::net_CM_QUERYUIDBUFF(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmQUIDB = ClientMsg::conv<CMQueryUIDBuff>(buf);
     if(cmQUIDB.uid == UID()){
@@ -233,7 +233,7 @@ void Player::net_CM_QUERYUIDBUFF(uint8_t, const uint8_t *buf, size_t)
     }
 }
 
-void Player::net_CM_QUERYPLAYERNAME(uint8_t, const uint8_t *buf, size_t)
+void Player::net_CM_QUERYPLAYERNAME(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmQPN = ClientMsg::conv<CMQueryPlayerName>(buf);
     if(cmQPN.uid == UID()){
@@ -249,7 +249,7 @@ void Player::net_CM_QUERYPLAYERNAME(uint8_t, const uint8_t *buf, size_t)
     }
 }
 
-void Player::net_CM_QUERYPLAYERWLDESP(uint8_t, const uint8_t *buf, size_t)
+void Player::net_CM_QUERYPLAYERWLDESP(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmQPWLD = ClientMsg::conv<CMQueryPlayerWLDesp>(buf);
     if(cmQPWLD.uid == UID()){
@@ -272,7 +272,7 @@ void Player::net_CM_QUERYPLAYERWLDESP(uint8_t, const uint8_t *buf, size_t)
     }
 }
 
-void Player::net_CM_CHATMESSAGE(uint8_t, const uint8_t *buf, size_t)
+void Player::net_CM_CHATMESSAGE(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmCM = ClientMsg::conv<CMChatMessage>(buf);
     const auto [msgId, tstamp] = dbSaveChatMessage(cmCM.toDBID, cmCM.message.as_sv());
@@ -292,7 +292,7 @@ void Player::net_CM_CHATMESSAGE(uint8_t, const uint8_t *buf, size_t)
     }));
 }
 
-void Player::net_CM_BUY(uint8_t, const uint8_t *buf, size_t)
+void Player::net_CM_BUY(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmB = ClientMsg::conv<CMBuy>(buf);
     if(uidf::getUIDType(cmB.npcUID) != UID_NPC){
@@ -409,7 +409,7 @@ void Player::net_CM_BUY(uint8_t, const uint8_t *buf, size_t)
     });
 }
 
-void Player::net_CM_REQUESTEQUIPWEAR(uint8_t, const uint8_t *buf, size_t)
+void Player::net_CM_REQUESTEQUIPWEAR(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmREW = ClientMsg::conv<CMRequestEquipWear>(buf);
     const auto fnPostEquipError = [&cmREW, this](int equipError)
@@ -481,7 +481,7 @@ void Player::net_CM_REQUESTEQUIPWEAR(uint8_t, const uint8_t *buf, size_t)
     }
 }
 
-void Player::net_CM_REQUESTEQUIPBELT(uint8_t, const uint8_t *buf, size_t)
+void Player::net_CM_REQUESTEQUIPBELT(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmREB = ClientMsg::conv<CMRequestEquipBelt>(buf);
     const auto fnPostEquipError = [&cmREB, this](int equipError)
@@ -538,7 +538,7 @@ void Player::net_CM_REQUESTEQUIPBELT(uint8_t, const uint8_t *buf, size_t)
     }
 }
 
-void Player::net_CM_REQUESTGRABWEAR(uint8_t, const uint8_t *buf, size_t)
+void Player::net_CM_REQUESTGRABWEAR(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmRGW = ClientMsg::conv<CMRequestGrabWear>(buf);
     const auto wltype = to_d(cmRGW.wltype);
@@ -578,7 +578,7 @@ void Player::net_CM_REQUESTGRABWEAR(uint8_t, const uint8_t *buf, size_t)
     }
 }
 
-void Player::net_CM_REQUESTGRABBELT(uint8_t, const uint8_t *buf, size_t)
+void Player::net_CM_REQUESTGRABBELT(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmRGB = ClientMsg::conv<CMRequestGrabBelt>(buf);
     const auto fnPostGrabError = [&cmRGB, this](int grabError)
@@ -611,7 +611,7 @@ void Player::net_CM_REQUESTGRABBELT(uint8_t, const uint8_t *buf, size_t)
     }));
 }
 
-void Player::net_CM_REQUESTJOINTEAM(uint8_t, const uint8_t *buf, size_t)
+void Player::net_CM_REQUESTJOINTEAM(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmRJT = ClientMsg::conv<CMRequestJoinTeam>(buf);
     if(!uidf::isPlayer(cmRJT.uid)){
@@ -649,7 +649,7 @@ void Player::net_CM_REQUESTJOINTEAM(uint8_t, const uint8_t *buf, size_t)
     }
 }
 
-void Player::net_CM_REQUESTLEAVETEAM(uint8_t, const uint8_t *buf, size_t)
+void Player::net_CM_REQUESTLEAVETEAM(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmRLT = ClientMsg::conv<CMRequestLeaveTeam>(buf);
     if(!uidf::isPlayer(cmRLT.uid)){
@@ -682,7 +682,7 @@ void Player::net_CM_REQUESTLEAVETEAM(uint8_t, const uint8_t *buf, size_t)
     }
 }
 
-void Player::net_CM_DROPITEM(uint8_t, const uint8_t *buf, size_t)
+void Player::net_CM_DROPITEM(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmDI = ClientMsg::conv<CMDropItem>(buf);
     auto dropItem = [&cmDI, this]() -> SDItem
@@ -714,7 +714,7 @@ void Player::net_CM_DROPITEM(uint8_t, const uint8_t *buf, size_t)
     })});
 }
 
-void Player::net_CM_CONSUMEITEM(uint8_t, const uint8_t *buf, size_t)
+void Player::net_CM_CONSUMEITEM(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmCI = ClientMsg::conv<CMConsumeItem>(buf);
     fflassert((SDItem
@@ -743,7 +743,7 @@ void Player::net_CM_CONSUMEITEM(uint8_t, const uint8_t *buf, size_t)
     }
 }
 
-void Player::net_CM_MAKEITEM(uint8_t, const uint8_t *buf, size_t)
+void Player::net_CM_MAKEITEM(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmMI = ClientMsg::conv<CMMakeItem>(buf);
     fflassert(cmMI.count >= 1, cmMI.count);
@@ -766,13 +766,13 @@ void Player::net_CM_MAKEITEM(uint8_t, const uint8_t *buf, size_t)
     }
 }
 
-void Player::net_CM_SETMAGICKEY(uint8_t, const uint8_t *buf, size_t)
+void Player::net_CM_SETMAGICKEY(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmSMK = ClientMsg::conv<CMSetMagicKey>(buf);
     dbUpdateMagicKey(cmSMK.magicID, cmSMK.key);
 }
 
-void Player::net_CM_SETRUNTIMECONFIG(uint8_t, const uint8_t *buf, size_t)
+void Player::net_CM_SETRUNTIMECONFIG(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmSRC = ClientMsg::conv<CMSetRuntimeConfig>(buf);
 
@@ -784,7 +784,7 @@ void Player::net_CM_SETRUNTIMECONFIG(uint8_t, const uint8_t *buf, size_t)
     }
 }
 
-void Player::net_CM_REQUESTLATESTCHATMESSAGE(uint8_t, const uint8_t *buf, size_t)
+void Player::net_CM_REQUESTLATESTCHATMESSAGE(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmRLCM = ClientMsg::conv<CMRequestLatestChatMessage>(buf);
 

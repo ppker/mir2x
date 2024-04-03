@@ -20,7 +20,7 @@ extern MonoServer *g_monoServer;
 void ServiceCore::on_AM_RECVPACKAGE(const ActorMsgPack &mpk)
 {
     /* const */ auto amRP = mpk.conv<AMRecvPackage>();
-    operateNet(amRP.channID, amRP.package.type, amRP.package.buf(), amRP.package.size);
+    operateNet(amRP.channID, amRP.package.type, amRP.package.buf(), amRP.package.size, amRP.package.resp);
     freeActorDataPackage(&(amRP.package));
 }
 
