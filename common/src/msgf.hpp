@@ -113,7 +113,6 @@ namespace msgf
             size_t maskLen() const
             {
                 if(type() == 1){
-
                     if(useXor64()){ return (dataLen() + 63) / 64; }
                     else          { return (dataLen() +  7) /  8; }
                 }
