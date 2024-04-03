@@ -107,8 +107,8 @@ void Channel::doReadPacketResp(size_t offset)
                     checkErrcode(ec);
 
                     if(m_readSBuf[offset] & 0x80){
-                        if(offset >= (64 + 6) / 7){ // support 64 bits respID
-                            throw fflerror("variant packet size uses more than %zu bytes", offset);
+                        if(offset + 1 >= (64 + 6) / 7){ // support 64 bits respID
+                            throw fflerror("variant packet size uses more than %zu bytes", offset + 1);
                         }
                         else{
                             doReadPacketResp(offset + 1);
@@ -116,7 +116,7 @@ void Channel::doReadPacketResp(size_t offset)
                     }
                     else{
                         uint64_t respID = 0;
-                        for(size_t i = 0; i < offset; ++i){
+                        for(size_t i = 0; i <= offset; ++i){
                             respID = (respID << 7) | (m_readSBuf[offset - i] & 0x7f);
                         }
 
@@ -154,7 +154,7 @@ void Channel::doReadPacketBodySize(size_t offset)
                                 checkErrcode(ec);
 
                                 if(m_readSBuf[offset] & 0x80){
-                                    if(offset >= 4){
+                                    if(offset + 1 >= 4){
                                         throw fflerror("variant packet size uses more than 4 bytes");
                                     }
                                     else{
@@ -163,11 +163,11 @@ void Channel::doReadPacketBodySize(size_t offset)
                                 }
                                 else{
                                     uint32_t dataSize = 0;
-                                    for(size_t i = 0; i < offset; ++i){
+                                    for(size_t i = 0; i <= offset; ++i){
                                         dataSize = (dataSize << 7) | (m_readSBuf[offset - i] & 0x7f);
                                     }
 
-                                    doReadPacketBody(m_clientMsg->maskLen(), dataSize);
+                                    doReadPacketBody(m_clientMsg->maskLen(), dataSize * (m_clientMsg->useXor64() ? 8 : 1));
                                 }
                             });
                             return;
