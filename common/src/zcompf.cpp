@@ -66,7 +66,7 @@ size_t zcompf::countData64(const uint8_t *buf, size_t bufLen)
 {
     size_t count = 0;
     for(size_t i = 0; i < bufLen; i += 8){
-        if(as_u64(buf + i)){
+        if(as_u64(buf + i, std::min<size_t>(8, bufLen - i))){
             count++;
         }
     }
@@ -86,9 +86,9 @@ size_t zcompf::xorEncode64(uint8_t *dst, const uint8_t *buf, size_t bufLen)
 
     size_t dataCount = 0;
     for(size_t i = 0; i < bufLen; i += 8){
-        if(as_u64(buf + i)){
+        if(const size_t procSize = std::min<size_t>(8, bufLen - i); as_u64(buf + i, procSize)){
             maskPtr[i / 64] |= (0x01 << ((i % 64) / 8));
-            std::memcpy(compPtr + dataCount * 8, buf + i, 8);
+            std::memcpy(compPtr + dataCount * 8, buf + i, procSize); // may having tailing garbage
             dataCount++;
         }
     }
@@ -106,11 +106,11 @@ size_t zcompf::xorDecode64(uint8_t *dst, size_t bufLen, const uint8_t *maskPtr, 
     size_t decodeCount = 0;
     for(size_t i = 0; i < bufLen; i += 8){
         if(maskPtr[i / 64] & (0x01 << ((i % 64) / 8))){
-            std::memcpy(dst + i, compPtr + decodeCount * 8, 8);
+            std::memcpy(dst + i, compPtr + decodeCount * 8, std::min<size_t>(8, bufLen - i)); // skip tailing garbage
             decodeCount++;
         }
         else{
-            std::memset(dst + i, 0, 8);
+            std::memset(dst + i, 0, std::min<size_t>(8, bufLen - i)); // skip tailing garbage
         }
     }
     return decodeCount;

@@ -39,18 +39,24 @@ int to_dround(std::floating_point auto x)
     return check_cast<int>(std::lround(x));
 }
 
-template<typename T> T as_type(const void *buf)
+template<typename T> T as_type(const void *buf, size_t bufSize = sizeof(T))
 {
     static_assert(std::is_trivially_copyable_v<T>);
 
     T t;
-    std::memcpy(&t, buf, sizeof(t));
+    if(bufSize >= sizeof(t)){
+        std::memcpy(&t, buf, sizeof(t));
+    }
+    else{
+        std::memcpy(&t, buf, bufSize);
+        std::memset(reinterpret_cast<uint8_t *>(&t) + bufSize, 0, sizeof(T) - bufSize);
+    }
     return t;
 }
 
-inline uint16_t as_u16(const void *buf) { return as_type<uint16_t>(buf); }
-inline uint32_t as_u32(const void *buf) { return as_type<uint32_t>(buf); }
-inline uint64_t as_u64(const void *buf) { return as_type<uint64_t>(buf); }
+inline uint16_t as_u16(const void *buf, size_t bufSize = 2) { return as_type<uint16_t>(buf, bufSize); }
+inline uint32_t as_u32(const void *buf, size_t bufSize = 4) { return as_type<uint32_t>(buf, bufSize); }
+inline uint64_t as_u64(const void *buf, size_t bufSize = 8) { return as_type<uint64_t>(buf, bufSize); }
 
 inline const char * to_cstr(const char *s)
 {
