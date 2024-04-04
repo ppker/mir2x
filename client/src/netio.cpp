@@ -108,7 +108,7 @@ void NetIO::doReadPacketBodySize(size_t offset)
                             dataSize = (dataSize << 7) | (m_readSBuf[offset - i] & 0x7f);
                         }
 
-                        doReadPacketBody(m_serverMsg->maskLen(), dataSize * (m_serverMsg->useXor64() ? 8 : 1));
+                        doReadPacketBody(m_serverMsg->maskLen(), dataSize);
                     }
                 });
                 return;
@@ -168,20 +168,19 @@ void NetIO::doReadPacketBody(size_t maskSize, size_t bodySize)
 
             if(maskSize){
                 const bool useWide = m_serverMsg->useXor64();
-                const size_t dataRatio = useWide ? 8 : 1;
-                const size_t dataCount = zcompf::countMask(m_readDBuf.data(), maskSize);
+                const size_t dataCount = zcompf::xorCountMask(m_readDBuf.data(), maskSize);
 
-                fflassert(dataCount * dataRatio == bodySize);
+                fflassert(dataCount == (useWide ? (bodySize + 7) / 8 : bodySize));
                 fflassert(bodySize <= m_serverMsg->dataLen());
 
                 const auto maskDataPtr = m_readDBuf.data();
                 const auto compDataPtr = m_readDBuf.data() + maskSize;
                 /* */ auto origDataPtr = m_readDBuf.data() + ((maskSize + bodySize + 7) / 8) * 8;
 
-                const auto decodedSize = useWide ? zcompf::xorDecode64(origDataPtr, m_serverMsg->dataLen(), maskDataPtr, compDataPtr)
-                                                 : zcompf::xorDecode  (origDataPtr, m_serverMsg->dataLen(), maskDataPtr, compDataPtr);
+                const auto decodedBytes = useWide ? zcompf::xorDecode64(origDataPtr, m_serverMsg->dataLen(), maskDataPtr, compDataPtr)
+                                                  : zcompf::xorDecode  (origDataPtr, m_serverMsg->dataLen(), maskDataPtr, compDataPtr);
 
-                fflassert(decodedSize == dataCount);
+                fflassert(decodedBytes == bodySize);
             }
 
             m_msgHandler(m_serverMsg->headCode(), m_readDBuf.data() + (maskSize ? ((maskSize + bodySize + 7) / 8 * 8) : 0), maskSize ? m_serverMsg->dataLen() : bodySize, m_respIDOpt.value_or(0));
@@ -219,10 +218,10 @@ void NetIO::doSendBuf()
 void NetIO::send(uint8_t headCode, const uint8_t *buf, size_t bufSize, uint64_t respID)
 {
     if(headCode & 0x80){
-        throw fflerror("invalid head code 0x%02d", headCode);
+        throw fflerror("invalid head code 0x%02d", to_d(headCode));
     }
 
-    const ClientMsg cmsg(headCode | (respID ? 0x80 : 0x00));
+    const ClientMsg cmsg(headCode);
     fflassert(cmsg.checkData(buf, bufSize));
 
     if(respID){
@@ -244,10 +243,7 @@ void NetIO::send(uint8_t headCode, const uint8_t *buf, size_t bufSize, uint64_t 
         case 1:
             {
                 const bool useWide = cmsg.useXor64();
-                const size_t dataRatio = useWide ? 8 : 1;
-                const size_t dataCount = useWide ? zcompf::countData64(buf, bufSize) : zcompf::countData(buf, bufSize);
-
-                fflassert(dataCount * dataRatio <= cmsg.dataLen());
+                const size_t dataCount = useWide ? zcompf::xorCountData64(buf, bufSize) : zcompf::xorCountData(buf, bufSize);
 
                 uint8_t encodeBuf[4];
                 const size_t sizeEncLength = msgf::encodeLength(encodeBuf, 4, dataCount);
@@ -256,11 +252,11 @@ void NetIO::send(uint8_t headCode, const uint8_t *buf, size_t bufSize, uint64_t 
                 const size_t dataStartOff = m_nextSendBuf.size();
                 m_nextSendBuf.resize(m_nextSendBuf.size() + cmsg.maskLen() + cmsg.dataLen());
 
-                const size_t encodedSize = useWide ? zcompf::xorEncode64(m_nextSendBuf.data() + dataStartOff, buf, bufSize)
-                                                  : zcompf::xorEncode  (m_nextSendBuf.data() + dataStartOff, buf, bufSize);
+                const size_t encodedBytes = useWide ? zcompf::xorEncode64(m_nextSendBuf.data() + dataStartOff, buf, bufSize)
+                                                    : zcompf::xorEncode  (m_nextSendBuf.data() + dataStartOff, buf, bufSize);
 
-                fflassert(encodedSize == dataCount);
-                m_nextSendBuf.resize(dataStartOff + cmsg.maskLen() + encodedSize * dataRatio);
+                fflassert(encodedBytes == dataCount);
+                m_nextSendBuf.resize(dataStartOff + cmsg.maskLen() + encodedBytes);
                 break;
             }
         case 2:

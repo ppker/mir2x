@@ -167,7 +167,7 @@ void Channel::doReadPacketBodySize(size_t offset)
                                         dataSize = (dataSize << 7) | (m_readSBuf[offset - i] & 0x7f);
                                     }
 
-                                    doReadPacketBody(m_clientMsg->maskLen(), dataSize * (m_clientMsg->useXor64() ? 8 : 1));
+                                    doReadPacketBody(m_clientMsg->maskLen(), dataSize);
                                 }
                             });
                             return;
@@ -236,20 +236,19 @@ void Channel::doReadPacketBody(size_t maskSize, size_t bodySize)
 
                         if(maskSize){
                             const bool useWide = m_clientMsg->useXor64();
-                            const size_t dataRatio = useWide ? 8 : 1;
-                            const size_t dataCount = zcompf::countMask(m_readDBuf.data(), maskSize);
+                            const size_t dataCount = zcompf::xorCountMask(m_readDBuf.data(), maskSize);
 
-                            fflassert(dataCount * dataRatio == bodySize);
+                            fflassert(dataCount == (useWide ? (bodySize + 7) / 8 : bodySize));
                             fflassert(bodySize <= m_clientMsg->dataLen());
 
                             const auto maskDataPtr = m_readDBuf.data();
                             const auto compDataPtr = m_readDBuf.data() + maskSize;
                             /* */ auto origDataPtr = m_readDBuf.data() + ((maskSize + bodySize + 7) / 8) * 8;
 
-                            const auto decodedSize = useWide ? zcompf::xorDecode64(origDataPtr, m_clientMsg->dataLen(), maskDataPtr, compDataPtr)
-                                                             : zcompf::xorDecode  (origDataPtr, m_clientMsg->dataLen(), maskDataPtr, compDataPtr);
+                            const auto decodedBytes = useWide ? zcompf::xorDecode64(origDataPtr, m_clientMsg->dataLen(), maskDataPtr, compDataPtr)
+                                                              : zcompf::xorDecode  (origDataPtr, m_clientMsg->dataLen(), maskDataPtr, compDataPtr);
 
-                            fflassert(decodedSize == dataCount);
+                            fflassert(decodedBytes == bodySize);
                         }
 
                         forwardActorMessage(m_clientMsg->headCode(), m_readDBuf.data() + (maskSize ? ((maskSize + bodySize + 7) / 8 * 8) : 0), maskSize ? m_clientMsg->dataLen() : bodySize, m_respIDOpt.value_or(0));

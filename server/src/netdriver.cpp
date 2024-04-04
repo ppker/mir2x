@@ -145,7 +145,7 @@ std::array<std::tuple<const uint8_t *, size_t>, 2> NetDriver::encodePostBuf(uint
                 return
                 {
                     std::make_tuple(encodeBuf.data(), sizeStartOff + sizeEncLength),
-                    std::make_tuple(compBuf, smsg.maskLen() + to_uz(compCnt) * (smsg.useXor64() ? 8 : 1)),
+                    std::make_tuple(compBuf, smsg.maskLen() + compCnt),
                 };
             }
         case 2:

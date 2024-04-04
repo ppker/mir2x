@@ -108,10 +108,10 @@ namespace zcompf
     // xor compression/decompression
     // used by default, gives about 2x compression in general
 
-    size_t countMask(const uint8_t *, size_t);
+    size_t xorCountMask(const uint8_t *, size_t);
 
-    size_t countData  (const uint8_t *, size_t);
-    size_t countData64(const uint8_t *, size_t);
+    size_t xorCountData  (const uint8_t *, size_t);
+    size_t xorCountData64(const uint8_t *, size_t);
 
     size_t xorEncode  (uint8_t *, const uint8_t *, size_t);
     size_t xorEncode64(uint8_t *, const uint8_t *, size_t);
