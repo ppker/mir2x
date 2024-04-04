@@ -209,7 +209,7 @@ struct CMBuy
 struct CMChatMessage
 {
     uint32_t toDBID;
-    FixedBuf<256> message;
+    FixedBuf<1024> message;
 };
 
 struct CMRequestEquipWear
