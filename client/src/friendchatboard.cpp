@@ -1603,30 +1603,6 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
 
                           true,
                       },
-
-                      {
-                          new TritexButton
-                          {
-                              DIR_UPLEFT,
-                              0,
-                              0,
-
-                              {0X00000170, 0X00000170, 0X00000171},
-                              {
-                                  SYS_U32NIL,
-                                  SYS_U32NIL,
-                                  0X01020000 + 105,
-                              },
-
-                              nullptr,
-                              nullptr,
-                              [this](ButtonBase *)
-                              {
-                              },
-                          },
-
-                          true,
-                      },
                   },
 
                   this,
