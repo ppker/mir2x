@@ -16,6 +16,7 @@ class FriendChatBoard: public Widget
             UIPage_CHAT = 0,
             UIPage_CHATPREVIEW,
             UIPage_FRIENDLIST,
+            UIPage_FRIENDSEARCH,
             UIPage_END,
         };
 
