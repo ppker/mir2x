@@ -272,22 +272,28 @@ void Player::net_CM_QUERYPLAYERWLDESP(uint8_t, const uint8_t *buf, size_t, uint6
     }
 }
 
-void Player::net_CM_CHATMESSAGE(uint8_t, const uint8_t *buf, size_t, uint64_t)
+void Player::net_CM_CHATMESSAGE(uint8_t, const uint8_t *buf, size_t bufSize, uint64_t)
 {
-    const auto cmCM = ClientMsg::conv<CMChatMessage>(buf);
-    const auto [msgId, tstamp] = dbSaveChatMessage(cmCM.toDBID, cmCM.message.as_sv());
+    fflassert(bufSize >= 4, bufSize);
 
-    forwardNetPackage(uidf::getPlayerUID(cmCM.toDBID), SM_CHATMESSAGELIST, cerealf::serialize(SDChatMessageList
+    const auto toDBID = as_u32(buf, 4);
+    std::string msgBuf;
+
+    msgBuf = as_sv(buf + 4, bufSize - 4);
+
+    const auto [msgId, tstamp] = dbSaveChatMessage(toDBID, msgBuf);
+
+    forwardNetPackage(uidf::getPlayerUID(toDBID), SM_CHATMESSAGELIST, cerealf::serialize(SDChatMessageList
     {
         SDChatMessage
         {
             .id = msgId,
 
             .from = dbid(),
-            .to   = cmCM.toDBID,
+            .to   = toDBID,
 
             .timestamp = tstamp,
-            .message = cmCM.message.to_str(), // keep serialized
+            .message = std::move(msgBuf), // keep serialized
         },
     }));
 }

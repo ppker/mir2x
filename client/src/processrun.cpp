@@ -1679,13 +1679,11 @@ void ProcessRun::requestLeaveTeam(uint64_t uid)
 
 void ProcessRun::requestSendChatMessage(uint32_t toDBID, std::string chatMessage)
 {
-    CMChatMessage cmCM;
-    std::memset(&cmCM, 0, sizeof(cmCM));
+    auto dbidsv = as_sv(toDBID);
+    auto buf = cerealf::serialize(chatMessage);
 
-    cmCM.toDBID = toDBID;
-    cmCM.message.assign(cerealf::serialize(chatMessage));
-
-    g_client->send(CM_CHATMESSAGE, cmCM);
+    buf.insert(buf.begin(), dbidsv.begin(), dbidsv.end());
+    g_client->send(CM_CHATMESSAGE, buf);
 }
 
 void ProcessRun::requestLatestChatMessage(const std::vector<uint32_t> &dbids, size_t limitCount, bool sendIncluded, bool recvIncluded)

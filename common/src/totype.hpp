@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <string_view>
 #include "fixedbuf.hpp"
+#include "conceptf.hpp"
 
 inline auto to_d    (auto x){ return static_cast<               int>(x); }
 inline auto to_u    (auto x){ return static_cast<      unsigned int>(x); }
@@ -52,6 +53,36 @@ template<typename T> T as_type(const void *buf, size_t bufSize = sizeof(T))
         std::memset(reinterpret_cast<uint8_t *>(&t) + bufSize, 0, sizeof(T) - bufSize);
     }
     return t;
+}
+
+inline std::string_view as_sv(const void *buf, size_t bufSize = 0)
+{
+    if(bufSize == 0){
+        return std::string_view(reinterpret_cast<const char *>(buf));
+    }
+    else{
+        return std::string_view(reinterpret_cast<const char *>(buf), bufSize);
+    }
+}
+
+inline std::u8string_view as_u8sv(const void *buf, size_t bufSize = 0)
+{
+    if(bufSize == 0){
+        return std::u8string_view(reinterpret_cast<const char8_t *>(buf));
+    }
+    else{
+        return std::u8string_view(reinterpret_cast<const char8_t *>(buf), bufSize);
+    }
+}
+
+inline std::string_view as_sv(const conceptf::TriviallyCopyable auto &t)
+{
+    return as_sv(&t, sizeof(t));
+}
+
+inline std::u8string_view as_u8sv(const conceptf::TriviallyCopyable auto &t)
+{
+    return as_u8sv(&t, sizeof(t));
 }
 
 inline uint16_t as_u16(const void *buf, size_t bufSize = 2) { return as_type<uint16_t>(buf, bufSize); }

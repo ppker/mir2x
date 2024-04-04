@@ -206,12 +206,6 @@ struct CMBuy
     uint32_t count;
 };
 
-struct CMChatMessage
-{
-    uint32_t toDBID;
-    FixedBuf<1024> message;
-};
-
 struct CMRequestEquipWear
 {
     uint32_t itemID;
@@ -301,7 +295,7 @@ namespace
         _RSVD_register_clientmsg(CM_CONSUMEITEM,                1, sizeof(CMConsumeItem)               );
         _RSVD_register_clientmsg(CM_MAKEITEM,                   1, sizeof(CMMakeItem)                  );
         _RSVD_register_clientmsg(CM_BUY,                        1, sizeof(CMBuy)                       );
-        _RSVD_register_clientmsg(CM_CHATMESSAGE,                1, sizeof(CMChatMessage)               );
+        _RSVD_register_clientmsg(CM_CHATMESSAGE,                3                                      );
         _RSVD_register_clientmsg(CM_REQUESTEQUIPWEAR,           1, sizeof(CMRequestEquipWear)          );
         _RSVD_register_clientmsg(CM_REQUESTGRABWEAR,            1, sizeof(CMRequestGrabWear)           );
         _RSVD_register_clientmsg(CM_REQUESTEQUIPBELT,           1, sizeof(CMRequestEquipBelt)          );
