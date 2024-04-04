@@ -7,9 +7,11 @@
 
 enum SMType: uint8_t
 {
-    SM_NONE_0  = 0,
-    SM_BEGIN   = 1,
-    SM_PING    = 1,
+    SM_NONE_0 = 0,
+    SM_BEGIN  = 1,
+    SM_OK     = 0,
+    SM_ERROR,
+    SM_PING,
     SM_LOGINOK,
     SM_LOGINERROR,
     SM_CREATEACCOUNTOK,
