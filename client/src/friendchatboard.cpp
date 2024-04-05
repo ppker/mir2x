@@ -303,6 +303,8 @@ struct FriendSearchInputLine: public Widget
 struct FriendSearchPage: public Widget
 {
     FriendSearchInputLine input;
+    LayoutBoard clear;
+
     // Widget autocompletes;
     // Widget candidates;
 
@@ -333,10 +335,50 @@ struct FriendSearchPage: public Widget
           {
               DIR_UPLEFT,
 
-              30,
-              30,
-              200,
+              0,
+              0,
+              this->w() - 100,
               40,
+
+              this,
+              false,
+          }
+
+        , clear
+          {
+              DIR_UPLEFT,
+              input.dx() + input.w(),
+              input.dy(),
+
+              -1,
+
+              R"###(<layout><par><event id="clear">清空</event></par></layout>)###",
+              0,
+
+              {},
+
+              false,
+              false,
+              false,
+              false,
+
+              1,
+              12,
+
+              0,
+              colorf::WHITE + colorf::A_SHF(255),
+              0,
+
+              LALIGN_LEFT,
+              0,
+              0,
+
+              0,
+              0,
+
+              nullptr,
+              nullptr,
+              nullptr,
 
               this,
               false,
