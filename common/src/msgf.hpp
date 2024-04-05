@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <concepts>
+#include "strf.hpp"
 #include "fflerror.hpp"
 
 namespace msgf
@@ -144,7 +145,7 @@ namespace msgf
                     case 3:
                         {
                             if(data){
-                                return (dataSize > 0) && (dataSize < 0xffffffff);
+                                return dataSize > 0;
                             }
                             else{
                                 return dataSize == 0;
@@ -174,7 +175,7 @@ namespace msgf
                         }
                     case 3:
                         {
-                            return (maskSize == 0) && (bodySize <= 0xffffffff);
+                            return maskSize == 0;
                         }
                     default:
                         {
@@ -204,5 +205,24 @@ namespace msgf
             throw fflerror("buffer can not hold length bits, bufSize %zu, length %zu", bufSize, length);
         }
         return bytes;
+    }
+
+    template<std::unsigned_integral T> T decodeLength(const uint8_t *buf, size_t bufSize)
+    {
+        static_assert(sizeof(T) >= 2); // may have issue when checking overflow if single byte
+
+        fflassert(buf);
+        fflassert(bufSize >= 1);
+
+        T length = 0;
+        for(size_t i = 0; i < bufSize; ++i){
+            if(const T nextLength = (length << 7) | (buf[bufSize - 1 - i] & 0x7f); nextLength < length){
+                throw fflerror("decode length overflows: %s", str_any(std::vector<uint8_t>(buf, buf + bufSize)).c_str());
+            }
+            else{
+                length = nextLength;
+            }
+        }
+        return length;
     }
 }

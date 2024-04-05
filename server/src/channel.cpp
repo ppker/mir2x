@@ -50,7 +50,7 @@ void Channel::afterReadPacketHeadCode()
         case 1:
         case 3:
             {
-                doReadPacketBodySize(0);
+                doReadPacketBodySize();
                 return;
             }
         case 2:
@@ -78,7 +78,7 @@ void Channel::doReadPacketHeadCode()
                     prepareClientMsg(m_readSBuf[0]);
 
                     if(m_clientMsg->hasResp()){
-                        doReadPacketResp(0);
+                        doReadPacketResp();
                     }
                     else{
                         afterReadPacketHeadCode();
@@ -97,87 +97,31 @@ void Channel::doReadPacketHeadCode()
     }
 }
 
-void Channel::doReadPacketResp(size_t offset)
+void Channel::doReadPacketResp()
 {
-    switch(m_state){
-        case CS_RUNNING:
-            {
-                asio::async_read(m_socket, asio::buffer(m_readSBuf + offset, 1), [offset, channPtr = shared_from_this(), this](std::error_code ec, size_t)
-                {
-                    checkErrcode(ec);
+    doReadVLInteger<uint64_t>(0, [channPtr = shared_from_this(), this](uint64_t respID)
+    {
+        if(!respID){
+            throw fflerror("packet has response encoded but no response id provided");
+        }
 
-                    if(m_readSBuf[offset] & 0x80){
-                        if(offset + 1 >= (64 + 6) / 7){ // support 64 bits respID
-                            throw fflerror("variant packet size uses more than %zu bytes", offset + 1);
-                        }
-                        else{
-                            doReadPacketResp(offset + 1);
-                        }
-                    }
-                    else{
-                        uint64_t respID = 0;
-                        for(size_t i = 0; i <= offset; ++i){
-                            respID = (respID << 7) | (m_readSBuf[offset - i] & 0x7f);
-                        }
-
-                        if(!respID){
-                            throw fflerror("packet has response encoded but no response id provided");
-                        }
-
-                        m_respIDOpt = respID;
-                        afterReadPacketHeadCode();
-                    }
-                });
-                return;
-            }
-        case CS_STOPPED:
-            {
-                return;
-            }
-        default:
-            {
-                throw fflvalue(m_state);
-            }
-    }
+        m_respIDOpt = respID;
+        afterReadPacketHeadCode();
+    });
 }
 
-void Channel::doReadPacketBodySize(size_t offset)
+void Channel::doReadPacketBodySize()
 {
     switch(m_state){
         case CS_RUNNING:
             {
                 switch(m_clientMsg->type()){
                     case 1:
-                        {
-                            asio::async_read(m_socket, asio::buffer(m_readSBuf + offset, 1), [offset, channPtr = shared_from_this(), this](std::error_code ec, size_t)
-                            {
-                                checkErrcode(ec);
-
-                                if(m_readSBuf[offset] & 0x80){
-                                    if(offset + 1 >= 4){
-                                        throw fflerror("variant packet size uses more than 4 bytes");
-                                    }
-                                    else{
-                                        doReadPacketBodySize(offset + 1);
-                                    }
-                                }
-                                else{
-                                    uint32_t dataSize = 0;
-                                    for(size_t i = 0; i <= offset; ++i){
-                                        dataSize = (dataSize << 7) | (m_readSBuf[offset - i] & 0x7f);
-                                    }
-
-                                    doReadPacketBody(m_clientMsg->maskLen(), dataSize);
-                                }
-                            });
-                            return;
-                        }
                     case 3:
                         {
-                            asio::async_read(m_socket, asio::buffer(m_readSBuf, 4), [channPtr = shared_from_this(), this](std::error_code ec, size_t)
+                            doReadVLInteger<size_t>(0, [channPtr = shared_from_this(), this](size_t bufSize)
                             {
-                                checkErrcode(ec);
-                                doReadPacketBody(0, as_u32(m_readSBuf));
+                                doReadPacketBody(m_clientMsg->maskLen(), bufSize);
                             });
                             return;
                         }

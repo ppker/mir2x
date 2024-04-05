@@ -112,8 +112,8 @@ std::array<std::tuple<const uint8_t *, size_t>, 2> NetDriver::encodePostBuf(uint
     encodeBuf.clear();
 
     if(respID){
-        uint8_t respBuf[16];
-        const size_t respEncSize = msgf::encodeLength(respBuf, 16, respID);
+        uint8_t respBuf[32];
+        const size_t respEncSize = msgf::encodeLength(respBuf, 32, respID);
 
         encodeBuf.push_back(headCode | 0x80);
         encodeBuf.insert(encodeBuf.end(), respBuf, respBuf + respEncSize);
@@ -137,11 +137,11 @@ std::array<std::tuple<const uint8_t *, size_t>, 2> NetDriver::encodePostBuf(uint
                 encodeBuf.resize(sizeStartOff + smsg.maskLen() + smsg.dataLen() + 64);
 
                 /* */ auto sizeBuf = encodeBuf.data() + sizeStartOff;
-                /* */ auto compBuf = encodeBuf.data() + sizeStartOff + 16;
+                /* */ auto compBuf = encodeBuf.data() + sizeStartOff + 32;
                 const auto compCnt = smsg.useXor64 () ? zcompf::xorEncode64(compBuf, (const uint8_t *)(buf), bufSize)
                                                       : zcompf::xorEncode  (compBuf, (const uint8_t *)(buf), bufSize);
 
-                const size_t sizeEncLength = msgf::encodeLength(sizeBuf, 4, compCnt);
+                const size_t sizeEncLength = msgf::encodeLength(sizeBuf, 32, compCnt);
                 return
                 {
                     std::make_tuple(encodeBuf.data(), sizeStartOff + sizeEncLength),
@@ -159,10 +159,10 @@ std::array<std::tuple<const uint8_t *, size_t>, 2> NetDriver::encodePostBuf(uint
         case 3:
             {
                 const auto sizeStartOff = encodeBuf.size();
-                const uint32_t bufSizeU32 = to_u32(bufSize);
+                encodeBuf.resize(encodeBuf.size() + 32);
 
-                encodeBuf.resize(encodeBuf.size() + 4);
-                std::memcpy(encodeBuf.data() + sizeStartOff, &bufSizeU32, 4);
+                const auto encodedLenBytes = msgf::encodeLength(encodeBuf.data() + sizeStartOff, 32, bufSize);
+                encodeBuf.resize(sizeStartOff + encodedLenBytes);
 
                 return
                 {

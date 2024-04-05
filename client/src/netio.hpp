@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <concepts>
 #include <functional>
 #include <asio.hpp>
 #include "servermsg.hpp"
@@ -12,7 +13,7 @@ class NetIO final
         asio::ip::tcp::socket   m_socket;
 
     private:
-        uint8_t m_readSBuf[16];
+        uint8_t m_readSBuf[64];
         std::vector<uint8_t> m_readDBuf;
 
     private:
@@ -71,9 +72,9 @@ class NetIO final
 
     private:
         void doReadPacketHeadCode();
-        void doReadPacketResp(size_t);
+        void doReadPacketResp();
 
-        void doReadPacketBodySize(size_t);
+        void doReadPacketBodySize();
         void doReadPacketBody(size_t, size_t);
 
     private:
@@ -87,5 +88,30 @@ class NetIO final
         {
             m_serverMsgBuf.~ServerMsg();
             m_serverMsg = new (&m_serverMsgBuf) ServerMsg(headCode);
+        }
+
+    private:
+        template<std::unsigned_integral T> void doReadVLInteger(size_t offset, std::function<void(T)> fnOp)
+        {
+            asio::async_read(m_socket, asio::buffer(m_readSBuf + offset, 1), [offset, fnOp = std::move(fnOp), this](std::error_code ec, size_t)
+            {
+                if(ec){
+                    throw fflerror("network error: %s", ec.message().c_str());
+                }
+
+                if(m_readSBuf[offset] & 0x80){
+                    if(offset + 1 >= (sizeof(T) * 8 + 6) / 7){
+                        throw fflerror("variant packet size uses more than %zu bytes", offset + 1);
+                    }
+                    else{
+                        doReadVLInteger<T>(offset + 1, std::move(fnOp));
+                    }
+                }
+                else{
+                    if(fnOp){
+                        fnOp(msgf::decodeLength<T>(m_readSBuf, offset + 1));
+                    }
+                }
+            });
         }
 };

@@ -16,7 +16,7 @@ void NetIO::afterReadPacketHeadCode()
         case 1:
         case 3:
             {
-                doReadPacketBodySize(0);
+                doReadPacketBodySize();
                 return;
             }
         case 2:
@@ -43,7 +43,7 @@ void NetIO::doReadPacketHeadCode()
         prepareServerMsg(m_readSBuf[0]);
 
         if(m_serverMsg->hasResp()){
-            doReadPacketResp(0);
+            doReadPacketResp();
         }
         else{
             afterReadPacketHeadCode();
@@ -51,76 +51,28 @@ void NetIO::doReadPacketHeadCode()
     });
 }
 
-void NetIO::doReadPacketResp(size_t offset)
+void NetIO::doReadPacketResp()
 {
-    asio::async_read(m_socket, asio::buffer(m_readSBuf + offset, 1), [offset, this](std::error_code ec, size_t)
+    doReadVLInteger<uint64_t>(0, [this](uint64_t respID)
     {
-        if(ec){
-            throw fflerror("network error: %s", ec.message().c_str());
+        if(!respID){
+            throw fflerror("packet has response encoded but no response id provided");
         }
 
-        if(m_readSBuf[offset] & 0x80){
-            if(offset + 1 >= (64 + 6) / 7){ // support 64 bits respID
-                throw fflerror("variant packet size uses more than %zu bytes", offset + 1);
-            }
-            else{
-                doReadPacketResp(offset + 1);
-            }
-        }
-        else{
-            uint64_t respID = 0;
-            for(size_t i = 0; i <= offset; ++i){
-                respID = (respID << 7) | (m_readSBuf[offset - i] & 0x7f);
-            }
-
-            if(!respID){
-                throw fflerror("packet has response encoded but no response id provided");
-            }
-
-            m_respIDOpt = respID;
-            afterReadPacketHeadCode();
-        }
+        m_respIDOpt = respID;
+        afterReadPacketHeadCode();
     });
 }
 
-void NetIO::doReadPacketBodySize(size_t offset)
+void NetIO::doReadPacketBodySize()
 {
     switch(m_serverMsg->type()){
         case 1:
-            {
-                asio::async_read(m_socket, asio::buffer(m_readSBuf + offset, 1), [offset, this](std::error_code ec, size_t)
-                {
-                    if(ec){
-                        throw fflerror("network error: %s", ec.message().c_str());
-                    }
-
-                    if(m_readSBuf[offset] & 0x80){
-                        if(offset + 1 >= 4){
-                            throw fflerror("variant packet size uses more than 4 bytes");
-                        }
-                        else{
-                            doReadPacketBodySize(offset + 1);
-                        }
-                    }
-                    else{
-                        uint32_t dataSize = 0;
-                        for(size_t i = 0; i <= offset; ++i){
-                            dataSize = (dataSize << 7) | (m_readSBuf[offset - i] & 0x7f);
-                        }
-
-                        doReadPacketBody(m_serverMsg->maskLen(), dataSize);
-                    }
-                });
-                return;
-            }
         case 3:
             {
-                asio::async_read(m_socket, asio::buffer(m_readSBuf, 4), [this](std::error_code ec, size_t)
+                doReadVLInteger<size_t>(0, [this](size_t bufSize)
                 {
-                    if(ec){
-                        throw fflerror("network error: %s", ec.message().c_str());
-                    }
-                    doReadPacketBody(0, as_u32(m_readSBuf));
+                    doReadPacketBody(m_serverMsg->maskLen(), bufSize);
                 });
                 return;
             }
@@ -225,8 +177,8 @@ void NetIO::send(uint8_t headCode, const uint8_t *buf, size_t bufSize, uint64_t 
     fflassert(cmsg.checkData(buf, bufSize));
 
     if(respID){
-        uint8_t respBuf[16];
-        const size_t respEncSize = msgf::encodeLength(respBuf, 16, respID);
+        uint8_t respBuf[32];
+        const size_t respEncSize = msgf::encodeLength(respBuf, 32, respID);
 
         m_nextSendBuf.push_back(headCode | 0x80);
         m_nextSendBuf.insert(m_nextSendBuf.end(), respBuf, respBuf + respEncSize);
@@ -245,8 +197,8 @@ void NetIO::send(uint8_t headCode, const uint8_t *buf, size_t bufSize, uint64_t 
                 const bool useWide = cmsg.useXor64();
                 const size_t dataCount = useWide ? zcompf::xorCountData64(buf, bufSize) : zcompf::xorCountData(buf, bufSize);
 
-                uint8_t encodeBuf[4];
-                const size_t sizeEncLength = msgf::encodeLength(encodeBuf, 4, dataCount);
+                uint8_t encodeBuf[32];
+                const size_t sizeEncLength = msgf::encodeLength(encodeBuf, 32, dataCount);
                 m_nextSendBuf.insert(m_nextSendBuf.end(), encodeBuf, encodeBuf + sizeEncLength);
 
                 const size_t dataStartOff = m_nextSendBuf.size();
@@ -266,14 +218,13 @@ void NetIO::send(uint8_t headCode, const uint8_t *buf, size_t bufSize, uint64_t 
             }
         case 3:
             {
-                fflassert(bufSize <= 0xffffffff, bufSize);
-                const uint32_t bufSizeU32 = bufSize;
-                const   size_t dataStartOff = m_nextSendBuf.size();
+                const size_t sizeStartOff = m_nextSendBuf.size();
+                m_nextSendBuf.resize(m_nextSendBuf.size() + 32 + bufSize);
 
-                m_nextSendBuf.resize(m_nextSendBuf.size() + bufSize + 4);
+                const size_t dataStartOff = sizeStartOff + msgf::encodeLength(m_nextSendBuf.data() + sizeStartOff, 32, bufSize);
+                std::memcpy(m_nextSendBuf.data() + dataStartOff, buf, bufSize);
 
-                std::memcpy(m_nextSendBuf.data() + dataStartOff, &bufSizeU32, 4);
-                std::memcpy(m_nextSendBuf.data() + dataStartOff + 4, buf, bufSize);
+                m_nextSendBuf.resize(dataStartOff + bufSize);
                 break;
             }
         default:

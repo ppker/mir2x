@@ -167,6 +167,7 @@ void Client::initASIO()
         if(respID){
             if(auto p = m_respHandlers.find(respID); p != m_respHandlers.end()){
                 p->second.handler(headCode, pData, nDataLen);
+                m_respHandlers.erase(p);
             }
             else{
                 throw fflerror("no handler found for response id %llu", to_llu(respID));

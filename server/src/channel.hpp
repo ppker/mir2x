@@ -1,6 +1,7 @@
 #pragma once
 #include <asio.hpp>
 #include <mutex>
+#include <concepts>
 #include <memory>
 #include <vector>
 #include <cstdint>
@@ -71,7 +72,7 @@ class Channel final: public std::enable_shared_from_this<Channel>
     private:
         // for read channel packets
         // only asio thread accesses it
-        uint8_t m_readSBuf[16];
+        uint8_t m_readSBuf[64];
         std::optional<uint64_t> m_respIDOpt;
 
     private:
@@ -139,9 +140,9 @@ class Channel final: public std::enable_shared_from_this<Channel>
 
     private:
         void doReadPacketHeadCode();
-        void doReadPacketResp(size_t);
+        void doReadPacketResp();
 
-        void doReadPacketBodySize(size_t);
+        void doReadPacketBodySize();
         void doReadPacketBody(size_t, size_t);
 
     private:
@@ -167,5 +168,42 @@ class Channel final: public std::enable_shared_from_this<Channel>
         {
             m_clientMsgBuf.~ClientMsg();
             m_clientMsg = new (&m_clientMsgBuf) ClientMsg(headCode);
+        }
+
+    private:
+        template<std::unsigned_integral T> void doReadVLInteger(size_t offset, std::function<void(T)> fnOp)
+        {
+            switch(m_state){
+                case CS_RUNNING:
+                    {
+                        asio::async_read(m_socket, asio::buffer(m_readSBuf + offset, 1), [offset, fnOp = std::move(fnOp), channPtr = shared_from_this(), this](std::error_code ec, size_t)
+                        {
+                            checkErrcode(ec);
+
+                            if(m_readSBuf[offset] & 0x80){
+                                if(offset + 1 >= (sizeof(T) * 8 + 6) / 7){
+                                    throw fflerror("variant packet size uses more than %zu bytes", offset + 1);
+                                }
+                                else{
+                                    doReadVLInteger<T>(offset + 1, std::move(fnOp));
+                                }
+                            }
+                            else{
+                                if(fnOp){
+                                    fnOp(msgf::decodeLength<T>(m_readSBuf, offset + 1));
+                                }
+                            }
+                        });
+                        return;
+                    }
+                case CS_STOPPED:
+                    {
+                        return;
+                    }
+                default:
+                    {
+                        throw fflvalue(m_state);
+                    }
+            }
         }
 };
