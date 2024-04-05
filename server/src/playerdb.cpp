@@ -256,10 +256,10 @@ void Player::dbLoadPlayerConfig()
 SDPlayerCandidates Player::dbQueryPlayerCandidates(const std::string &query)
 {
     fflassert(str_haschar(query));
-    auto queryCmd = [&query, this]
+    auto queryCmd = [&query]
     {
         if(query.find_first_not_of("0123456789") == std::string_view::npos){
-            return g_dbPod->createQuery("select fld_name from tbl_char where fld_dbid = %llu or instr(fld_name, '%s') > 0", to_llu(dbid()), query.c_str());
+            return g_dbPod->createQuery("select fld_name from tbl_char where fld_dbid = %s or instr(fld_name, '%s') > 0", query.c_str(), query.c_str());
         }
         else{
             return g_dbPod->createQuery("select fld_name from tbl_char where instr(fld_name, '%s') > 0", query.c_str());
