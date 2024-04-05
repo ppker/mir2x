@@ -275,7 +275,14 @@ void Player::net_CM_QUERYPLAYERWLDESP(uint8_t, const uint8_t *buf, size_t, uint6
 void Player::net_CM_QUERYPLAYERCANDIDATES(uint8_t, const uint8_t *buf, size_t, uint64_t respID)
 {
     const auto cmQPC = ClientMsg::conv<CMQueryPlayerCandidates>(buf);
-    postNetMessage(SM_OK, cerealf::serialize(dbQueryPlayerCandidates(cmQPC.input.to_str())), respID);
+    const auto input = cmQPC.input.to_str();
+
+    if(input.empty()){
+        postNetMessage(SM_ERROR, respID);
+    }
+    else{
+        postNetMessage(SM_OK, cerealf::serialize(dbQueryPlayerCandidates(input)), respID);
+    }
 }
 
 void Player::net_CM_CHATMESSAGE(uint8_t, const uint8_t *buf, size_t bufSize, uint64_t)
