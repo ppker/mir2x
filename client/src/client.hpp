@@ -144,7 +144,7 @@ class Client final
         void sendSMsgLog(uint8_t);
 
     public:
-        void send(uint8_t headCode, const void *buf, size_t bufSize, std::function<void(uint8_t, const uint8_t *, size_t)> fnOp = nullptr)
+        void send(const ClientMsgBuf &msg, std::function<void(uint8_t, const uint8_t *, size_t)> fnOp = nullptr)
         {
             if(fnOp){
                 if(m_respHandlers.empty()){
@@ -152,35 +152,14 @@ class Client final
                 }
 
                 m_respHandlers.emplace(m_respHandlerIndex, ResponseHandler{hres_tstamp::localtime() + 1000, std::move(fnOp)});
-                m_netIO.send(headCode, static_cast<const uint8_t *>(buf), bufSize, m_respHandlerIndex);
+                m_netIO.send(msg.headCode, msg.data, msg.size, m_respHandlerIndex);
                 m_respHandlerIndex++;
             }
             else{
-                m_netIO.send(headCode, static_cast<const uint8_t *>(buf), bufSize, 0);
+                m_netIO.send(msg.headCode, msg.data, msg.size, 0);
             }
 
-            sendCMsgLog(headCode);
-        }
-
-    public:
-        void send(uint8_t headCode, std::function<void(uint8_t, const uint8_t *, size_t)> fnOp = nullptr)
-        {
-            send(headCode, nullptr, 0, std::move(fnOp));
-        }
-
-        void send(uint8_t headCode, const std::string &buf, std::function<void(uint8_t, const uint8_t *, size_t)> fnOp = nullptr)
-        {
-            send(headCode, buf.data(), buf.size(), std::move(fnOp));
-        }
-
-        void send(uint8_t headCode, const std::u8string &buf, std::function<void(uint8_t, const uint8_t *, size_t)> fnOp = nullptr)
-        {
-            send(headCode, buf.data(), buf.size(), std::move(fnOp));
-        }
-
-        template<conceptf::TriviallyCopyable T> void send(uint8_t headCode, const T &t, std::function<void(uint8_t, const uint8_t *, size_t)> fnOp = nullptr)
-        {
-            send(headCode, &t, sizeof(t), std::move(fnOp));
+            sendCMsgLog(msg.headCode);
         }
 
     public:

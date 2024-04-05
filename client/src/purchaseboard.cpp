@@ -516,7 +516,7 @@ void PurchaseBoard::setExtendedItemID(uint32_t itemID)
         std::memset(&cmQSIL, 0, sizeof(cmQSIL));
         cmQSIL.npcUID = m_npcUID;
         cmQSIL.itemID =   itemID;
-        g_client->send(CM_QUERYSELLITEMLIST, cmQSIL);
+        g_client->send({CM_QUERYSELLITEMLIST, cmQSIL});
     }
     else{
         m_sdSellItemList.clear();

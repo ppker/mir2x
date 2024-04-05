@@ -182,35 +182,36 @@ class Player final: public BattleObject
         void on_AM_TEAMUPDATE         (const ActorMsgPack &);
 
     private:
-        void net_CM_REQUESTADDEXP             (uint8_t, const uint8_t *, size_t, uint64_t);
-        void net_CM_REQUESTKILLPETS           (uint8_t, const uint8_t *, size_t, uint64_t);
-        void net_CM_REQUESTSPACEMOVE          (uint8_t, const uint8_t *, size_t, uint64_t);
-        void net_CM_REQUESTMAGICDAMAGE        (uint8_t, const uint8_t *, size_t, uint64_t);
-        void net_CM_REQUESTRETRIEVESECUREDITEM(uint8_t, const uint8_t *, size_t, uint64_t);
-        void net_CM_QUERYCORECORD             (uint8_t, const uint8_t *, size_t, uint64_t);
-        void net_CM_QUERYSELLITEMLIST         (uint8_t, const uint8_t *, size_t, uint64_t);
-        void net_CM_QUERYUIDBUFF              (uint8_t, const uint8_t *, size_t, uint64_t);
-        void net_CM_QUERYPLAYERNAME           (uint8_t, const uint8_t *, size_t, uint64_t);
-        void net_CM_QUERYPLAYERWLDESP         (uint8_t, const uint8_t *, size_t, uint64_t);
         void net_CM_ACTION                    (uint8_t, const uint8_t *, size_t, uint64_t);
-        void net_CM_PICKUP                    (uint8_t, const uint8_t *, size_t, uint64_t);
-        void net_CM_PING                      (uint8_t, const uint8_t *, size_t, uint64_t);
-        void net_CM_CONSUMEITEM               (uint8_t, const uint8_t *, size_t, uint64_t);
-        void net_CM_MAKEITEM                  (uint8_t, const uint8_t *, size_t, uint64_t);
         void net_CM_BUY                       (uint8_t, const uint8_t *, size_t, uint64_t);
         void net_CM_CHATMESSAGE               (uint8_t, const uint8_t *, size_t, uint64_t);
-        void net_CM_QUERYGOLD                 (uint8_t, const uint8_t *, size_t, uint64_t);
-        void net_CM_NPCEVENT                  (uint8_t, const uint8_t *, size_t, uint64_t);
-        void net_CM_REQUESTEQUIPWEAR          (uint8_t, const uint8_t *, size_t, uint64_t);
-        void net_CM_REQUESTGRABWEAR           (uint8_t, const uint8_t *, size_t, uint64_t);
-        void net_CM_REQUESTEQUIPBELT          (uint8_t, const uint8_t *, size_t, uint64_t);
-        void net_CM_REQUESTGRABBELT           (uint8_t, const uint8_t *, size_t, uint64_t);
-        void net_CM_REQUESTJOINTEAM           (uint8_t, const uint8_t *, size_t, uint64_t);
-        void net_CM_REQUESTLEAVETEAM          (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_CONSUMEITEM               (uint8_t, const uint8_t *, size_t, uint64_t);
         void net_CM_DROPITEM                  (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_MAKEITEM                  (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_NPCEVENT                  (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_PICKUP                    (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_PING                      (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_QUERYCORECORD             (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_QUERYGOLD                 (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_QUERYPLAYERNAME           (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_QUERYPLAYERWLDESP         (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_QUERYPLAYERCANDIDATES     (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_QUERYSELLITEMLIST         (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_QUERYUIDBUFF              (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_REQUESTADDEXP             (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_REQUESTEQUIPBELT          (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_REQUESTEQUIPWEAR          (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_REQUESTGRABBELT           (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_REQUESTGRABWEAR           (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_REQUESTJOINTEAM           (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_REQUESTKILLPETS           (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_REQUESTLATESTCHATMESSAGE  (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_REQUESTLEAVETEAM          (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_REQUESTMAGICDAMAGE        (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_REQUESTRETRIEVESECUREDITEM(uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_REQUESTSPACEMOVE          (uint8_t, const uint8_t *, size_t, uint64_t);
         void net_CM_SETMAGICKEY               (uint8_t, const uint8_t *, size_t, uint64_t);
         void net_CM_SETRUNTIMECONFIG          (uint8_t, const uint8_t *, size_t, uint64_t);
-        void net_CM_REQUESTLATESTCHATMESSAGE  (uint8_t, const uint8_t *, size_t, uint64_t);
 
     protected:
         void reportGold();
@@ -352,6 +353,7 @@ class Player final: public BattleObject
 
     private:
         void dbLoadPlayerConfig();
+        SDPlayerCandidates dbQueryPlayerCandidates(const std::string &);
 
     private:
         void dbLoadLearnedMagic();

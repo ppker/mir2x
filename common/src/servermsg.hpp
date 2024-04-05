@@ -9,7 +9,7 @@ enum SMType: uint8_t
 {
     SM_NONE_0 = 0,
     SM_BEGIN  = 1,
-    SM_OK     = 0,
+    SM_OK     = 1,
     SM_ERROR,
     SM_PING,
     SM_LOGINOK,
@@ -348,6 +348,8 @@ namespace
         //  2    : not empty,     fixed size, not compressed
         //  3    : not empty, not fixed size, not compressed
         _RSVD_register_servermsg(SM_NONE_0,              0                               );
+        _RSVD_register_servermsg(SM_OK,                  3                               );
+        _RSVD_register_servermsg(SM_ERROR,               3                               );
         _RSVD_register_servermsg(SM_PING,                2, sizeof(SMPing)               );
         _RSVD_register_servermsg(SM_LOGINOK,             0                               );
         _RSVD_register_servermsg(SM_LOGINERROR,          1, sizeof(SMLoginError)         );

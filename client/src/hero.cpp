@@ -1688,7 +1688,7 @@ void Hero::queryName() const
     std::memset(&cmQPN, 0, sizeof(cmQPN));
 
     cmQPN.uid = UID();
-    g_client->send(CM_QUERYPLAYERNAME, cmQPN);
+    g_client->send({CM_QUERYPLAYERNAME, cmQPN});
 }
 
 bool Hero::isMyHero() const

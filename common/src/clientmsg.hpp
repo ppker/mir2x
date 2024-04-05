@@ -4,6 +4,7 @@
 #include <type_traits>
 #include <unordered_map>
 #include "msgf.hpp"
+#include "conceptf.hpp"
 #include "fixedbuf.hpp"
 #include "actionnode.hpp"
 
@@ -34,6 +35,7 @@ enum CMType: uint8_t
     CM_QUERYUIDBUFF,
     CM_QUERYPLAYERNAME,
     CM_QUERYPLAYERWLDESP,
+    CM_QUERYPLAYERCANDIDATES,
     CM_CREATEACCOUNT,
     CM_NPCEVENT,
     CM_QUERYSELLITEMLIST,
@@ -140,6 +142,11 @@ struct CMQueryPlayerName
 struct CMQueryPlayerWLDesp
 {
     uint64_t uid;
+};
+
+struct CMQueryPlayerCandidates
+{
+    FixedBuf<128> input;
 };
 
 struct CMCreateAccount
@@ -286,6 +293,7 @@ namespace
         _RSVD_register_clientmsg(CM_QUERYUIDBUFF,               1, sizeof(CMQueryUIDBuff)              );
         _RSVD_register_clientmsg(CM_QUERYPLAYERNAME,            1, sizeof(CMQueryPlayerName)           );
         _RSVD_register_clientmsg(CM_QUERYPLAYERWLDESP,          1, sizeof(CMQueryPlayerWLDesp)         );
+        _RSVD_register_clientmsg(CM_QUERYPLAYERCANDIDATES,      1, sizeof(CMQueryPlayerCandidates)     );
         _RSVD_register_clientmsg(CM_CREATEACCOUNT,              1, sizeof(CMCreateAccount)             );
         _RSVD_register_clientmsg(CM_CHANGEPASSWORD,             1, sizeof(CMChangePassword)            );
         _RSVD_register_clientmsg(CM_SETRUNTIMECONFIG,           1, sizeof(CMSetRuntimeConfig)          );
@@ -345,4 +353,67 @@ class ClientMsg final: public msgf::MsgBase
             std::memcpy(&t, buf, sizeof(t));
             return t;
         }
+};
+
+struct ClientMsgBuf final
+{
+    const uint8_t  headCode;
+    const uint8_t *data;
+    const  size_t  size;
+
+    ClientMsgBuf(uint8_t argHeadCode, const void *argData, const size_t argSize)
+        : headCode(argHeadCode)
+        , data(reinterpret_cast<const uint8_t *>(argData))
+        , size(argSize)
+    {
+        if(headCode & 0x80){
+            throw fflerror("invalid head code 0x%02x", (int)(headCode));
+        }
+
+        if(!ClientMsg(headCode).checkData(data, size)){
+            throw fflerror("invalid data size, data %p, size %zu", (const void *)(data), size);
+        }
+    }
+
+    ClientMsgBuf(uint8_t argHeadCode, const std::string &buf)
+        : ClientMsgBuf(argHeadCode, buf.empty() ? nullptr : buf.data(), buf.size())
+    {}
+
+    ClientMsgBuf(uint8_t argHeadCode, const std::u8string &buf)
+        : ClientMsgBuf(argHeadCode, buf.empty() ? nullptr : buf.data(), buf.size())
+    {}
+
+    ClientMsgBuf(uint8_t argHeadCode, const std::string_view &buf)
+        : ClientMsgBuf(argHeadCode, buf.empty() ? nullptr : buf.data(), buf.size())
+    {}
+
+    ClientMsgBuf(uint8_t argHeadCode, const std::u8string_view &buf)
+        : ClientMsgBuf(argHeadCode, buf.empty() ? nullptr : buf.data(), buf.size())
+    {}
+
+    ClientMsgBuf(uint8_t argHeadCode)
+        : ClientMsgBuf(argHeadCode, nullptr, 0)
+    {}
+
+    template<conceptf::TriviallyCopyable T> ClientMsgBuf(uint8_t argHeadCode, const T &t)
+        : ClientMsgBuf(argHeadCode, &t, sizeof(t))
+    {}
+
+    template<typename T> T conv() const
+    {
+        if constexpr (!std::is_trivially_copyable_v<T>){
+            return cerealf::deserialize<T>(data, size);
+        }
+        else if(sizeof(T) == size){
+            // always use memcpy
+            // a trivially copyable type may also defines serialization/deserialization
+
+            T t;
+            std::memcpy(&t, data, size);
+            return t;
+        }
+        else{
+            throw fflerror("failed to deserialize %zu bytes into %zu buffer", size, sizeof(T));
+        }
+    }
 };

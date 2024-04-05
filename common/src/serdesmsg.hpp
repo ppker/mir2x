@@ -147,6 +147,16 @@ struct SDNPCXMLLayout
     }
 };
 
+struct SDPlayerCandidates
+{
+    std::vector<std::string> list;
+
+    template<typename Archive> void serialize(Archive & ar)
+    {
+        ar(list);
+    }
+};
+
 struct SDStartInvOp
 {
     int invOp = INVOP_NONE;

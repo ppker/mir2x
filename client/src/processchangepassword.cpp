@@ -389,7 +389,7 @@ void ProcessChangePassword::doPostPasswordChange()
     cmCP.id.assign(idStr);
     cmCP.password.assign(pwdStr);
     cmCP.passwordNew.assign(pwdNewStr);
-    g_client->send(CM_CHANGEPASSWORD, cmCP);
+    g_client->send({CM_CHANGEPASSWORD, cmCP});
 }
 
 void ProcessChangePassword::localCheck()

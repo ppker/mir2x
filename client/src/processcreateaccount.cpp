@@ -331,7 +331,7 @@ void ProcessCreateAccount::doPostAccount()
 
     cmCA.id.assign(idStr);
     cmCA.password.assign(pwdStr);
-    g_client->send(CM_CREATEACCOUNT, cmCA);
+    g_client->send({CM_CREATEACCOUNT, cmCA});
 }
 
 void ProcessCreateAccount::localCheck()

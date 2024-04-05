@@ -798,7 +798,7 @@ void MyHero::reportAction(const ActionNode &action)
     cmA.mapID = m_processRun->mapID();
     cmA.action = action;
 
-    g_client->send(CM_ACTION, cmA);
+    g_client->send({CM_ACTION, cmA});
 }
 
 void MyHero::pullGold()

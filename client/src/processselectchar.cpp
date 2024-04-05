@@ -157,7 +157,7 @@ void ProcessSelectChar::onDelete()
             }
             else{
                 cmDC.password.assign(inputString);
-                g_client->send(CM_DELETECHAR, cmDC);
+                g_client->send({CM_DELETECHAR, cmDC});
             }
             m_deleteInput.setShow(false);
         });

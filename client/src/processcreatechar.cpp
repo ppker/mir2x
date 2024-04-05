@@ -229,7 +229,7 @@ void ProcessCreateChar::onSubmit()
         cmCC.name.assign(nameStr);
         cmCC.job = m_job;
         cmCC.gender = m_activeGender;
-        g_client->send(CM_CREATECHAR, cmCC);
+        g_client->send({CM_CREATECHAR, cmCC});
         m_notifyBoard.addLog(u8"提交中");
     }
 }

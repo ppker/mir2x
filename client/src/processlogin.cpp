@@ -229,5 +229,5 @@ void ProcessLogin::sendLogin(const std::string &id, const std::string &password)
 
     cmL.id.assign(id);
     cmL.password.assign(password);
-    g_client->send(CM_LOGIN, cmL);
+    g_client->send({CM_LOGIN, cmL});
 }

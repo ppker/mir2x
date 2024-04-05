@@ -182,7 +182,12 @@ void ProcessRun::update(double fUpdateTime)
     if(const auto currTick = SDL_GetTicks(); m_lastPingDone && (m_lastPingTick + 10ULL * 1000 < currTick)){
         m_lastPingDone = false;
         m_lastPingTick = currTick;
-        g_client->send(CM_PING, CMPing{currTick});
+
+        CMPing cmP;
+        std::memset(&cmP, 0, sizeof(cmP));
+
+        cmP.Tick = currTick;
+        g_client->send({CM_PING, cmP});
     }
 }
 
@@ -1624,7 +1629,7 @@ bool ProcessRun::requestSpaceMove(uint32_t nMapID, int nX, int nY)
     cmRSM.X     = nX;
     cmRSM.Y     = nY;
 
-    g_client->send(CM_REQUESTSPACEMOVE, cmRSM);
+    g_client->send({CM_REQUESTSPACEMOVE, cmRSM});
     return true;
 }
 
@@ -1639,7 +1644,7 @@ void ProcessRun::requestSetMagicKey(uint32_t magicID, char key)
     cmSMK.magicID = magicID;
     cmSMK.key = key;
 
-    g_client->send(CM_SETMAGICKEY, cmSMK);
+    g_client->send({CM_SETMAGICKEY, cmSMK});
 }
 
 void ProcessRun::requestRemoveSecuredItem(uint32_t itemID, uint32_t seqID)
@@ -1652,7 +1657,7 @@ void ProcessRun::requestRemoveSecuredItem(uint32_t itemID, uint32_t seqID)
     cmRRSI.itemID = itemID;
     cmRRSI.seqID = seqID;
 
-    g_client->send(CM_REQUESTRETRIEVESECUREDITEM, cmRRSI);
+    g_client->send({CM_REQUESTRETRIEVESECUREDITEM, cmRRSI});
 }
 
 void ProcessRun::requestJoinTeam(uint64_t uid)
@@ -1663,7 +1668,7 @@ void ProcessRun::requestJoinTeam(uint64_t uid)
     std::memset(&cmRJT, 0, sizeof(cmRJT));
 
     cmRJT.uid = uid;
-    g_client->send(CM_REQUESTJOINTEAM, cmRJT);
+    g_client->send({CM_REQUESTJOINTEAM, cmRJT});
 }
 
 void ProcessRun::requestLeaveTeam(uint64_t uid)
@@ -1674,7 +1679,7 @@ void ProcessRun::requestLeaveTeam(uint64_t uid)
     std::memset(&cmRLT, 0, sizeof(cmRLT));
 
     cmRLT.uid = uid;
-    g_client->send(CM_REQUESTLEAVETEAM, cmRLT);
+    g_client->send({CM_REQUESTLEAVETEAM, cmRLT});
 }
 
 void ProcessRun::requestSendChatMessage(uint32_t toDBID, std::string chatMessage)
@@ -1683,7 +1688,7 @@ void ProcessRun::requestSendChatMessage(uint32_t toDBID, std::string chatMessage
     auto buf = cerealf::serialize(chatMessage);
 
     buf.insert(buf.begin(), dbidsv.begin(), dbidsv.end());
-    g_client->send(CM_CHATMESSAGE, buf);
+    g_client->send({CM_CHATMESSAGE, buf});
 }
 
 void ProcessRun::requestLatestChatMessage(const std::vector<uint32_t> &dbids, size_t limitCount, bool sendIncluded, bool recvIncluded)
@@ -1701,7 +1706,7 @@ void ProcessRun::requestLatestChatMessage(const std::vector<uint32_t> &dbids, si
     cmRLCM.includeSend = sendIncluded;
     cmRLCM.includeRecv = recvIncluded;
 
-    g_client->send(CM_REQUESTLATESTCHATMESSAGE, cmRLCM);
+    g_client->send({CM_REQUESTLATESTCHATMESSAGE, cmRLCM});
 }
 
 void ProcessRun::requestKillPets()
@@ -1716,7 +1721,7 @@ void ProcessRun::requestAddExp(uint64_t exp)
         std::memset(&cmRAE, 0, sizeof(cmRAE));
 
         cmRAE.addExp = exp;
-        g_client->send(CM_REQUESTADDEXP, cmRAE);
+        g_client->send({CM_REQUESTADDEXP, cmRAE});
     }
 }
 
@@ -1726,7 +1731,7 @@ void ProcessRun::queryCORecord(uint64_t nUID) const
     std::memset(&cmQCOR, 0, sizeof(cmQCOR));
 
     cmQCOR.AimUID = nUID;
-    g_client->send(CM_QUERYCORECORD, cmQCOR);
+    g_client->send({CM_QUERYCORECORD, cmQCOR});
 }
 
 void ProcessRun::onActionSpawn(uint64_t uid, const ActionNode &action)
@@ -1848,7 +1853,7 @@ void ProcessRun::sendNPCEvent(uint64_t uid, std::string path, std::string event,
     else{
         cmNPCE.valueSize = -1;
     }
-    g_client->send(CM_NPCEVENT, cmNPCE);
+    g_client->send({CM_NPCEVENT, cmNPCE});
 }
 
 void ProcessRun::drawGroundItem(int x0, int y0, int x1, int y1) const
@@ -2265,7 +2270,7 @@ void ProcessRun::requestPickUp()
     cmPU.x = x;
     cmPU.y = y;
     cmPU.mapID = mapID();
-    g_client->send(CM_PICKUP, cmPU);
+    g_client->send({CM_PICKUP, cmPU});
 }
 
 void ProcessRun::requestMagicDamage(int magicID, uint64_t aimUID)
@@ -2276,7 +2281,7 @@ void ProcessRun::requestMagicDamage(int magicID, uint64_t aimUID)
     cmRMD.magicID = magicID;
     cmRMD.aimUID  = aimUID;
 
-    g_client->send(CM_REQUESTMAGICDAMAGE, cmRMD);
+    g_client->send({CM_REQUESTMAGICDAMAGE, cmRMD});
 }
 
 void ProcessRun::queryUIDBuff(uint64_t uid) const
@@ -2289,7 +2294,7 @@ void ProcessRun::queryUIDBuff(uint64_t uid) const
                 std::memset(&cmQUIDB, 0, sizeof(cmQUIDB));
 
                 cmQUIDB.uid = uid;
-                g_client->send(CM_QUERYUIDBUFF, cmQUIDB);
+                g_client->send({CM_QUERYUIDBUFF, cmQUIDB});
                 break;
             }
         default:
@@ -2309,7 +2314,7 @@ void ProcessRun::queryPlayerWLDesp(uint64_t uid) const
     std::memset(&cmQPWLD, 0, sizeof(cmQPWLD));
 
     cmQPWLD.uid = uid;
-    g_client->send(CM_QUERYPLAYERWLDESP, cmQPWLD);
+    g_client->send({CM_QUERYPLAYERWLDESP, cmQPWLD});
 }
 
 void ProcessRun::requestBuy(uint64_t npcUID, uint32_t itemID, uint32_t seqID, size_t count)
@@ -2333,7 +2338,7 @@ void ProcessRun::requestBuy(uint64_t npcUID, uint32_t itemID, uint32_t seqID, si
     cmB.itemID = itemID;
     cmB. seqID =  seqID;
     cmB. count =  count;
-    g_client->send(CM_BUY, cmB);
+    g_client->send({CM_BUY, cmB});
 }
 
 
@@ -2345,7 +2350,7 @@ void ProcessRun::requestConsumeItem(uint32_t itemID, uint32_t seqID, size_t coun
     cmCI.itemID = itemID;
     cmCI.seqID  =  seqID;
     cmCI.count  =  count;
-    g_client->send(CM_CONSUMEITEM, cmCI);
+    g_client->send({CM_CONSUMEITEM, cmCI});
 }
 
 void ProcessRun::requestMakeItem(uint32_t itemID, size_t count)
@@ -2355,7 +2360,7 @@ void ProcessRun::requestMakeItem(uint32_t itemID, size_t count)
 
     cmMI.itemID = itemID;
     cmMI.count  = count;
-    g_client->send(CM_MAKEITEM, cmMI);
+    g_client->send({CM_MAKEITEM, cmMI});
 }
 
 void ProcessRun::requestEquipWear(uint32_t itemID, uint32_t seqID, int wltype)
@@ -2387,7 +2392,7 @@ void ProcessRun::requestEquipWear(uint32_t itemID, uint32_t seqID, int wltype)
     cmREW.itemID = itemID;
     cmREW.seqID  = seqID;
     cmREW.wltype = wltype;
-    g_client->send(CM_REQUESTEQUIPWEAR, cmREW);
+    g_client->send({CM_REQUESTEQUIPWEAR, cmREW});
 }
 
 void ProcessRun::requestGrabWear(int wltype)
@@ -2403,7 +2408,7 @@ void ProcessRun::requestGrabWear(int wltype)
     CMRequestGrabWear cmRGW;
     std::memset(&cmRGW, 0, sizeof(cmRGW));
     cmRGW.wltype = wltype;
-    g_client->send(CM_REQUESTGRABWEAR, cmRGW);
+    g_client->send({CM_REQUESTGRABWEAR, cmRGW});
 }
 
 void ProcessRun::requestEquipBelt(uint32_t itemID, uint32_t seqID, int slot)
@@ -2431,7 +2436,7 @@ void ProcessRun::requestEquipBelt(uint32_t itemID, uint32_t seqID, int slot)
     cmREB.itemID = itemID;
     cmREB.seqID = seqID;
     cmREB.slot = slot;
-    g_client->send(CM_REQUESTEQUIPBELT, cmREB);
+    g_client->send({CM_REQUESTEQUIPBELT, cmREB});
 }
 
 void ProcessRun::requestGrabBelt(int slot)
@@ -2447,7 +2452,7 @@ void ProcessRun::requestGrabBelt(int slot)
     CMRequestGrabBelt cmRGB;
     std::memset(&cmRGB, 0, sizeof(cmRGB));
     cmRGB.slot = slot;
-    g_client->send(CM_REQUESTGRABBELT, cmRGB);
+    g_client->send({CM_REQUESTGRABBELT, cmRGB});
 }
 
 void ProcessRun::requestDropItem(uint32_t itemID, uint32_t seqID, size_t count)
@@ -2465,7 +2470,7 @@ void ProcessRun::requestDropItem(uint32_t itemID, uint32_t seqID, size_t count)
     cmDI.itemID = itemID;
     cmDI.seqID = seqID;
     cmDI.count = count;
-    g_client->send(CM_DROPITEM, cmDI);
+    g_client->send({CM_DROPITEM, cmDI});
 }
 
 bool ProcessRun::hasGroundItemID(uint32_t itemID, int x, int y) const

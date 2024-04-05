@@ -1,3 +1,4 @@
+#include <cstring>
 #include "luaf.hpp"
 #include "dbpod.hpp"
 #include "player.hpp"
@@ -250,6 +251,26 @@ void Player::dbLoadPlayerConfig()
             m_sdPlayerConfig.runtimeConfig = cerealf::deserialize<SDRuntimeConfig>(buf);
         }
     }
+}
+
+SDPlayerCandidates Player::dbQueryPlayerCandidates(const std::string &query)
+{
+    fflassert(str_haschar(query));
+    auto queryCmd = [&query, this]
+    {
+        if(query.find_first_not_of("0123456789") == std::string_view::npos){
+            return g_dbPod->createQuery("select fld_name from tbl_char where fld_dbid = %llu or instr(fld_name, '%s') > 0", to_llu(dbid()), query.c_str());
+        }
+        else{
+            return g_dbPod->createQuery("select fld_name from tbl_char where instr(fld_name, '%s') > 0", query.c_str());
+        }
+    }();
+
+    SDPlayerCandidates sdPC;
+    while(queryCmd.executeStep()){
+        sdPC.list.push_back(queryCmd.getColumn("fld_name").getString());
+    }
+    return sdPC;
 }
 
 void Player::dbUpdateMagicKey(uint32_t magicID, char key)

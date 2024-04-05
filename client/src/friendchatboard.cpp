@@ -1,9 +1,11 @@
 #include <initializer_list>
 #include "sdldevice.hpp"
+#include "client.hpp"
 #include "pngtexdb.hpp"
 #include "processrun.hpp"
 #include "friendchatboard.hpp"
 
+extern Client *g_client;
 extern PNGTexDB *g_progUseDB;
 extern SDLDevice *g_sdlDevice;
 
@@ -333,7 +335,24 @@ struct FriendSearchInputLine: public Widget
               [this]()
               {
               },
-              nullptr,
+
+              [this](std::string s)
+              {
+                  if(!s.empty()){
+                      CMQueryPlayerCandidates cmQPC;
+                      std::memset(&cmQPC, 0, sizeof(cmQPC));
+
+                      cmQPC.input.assign(s);
+                      g_client->send({CM_QUERYPLAYERCANDIDATES, cmQPC}, [](uint8_t headCode, const uint8_t *data, size_t size)
+                      {
+                          if(headCode == SM_OK){
+                              for(const auto &s: cerealf::deserialize<SDPlayerCandidates>(data, size).list){
+                                  std::cout << s << std::endl;
+                              }
+                          }
+                      });
+                  }
+              },
 
               this,
               false,

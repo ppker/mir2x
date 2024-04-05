@@ -1244,7 +1244,7 @@ void RuntimeConfigBoard::reportRuntimeConfig(int rtCfg)
     cmSRC.type = rtCfg;
     cmSRC.buf.assign(m_sdRuntimeConfig.getConfig(rtCfg).value_or(std::string()));
 
-    g_client->send(CM_SETRUNTIMECONFIG, cmSRC);
+    g_client->send({CM_SETRUNTIMECONFIG, cmSRC});
 }
 
 void RuntimeConfigBoard::updateWindowSizeLabel(int w, int h, bool saveConfig)
