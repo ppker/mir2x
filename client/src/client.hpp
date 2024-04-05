@@ -4,6 +4,7 @@
 #include <type_traits>
 #include <SDL2/SDL.h>
 
+#include "conceptf.hpp"
 #include "netio.hpp"
 #include "process.hpp"
 #include "message.hpp"
@@ -177,9 +178,8 @@ class Client final
             send(headCode, buf.data(), buf.size(), std::move(fnOp));
         }
 
-        template<typename T> void send(uint8_t headCode, const T &t, std::function<void(uint8_t, const uint8_t *, size_t)> fnOp = nullptr)
+        template<conceptf::TriviallyCopyable T> void send(uint8_t headCode, const T &t, std::function<void(uint8_t, const uint8_t *, size_t)> fnOp = nullptr)
         {
-            static_assert(std::is_trivially_copyable_v<T>);
             send(headCode, &t, sizeof(t), std::move(fnOp));
         }
 
