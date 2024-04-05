@@ -345,10 +345,18 @@ struct FriendSearchInputLine: public Widget
                       cmQPC.input.assign(s);
                       g_client->send({CM_QUERYPLAYERCANDIDATES, cmQPC}, [](uint8_t headCode, const uint8_t *data, size_t size)
                       {
-                          if(headCode == SM_OK){
-                              for(const auto &s: cerealf::deserialize<SDPlayerCandidates>(data, size).list){
-                                  std::cout << s << std::endl;
-                              }
+                          switch(headCode){
+                              case SM_OK:
+                                {
+                                    for(const auto &s: cerealf::deserialize<SDPlayerCandidates>(data, size).list){
+                                        std::cout << s << std::endl;
+                                    }
+                                    break;
+                                }
+                            default:
+                                {
+                                    throw fflerror("query failed in server");
+                                }
                           }
                       });
                   }
