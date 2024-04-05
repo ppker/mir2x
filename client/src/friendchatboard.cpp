@@ -1825,7 +1825,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                   45 + (m_frameCropDup.w() - 45 - 190) / 2,
                   29,
 
-                  u8"【查找好友】",
+                  u8"【查找用户】",
                   1,
                   14,
                   0,colorf::WHITE + colorf::A_SHF(255),
