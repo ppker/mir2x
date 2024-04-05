@@ -91,9 +91,9 @@ class NetIO final
         }
 
     private:
-        template<std::unsigned_integral T> void doReadVLInteger(size_t offset, std::function<void(T)> fnOp)
+        template<std::unsigned_integral T, std::invocable<T> F> void doReadVLInteger(size_t offset, F fnOp)
         {
-            asio::async_read(m_socket, asio::buffer(m_readSBuf + offset, 1), [offset, fnOp = std::move(fnOp), this](std::error_code ec, size_t)
+            asio::async_read(m_socket, asio::buffer(m_readSBuf + offset, 1), [offset, fnOp, this](std::error_code ec, size_t)
             {
                 if(ec){
                     throw fflerror("network error: %s", ec.message().c_str());
@@ -104,13 +104,11 @@ class NetIO final
                         throw fflerror("variant packet size uses more than %zu bytes", offset + 1);
                     }
                     else{
-                        doReadVLInteger<T>(offset + 1, std::move(fnOp));
+                        doReadVLInteger<T>(offset + 1, fnOp);
                     }
                 }
                 else{
-                    if(fnOp){
-                        fnOp(msgf::decodeLength<T>(m_readSBuf, offset + 1));
-                    }
+                    fnOp(msgf::decodeLength<T>(m_readSBuf, offset + 1));
                 }
             });
         }
