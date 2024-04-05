@@ -309,6 +309,10 @@ class SDLDevice final
        void fillRectangle(uint32_t, int, int, int, int, int = 0);
 
     public:
+       void drawCircle(uint32_t, int, int, int);
+       void fillCircle(uint32_t, int, int, int);
+
+    public:
        void drawWidthRectangle(          size_t, int, int, int, int);
        void drawWidthRectangle(uint32_t, size_t, int, int, int, int);
 

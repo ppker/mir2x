@@ -914,6 +914,22 @@ void SDLDevice::fillRectangle(uint32_t nRGBA, int argX, int argY, int argW, int 
     }
 }
 
+void SDLDevice::drawCircle(uint32_t color, int argX, int argY, int argRad)
+{
+    fflassert(argRad >= 0, argRad);
+    if(colorf::A(color)){
+        aacircleRGBA(m_renderer, argX, argY, argRad, colorf::R(color), colorf::G(color), colorf::B(color), colorf::A(color));
+    }
+}
+
+void SDLDevice::fillCircle(uint32_t color, int argX, int argY, int argRad)
+{
+    fflassert(argRad >= 0, argRad);
+    if(colorf::A(color)){
+        filledCircleRGBA(m_renderer, argX, argY, argRad, colorf::R(color), colorf::G(color), colorf::B(color), colorf::A(color));
+    }
+}
+
 void SDLDevice::drawTriangle(int argX1, int argY1, int argX2, int argY2, int argX3, int argY3)
 {
     Uint8 r = 0;

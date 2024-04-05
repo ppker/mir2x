@@ -205,18 +205,38 @@ struct FriendListPage: public Widget
 
 struct FriendSearchInputLine: public Widget
 {
+    // o: (0,0)
+    // x: (3,3) : fixed by gfx resource border
+    //
+    //   o=========================+ -
+    //   | x---+ +---------------+ | ^
+    //   | |O、| |xxxxxxx        | | | HEIGHT
+    //   | +---+ +---------------+ | v
+    //   +=========================+ -
+    //
+    //   |<------- WIDTH --------->|
+    //     |<->|
+    //   ICON_WIDTH
+    //
+    //      -->| |<--
+    //         GAP
+
+    constexpr static int WIDTH = UIPage_WIDTH - UIPage_MARGIN * 2 - 60;
+    constexpr static int HEIGHT = 30;
+
+    constexpr static int ICON_WIDTH = 20;
+    constexpr static int GAP = 5;
+
     ImageBoard image;
     GfxCropDupBoard inputbg;
 
+    ImageBoard icon;
     InputLine input;
 
     FriendSearchInputLine(Widget::VarDir argDir,
 
             Widget::VarOffset argX,
             Widget::VarOffset argY,
-
-            Widget::VarSize argW,
-            Widget::VarSize argH,
 
             Widget *argParent     = nullptr,
             bool    argAutoDelete = false)
@@ -226,8 +246,9 @@ struct FriendSearchInputLine: public Widget
               std::move(argDir),
               std::move(argX),
               std::move(argY),
-              std::move(argW),
-              std::move(argH),
+
+              FriendSearchInputLine::WIDTH,
+              FriendSearchInputLine::HEIGHT,
 
               {},
 
@@ -265,13 +286,34 @@ struct FriendSearchInputLine: public Widget
               false,
           }
 
-        , input
+        , icon
           {
               DIR_UPLEFT,
               3,
               3,
-              this->w() - 6,
-              this->h() - 6,
+              FriendSearchInputLine::ICON_WIDTH,
+              FriendSearchInputLine::HEIGHT - 6,
+
+              [](const ImageBoard *) { return g_progUseDB->retrieve(0X00001200); },
+
+              false,
+              false,
+              0,
+
+              colorf::WHITE + colorf::A_SHF(0XFF),
+
+              this,
+              false,
+          }
+
+        , input
+          {
+              DIR_UPLEFT,
+              3 + FriendSearchInputLine::ICON_WIDTH + FriendSearchInputLine::GAP,
+              3,
+
+              FriendSearchInputLine::WIDTH  - 3 * 2 - FriendSearchInputLine::ICON_WIDTH - FriendSearchInputLine::GAP,
+              FriendSearchInputLine::HEIGHT - 3 * 2,
 
               true,
 
@@ -334,11 +376,8 @@ struct FriendSearchPage: public Widget
         , input
           {
               DIR_UPLEFT,
-
               0,
               0,
-              this->w() - 100,
-              40,
 
               this,
               false,
