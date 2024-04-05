@@ -288,11 +288,12 @@ struct FriendSearchInputLine: public Widget
 
         , icon
           {
-              DIR_UPLEFT,
-              3,
-              3,
-              FriendSearchInputLine::ICON_WIDTH,
-              FriendSearchInputLine::HEIGHT - 6,
+              DIR_NONE,
+              FriendSearchInputLine::ICON_WIDTH / 2 + 3,
+              FriendSearchInputLine::HEIGHT     / 2,
+
+              std::min<int>(FriendSearchInputLine::ICON_WIDTH, FriendSearchInputLine::HEIGHT - 3 * 2),
+              std::min<int>(FriendSearchInputLine::ICON_WIDTH, FriendSearchInputLine::HEIGHT - 3 * 2),
 
               [](const ImageBoard *) { return g_progUseDB->retrieve(0X00001200); },
 
