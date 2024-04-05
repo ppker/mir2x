@@ -208,23 +208,25 @@ struct FriendSearchInputLine: public Widget
     // o: (0,0)
     // x: (3,3) : fixed by gfx resource border
     //
-    //   o=========================+ -
-    //   | x---+ +---------------+ | ^
-    //   | |O、| |xxxxxxx        | | | HEIGHT
-    //   | +---+ +---------------+ | v
-    //   +=========================+ -
+    //   o==========================+ -
+    //   | x+---+ +---------------+ | ^
+    //   | ||O、| |xxxxxxx        | | | HEIGHT
+    //   | ++---+ +---------------+ | v
+    //   +==========================+ -
     //
     //   |<------- WIDTH --------->|
-    //     |<->|
+    //      |<->|
     //   ICON_WIDTH
     //
-    //      -->| |<--
-    //         GAP
+    //   ->||<- ICON_MARGIN
+    //
+    //       -->| |<-- GAP
 
     constexpr static int WIDTH = UIPage_WIDTH - UIPage_MARGIN * 2 - 60;
     constexpr static int HEIGHT = 30;
 
     constexpr static int ICON_WIDTH = 20;
+    constexpr static int ICON_MARGIN = 5;
     constexpr static int GAP = 5;
 
     ImageBoard image;
@@ -289,7 +291,7 @@ struct FriendSearchInputLine: public Widget
         , icon
           {
               DIR_NONE,
-              FriendSearchInputLine::ICON_WIDTH / 2 + 3,
+              FriendSearchInputLine::ICON_WIDTH / 2 + FriendSearchInputLine::ICON_MARGIN + 3,
               FriendSearchInputLine::HEIGHT     / 2,
 
               std::min<int>(FriendSearchInputLine::ICON_WIDTH, FriendSearchInputLine::HEIGHT - 3 * 2),
@@ -310,16 +312,16 @@ struct FriendSearchInputLine: public Widget
         , input
           {
               DIR_UPLEFT,
-              3 + FriendSearchInputLine::ICON_WIDTH + FriendSearchInputLine::GAP,
+              3 + FriendSearchInputLine::ICON_MARGIN + FriendSearchInputLine::ICON_WIDTH + FriendSearchInputLine::GAP,
               3,
 
-              FriendSearchInputLine::WIDTH  - 3 * 2 - FriendSearchInputLine::ICON_WIDTH - FriendSearchInputLine::GAP,
+              FriendSearchInputLine::WIDTH  - 3 * 2 - FriendSearchInputLine::ICON_MARGIN - FriendSearchInputLine::ICON_WIDTH - FriendSearchInputLine::GAP,
               FriendSearchInputLine::HEIGHT - 3 * 2,
 
               true,
 
               1,
-              12,
+              14,
 
               0,
               colorf::WHITE + colorf::A_SHF(255),
@@ -337,6 +339,11 @@ struct FriendSearchInputLine: public Widget
               false,
           }
     {}
+
+    void clear()
+    {
+        input.clear();
+    }
 };
 
 // struct FriendSearchCandidateItem: public Widget
@@ -345,6 +352,18 @@ struct FriendSearchInputLine: public Widget
 
 struct FriendSearchPage: public Widget
 {
+    // |<----------WIDTH----------->|
+    // +-------------------+ +------+
+    // |      INPUT        | | 清空 |
+    // +-------------------+ +------+
+    //
+    //                  -->| |<-- CLEAR_GAP
+
+    constexpr static int WIDTH  = UIPage_WIDTH  - UIPage_MARGIN * 2;
+    constexpr static int HEIGHT = UIPage_HEIGHT - UIPage_MARGIN * 2;
+
+    constexpr static int CLEAR_GAP = 10;
+
     FriendSearchInputLine input;
     LayoutBoard clear;
 
@@ -386,9 +405,9 @@ struct FriendSearchPage: public Widget
 
         , clear
           {
-              DIR_UPLEFT,
-              input.dx() + input.w(),
-              input.dy(),
+              DIR_LEFT,
+              input.dx() + input.w() + FriendSearchPage::CLEAR_GAP,
+              input.dy() + input.h() / 2,
 
               -1,
 
@@ -403,7 +422,7 @@ struct FriendSearchPage: public Widget
               false,
 
               1,
-              12,
+              15,
 
               0,
               colorf::WHITE + colorf::A_SHF(255),
@@ -418,7 +437,22 @@ struct FriendSearchPage: public Widget
 
               nullptr,
               nullptr,
-              nullptr,
+              [this](const std::unordered_map<std::string, std::string> &attrList, int oldState, int newState)
+              {
+                  if(oldState == BEVENT_DOWN && newState == BEVENT_ON){
+                      const auto fnFindAttrValue = [&attrList](const char *key, const char *valDefault) -> const char *
+                      {
+                          if(auto p = attrList.find(key); p != attrList.end() && str_haschar(p->second)){
+                              return p->second.c_str();
+                          }
+                          return valDefault;
+                      };
+
+                      if(const auto id = fnFindAttrValue("id", nullptr)){
+                          input.clear();
+                      }
+                  }
+              },
 
               this,
               false,
