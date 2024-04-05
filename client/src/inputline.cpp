@@ -62,6 +62,10 @@ bool InputLine::processEvent(const SDL_Event &event, bool valid)
                             if(m_cursor > 0){
                                 m_tpset.deleteToken(m_cursor - 1, 0, 1);
                                 m_cursor--;
+
+                                if(m_onChange){
+                                    m_onChange(m_tpset.getRawString());
+                                }
                             }
                             m_cursorBlink = 0.0;
                             return true;
@@ -79,10 +83,16 @@ bool InputLine::processEvent(const SDL_Event &event, bool valid)
                                 {
                                     m_tpset.insertUTF8String(m_cursor, 0, s.c_str());
                                     m_cursor += utf8::distance(s.begin(), s.end());
+                                    if(m_onChange){
+                                        m_onChange(m_tpset.getRawString());
+                                    }
                                 });
                             }
                             else if(keyChar != '\0'){
                                 m_tpset.insertUTF8String(m_cursor++, 0, str_printf("%c", keyChar).c_str());
+                                if(m_onChange){
+                                    m_onChange(m_tpset.getRawString());
+                                }
                             }
 
                             m_cursorBlink = 0.0;

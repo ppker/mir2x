@@ -133,6 +133,7 @@ RuntimeConfigBoard::TextInput::TextInput(
 
           argOnTab,
           argOnCR,
+          nullptr,
 
           this,
           false,

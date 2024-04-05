@@ -51,6 +51,7 @@ class PasswordBox: public InputLine
 
                   fnOnTab,
                   fnOnReturn,
+                  nullptr,
 
                   parent,
                   autoDelete,

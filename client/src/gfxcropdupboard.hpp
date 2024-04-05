@@ -11,37 +11,38 @@ class GfxCropDupBoard: public Widget
         const Widget * const m_gfxWidget;
 
     private:
-        const int m_cropX;
-        const int m_cropY;
-        const int m_cropW;
-        const int m_cropH;
+        const Widget::VarOffset m_cropX;
+        const Widget::VarOffset m_cropY;
+        const Widget::VarOffset m_cropW;
+        const Widget::VarOffset m_cropH;
 
     public:
         GfxCropDupBoard(
-                dir8_t argDir,
+                Widget::VarDir argDir,
 
-                int argX,
-                int argY,
-                int argW,
-                int argH,
+                Widget::VarOffset argX,
+                Widget::VarOffset argY,
+
+                Widget::VarSize argW,
+                Widget::VarSize argH,
 
                 const Widget *argWidget,
 
-                int argCropX,
-                int argCropY,
-                int argCropW,
-                int argCropH,
+                Widget::VarOffset argCropX,
+                Widget::VarOffset argCropY,
+                Widget::VarOffset argCropW, // don't use VarSize because empty VarSize is not well-defined
+                Widget::VarOffset argCropH, // ...
 
                 Widget *argParent     = nullptr,
                 bool    argAutoDelete = false)
 
             : Widget
               {
-                  argDir,
-                  argX,
-                  argY,
-                  argW,
-                  argH,
+                  std::move(argDir),
+                  std::move(argX),
+                  std::move(argY),
+                  std::move(argW),
+                  std::move(argH),
 
                   {},
 
@@ -51,11 +52,19 @@ class GfxCropDupBoard: public Widget
 
             , m_gfxWidget([argWidget]{ fflassert(argWidget); return argWidget; }())
 
-            , m_cropX(argCropX)
-            , m_cropY(argCropY)
-            , m_cropW([argCropW, this]{ fflassert(argCropW >= 0); return argCropW; }())
-            , m_cropH([argCropH, this]{ fflassert(argCropH >= 0); return argCropH; }())
-        {}
+            , m_cropX(std::move(argCropX))
+            , m_cropY(std::move(argCropY))
+            , m_cropW(std::move(argCropW))
+            , m_cropH(std::move(argCropH))
+        {
+            if(Widget::hasFuncOffset(m_cropX)){ fflassert(Widget::asFuncOffset(m_cropX), m_cropX); }
+            if(Widget::hasFuncOffset(m_cropY)){ fflassert(Widget::asFuncOffset(m_cropY), m_cropY); }
+            if(Widget::hasFuncOffset(m_cropW)){ fflassert(Widget::asFuncOffset(m_cropW), m_cropW); }
+            if(Widget::hasFuncOffset(m_cropH)){ fflassert(Widget::asFuncOffset(m_cropH), m_cropH); }
+
+            if(Widget::hasIntOffset(m_cropW)){ fflassert(Widget::asIntOffset(m_cropW) >= 0, m_cropW); }
+            if(Widget::hasIntOffset(m_cropH)){ fflassert(Widget::asIntOffset(m_cropH) >= 0, m_cropH); }
+        }
 
     public:
         void drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, int srcH) const override
@@ -64,10 +73,13 @@ class GfxCropDupBoard: public Widget
                 return;
             }
 
-            int cropSrcX = m_cropX;
-            int cropSrcY = m_cropY;
-            int cropSrcW = m_cropW;
-            int cropSrcH = m_cropH;
+            int cropSrcX = Widget::evalOffset(m_cropX, this);
+            int cropSrcY = Widget::evalOffset(m_cropY, this);
+            int cropSrcW = Widget::evalOffset(m_cropW, this);
+            int cropSrcH = Widget::evalOffset(m_cropH, this);
+
+            fflassert(cropSrcW >= 0, cropSrcW);
+            fflassert(cropSrcH >= 0, cropSrcH);
 
             if(!mathf::rectangleOverlapRegion<int>(0, 0, m_gfxWidget->w(), m_gfxWidget->h(), cropSrcX, cropSrcY, cropSrcW, cropSrcH)){
                 return;

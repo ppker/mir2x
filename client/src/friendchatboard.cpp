@@ -203,6 +203,153 @@ struct FriendListPage: public Widget
     }
 };
 
+struct FriendSearchInputLine: public Widget
+{
+    ImageBoard image;
+    GfxCropDupBoard inputbg;
+
+    InputLine input;
+
+    FriendSearchInputLine(Widget::VarDir argDir,
+
+            Widget::VarOffset argX,
+            Widget::VarOffset argY,
+
+            Widget::VarSize argW,
+            Widget::VarSize argH,
+
+            Widget *argParent     = nullptr,
+            bool    argAutoDelete = false)
+
+        : Widget
+          {
+              std::move(argDir),
+              std::move(argX),
+              std::move(argY),
+              std::move(argW),
+              std::move(argH),
+
+              {},
+
+              argParent,
+              argAutoDelete,
+          }
+
+        , image
+          {
+              DIR_UPLEFT,
+              0,
+              0,
+              {},
+              {},
+              [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000460); },
+          }
+
+        , inputbg
+          {
+              DIR_UPLEFT,
+              0,
+              0,
+
+              this->w(),
+              this->h(),
+
+              &image,
+
+              3,
+              3,
+              image.w() - 6,
+              2,
+
+              this,
+              false,
+          }
+
+        , input
+          {
+              DIR_UPLEFT,
+              3,
+              3,
+              this->w() - 6,
+              this->h() - 6,
+
+              true,
+
+              1,
+              12,
+
+              0,
+              colorf::WHITE + colorf::A_SHF(255),
+
+              2,
+              colorf::WHITE + colorf::A_SHF(255),
+
+              nullptr,
+              [this]()
+              {
+              },
+              nullptr,
+
+              this,
+              false,
+          }
+    {}
+};
+
+// struct FriendSearchCandidateItem: public Widget
+// {
+// };
+
+struct FriendSearchPage: public Widget
+{
+    FriendSearchInputLine input;
+    // Widget autocompletes;
+    // Widget candidates;
+
+    FriendSearchPage(Widget::VarDir argDir,
+
+            Widget::VarOffset argX,
+            Widget::VarOffset argY,
+
+            Widget *argParent     = nullptr,
+            bool    argAutoDelete = false)
+
+        : Widget
+          {
+              std::move(argDir),
+              std::move(argX),
+              std::move(argY),
+
+              UIPage_WIDTH  - UIPage_MARGIN * 2,
+              UIPage_HEIGHT - UIPage_MARGIN * 2,
+
+              {},
+
+              argParent,
+              argAutoDelete,
+          }
+
+        , input
+          {
+              DIR_UPLEFT,
+
+              30,
+              30,
+              200,
+              40,
+
+              this,
+              false,
+          }
+    {}
+
+    // void append(FriendItem *item, bool autoDelete)
+    // {
+    //     item->moveAt(DIR_UPLEFT, 0, canvas.h());
+    //     canvas.addChild(item, autoDelete);
+    // }
+};
+
 struct FriendChatItem: public Widget
 {
     //          WIDTH
@@ -1609,7 +1756,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                   true,
               },
 
-              .page = new FriendListPage
+              .page = new FriendSearchPage
               {
                   DIR_UPLEFT,
                   UIPage_BORDER[2] + UIPage_MARGIN,

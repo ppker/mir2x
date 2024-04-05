@@ -22,8 +22,9 @@ class InputLine: public Widget
         double   m_cursorBlink = 0.0;
 
     protected:
-        std::function<void()> m_onTab;
-        std::function<void()> m_onCR;
+        std::function<void()>            m_onTab;
+        std::function<void()>            m_onCR;
+        std::function<void(std::string)> m_onChange;
 
     public:
         InputLine(
@@ -43,8 +44,9 @@ class InputLine: public Widget
                 int      argCursorWidth = 2,
                 uint32_t argCursorColor = colorf::WHITE + colorf::A_SHF(255),
 
-                std::function<void()> argOnTab = nullptr,
-                std::function<void()> argOnCR  = nullptr,
+                std::function<void()>            argOnTab    = nullptr,
+                std::function<void()>            argOnCR     = nullptr,
+                std::function<void(std::string)> argOnChange = nullptr,
 
                 Widget *widgetPtr  = nullptr,
                 bool    autoDelete = false)
@@ -76,8 +78,9 @@ class InputLine: public Widget
               }
             , m_cursorWidth(argCursorWidth)
             , m_cursorColor(argCursorColor)
-            , m_onTab(argOnTab)
-            , m_onCR(argOnCR)
+            , m_onTab(std::move(argOnTab))
+            , m_onCR(std::move(argOnCR))
+            , m_onChange(std::move(argOnChange))
         {}
 
     public:

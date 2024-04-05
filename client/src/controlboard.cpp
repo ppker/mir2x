@@ -757,6 +757,7 @@ ControlBoard::ControlBoard(int boardW, int startY, ProcessRun *proc, Widget *pwi
           {
               inputLineDone();
           },
+          nullptr,
 
           &m_middle,
       }
