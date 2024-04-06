@@ -654,6 +654,7 @@ struct SDChatMessage
     }
 };
 
+using SDChatMessageID = uint64_t;
 using SDChatMessageList = std::vector<SDChatMessage>;
 
 struct SDNPCEvent

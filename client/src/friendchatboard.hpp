@@ -87,7 +87,4 @@ class FriendChatBoard: public Widget
     public:
         void setChatPageDBID(uint32_t);
         void setUIPage(int, const char * = nullptr);
-
-    public:
-        void sendMessage(uint32_t, std::string);
 };

@@ -659,7 +659,7 @@ struct FriendChatItem: public Widget
                           return colorf::GREEN + colorf::A_SHF(128);
                       }
                       else{
-                          return colorf::fadeRGBA(colorf::GREEN + colorf::A_SHF(128), colorf::GREY + colorf::A_SHF(128), std::fabs(std::fmod(accuTime / 1000.0, 2.0) - 1.0));
+                          return colorf::fadeRGBA(colorf::GREY + colorf::A_SHF(128), colorf::GREEN + colorf::A_SHF(128), std::fabs(std::fmod(accuTime / 1000.0, 2.0) - 1.0));
                       }
                   }());
 
@@ -852,6 +852,11 @@ struct FriendChatPage: public Widget
 
             canvas.addChild(chatItem, autoDelete);
         }
+
+        bool hasItem(const Widget *item) const
+        {
+            return canvas.hasChild(item);
+        }
     };
 
     struct FriendChatInputContainer: public Widget
@@ -920,14 +925,15 @@ struct FriendChatPage: public Widget
                           return;
                       }
 
-                      dynamic_cast<FriendChatPage *>(parent())->chat.append(new FriendChatItem
+                      auto message = layout.getXML();
+                      auto newItem = new FriendChatItem
                       {
                           DIR_UPLEFT,
                           0,
                           0,
 
                           u8"绝地武士",
-                          to_u8cstr(layout.getXML()),
+                          to_u8cstr(message),
 
                           [](const ImageBoard *)
                           {
@@ -938,10 +944,36 @@ struct FriendChatPage: public Widget
                           false,
 
                           {},
-                      }, true);
+                      };
 
-                      dynamic_cast<FriendChatBoard *>(parent(1))->sendMessage(dynamic_cast<FriendChatPage *>(parent())->dbid, layout.getXML());
+                      dynamic_cast<FriendChatPage *>(parent())->chat.append(newItem, true);
                       layout.clear();
+
+                      const uint32_t toDBID = dynamic_cast<FriendChatPage *>(parent())->dbid;
+
+                      auto dbidsv = as_sv(toDBID);
+                      auto msgbuf = cerealf::serialize(message);
+
+                      msgbuf.insert(msgbuf.begin(), dbidsv.begin(), dbidsv.end());
+                      g_client->send({CM_CHATMESSAGE, msgbuf}, [newItem, this](uint8_t headCode, const uint8_t *buf, size_t bufSize)
+                      {
+                          switch(headCode){
+                              case SM_OK:
+                                  {
+                                      // TBD allocator may reuse memory
+                                      // so item with same memory address may not be same item
+
+                                      if(dynamic_cast<FriendChatPage *>(parent())->chat.hasItem(newItem)){
+                                          newItem->idOpt = cerealf::deserialize<SDChatMessageID>(buf, bufSize);
+                                      }
+                                      break;
+                                  }
+                              default:
+                                  {
+                                      throw fflerror("failed to send message");
+                                  }
+                          }
+                      });
                   },
                   nullptr,
 
@@ -2189,9 +2221,4 @@ void FriendChatBoard::setUIPage(int uiPage, const char *titleStr)
             m_uiPageList[m_uiPage].title->setText(to_u8cstr(titleStr));
         }
     }
-}
-
-void FriendChatBoard::sendMessage(uint32_t dbid, std::string chatMessage)
-{
-    m_processRun->requestSendChatMessage(dbid, std::move(chatMessage));
 }

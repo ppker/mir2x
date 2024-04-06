@@ -285,7 +285,7 @@ void Player::net_CM_QUERYPLAYERCANDIDATES(uint8_t, const uint8_t *buf, size_t, u
     }
 }
 
-void Player::net_CM_CHATMESSAGE(uint8_t, const uint8_t *buf, size_t bufSize, uint64_t)
+void Player::net_CM_CHATMESSAGE(uint8_t, const uint8_t *buf, size_t bufSize, uint64_t respID)
 {
     fflassert(bufSize >= 4, bufSize);
 
@@ -309,6 +309,8 @@ void Player::net_CM_CHATMESSAGE(uint8_t, const uint8_t *buf, size_t bufSize, uin
             .message = std::move(msgBuf), // keep serialized
         },
     }));
+
+    postNetMessage(SM_OK, cerealf::serialize(SDChatMessageID{msgId}), respID);
 }
 
 void Player::net_CM_BUY(uint8_t, const uint8_t *buf, size_t, uint64_t)
