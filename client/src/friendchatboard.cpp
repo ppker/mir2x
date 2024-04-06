@@ -343,13 +343,14 @@ struct FriendSearchInputLine: public Widget
                       std::memset(&cmQPC, 0, sizeof(cmQPC));
 
                       cmQPC.input.assign(s);
-                      g_client->send({CM_QUERYPLAYERCANDIDATES, cmQPC}, [](uint8_t headCode, const uint8_t *data, size_t size)
+                      g_client->send({CM_QUERYPLAYERCANDIDATES, cmQPC}, [this](uint8_t headCode, const uint8_t *data, size_t size)
                       {
                           switch(headCode){
                               case SM_OK:
                                 {
+                                    clearCompletionItems();
                                     for(const auto &s: cerealf::deserialize<SDPlayerCandidates>(data, size).list){
-                                        std::cout << s << std::endl;
+                                        appendCompletionItem(s);
                                     }
                                     break;
                                 }
@@ -371,20 +372,119 @@ struct FriendSearchInputLine: public Widget
     {
         input.clear();
     }
+
+    void clearCompletionItems();
+    void appendCompletionItem(const std::string &s);
 };
 
-// struct FriendSearchCandidateItem: public Widget
-// {
-// };
+struct FriendSearchAutoCompletionItem: public Widget
+{
+    // o: (0,0)
+    // x: (3,3)
+    //
+    //   o--------------------------+ -
+    //   | x+---+ +---------------+ | ^
+    //   | ||O、| |label          | | | HEIGHT
+    //   | ++---+ +---------------+ | v
+    //   +--------------------------+ -
+    //   |<-------- WIDTH --------->|
+    //      |<->|
+    //   ICON_WIDTH
+    //
+    //   ->||<- ICON_MARGIN
+    //
+    //       -->| |<-- GAP
+
+    constexpr static int WIDTH = UIPage_WIDTH - UIPage_MARGIN * 2;
+    constexpr static int HEIGHT = 30;
+
+    constexpr static int ICON_WIDTH = 20;
+    constexpr static int ICON_MARGIN = 5;
+    constexpr static int GAP = 5;
+
+    ImageBoard icon;
+    LabelBoard label;
+
+    FriendSearchAutoCompletionItem(Widget::VarDir argDir,
+
+            Widget::VarOffset argX,
+            Widget::VarOffset argY,
+
+            const char *argXMLStr,
+
+            Widget *argParent     = nullptr,
+            bool    argAutoDelete = false)
+
+        : Widget
+          {
+              std::move(argDir),
+              std::move(argX),
+              std::move(argY),
+
+              FriendSearchAutoCompletionItem::WIDTH,
+              FriendSearchAutoCompletionItem::HEIGHT,
+
+              {},
+
+              argParent,
+              argAutoDelete,
+          }
+
+        , icon
+          {
+              DIR_NONE,
+              FriendSearchAutoCompletionItem::ICON_WIDTH / 2 + FriendSearchAutoCompletionItem::ICON_MARGIN + 3,
+              FriendSearchAutoCompletionItem::HEIGHT     / 2,
+
+              std::min<int>(FriendSearchAutoCompletionItem::ICON_WIDTH, FriendSearchAutoCompletionItem::HEIGHT - 3 * 2),
+              std::min<int>(FriendSearchAutoCompletionItem::ICON_WIDTH, FriendSearchAutoCompletionItem::HEIGHT - 3 * 2),
+
+              [](const ImageBoard *) { return g_progUseDB->retrieve(0X00001200); },
+
+              false,
+              false,
+              0,
+
+              colorf::WHITE + colorf::A_SHF(0XFF),
+
+              this,
+              false,
+          }
+
+        , label
+          {
+              DIR_UPLEFT,
+              3 + FriendSearchAutoCompletionItem::ICON_MARGIN + FriendSearchAutoCompletionItem::ICON_WIDTH + FriendSearchAutoCompletionItem::GAP,
+              3,
+
+              u8"",
+
+              1,
+              14,
+              0,
+              colorf::WHITE + colorf::A_SHF(255),
+
+              this,
+              false,
+          }
+    {
+        label.loadXML(argXMLStr);
+    }
+};
 
 struct FriendSearchPage: public Widget
 {
+    //                  -->| |<-- CLEAR_GAP
     // |<----------WIDTH----------->|
     // +-------------------+ +------+
     // |      INPUT        | | 清空 |
     // +-------------------+ +------+
-    //
-    //                  -->| |<-- CLEAR_GAP
+    // | auto completion item       |
+    // +----------------------------+
+    // | auto completion item       |
+    // +----------------------------+
+    // | auto completion item       |
+    // +----------------------------+
 
     constexpr static int WIDTH  = UIPage_WIDTH  - UIPage_MARGIN * 2;
     constexpr static int HEIGHT = UIPage_HEIGHT - UIPage_MARGIN * 2;
@@ -394,7 +494,7 @@ struct FriendSearchPage: public Widget
     FriendSearchInputLine input;
     LayoutBoard clear;
 
-    // Widget autocompletes;
+    Widget autocompletes;
     // Widget candidates;
 
     FriendSearchPage(Widget::VarDir argDir,
@@ -484,14 +584,48 @@ struct FriendSearchPage: public Widget
               this,
               false,
           }
+
+        , autocompletes
+          {
+              DIR_UPLEFT,
+              0,
+              FriendSearchInputLine::HEIGHT,
+
+              FriendSearchPage::WIDTH,
+              FriendSearchPage::HEIGHT - FriendSearchInputLine::HEIGHT,
+
+              {},
+
+              this,
+              false,
+          }
     {}
 
-    // void append(FriendItem *item, bool autoDelete)
-    // {
-    //     item->moveAt(DIR_UPLEFT, 0, canvas.h());
-    //     canvas.addChild(item, autoDelete);
-    // }
+    void appendAutoCompletionItem(const char *xmlStr)
+    {
+        autocompletes.addChild(new FriendSearchAutoCompletionItem
+        {
+            DIR_UPLEFT,
+            0,
+            30,
+
+            xmlStr,
+
+            &autocompletes,
+            true,
+        }, true);
+    }
 };
+
+void FriendSearchInputLine::clearCompletionItems()
+{
+    dynamic_cast<FriendSearchPage *>(parent())->autocompletes.clearChild();
+}
+
+void FriendSearchInputLine::appendCompletionItem(const std::string &s)
+{
+    dynamic_cast<FriendSearchPage *>(parent())->appendAutoCompletionItem(str_printf("<par>%s</par>", s.c_str()).c_str());
+}
 
 struct FriendChatItem: public Widget
 {
