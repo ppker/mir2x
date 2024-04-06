@@ -653,13 +653,13 @@ struct FriendChatItem: public Widget
                   const uint32_t drawBGColor = bgColor.value_or([this]
                   {
                       if(avatarLeft){
-                          return colorf::GREY + colorf::A_SHF(128);
+                          return colorf::RED + colorf::A_SHF(128);
                       }
                       else if(idOpt.has_value()){
                           return colorf::GREEN + colorf::A_SHF(128);
                       }
                       else{
-                          return colorf::fadeRGBA(colorf::RGBA(255, 0, 0, 128), colorf::RGBA(0, 255, 0, 128), std::fmod(accuTime / 1000.0, 1.0));
+                          return colorf::fadeRGBA(colorf::GREEN + colorf::A_SHF(128), colorf::GREY + colorf::A_SHF(128), std::fabs(std::fmod(accuTime / 1000.0, 2.0) - 1.0));
                       }
                   }());
 
