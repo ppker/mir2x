@@ -548,9 +548,12 @@ struct FriendChatItem: public Widget
     constexpr static int MESSAGE_MIN_WIDTH  = 10; // handling small size message
     constexpr static int MESSAGE_MIN_HEIGHT = 10;
 
+    double accuTime = 0.0;
+    std::optional<uint64_t> idOpt {};
+
     const bool showName;
     const bool avatarLeft;
-    const uint32_t bgColor;
+    const std::optional<uint32_t> bgColor;
 
     ImageBoard avatar;
     LabelBoard name;
@@ -569,7 +572,7 @@ struct FriendChatItem: public Widget
 
             bool argShowName,
             bool argAvatarLeft,
-            uint32_t argBGColor,
+            std::optional<uint32_t> argBGColor,
 
             Widget *argParent  = nullptr,
             bool argAutoDelete = false)
@@ -590,7 +593,7 @@ struct FriendChatItem: public Widget
 
         , showName(argShowName)
         , avatarLeft(argAvatarLeft)
-        , bgColor(argBGColor)
+        , bgColor(std::move(argBGColor))
 
         , avatar
           {
@@ -647,8 +650,21 @@ struct FriendChatItem: public Widget
 
               [this](const Widget *, int drawDstX, int drawDstY)
               {
+                  const uint32_t drawBGColor = bgColor.value_or([this]
+                  {
+                      if(avatarLeft){
+                          return colorf::GREY + colorf::A_SHF(128);
+                      }
+                      else if(idOpt.has_value()){
+                          return colorf::GREEN + colorf::A_SHF(128);
+                      }
+                      else{
+                          return colorf::fadeRGBA(colorf::RGBA(255, 0, 0, 128), colorf::RGBA(0, 255, 0, 128), std::fmod(accuTime / 1000.0, 1.0));
+                      }
+                  }());
+
                   g_sdlDevice->fillRectangle(
-                          bgColor,
+                          drawBGColor,
 
                           drawDstX + (avatarLeft ? FriendChatItem::TRIANGLE_WIDTH : 0),
                           drawDstY,
@@ -675,12 +691,12 @@ struct FriendChatItem: public Widget
                   const auto triangleY3_hideName = drawDstY + FriendChatItem::AVATAR_HEIGHT / 2 + FriendChatItem::TRIANGLE_HEIGHT / 2;
 
                   if(avatarLeft){
-                      if(showName) g_sdlDevice->fillTriangle(bgColor, triangleX1_avatarLeft, triangleY1_showName, triangleX2_avatarLeft, triangleY2_showName, triangleX3_avatarLeft, triangleY3_showName);
-                      else         g_sdlDevice->fillTriangle(bgColor, triangleX1_avatarLeft, triangleY1_hideName, triangleX2_avatarLeft, triangleY2_hideName, triangleX3_avatarLeft, triangleY3_hideName);
+                      if(showName) g_sdlDevice->fillTriangle(drawBGColor, triangleX1_avatarLeft, triangleY1_showName, triangleX2_avatarLeft, triangleY2_showName, triangleX3_avatarLeft, triangleY3_showName);
+                      else         g_sdlDevice->fillTriangle(drawBGColor, triangleX1_avatarLeft, triangleY1_hideName, triangleX2_avatarLeft, triangleY2_hideName, triangleX3_avatarLeft, triangleY3_hideName);
                   }
                   else{
-                      if(showName) g_sdlDevice->fillTriangle(bgColor, triangleX1_avatarRight, triangleY1_showName, triangleX2_avatarRight, triangleY2_showName, triangleX3_avatarRight, triangleY3_showName);
-                      else         g_sdlDevice->fillTriangle(bgColor, triangleX1_avatarRight, triangleY1_hideName, triangleX2_avatarRight, triangleY2_hideName, triangleX3_avatarRight, triangleY3_hideName);
+                      if(showName) g_sdlDevice->fillTriangle(drawBGColor, triangleX1_avatarRight, triangleY1_showName, triangleX2_avatarRight, triangleY2_showName, triangleX3_avatarRight, triangleY3_showName);
+                      else         g_sdlDevice->fillTriangle(drawBGColor, triangleX1_avatarRight, triangleY1_hideName, triangleX2_avatarRight, triangleY2_hideName, triangleX3_avatarRight, triangleY3_hideName);
                   }
               },
           }
@@ -717,6 +733,11 @@ struct FriendChatItem: public Widget
                 fnMoveAdd(&message   , DIR_UPRIGHT, realWidth - 1 - FriendChatItem::AVATAR_WIDTH - FriendChatItem::GAP - FriendChatItem::TRIANGLE_WIDTH - FriendChatItem::MESSAGE_MARGIN, FriendChatItem::MESSAGE_MARGIN                              );
             }
         }
+    }
+
+    void update(double fUpdateTime) override
+    {
+        accuTime += fUpdateTime;
     }
 };
 
@@ -916,7 +937,7 @@ struct FriendChatPage: public Widget
                           true,
                           false,
 
-                          colorf::RED + colorf::A_SHF(128),
+                          {},
                       }, true);
 
                       dynamic_cast<FriendChatBoard *>(parent(1))->sendMessage(dynamic_cast<FriendChatPage *>(parent())->dbid, layout.getXML());
@@ -2143,7 +2164,7 @@ void FriendChatBoard::setChatPageDBID(uint32_t argDBID)
                         true,
                         true,
 
-                        colorf::RED + colorf::A_SHF(128),
+                        {},
                     }, true);
                 }
             }
