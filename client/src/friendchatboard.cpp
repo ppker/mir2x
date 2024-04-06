@@ -603,11 +603,17 @@ struct FriendSearchPage: public Widget
 
     void appendAutoCompletionItem(const char *xmlStr)
     {
+        int maxY = 0;
+        autocompletes.foreachChild([&maxY](const Widget *widget, bool)
+        {
+            maxY = std::max<int>(maxY, widget->dy() + widget->h());
+        });
+
         autocompletes.addChild(new FriendSearchAutoCompletionItem
         {
             DIR_UPLEFT,
             0,
-            30,
+            maxY,
 
             xmlStr,
 

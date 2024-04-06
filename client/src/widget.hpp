@@ -5,6 +5,7 @@
 #include <any>
 #include <list>
 #include <utility>
+#include <concepts>
 #include <tuple>
 #include <array>
 #include <functional>
@@ -740,5 +741,13 @@ class Widget
         const char *name() const
         {
             return typeid(*this).name();
+        }
+
+    public:
+        template<std::invocable<const Widget *, bool> F> void foreachChild(F f) const
+        {
+            for(const auto &child: m_childList){
+                f(child.widget, child.autoDelete);
+            }
         }
 };
