@@ -9,10 +9,6 @@ extern Client *g_client;
 extern PNGTexDB *g_progUseDB;
 extern SDLDevice *g_sdlDevice;
 
-constexpr static int UIPage_WIDTH  = 400; // the area excludes border area, margin included
-constexpr static int UIPage_HEIGHT = 400;
-constexpr static int UIPage_MARGIN =   4;
-
 FriendChatBoard::FriendItem::FriendItem(dir8_t argDir,
         int argX,
         int argY,
@@ -173,1471 +169,1189 @@ void FriendChatBoard::FriendListPage::append(FriendItem *item, bool autoDelete)
     canvas.addChild(item, autoDelete);
 }
 
-struct FriendSearchInputLine: public Widget
-{
-    // o: (0,0)
-    // x: (3,3) : fixed by gfx resource border
-    //
-    //   o==========================+ -
-    //   | x+---+ +---------------+ | ^
-    //   | ||O、| |xxxxxxx        | | | HEIGHT
-    //   | ++---+ +---------------+ | v
-    //   +==========================+ -
-    //
-    //   |<------- WIDTH --------->|
-    //      |<->|
-    //   ICON_WIDTH
-    //
-    //   ->||<- ICON_MARGIN
-    //
-    //       -->| |<-- GAP
+FriendChatBoard::FriendSearchInputLine::FriendSearchInputLine(Widget::VarDir argDir,
 
-    constexpr static int WIDTH = UIPage_WIDTH - UIPage_MARGIN * 2 - 60;
-    constexpr static int HEIGHT = 30;
+        Widget::VarOffset argX,
+        Widget::VarOffset argY,
 
-    constexpr static int ICON_WIDTH = 20;
-    constexpr static int ICON_MARGIN = 5;
-    constexpr static int GAP = 5;
+        Widget *argParent,
+        bool    argAutoDelete)
 
-    ImageBoard image;
-    GfxCropDupBoard inputbg;
+    : Widget
+      {
+          std::move(argDir),
+          std::move(argX),
+          std::move(argY),
 
-    ImageBoard icon;
-    InputLine input;
+          FriendSearchInputLine::WIDTH,
+          FriendSearchInputLine::HEIGHT,
 
-    FriendSearchInputLine(Widget::VarDir argDir,
+          {},
 
-            Widget::VarOffset argX,
-            Widget::VarOffset argY,
+          argParent,
+          argAutoDelete,
+      }
 
-            Widget *argParent     = nullptr,
-            bool    argAutoDelete = false)
+    , image
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+          {},
+          {},
+          [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000460); },
+      }
 
-        : Widget
+    , inputbg
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          this->w(),
+          this->h(),
+
+          &image,
+
+          3,
+          3,
+          image.w() - 6,
+          2,
+
+          this,
+          false,
+      }
+
+    , icon
+      {
+          DIR_NONE,
+          FriendSearchInputLine::ICON_WIDTH / 2 + FriendSearchInputLine::ICON_MARGIN + 3,
+          FriendSearchInputLine::HEIGHT     / 2,
+
+          std::min<int>(FriendSearchInputLine::ICON_WIDTH, FriendSearchInputLine::HEIGHT - 3 * 2),
+          std::min<int>(FriendSearchInputLine::ICON_WIDTH, FriendSearchInputLine::HEIGHT - 3 * 2),
+
+          [](const ImageBoard *) { return g_progUseDB->retrieve(0X00001200); },
+
+          false,
+          false,
+          0,
+
+          colorf::WHITE + colorf::A_SHF(0XFF),
+
+          this,
+          false,
+      }
+
+    , input
+      {
+          DIR_UPLEFT,
+          3 + FriendSearchInputLine::ICON_MARGIN + FriendSearchInputLine::ICON_WIDTH + FriendSearchInputLine::GAP,
+          3,
+
+          FriendSearchInputLine::WIDTH  - 3 * 2 - FriendSearchInputLine::ICON_MARGIN - FriendSearchInputLine::ICON_WIDTH - FriendSearchInputLine::GAP,
+          FriendSearchInputLine::HEIGHT - 3 * 2,
+
+          true,
+
+          1,
+          14,
+
+          0,
+          colorf::WHITE + colorf::A_SHF(255),
+
+          2,
+          colorf::WHITE + colorf::A_SHF(255),
+
+          nullptr,
+          [this]()
           {
-              std::move(argDir),
-              std::move(argX),
-              std::move(argY),
+          },
 
-              FriendSearchInputLine::WIDTH,
-              FriendSearchInputLine::HEIGHT,
-
-              {},
-
-              argParent,
-              argAutoDelete,
-          }
-
-        , image
+          [this](std::string query)
           {
-              DIR_UPLEFT,
-              0,
-              0,
-              {},
-              {},
-              [](const ImageBoard *){ return g_progUseDB->retrieve(0X00000460); },
-          }
-
-        , inputbg
-          {
-              DIR_UPLEFT,
-              0,
-              0,
-
-              this->w(),
-              this->h(),
-
-              &image,
-
-              3,
-              3,
-              image.w() - 6,
-              2,
-
-              this,
-              false,
-          }
-
-        , icon
-          {
-              DIR_NONE,
-              FriendSearchInputLine::ICON_WIDTH / 2 + FriendSearchInputLine::ICON_MARGIN + 3,
-              FriendSearchInputLine::HEIGHT     / 2,
-
-              std::min<int>(FriendSearchInputLine::ICON_WIDTH, FriendSearchInputLine::HEIGHT - 3 * 2),
-              std::min<int>(FriendSearchInputLine::ICON_WIDTH, FriendSearchInputLine::HEIGHT - 3 * 2),
-
-              [](const ImageBoard *) { return g_progUseDB->retrieve(0X00001200); },
-
-              false,
-              false,
-              0,
-
-              colorf::WHITE + colorf::A_SHF(0XFF),
-
-              this,
-              false,
-          }
-
-        , input
-          {
-              DIR_UPLEFT,
-              3 + FriendSearchInputLine::ICON_MARGIN + FriendSearchInputLine::ICON_WIDTH + FriendSearchInputLine::GAP,
-              3,
-
-              FriendSearchInputLine::WIDTH  - 3 * 2 - FriendSearchInputLine::ICON_MARGIN - FriendSearchInputLine::ICON_WIDTH - FriendSearchInputLine::GAP,
-              FriendSearchInputLine::HEIGHT - 3 * 2,
-
-              true,
-
-              1,
-              14,
-
-              0,
-              colorf::WHITE + colorf::A_SHF(255),
-
-              2,
-              colorf::WHITE + colorf::A_SHF(255),
-
-              nullptr,
-              [this]()
-              {
-              },
-
-              [this](std::string query)
-              {
-                  if(query.empty()){
-                      clearCompletionItems();
-                  }
-                  else{
-                      CMQueryPlayerCandidates cmQPC;
-                      std::memset(&cmQPC, 0, sizeof(cmQPC));
-
-                      cmQPC.input.assign(query);
-                      g_client->send({CM_QUERYPLAYERCANDIDATES, cmQPC}, [query = std::move(query), this](uint8_t headCode, const uint8_t *data, size_t size)
-                      {
-                          switch(headCode){
-                              case SM_OK:
-                                {
-                                    clearCompletionItems();
-                                    for(const auto &candidate: cerealf::deserialize<SDPlayerCandidateList>(data, size)){
-                                        appendCompletionItem(query == std::to_string(candidate.dbid), candidate, [&candidate, &query]
-                                        {
-                                            if(const auto pos = candidate.name.find(query); pos != std::string::npos){
-                                                return str_printf(R"###(<par>%s<t color="red">%s</t>%s（%llu）</par>)###", candidate.name.substr(0, pos).c_str(), query.c_str(), candidate.name.substr(pos + query.size()).c_str(), to_llu(candidate.dbid));
-                                            }
-                                            else if(std::to_string(candidate.dbid) == query){
-                                                return str_printf(R"###(<par>%s（<t color="red">%llu</t>）</par>)###", candidate.name.c_str(), to_llu(candidate.dbid));
-                                            }
-                                            else{
-                                                return str_printf(R"###(<par>%s（%llu）</par>)###", candidate.name.c_str(), to_llu(candidate.dbid));
-                                            }
-                                        }());
-                                    }
-                                    break;
-                                }
-                            default:
-                                {
-                                    throw fflerror("query failed in server");
-                                }
-                          }
-                      });
-                  }
-              },
-
-              this,
-              false,
-          }
-    {}
-
-    void clear()
-    {
-        input.clear();
-    }
-
-    void clearCompletionItems();
-    void appendCompletionItem(bool, SDPlayerCandidate, const std::string &);
-};
-
-struct FriendSearchAutoCompletionItem: public Widget
-{
-    // o: (0,0)
-    // x: (3,3)
-    //
-    //   o--------------------------+ -
-    //   | x+---+ +---------------+ | ^
-    //   | ||O、| |label          | | | HEIGHT
-    //   | ++---+ +---------------+ | v
-    //   +--------------------------+ -
-    //   |<-------- WIDTH --------->|
-    //      |<->|
-    //   ICON_WIDTH
-    //
-    //   ->||<- ICON_MARGIN
-    //
-    //       -->| |<-- GAP
-
-    constexpr static int WIDTH = UIPage_WIDTH - UIPage_MARGIN * 2;
-    constexpr static int HEIGHT = 30;
-
-    constexpr static int ICON_WIDTH = 20;
-    constexpr static int ICON_MARGIN = 5;
-    constexpr static int GAP = 5;
-
-    const bool byID; // when clicked, fill input automatically by ID if true, or name if false
-    const SDPlayerCandidate candidate;
-
-    ShapeClipBoard background;
-
-    ImageBoard icon;
-    LabelBoard label;
-
-    FriendSearchAutoCompletionItem(Widget::VarDir argDir,
-
-            Widget::VarOffset argX,
-            Widget::VarOffset argY,
-
-            bool argByID,
-            SDPlayerCandidate argCandidate,
-
-            const char *argLabelXMLStr,
-
-            Widget *argParent     = nullptr,
-            bool    argAutoDelete = false)
-
-        : Widget
-          {
-              std::move(argDir),
-              std::move(argX),
-              std::move(argY),
-
-              FriendSearchAutoCompletionItem::WIDTH,
-              FriendSearchAutoCompletionItem::HEIGHT,
-
-              {},
-
-              argParent,
-              argAutoDelete,
-          }
-
-        , byID(argByID)
-        , candidate(std::move(argCandidate))
-
-        , background
-          {
-              DIR_UPLEFT,
-              0,
-              0,
-
-              this->w(),
-              this->h(),
-
-              [this](const Widget *, int drawDstX, int drawDstY)
-              {
-                  if(const auto [mousePX, mousePY] = SDLDeviceHelper::getMousePLoc(); in(mousePX, mousePY)){
-                      g_sdlDevice->fillRectangle(colorf::GREEN              + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
-                      g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
-                  }
-                  else{
-                      g_sdlDevice->fillRectangle(colorf::GREY               + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
-                      g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(32), drawDstX, drawDstY, w(), h());
-                  }
-              },
-
-              this,
-              false,
-          }
-
-        , icon
-          {
-              DIR_NONE,
-              FriendSearchAutoCompletionItem::ICON_WIDTH / 2 + FriendSearchAutoCompletionItem::ICON_MARGIN + 3,
-              FriendSearchAutoCompletionItem::HEIGHT     / 2,
-
-              std::min<int>(FriendSearchAutoCompletionItem::ICON_WIDTH, FriendSearchAutoCompletionItem::HEIGHT - 3 * 2),
-              std::min<int>(FriendSearchAutoCompletionItem::ICON_WIDTH, FriendSearchAutoCompletionItem::HEIGHT - 3 * 2),
-
-              [](const ImageBoard *) { return g_progUseDB->retrieve(0X00001200); },
-
-              false,
-              false,
-              0,
-
-              colorf::WHITE + colorf::A_SHF(0XFF),
-
-              this,
-              false,
-          }
-
-        , label
-          {
-              DIR_UPLEFT,
-              3 + FriendSearchAutoCompletionItem::ICON_MARGIN + FriendSearchAutoCompletionItem::ICON_WIDTH + FriendSearchAutoCompletionItem::GAP,
-              3,
-
-              u8"",
-
-              1,
-              14,
-              0,
-              colorf::WHITE + colorf::A_SHF(255),
-
-              this,
-              false,
-          }
-    {
-        if(str_haschar(argLabelXMLStr)){
-            label.loadXML(argLabelXMLStr);
-        }
-        else{
-            label.loadXML(str_printf(R"###(<par>%s（%llu）</par>)###", candidate.name.c_str(), to_llu(candidate.dbid)).c_str());
-        }
-    }
-};
-
-struct FriendSearchPage: public Widget
-{
-    //                  -->| |<-- CLEAR_GAP
-    // |<----------WIDTH----------->|
-    // +-------------------+ +------+
-    // |      INPUT        | | 清空 |
-    // +-------------------+ +------+
-    // | auto completion item       |
-    // +----------------------------+
-    // | auto completion item       |
-    // +----------------------------+
-    // | auto completion item       |
-    // +----------------------------+
-
-    constexpr static int WIDTH  = UIPage_WIDTH  - UIPage_MARGIN * 2;
-    constexpr static int HEIGHT = UIPage_HEIGHT - UIPage_MARGIN * 2;
-
-    constexpr static int CLEAR_GAP = 10;
-
-    FriendSearchInputLine input;
-    LayoutBoard clear;
-
-    Widget autocompletes;
-    // Widget candidates;
-
-    FriendSearchPage(Widget::VarDir argDir,
-
-            Widget::VarOffset argX,
-            Widget::VarOffset argY,
-
-            Widget *argParent     = nullptr,
-            bool    argAutoDelete = false)
-
-        : Widget
-          {
-              std::move(argDir),
-              std::move(argX),
-              std::move(argY),
-
-              UIPage_WIDTH  - UIPage_MARGIN * 2,
-              UIPage_HEIGHT - UIPage_MARGIN * 2,
-
-              {},
-
-              argParent,
-              argAutoDelete,
-          }
-
-        , input
-          {
-              DIR_UPLEFT,
-              0,
-              0,
-
-              this,
-              false,
-          }
-
-        , clear
-          {
-              DIR_LEFT,
-              input.dx() + input.w() + FriendSearchPage::CLEAR_GAP,
-              input.dy() + input.h() / 2,
-
-              -1,
-
-              R"###(<layout><par><event id="clear">清空</event></par></layout>)###",
-              0,
-
-              {},
-
-              false,
-              false,
-              false,
-              false,
-
-              1,
-              15,
-
-              0,
-              colorf::WHITE + colorf::A_SHF(255),
-              0,
-
-              LALIGN_LEFT,
-              0,
-              0,
-
-              0,
-              0,
-
-              nullptr,
-              nullptr,
-              [this](const std::unordered_map<std::string, std::string> &attrList, int oldState, int newState)
-              {
-                  if(oldState == BEVENT_DOWN && newState == BEVENT_ON){
-                      const auto fnFindAttrValue = [&attrList](const char *key, const char *valDefault) -> const char *
-                      {
-                          if(auto p = attrList.find(key); p != attrList.end() && str_haschar(p->second)){
-                              return p->second.c_str();
-                          }
-                          return valDefault;
-                      };
-
-                      if(const auto id = fnFindAttrValue("id", nullptr)){
-                          input.clear();
-                      }
-                  }
-              },
-
-              this,
-              false,
-          }
-
-        , autocompletes
-          {
-              DIR_UPLEFT,
-              0,
-              FriendSearchInputLine::HEIGHT,
-
-              FriendSearchPage::WIDTH,
-              FriendSearchPage::HEIGHT - FriendSearchInputLine::HEIGHT,
-
-              {},
-
-              this,
-              false,
-          }
-    {}
-
-    void appendAutoCompletionItem(bool byID, SDPlayerCandidate candidate, const char *xmlStr)
-    {
-        int maxY = 0;
-        autocompletes.foreachChild([&maxY](const Widget *widget, bool)
-        {
-            maxY = std::max<int>(maxY, widget->dy() + widget->h());
-        });
-
-        autocompletes.addChild(new FriendSearchAutoCompletionItem
-        {
-            DIR_UPLEFT,
-            0,
-            maxY,
-
-            byID,
-            std::move(candidate),
-            xmlStr,
-
-            &autocompletes,
-            true,
-        }, true);
-    }
-};
-
-void FriendSearchInputLine::clearCompletionItems()
-{
-    dynamic_cast<FriendSearchPage *>(parent())->autocompletes.clearChild();
-}
-
-void FriendSearchInputLine::appendCompletionItem(bool byID, SDPlayerCandidate candidate, const std::string &s)
-{
-    dynamic_cast<FriendSearchPage *>(parent())->appendAutoCompletionItem(byID, std::move(candidate), s.c_str());
-}
-
-struct FriendChatItem: public Widget
-{
-    //          WIDTH
-    // |<------------------->|
-    //       GAP
-    //     ->| |<-
-    // +-----+     +--------+      -
-    // |     |     |  name  |      | NAME_HEIGHT
-    // |     |     +--------+      -
-    // |     |     /-------------\             <----+
-    // | IMG |     | ........... |                  |
-    // |     |     | ........... |                  |
-    // |     |    /  ........... |                  |
-    // |     |  <    ........... |                  |
-    // |     |    \  ........... |                  |
-    // |     |  ^  | ........... |                  | background includes messsage round-corner background box and the triangle area
-    // +-----+  |  | ........... |                  |
-    //          |  | ........... |                  |
-    //          |  \-------------/<- MESSAGE_CORNER |
-    //          |            ->| |<-                |
-    //          |             MESSAGE_MARGIN        |
-    //          +-----------------------------------+
-    //
-    //
-    //            -->|  |<-- TRIANGLE_WIDTH
-    //                2 +                + 2                    -
-    //      -----+     /|                |\     +-----          ^
-    //           |    / |                | \    |               |
-    //    avatar | 1 +  |                |  + 1 | avatar        | TRIANGLE_HEIGHT
-    //           |    \ |                | /    |               |
-    //      -----+     \|                |/     +-----          v
-    //                3 +                + 3                    -
-    //           |<---->|                |<---->|
-    //           ^  GAP                     GAP ^
-    //           |                              |
-    //           +-- startX of background       +-- endX of background
-
-    constexpr static int AVATAR_WIDTH  = 35;
-    constexpr static int AVATAR_HEIGHT = AVATAR_WIDTH * 94 / 84;
-
-    constexpr static int GAP = 5;
-    constexpr static int ITEM_SPACE = 5;  // space between two items
-    constexpr static int NAME_HEIGHT = 20;
-
-    constexpr static int TRIANGLE_WIDTH  = 4;
-    constexpr static int TRIANGLE_HEIGHT = 6;
-
-    constexpr static int MAX_WIDTH = UIPage_WIDTH - UIPage_MARGIN * 2 - FriendChatItem::TRIANGLE_WIDTH - FriendChatItem::GAP - FriendChatItem::AVATAR_WIDTH;
-
-    constexpr static int MESSAGE_MARGIN = 5;
-    constexpr static int MESSAGE_CORNER = 3;
-
-    constexpr static int MESSAGE_MIN_WIDTH  = 10; // handling small size message
-    constexpr static int MESSAGE_MIN_HEIGHT = 10;
-
-    double accuTime = 0.0;
-    std::optional<uint64_t> idOpt {};
-
-    const bool showName;
-    const bool avatarLeft;
-    const std::optional<uint32_t> bgColor;
-
-    ImageBoard avatar;
-    LabelBoard name;
-
-    LayoutBoard    message;
-    ShapeClipBoard background;
-
-    FriendChatItem(dir8_t argDir,
-            int argX,
-            int argY,
-
-            const char8_t *argNameStr,
-            const char8_t *argMessageStr,
-
-            std::function<SDL_Texture *(const ImageBoard *)> argLoadImageFunc,
-
-            bool argShowName,
-            bool argAvatarLeft,
-            std::optional<uint32_t> argBGColor,
-
-            Widget *argParent  = nullptr,
-            bool argAutoDelete = false)
-
-        : Widget
-          {
-              argDir,
-              argX,
-              argY,
-
-              {},
-              {},
-              {},
-
-              argParent,
-              argAutoDelete,
-          }
-
-        , showName(argShowName)
-        , avatarLeft(argAvatarLeft)
-        , bgColor(std::move(argBGColor))
-
-        , avatar
-          {
-              DIR_UPLEFT,
-              0,
-              0,
-
-              FriendChatItem::AVATAR_WIDTH,
-              FriendChatItem::AVATAR_HEIGHT,
-
-              std::move(argLoadImageFunc),
-          }
-
-        , name
-          {
-              DIR_UPLEFT,
-              0,
-              0,
-
-              argNameStr,
-
-              1,
-              10,
-          }
-
-        , message
-          {
-              DIR_UPLEFT,
-              0,
-              0,
-              FriendChatItem::MAX_WIDTH - FriendChatItem::AVATAR_WIDTH - FriendChatItem::GAP - FriendChatItem::TRIANGLE_WIDTH - FriendChatItem::MESSAGE_MARGIN * 2,
-
-              to_cstr(argMessageStr),
-              0,
-
-              {},
-              false,
-              false,
-              false,
-              false,
-
-              1,
-              12,
-          }
-
-        , background
-          {
-              DIR_UPLEFT,
-              0,
-              0,
-
-              FriendChatItem::MESSAGE_MARGIN * 2 + std::max<int>(message.w(), FriendChatItem::MESSAGE_MIN_WIDTH ) + FriendChatItem::TRIANGLE_WIDTH,
-              FriendChatItem::MESSAGE_MARGIN * 2 + std::max<int>(message.h(), FriendChatItem::MESSAGE_MIN_HEIGHT),
-
-              [this](const Widget *, int drawDstX, int drawDstY)
-              {
-                  const uint32_t drawBGColor = bgColor.value_or([this]
+              if(query.empty()){
+                  dynamic_cast<FriendSearchPage *>(parent())->autocompletes.clearChild();
+              }
+              else{
+                  CMQueryPlayerCandidates cmQPC;
+                  std::memset(&cmQPC, 0, sizeof(cmQPC));
+
+                  cmQPC.input.assign(query);
+                  g_client->send({CM_QUERYPLAYERCANDIDATES, cmQPC}, [query = std::move(query), this](uint8_t headCode, const uint8_t *data, size_t size)
                   {
-                      if(avatarLeft){
-                          return colorf::RED + colorf::A_SHF(128);
+                      switch(headCode){
+                          case SM_OK:
+                            {
+                                dynamic_cast<FriendSearchPage *>(parent())->autocompletes.clearChild();
+                                for(const auto &candidate: cerealf::deserialize<SDPlayerCandidateList>(data, size)){
+                                    dynamic_cast<FriendSearchPage *>(parent())->appendAutoCompletionItem(query == std::to_string(candidate.dbid), candidate, [&candidate, &query]
+                                    {
+                                        if(const auto pos = candidate.name.find(query); pos != std::string::npos){
+                                            return str_printf(R"###(<par>%s<t color="red">%s</t>%s（%llu）</par>)###", candidate.name.substr(0, pos).c_str(), query.c_str(), candidate.name.substr(pos + query.size()).c_str(), to_llu(candidate.dbid));
+                                        }
+                                        else if(std::to_string(candidate.dbid) == query){
+                                            return str_printf(R"###(<par>%s（<t color="red">%llu</t>）</par>)###", candidate.name.c_str(), to_llu(candidate.dbid));
+                                        }
+                                        else{
+                                            return str_printf(R"###(<par>%s（%llu）</par>)###", candidate.name.c_str(), to_llu(candidate.dbid));
+                                        }
+                                    }());
+                                }
+                                break;
+                            }
+                        default:
+                            {
+                                throw fflerror("query failed in server");
+                            }
                       }
-                      else if(idOpt.has_value()){
-                          return colorf::GREEN + colorf::A_SHF(128);
+                  });
+              }
+          },
+
+          this,
+          false,
+      }
+{}
+
+void FriendChatBoard::FriendSearchInputLine::clear()
+{
+    input.clear();
+}
+
+FriendChatBoard::FriendSearchAutoCompletionItem::FriendSearchAutoCompletionItem(Widget::VarDir argDir,
+
+        Widget::VarOffset argX,
+        Widget::VarOffset argY,
+
+        bool argByID,
+        SDPlayerCandidate argCandidate,
+
+        const char *argLabelXMLStr,
+
+        Widget *argParent,
+        bool    argAutoDelete)
+
+    : Widget
+      {
+          std::move(argDir),
+          std::move(argX),
+          std::move(argY),
+
+          FriendSearchAutoCompletionItem::WIDTH,
+          FriendSearchAutoCompletionItem::HEIGHT,
+
+          {},
+
+          argParent,
+          argAutoDelete,
+      }
+
+    , byID(argByID)
+    , candidate(std::move(argCandidate))
+
+    , background
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          this->w(),
+          this->h(),
+
+          [this](const Widget *, int drawDstX, int drawDstY)
+          {
+              if(const auto [mousePX, mousePY] = SDLDeviceHelper::getMousePLoc(); in(mousePX, mousePY)){
+                  g_sdlDevice->fillRectangle(colorf::GREEN              + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
+                  g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
+              }
+              else{
+                  g_sdlDevice->fillRectangle(colorf::GREY               + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
+                  g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(32), drawDstX, drawDstY, w(), h());
+              }
+          },
+
+          this,
+          false,
+      }
+
+    , icon
+      {
+          DIR_NONE,
+          FriendSearchAutoCompletionItem::ICON_WIDTH / 2 + FriendSearchAutoCompletionItem::ICON_MARGIN + 3,
+          FriendSearchAutoCompletionItem::HEIGHT     / 2,
+
+          std::min<int>(FriendSearchAutoCompletionItem::ICON_WIDTH, FriendSearchAutoCompletionItem::HEIGHT - 3 * 2),
+          std::min<int>(FriendSearchAutoCompletionItem::ICON_WIDTH, FriendSearchAutoCompletionItem::HEIGHT - 3 * 2),
+
+          [](const ImageBoard *) { return g_progUseDB->retrieve(0X00001200); },
+
+          false,
+          false,
+          0,
+
+          colorf::WHITE + colorf::A_SHF(0XFF),
+
+          this,
+          false,
+      }
+
+    , label
+      {
+          DIR_UPLEFT,
+          3 + FriendSearchAutoCompletionItem::ICON_MARGIN + FriendSearchAutoCompletionItem::ICON_WIDTH + FriendSearchAutoCompletionItem::GAP,
+          3,
+
+          u8"",
+
+          1,
+          14,
+          0,
+          colorf::WHITE + colorf::A_SHF(255),
+
+          this,
+          false,
+      }
+{
+    if(str_haschar(argLabelXMLStr)){
+        label.loadXML(argLabelXMLStr);
+    }
+    else{
+        label.loadXML(str_printf(R"###(<par>%s（%llu）</par>)###", candidate.name.c_str(), to_llu(candidate.dbid)).c_str());
+    }
+}
+
+FriendChatBoard::FriendSearchPage::FriendSearchPage(Widget::VarDir argDir,
+
+        Widget::VarOffset argX,
+        Widget::VarOffset argY,
+
+        Widget *argParent,
+        bool    argAutoDelete)
+
+    : Widget
+      {
+          std::move(argDir),
+          std::move(argX),
+          std::move(argY),
+
+          UIPage_WIDTH  - UIPage_MARGIN * 2,
+          UIPage_HEIGHT - UIPage_MARGIN * 2,
+
+          {},
+
+          argParent,
+          argAutoDelete,
+      }
+
+    , input
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          this,
+          false,
+      }
+
+    , clear
+      {
+          DIR_LEFT,
+          input.dx() + input.w() + FriendSearchPage::CLEAR_GAP,
+          input.dy() + input.h() / 2,
+
+          -1,
+
+          R"###(<layout><par><event id="clear">清空</event></par></layout>)###",
+          0,
+
+          {},
+
+          false,
+          false,
+          false,
+          false,
+
+          1,
+          15,
+
+          0,
+          colorf::WHITE + colorf::A_SHF(255),
+          0,
+
+          LALIGN_LEFT,
+          0,
+          0,
+
+          0,
+          0,
+
+          nullptr,
+          nullptr,
+          [this](const std::unordered_map<std::string, std::string> &attrList, int oldState, int newState)
+          {
+              if(oldState == BEVENT_DOWN && newState == BEVENT_ON){
+                  const auto fnFindAttrValue = [&attrList](const char *key, const char *valDefault) -> const char *
+                  {
+                      if(auto p = attrList.find(key); p != attrList.end() && str_haschar(p->second)){
+                          return p->second.c_str();
                       }
-                      else{
-                          return colorf::fadeRGBA(colorf::GREY + colorf::A_SHF(128), colorf::GREEN + colorf::A_SHF(128), std::fabs(std::fmod(accuTime / 1000.0, 2.0) - 1.0));
-                      }
-                  }());
+                      return valDefault;
+                  };
 
-                  g_sdlDevice->fillRectangle(
-                          drawBGColor,
+                  if(const auto id = fnFindAttrValue("id", nullptr)){
+                      input.clear();
+                  }
+              }
+          },
 
-                          drawDstX + (avatarLeft ? FriendChatItem::TRIANGLE_WIDTH : 0),
-                          drawDstY,
+          this,
+          false,
+      }
 
-                          std::max<int>(message.w(), FriendChatItem::MESSAGE_MIN_WIDTH ) + FriendChatItem::MESSAGE_MARGIN * 2,
-                          std::max<int>(message.h(), FriendChatItem::MESSAGE_MIN_HEIGHT) + FriendChatItem::MESSAGE_MARGIN * 2,
+    , autocompletes
+      {
+          DIR_UPLEFT,
+          0,
+          FriendSearchInputLine::HEIGHT,
 
-                          FriendChatItem::MESSAGE_CORNER);
+          FriendSearchPage::WIDTH,
+          FriendSearchPage::HEIGHT - FriendSearchInputLine::HEIGHT,
 
-                  const auto triangleX1_avatarLeft = drawDstX;
-                  const auto triangleX2_avatarLeft = drawDstX + FriendChatItem::TRIANGLE_WIDTH - 1;
-                  const auto triangleX3_avatarLeft = drawDstX + FriendChatItem::TRIANGLE_WIDTH - 1;
+          {},
 
-                  const auto triangleX1_avatarRight = drawDstX + FriendChatItem::MESSAGE_MARGIN * 2 + std::max<int>(message.w(), FriendChatItem::MESSAGE_MIN_WIDTH) + FriendChatItem::TRIANGLE_WIDTH - 1;
-                  const auto triangleX2_avatarRight = drawDstX + FriendChatItem::MESSAGE_MARGIN * 2 + std::max<int>(message.w(), FriendChatItem::MESSAGE_MIN_WIDTH);
-                  const auto triangleX3_avatarRight = drawDstX + FriendChatItem::MESSAGE_MARGIN * 2 + std::max<int>(message.w(), FriendChatItem::MESSAGE_MIN_WIDTH);
+          this,
+          false,
+      }
+{}
 
-                  const auto triangleY1_showName = drawDstY + (FriendChatItem::AVATAR_HEIGHT - FriendChatItem::NAME_HEIGHT) / 2;
-                  const auto triangleY2_showName = drawDstY + (FriendChatItem::AVATAR_HEIGHT - FriendChatItem::NAME_HEIGHT) / 2 - FriendChatItem::TRIANGLE_HEIGHT / 2;
-                  const auto triangleY3_showName = drawDstY + (FriendChatItem::AVATAR_HEIGHT - FriendChatItem::NAME_HEIGHT) / 2 + FriendChatItem::TRIANGLE_HEIGHT / 2;
+void FriendChatBoard::FriendSearchPage::appendAutoCompletionItem(bool byID, SDPlayerCandidate candidate, const std::string &xmlStr)
+{
+    int maxY = 0;
+    autocompletes.foreachChild([&maxY](const Widget *widget, bool)
+    {
+        maxY = std::max<int>(maxY, widget->dy() + widget->h());
+    });
 
-                  const auto triangleY1_hideName = drawDstY + FriendChatItem::AVATAR_HEIGHT / 2;
-                  const auto triangleY2_hideName = drawDstY + FriendChatItem::AVATAR_HEIGHT / 2 - FriendChatItem::TRIANGLE_HEIGHT / 2;
-                  const auto triangleY3_hideName = drawDstY + FriendChatItem::AVATAR_HEIGHT / 2 + FriendChatItem::TRIANGLE_HEIGHT / 2;
+    autocompletes.addChild(new FriendSearchAutoCompletionItem
+    {
+        DIR_UPLEFT,
+        0,
+        maxY,
 
+        byID,
+        std::move(candidate),
+        xmlStr.c_str(),
+
+        &autocompletes,
+        true,
+    }, true);
+}
+
+
+FriendChatBoard::FriendChatItem::FriendChatItem(dir8_t argDir,
+        int argX,
+        int argY,
+
+        const char8_t *argNameStr,
+        const char8_t *argMessageStr,
+
+        std::function<SDL_Texture *(const ImageBoard *)> argLoadImageFunc,
+
+        bool argShowName,
+        bool argAvatarLeft,
+        std::optional<uint32_t> argBGColor,
+
+        Widget *argParent,
+        bool argAutoDelete)
+
+    : Widget
+      {
+          argDir,
+          argX,
+          argY,
+
+          {},
+          {},
+          {},
+
+          argParent,
+          argAutoDelete,
+      }
+
+    , showName(argShowName)
+    , avatarLeft(argAvatarLeft)
+    , bgColor(std::move(argBGColor))
+
+    , avatar
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          FriendChatItem::AVATAR_WIDTH,
+          FriendChatItem::AVATAR_HEIGHT,
+
+          std::move(argLoadImageFunc),
+      }
+
+    , name
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          argNameStr,
+
+          1,
+          10,
+      }
+
+    , message
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+          FriendChatItem::MAX_WIDTH - FriendChatItem::AVATAR_WIDTH - FriendChatItem::GAP - FriendChatItem::TRIANGLE_WIDTH - FriendChatItem::MESSAGE_MARGIN * 2,
+
+          to_cstr(argMessageStr),
+          0,
+
+          {},
+          false,
+          false,
+          false,
+          false,
+
+          1,
+          12,
+      }
+
+    , background
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          FriendChatItem::MESSAGE_MARGIN * 2 + std::max<int>(message.w(), FriendChatItem::MESSAGE_MIN_WIDTH ) + FriendChatItem::TRIANGLE_WIDTH,
+          FriendChatItem::MESSAGE_MARGIN * 2 + std::max<int>(message.h(), FriendChatItem::MESSAGE_MIN_HEIGHT),
+
+          [this](const Widget *, int drawDstX, int drawDstY)
+          {
+              const uint32_t drawBGColor = bgColor.value_or([this]
+              {
                   if(avatarLeft){
-                      if(showName) g_sdlDevice->fillTriangle(drawBGColor, triangleX1_avatarLeft, triangleY1_showName, triangleX2_avatarLeft, triangleY2_showName, triangleX3_avatarLeft, triangleY3_showName);
-                      else         g_sdlDevice->fillTriangle(drawBGColor, triangleX1_avatarLeft, triangleY1_hideName, triangleX2_avatarLeft, triangleY2_hideName, triangleX3_avatarLeft, triangleY3_hideName);
+                      return colorf::RED + colorf::A_SHF(128);
+                  }
+                  else if(idOpt.has_value()){
+                      return colorf::GREEN + colorf::A_SHF(128);
                   }
                   else{
-                      if(showName) g_sdlDevice->fillTriangle(drawBGColor, triangleX1_avatarRight, triangleY1_showName, triangleX2_avatarRight, triangleY2_showName, triangleX3_avatarRight, triangleY3_showName);
-                      else         g_sdlDevice->fillTriangle(drawBGColor, triangleX1_avatarRight, triangleY1_hideName, triangleX2_avatarRight, triangleY2_hideName, triangleX3_avatarRight, triangleY3_hideName);
+                      return colorf::fadeRGBA(colorf::GREY + colorf::A_SHF(128), colorf::GREEN + colorf::A_SHF(128), std::fabs(std::fmod(accuTime / 1000.0, 2.0) - 1.0));
                   }
-              },
-          }
-    {
-        const auto fnMoveAdd = [this](Widget *widgetPtr, dir8_t dstDir, int dstX, int dstY)
-        {
-            widgetPtr->moveAt(dstDir, dstX, dstY);
-            addChild(widgetPtr, false);
-        };
+              }());
 
-        if(avatarLeft){
-            fnMoveAdd(&avatar, DIR_UPLEFT, 0, 0);
-            if(showName){
-                fnMoveAdd(&name      , DIR_LEFT  ,                  FriendChatItem::AVATAR_WIDTH + FriendChatItem::GAP + FriendChatItem::TRIANGLE_WIDTH                                 , FriendChatItem::NAME_HEIGHT / 2                             );
-                fnMoveAdd(&background, DIR_UPLEFT,                  FriendChatItem::AVATAR_WIDTH + FriendChatItem::GAP                                                                  , FriendChatItem::NAME_HEIGHT                                 );
-                fnMoveAdd(&message   , DIR_UPLEFT,                  FriendChatItem::AVATAR_WIDTH + FriendChatItem::GAP + FriendChatItem::TRIANGLE_WIDTH + FriendChatItem::MESSAGE_MARGIN, FriendChatItem::NAME_HEIGHT + FriendChatItem::MESSAGE_MARGIN);
-            }
-            else{
-                fnMoveAdd(&background, DIR_UPLEFT,                  FriendChatItem::AVATAR_WIDTH + FriendChatItem::GAP                                                                  , 0                                                           );
-                fnMoveAdd(&message   , DIR_UPLEFT,                  FriendChatItem::AVATAR_WIDTH + FriendChatItem::GAP + FriendChatItem::TRIANGLE_WIDTH + FriendChatItem::MESSAGE_MARGIN, FriendChatItem::MESSAGE_MARGIN                              );
-            }
-        }
-        else{
-            const auto realWidth = FriendChatItem::AVATAR_WIDTH + FriendChatItem::GAP + FriendChatItem::TRIANGLE_WIDTH + std::max<int>(message.w(), FriendChatItem::MESSAGE_MIN_WIDTH) + FriendChatItem::MESSAGE_MARGIN * 2;
-            fnMoveAdd(&avatar, DIR_UPRIGHT, realWidth - 1, 0);
+              g_sdlDevice->fillRectangle(
+                      drawBGColor,
 
-            if(showName){
-                fnMoveAdd(&name      , DIR_RIGHT  , realWidth - 1 - FriendChatItem::AVATAR_WIDTH - FriendChatItem::GAP - FriendChatItem::TRIANGLE_WIDTH                                 , FriendChatItem::NAME_HEIGHT / 2                             );
-                fnMoveAdd(&background, DIR_UPRIGHT, realWidth - 1 - FriendChatItem::AVATAR_WIDTH - FriendChatItem::GAP                                                                  , FriendChatItem::NAME_HEIGHT                                 );
-                fnMoveAdd(&message   , DIR_UPRIGHT, realWidth - 1 - FriendChatItem::AVATAR_WIDTH - FriendChatItem::GAP - FriendChatItem::TRIANGLE_WIDTH - FriendChatItem::MESSAGE_MARGIN, FriendChatItem::NAME_HEIGHT + FriendChatItem::MESSAGE_MARGIN);
-            }
-            else{
-                fnMoveAdd(&background, DIR_UPRIGHT, realWidth - 1 - FriendChatItem::AVATAR_WIDTH - FriendChatItem::GAP                                                                  , 0                                                           );
-                fnMoveAdd(&message   , DIR_UPRIGHT, realWidth - 1 - FriendChatItem::AVATAR_WIDTH - FriendChatItem::GAP - FriendChatItem::TRIANGLE_WIDTH - FriendChatItem::MESSAGE_MARGIN, FriendChatItem::MESSAGE_MARGIN                              );
-            }
-        }
-    }
+                      drawDstX + (avatarLeft ? FriendChatItem::TRIANGLE_WIDTH : 0),
+                      drawDstY,
 
-    void update(double fUpdateTime) override
-    {
-        accuTime += fUpdateTime;
-    }
-};
+                      std::max<int>(message.w(), FriendChatItem::MESSAGE_MIN_WIDTH ) + FriendChatItem::MESSAGE_MARGIN * 2,
+                      std::max<int>(message.h(), FriendChatItem::MESSAGE_MIN_HEIGHT) + FriendChatItem::MESSAGE_MARGIN * 2,
 
-struct FriendChatPage: public Widget
+                      FriendChatItem::MESSAGE_CORNER);
+
+              const auto triangleX1_avatarLeft = drawDstX;
+              const auto triangleX2_avatarLeft = drawDstX + FriendChatItem::TRIANGLE_WIDTH - 1;
+              const auto triangleX3_avatarLeft = drawDstX + FriendChatItem::TRIANGLE_WIDTH - 1;
+
+              const auto triangleX1_avatarRight = drawDstX + FriendChatItem::MESSAGE_MARGIN * 2 + std::max<int>(message.w(), FriendChatItem::MESSAGE_MIN_WIDTH) + FriendChatItem::TRIANGLE_WIDTH - 1;
+              const auto triangleX2_avatarRight = drawDstX + FriendChatItem::MESSAGE_MARGIN * 2 + std::max<int>(message.w(), FriendChatItem::MESSAGE_MIN_WIDTH);
+              const auto triangleX3_avatarRight = drawDstX + FriendChatItem::MESSAGE_MARGIN * 2 + std::max<int>(message.w(), FriendChatItem::MESSAGE_MIN_WIDTH);
+
+              const auto triangleY1_showName = drawDstY + (FriendChatItem::AVATAR_HEIGHT - FriendChatItem::NAME_HEIGHT) / 2;
+              const auto triangleY2_showName = drawDstY + (FriendChatItem::AVATAR_HEIGHT - FriendChatItem::NAME_HEIGHT) / 2 - FriendChatItem::TRIANGLE_HEIGHT / 2;
+              const auto triangleY3_showName = drawDstY + (FriendChatItem::AVATAR_HEIGHT - FriendChatItem::NAME_HEIGHT) / 2 + FriendChatItem::TRIANGLE_HEIGHT / 2;
+
+              const auto triangleY1_hideName = drawDstY + FriendChatItem::AVATAR_HEIGHT / 2;
+              const auto triangleY2_hideName = drawDstY + FriendChatItem::AVATAR_HEIGHT / 2 - FriendChatItem::TRIANGLE_HEIGHT / 2;
+              const auto triangleY3_hideName = drawDstY + FriendChatItem::AVATAR_HEIGHT / 2 + FriendChatItem::TRIANGLE_HEIGHT / 2;
+
+              if(avatarLeft){
+                  if(showName) g_sdlDevice->fillTriangle(drawBGColor, triangleX1_avatarLeft, triangleY1_showName, triangleX2_avatarLeft, triangleY2_showName, triangleX3_avatarLeft, triangleY3_showName);
+                  else         g_sdlDevice->fillTriangle(drawBGColor, triangleX1_avatarLeft, triangleY1_hideName, triangleX2_avatarLeft, triangleY2_hideName, triangleX3_avatarLeft, triangleY3_hideName);
+              }
+              else{
+                  if(showName) g_sdlDevice->fillTriangle(drawBGColor, triangleX1_avatarRight, triangleY1_showName, triangleX2_avatarRight, triangleY2_showName, triangleX3_avatarRight, triangleY3_showName);
+                  else         g_sdlDevice->fillTriangle(drawBGColor, triangleX1_avatarRight, triangleY1_hideName, triangleX2_avatarRight, triangleY2_hideName, triangleX3_avatarRight, triangleY3_hideName);
+              }
+          },
+      }
 {
-    // chat page is different, it uses the UIPage_MARGIN area
-    // because we fill different color to chat area and input area
-    //
-    //         |<----- UIPage_WIDTH ------>|
-    //       ->||<---- UIPage_MARGIN                     v
-    //       - +---------------------------+             -
-    //       ^ |+-------------------------+|           - -
-    //       | || +------+                ||           ^ ^
-    //       | || |******|                ||           | |
-    //       | || +------+                ||           | + UIPage_MARGIN
-    //       | ||                +------+ ||           |
-    //  U    | ||                |******| ||           |
-    //  I    | ||                +------+ ||           |
-    //  P    | || +------------+          ||           +-- UIPage_HEIGHT - UIPage_MARGIN * 4 - INPUT_MARGIN * 2 - input.h() - 1
-    //  a    | || |************|          ||           |
-    //  g ---+ || |*****       |          ||           |
-    //  e    | || +------------+          ||           |
-    //  |    | ||                         ||           |
-    //  H    | ||       chat area         ||         | |
-    //  E    | ||                         ||         v v
-    //  I    | |+-------------------------+|       | - -
-    //  G    | +===========================+       v   UIPage_MARGIN * 2 + 1
-    //  H    | |  +---------------------+  |       - -
-    //  T    | | / +-------------------+ \ |     - -<- INPUT_MARGIN
-    //       | ||  |*******************|  ||     ^ ^
-    //       | ||  |****input area*****|  ||   | +---- input.h()
-    //       | ||  |*******************|  || | v v
-    //       | | \ +-------------------+ / | v - -
-    //       v |  +---------------------+  | - -
-    //       - +---------------------------+ - ^
-    //       ->||<---- UIPage_MARGIN         ^ |
-    //       -->| |<--  INPUT_CORNER         | +------  INPUT_MARGIN
-    //       -->|  |<-  INPUT_MARGIN         +-------- UIPage_MARGIN
-    //             |<--- input.w() --->|
-
-    constexpr static int INPUT_CORNER = 8;
-    constexpr static int INPUT_MARGIN = 8;
-
-    constexpr static int INPUT_MIN_HEIGHT =  10;
-    constexpr static int INPUT_MAX_HEIGHT = 200;
-
-    struct FriendChatItemContainer: public Widget
+    const auto fnMoveAdd = [this](Widget *widgetPtr, dir8_t dstDir, int dstX, int dstY)
     {
-        // use canvas to hold all chat item
-        // then we can align canvas always to buttom when needed
-        //
-        // when scroll we can only move canvas inside this container
-        // no need to move chat item only by one
-        //
-        // canvas height is flexible
-        // ShapeClipBoard can achieve this on drawing, but prefer ShapeClipBoard when drawing primitives
-
-        Widget canvas;
-        FriendChatItemContainer(dir8_t argDir,
-
-                int argX,
-                int argY,
-
-                Widget::VarSize argH,
-
-                Widget *argParent     = nullptr,
-                bool    argAutoDelete = false)
-
-            : Widget
-              {
-                  argDir,
-                  argX,
-                  argY,
-
-                  UIPage_WIDTH - UIPage_MARGIN * 2,
-                  std::move(argH),
-
-                  {},
-
-                  argParent,
-                  argAutoDelete,
-              }
-
-            , canvas
-              {
-                  DIR_DOWNLEFT,
-                  0,
-                  [this](const Widget *self)
-                  {
-                      return std::min<int>(self->h(), this->h()) - 1;
-                  },
-
-                  this->w(),
-                  {},
-
-                  {},
-
-                  this,
-                  false,
-              }
-        {}
-
-        void append(FriendChatItem *chatItem, bool autoDelete)
-        {
-            const auto startY = canvas.hasChild() ? (canvas.h() + FriendChatItem::ITEM_SPACE) : 0;
-            if(chatItem->avatarLeft){
-                chatItem->moveAt(DIR_UPLEFT, 0, startY);
-            }
-            else{
-                chatItem->moveAt(DIR_UPRIGHT, canvas.w() - 1, startY);
-            }
-
-            canvas.addChild(chatItem, autoDelete);
-        }
-
-        bool hasItem(const Widget *item) const
-        {
-            return canvas.hasChild(item);
-        }
+        widgetPtr->moveAt(dstDir, dstX, dstY);
+        addChild(widgetPtr, false);
     };
 
-    struct FriendChatInputContainer: public Widget
-    {
-        LayoutBoard layout;
-        FriendChatInputContainer(dir8_t argDir,
+    if(avatarLeft){
+        fnMoveAdd(&avatar, DIR_UPLEFT, 0, 0);
+        if(showName){
+            fnMoveAdd(&name      , DIR_LEFT  ,                  FriendChatItem::AVATAR_WIDTH + FriendChatItem::GAP + FriendChatItem::TRIANGLE_WIDTH                                 , FriendChatItem::NAME_HEIGHT / 2                             );
+            fnMoveAdd(&background, DIR_UPLEFT,                  FriendChatItem::AVATAR_WIDTH + FriendChatItem::GAP                                                                  , FriendChatItem::NAME_HEIGHT                                 );
+            fnMoveAdd(&message   , DIR_UPLEFT,                  FriendChatItem::AVATAR_WIDTH + FriendChatItem::GAP + FriendChatItem::TRIANGLE_WIDTH + FriendChatItem::MESSAGE_MARGIN, FriendChatItem::NAME_HEIGHT + FriendChatItem::MESSAGE_MARGIN);
+        }
+        else{
+            fnMoveAdd(&background, DIR_UPLEFT,                  FriendChatItem::AVATAR_WIDTH + FriendChatItem::GAP                                                                  , 0                                                           );
+            fnMoveAdd(&message   , DIR_UPLEFT,                  FriendChatItem::AVATAR_WIDTH + FriendChatItem::GAP + FriendChatItem::TRIANGLE_WIDTH + FriendChatItem::MESSAGE_MARGIN, FriendChatItem::MESSAGE_MARGIN                              );
+        }
+    }
+    else{
+        const auto realWidth = FriendChatItem::AVATAR_WIDTH + FriendChatItem::GAP + FriendChatItem::TRIANGLE_WIDTH + std::max<int>(message.w(), FriendChatItem::MESSAGE_MIN_WIDTH) + FriendChatItem::MESSAGE_MARGIN * 2;
+        fnMoveAdd(&avatar, DIR_UPRIGHT, realWidth - 1, 0);
 
-                int argX,
-                int argY,
+        if(showName){
+            fnMoveAdd(&name      , DIR_RIGHT  , realWidth - 1 - FriendChatItem::AVATAR_WIDTH - FriendChatItem::GAP - FriendChatItem::TRIANGLE_WIDTH                                 , FriendChatItem::NAME_HEIGHT / 2                             );
+            fnMoveAdd(&background, DIR_UPRIGHT, realWidth - 1 - FriendChatItem::AVATAR_WIDTH - FriendChatItem::GAP                                                                  , FriendChatItem::NAME_HEIGHT                                 );
+            fnMoveAdd(&message   , DIR_UPRIGHT, realWidth - 1 - FriendChatItem::AVATAR_WIDTH - FriendChatItem::GAP - FriendChatItem::TRIANGLE_WIDTH - FriendChatItem::MESSAGE_MARGIN, FriendChatItem::NAME_HEIGHT + FriendChatItem::MESSAGE_MARGIN);
+        }
+        else{
+            fnMoveAdd(&background, DIR_UPRIGHT, realWidth - 1 - FriendChatItem::AVATAR_WIDTH - FriendChatItem::GAP                                                                  , 0                                                           );
+            fnMoveAdd(&message   , DIR_UPRIGHT, realWidth - 1 - FriendChatItem::AVATAR_WIDTH - FriendChatItem::GAP - FriendChatItem::TRIANGLE_WIDTH - FriendChatItem::MESSAGE_MARGIN, FriendChatItem::MESSAGE_MARGIN                              );
+        }
+    }
+}
 
-                Widget *argParent     = nullptr,
-                bool    argAutoDelete = false)
+void FriendChatBoard::FriendChatItem::update(double fUpdateTime)
+{
+    accuTime += fUpdateTime;
+}
 
-            : Widget
-              {
-                  argDir,
-                  argX,
-                  argY,
+FriendChatBoard::FriendChatItemContainer::FriendChatItemContainer(dir8_t argDir,
 
-                  UIPage_WIDTH - UIPage_MARGIN * 2 - FriendChatPage::INPUT_MARGIN * 2,
-                  [this](const Widget *)
-                  {
-                      return mathf::bound<int>(layout.h(), FriendChatPage::INPUT_MIN_HEIGHT, FriendChatPage::INPUT_MAX_HEIGHT);
-                  },
+        int argX,
+        int argY,
 
-                  {},
+        Widget::VarSize argH,
 
-                  argParent,
-                  argAutoDelete,
+        Widget *argParent,
+        bool    argAutoDelete)
+
+    : Widget
+      {
+          argDir,
+          argX,
+          argY,
+
+          UIPage_WIDTH - UIPage_MARGIN * 2,
+          std::move(argH),
+
+          {},
+
+          argParent,
+          argAutoDelete,
+      }
+
+    , canvas
+      {
+          DIR_DOWNLEFT,
+          0,
+          [this](const Widget *self)
+          {
+              return std::min<int>(self->h(), this->h()) - 1;
+          },
+
+          this->w(),
+          {},
+
+          {},
+
+          this,
+          false,
+      }
+{}
+
+void FriendChatBoard::FriendChatItemContainer::append(FriendChatItem *chatItem, bool autoDelete)
+{
+    const auto startY = canvas.hasChild() ? (canvas.h() + FriendChatItem::ITEM_SPACE) : 0;
+    if(chatItem->avatarLeft){
+        chatItem->moveAt(DIR_UPLEFT, 0, startY);
+    }
+    else{
+        chatItem->moveAt(DIR_UPRIGHT, canvas.w() - 1, startY);
+    }
+
+    canvas.addChild(chatItem, autoDelete);
+}
+
+bool FriendChatBoard::FriendChatItemContainer::hasItem(const Widget *item) const
+{
+    return canvas.hasChild(item);
+}
+
+FriendChatBoard::FriendChatInputContainer::FriendChatInputContainer(dir8_t argDir,
+
+        int argX,
+        int argY,
+
+        Widget *argParent,
+        bool    argAutoDelete)
+
+    : Widget
+      {
+          argDir,
+          argX,
+          argY,
+
+          UIPage_WIDTH - UIPage_MARGIN * 2 - FriendChatPage::INPUT_MARGIN * 2,
+          [this](const Widget *)
+          {
+              return mathf::bound<int>(layout.h(), FriendChatPage::INPUT_MIN_HEIGHT, FriendChatPage::INPUT_MAX_HEIGHT);
+          },
+
+          {},
+
+          argParent,
+          argAutoDelete,
+      }
+
+    , layout
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          this->w(),
+
+          "<layout><par>正在输入的内容。。。</par></layout>",
+          0,
+
+          {},
+          false,
+          true,
+          true,
+          false,
+
+          1,
+          12,
+          0,
+          colorf::WHITE + colorf::A_SHF(255),
+          0,
+
+          LALIGN_JUSTIFY,
+          0,
+          0,
+
+          2,
+          colorf::WHITE + colorf::A_SHF(255),
+
+          nullptr,
+          [this]()
+          {
+              if(!layout.hasToken()){
+                  return;
               }
 
-            , layout
+              auto message = layout.getXML();
+              auto newItem = new FriendChatItem
               {
                   DIR_UPLEFT,
                   0,
                   0,
 
-                  this->w(),
+                  u8"绝地武士",
+                  to_u8cstr(message),
 
-                  "<layout><par>正在输入的内容。。。</par></layout>",
-                  0,
+                  [](const ImageBoard *)
+                  {
+                      return g_progUseDB->retrieve(0X00001100);
+                  },
+
+                  true,
+                  false,
 
                   {},
-                  false,
-                  true,
-                  true,
-                  false,
+              };
 
-                  1,
-                  12,
-                  0,
-                  colorf::WHITE + colorf::A_SHF(255),
-                  0,
+              dynamic_cast<FriendChatPage *>(parent())->chat.append(newItem, true);
+              layout.clear();
 
-                  LALIGN_JUSTIFY,
-                  0,
-                  0,
+              const uint32_t toDBID = dynamic_cast<FriendChatPage *>(parent())->dbid;
 
-                  2,
-                  colorf::WHITE + colorf::A_SHF(255),
+              auto dbidsv = as_sv(toDBID);
+              auto msgbuf = cerealf::serialize(message);
 
-                  nullptr,
-                  [this]()
-                  {
-                      if(!layout.hasToken()){
-                          return;
-                      }
-
-                      auto message = layout.getXML();
-                      auto newItem = new FriendChatItem
-                      {
-                          DIR_UPLEFT,
-                          0,
-                          0,
-
-                          u8"绝地武士",
-                          to_u8cstr(message),
-
-                          [](const ImageBoard *)
+              msgbuf.insert(msgbuf.begin(), dbidsv.begin(), dbidsv.end());
+              g_client->send({CM_CHATMESSAGE, msgbuf}, [newItem, this](uint8_t headCode, const uint8_t *buf, size_t bufSize)
+              {
+                  switch(headCode){
+                      case SM_OK:
                           {
-                              return g_progUseDB->retrieve(0X00001100);
-                          },
+                              // TBD allocator may reuse memory
+                              // so item with same memory address may not be same item
 
-                          true,
-                          false,
-
-                          {},
-                      };
-
-                      dynamic_cast<FriendChatPage *>(parent())->chat.append(newItem, true);
-                      layout.clear();
-
-                      const uint32_t toDBID = dynamic_cast<FriendChatPage *>(parent())->dbid;
-
-                      auto dbidsv = as_sv(toDBID);
-                      auto msgbuf = cerealf::serialize(message);
-
-                      msgbuf.insert(msgbuf.begin(), dbidsv.begin(), dbidsv.end());
-                      g_client->send({CM_CHATMESSAGE, msgbuf}, [newItem, this](uint8_t headCode, const uint8_t *buf, size_t bufSize)
-                      {
-                          switch(headCode){
-                              case SM_OK:
-                                  {
-                                      // TBD allocator may reuse memory
-                                      // so item with same memory address may not be same item
-
-                                      if(dynamic_cast<FriendChatPage *>(parent())->chat.hasItem(newItem)){
-                                          newItem->idOpt = cerealf::deserialize<SDChatMessageID>(buf, bufSize);
-                                      }
-                                      break;
-                                  }
-                              default:
-                                  {
-                                      throw fflerror("failed to send message");
-                                  }
+                              if(dynamic_cast<FriendChatPage *>(parent())->chat.hasItem(newItem)){
+                                  newItem->idOpt = cerealf::deserialize<SDChatMessageID>(buf, bufSize);
+                              }
+                              break;
                           }
-                      });
-                  },
-                  nullptr,
+                      default:
+                          {
+                              throw fflerror("failed to send message");
+                          }
+                  }
+              });
+          },
+          nullptr,
 
-                  this,
-                  false,
-              }
-        {
-            // there is mutual dependency
-            // height of input container depends on height of layout
-            //
-            // layout always attach to buttom of input container, so argX needs container height
-            // in initialization list we can not call this->h() since initialization of layout is not done yet
-            layout.moveAt(DIR_DOWNLEFT, 0, [this](const Widget *){ return this->h() - 1; });
-        }
-    };
+          this,
+          false,
+      }
+{
+    // there is mutual dependency
+    // height of input container depends on height of layout
+    //
+    // layout always attach to buttom of input container, so argX needs container height
+    // in initialization list we can not call this->h() since initialization of layout is not done yet
+    layout.moveAt(DIR_DOWNLEFT, 0, [this](const Widget *){ return this->h() - 1; });
+}
 
-    uint32_t dbid = 0;
-    ShapeClipBoard background;
+FriendChatBoard::FriendChatPage::FriendChatPage(dir8_t argDir,
 
-    FriendChatInputContainer input;
-    FriendChatItemContainer  chat;
+        int argX,
+        int argY,
 
-    FriendChatPage(dir8_t argDir,
+        Widget *argParent,
+        bool argAutoDelete)
 
-            int argX,
-            int argY,
+    : Widget
+      {
+          argDir,
+          argX,
+          argY,
 
-            Widget *argParent,
-            bool argAutoDelete)
+          UIPage_WIDTH,
+          UIPage_HEIGHT,
 
-        : Widget
+          {},
+
+          argParent,
+          argAutoDelete,
+      }
+
+    , background
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+          UIPage_WIDTH,
+          UIPage_HEIGHT,
+
+          [this](const Widget *, int drawDstX, int drawDstY)
           {
-              argDir,
-              argX,
-              argY,
+              g_sdlDevice->drawLine(
+                      colorf::RGBA(231, 231, 189, 64),
 
-              UIPage_WIDTH,
-              UIPage_HEIGHT,
+                      drawDstX,
+                      drawDstY + UIPage_HEIGHT - UIPage_MARGIN * 2 - INPUT_MARGIN * 2 - input.h() - 1,
 
-              {},
+                      drawDstX + UIPage_WIDTH,
+                      drawDstY + UIPage_HEIGHT - UIPage_MARGIN * 2 - INPUT_MARGIN * 2 - input.h() - 1);
 
-              argParent,
-              argAutoDelete,
-          }
+              g_sdlDevice->fillRectangle(
+                      colorf::RGBA(231, 231, 189, 32),
 
-        , background
+                      drawDstX,
+                      drawDstY + UIPage_HEIGHT - UIPage_MARGIN * 2 - INPUT_MARGIN * 2 - input.h(),
+
+                      UIPage_WIDTH,
+                      UIPage_MARGIN * 2 + FriendChatPage::INPUT_MARGIN * 2 + input.h());
+
+              g_sdlDevice->fillRectangle(
+                      colorf::BLACK + colorf::A_SHF(255),
+
+                      drawDstX + UIPage_MARGIN,
+                      drawDstY + UIPage_HEIGHT - UIPage_MARGIN - INPUT_MARGIN * 2 - input.h(),
+
+                      UIPage_WIDTH - UIPage_MARGIN * 2,
+                      FriendChatPage::INPUT_MARGIN * 2 + input.h(),
+
+                      FriendChatPage::INPUT_CORNER);
+
+              g_sdlDevice->drawRectangle(
+                      colorf::RGBA(231, 231, 189, 96),
+
+                      drawDstX + UIPage_MARGIN,
+                      drawDstY + UIPage_HEIGHT - UIPage_MARGIN - INPUT_MARGIN * 2 - input.h(),
+
+                      UIPage_WIDTH - UIPage_MARGIN * 2,
+                      FriendChatPage::INPUT_MARGIN * 2 + input.h(),
+
+                      FriendChatPage::INPUT_CORNER);
+          },
+
+          this,
+          false,
+      }
+
+    , input
+      {
+          DIR_DOWNLEFT,
+          UIPage_MARGIN                 + FriendChatPage::INPUT_MARGIN,
+          UIPage_HEIGHT - UIPage_MARGIN - FriendChatPage::INPUT_MARGIN - 1,
+
+          this,
+          false,
+      }
+
+    , chat
+      {
+          DIR_UPLEFT,
+          UIPage_MARGIN,
+          UIPage_MARGIN,
+
+          [this](const Widget *)
           {
-              DIR_UPLEFT,
-              0,
-              0,
-              UIPage_WIDTH,
-              UIPage_HEIGHT,
+              return UIPage_HEIGHT - UIPage_MARGIN * 4 - FriendChatPage::INPUT_MARGIN * 2 - input.h() - 1;
+          },
 
-              [this](const Widget *, int drawDstX, int drawDstY)
-              {
-                  g_sdlDevice->drawLine(
-                          colorf::RGBA(231, 231, 189, 64),
+          this,
+          false,
+      }
+{}
 
-                          drawDstX,
-                          drawDstY + UIPage_HEIGHT - UIPage_MARGIN * 2 - INPUT_MARGIN * 2 - input.h() - 1,
+bool FriendChatBoard::FriendChatPage::processEvent(const SDL_Event &event, bool valid)
+{
+    if(!valid){
+        return consumeFocus(false);
+    }
 
-                          drawDstX + UIPage_WIDTH,
-                          drawDstY + UIPage_HEIGHT - UIPage_MARGIN * 2 - INPUT_MARGIN * 2 - input.h() - 1);
+    if(!show()){
+        return consumeFocus(false);
+    }
 
-                  g_sdlDevice->fillRectangle(
-                          colorf::RGBA(231, 231, 189, 32),
-
-                          drawDstX,
-                          drawDstY + UIPage_HEIGHT - UIPage_MARGIN * 2 - INPUT_MARGIN * 2 - input.h(),
-
-                          UIPage_WIDTH,
-                          UIPage_MARGIN * 2 + FriendChatPage::INPUT_MARGIN * 2 + input.h());
-
-                  g_sdlDevice->fillRectangle(
-                          colorf::BLACK + colorf::A_SHF(255),
-
-                          drawDstX + UIPage_MARGIN,
-                          drawDstY + UIPage_HEIGHT - UIPage_MARGIN - INPUT_MARGIN * 2 - input.h(),
-
-                          UIPage_WIDTH - UIPage_MARGIN * 2,
-                          FriendChatPage::INPUT_MARGIN * 2 + input.h(),
-
-                          FriendChatPage::INPUT_CORNER);
-
-                  g_sdlDevice->drawRectangle(
-                          colorf::RGBA(231, 231, 189, 96),
-
-                          drawDstX + UIPage_MARGIN,
-                          drawDstY + UIPage_HEIGHT - UIPage_MARGIN - INPUT_MARGIN * 2 - input.h(),
-
-                          UIPage_WIDTH - UIPage_MARGIN * 2,
-                          FriendChatPage::INPUT_MARGIN * 2 + input.h(),
-
-                          FriendChatPage::INPUT_CORNER);
-              },
-
-              this,
-              false,
-          }
-
-        , input
-          {
-              DIR_DOWNLEFT,
-              UIPage_MARGIN                 + FriendChatPage::INPUT_MARGIN,
-              UIPage_HEIGHT - UIPage_MARGIN - FriendChatPage::INPUT_MARGIN - 1,
-
-              this,
-              false,
-          }
-
-        , chat
-          {
-              DIR_UPLEFT,
-              UIPage_MARGIN,
-              UIPage_MARGIN,
-
-              [this](const Widget *)
-              {
-                  return UIPage_HEIGHT - UIPage_MARGIN * 4 - FriendChatPage::INPUT_MARGIN * 2 - input.h() - 1;
-              },
-
-              this,
-              false,
-          }
-    {}
-
-    bool processEvent(const SDL_Event &event, bool valid) override
-    {
-        if(!valid){
-            return consumeFocus(false);
-        }
-
-        if(!show()){
-            return consumeFocus(false);
-        }
-
-        switch(event.type){
-            case SDL_KEYDOWN:
-                {
-                    switch(event.key.keysym.sym){
-                        case SDLK_RETURN:
-                            {
-                                if(input.focus()){
-                                    return Widget::processEvent(event, valid);
-                                }
-                                else{
-                                    setFocus(false);
-                                    return input.consumeFocus(true, std::addressof(input.layout));
-                                }
-                            }
-                        default:
-                            {
+    switch(event.type){
+        case SDL_KEYDOWN:
+            {
+                switch(event.key.keysym.sym){
+                    case SDLK_RETURN:
+                        {
+                            if(input.focus()){
                                 return Widget::processEvent(event, valid);
                             }
-                    }
-                }
-            case SDL_MOUSEBUTTONDOWN:
-                {
-                    if(input.in(event.button.x, event.button.y)){
-                        setFocus(false);
-                        return input.consumeFocus(true, std::addressof(input.layout));
-                    }
-
-                    if(in(event.button.x, event.button.y)){
-                        return consumeFocus(true);
-                    }
-
-                    return false;
-                }
-            default:
-                {
-                    return Widget::processEvent(event, valid);
-                }
-        }
-    }
-};
-
-struct FriendChatPreviewItem: public Widget
-{
-    constexpr static int WIDTH  = UIPage_WIDTH - UIPage_MARGIN * 2;
-    constexpr static int HEIGHT = 50;
-
-    constexpr static int GAP = 10;
-    constexpr static int NAME_HEIGHT = 30;
-    constexpr static int AVATAR_WIDTH = HEIGHT * 84 / 94; // original avatar size: 84 x 94
-
-    //        GAP
-    //       |<->|
-    // +-+---+  +------+          -             -
-    // |1|   |  | name |          | NAME_HEIGHT ^
-    // +-+   |  +------+          -             | HEIGHT
-    // | IMG |  +--------------+                |
-    // |     |  |latest message|                v
-    // +-----+  +--------------+                -
-    //
-    // |<--->|
-    // AVATAR_WIDTH
-    //
-    // |<--------------------->|
-    //           WIDTH
-
-    const uint32_t dbid;
-
-    ImageBoard  avatar;
-    LabelBoard  name;
-    LayoutBoard message;
-
-    ShapeClipBoard preview;
-    ShapeClipBoard selected;
-
-    FriendChatPreviewItem(dir8_t argDir,
-            int argX,
-            int argY,
-
-            uint32_t argDBID,
-            const char8_t *argChatXMLStr,
-
-            Widget *argParent    = nullptr,
-            bool   argAutoDelete = false)
-
-        : Widget
-          {
-              argDir,
-              argX,
-              argY,
-
-              FriendChatPreviewItem::WIDTH,
-              FriendChatPreviewItem::HEIGHT,
-
-              {},
-
-              argParent,
-              argAutoDelete,
-          }
-
-        , dbid(argDBID)
-        , avatar
-          {
-              DIR_UPLEFT,
-              0,
-              0,
-
-              FriendChatPreviewItem::AVATAR_WIDTH,
-              FriendChatPreviewItem::HEIGHT,
-
-              [this](const ImageBoard *) -> SDL_Texture *
-              {
-                  if(this->dbid == SYS_CHATDBID_SYSTEM){
-                      return g_progUseDB->retrieve(0X00001100);
-                  }
-                  return g_progUseDB->retrieve(0X02000000);
-              },
-
-              false,
-              false,
-              0,
-
-              colorf::WHITE + colorf::A_SHF(0XFF),
-
-              this,
-              false,
-          }
-
-        , name
-          {
-              DIR_LEFT,
-              FriendChatPreviewItem::AVATAR_WIDTH + FriendChatPreviewItem::GAP,
-              FriendChatPreviewItem::NAME_HEIGHT / 2,
-
-              [this]() -> const char8_t *
-              {
-                  if(this->dbid == SYS_CHATDBID_SYSTEM){
-                      return u8"系统消息";
-                  }
-                  return u8"绝地武士";
-              }(),
-
-              1,
-              14,
-              0,
-              colorf::WHITE + colorf::A_SHF(255),
-
-              this,
-              false,
-          }
-
-        , message
-          {
-              DIR_UPLEFT,
-              0,
-              0,
-              0, // line width
-
-              to_cstr(argChatXMLStr),
-              1,
-
-              {},
-              false,
-              false,
-              false,
-              false,
-
-              1,
-              12,
-              0,
-              colorf::GREY + colorf::A_SHF(255),
-          }
-
-        , preview
-          {
-              DIR_UPLEFT,
-              FriendChatPreviewItem::AVATAR_WIDTH + FriendChatPreviewItem::GAP,
-              FriendChatPreviewItem::NAME_HEIGHT,
-
-              FriendChatPreviewItem::WIDTH - FriendChatPreviewItem::AVATAR_WIDTH - FriendChatPreviewItem::GAP,
-              FriendChatPreviewItem::HEIGHT - FriendChatPreviewItem::NAME_HEIGHT,
-
-              [this](const Widget *, int drawDstX, int drawDstY)
-              {
-                  message.drawEx(drawDstX, drawDstY, 0, 0, message.w(), message.h());
-              },
-
-              this,
-              false,
-          }
-
-        , selected
-          {
-              DIR_UPLEFT,
-              0,
-              0,
-
-              this->w(),
-              this->h(),
-
-              [this](const Widget *, int drawDstX, int drawDstY)
-              {
-                  if(const auto [mousePX, mousePY] = SDLDeviceHelper::getMousePLoc(); in(mousePX, mousePY)){
-                      g_sdlDevice->fillRectangle(colorf::GREEN              + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
-                      g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
-                  }
-                  else{
-                      g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(32), drawDstX, drawDstY, w(), h());
-                  }
-              },
-
-              this,
-              false,
-          }
-    {}
-
-    bool processEvent(const SDL_Event &event, bool valid) override
-    {
-        if(!valid){
-            return consumeFocus(false);
-        }
-
-        if(!show()){
-            return consumeFocus(false);
-        }
-
-        switch(event.type){
-            case SDL_MOUSEBUTTONDOWN:
-                {
-                    if(in(event.button.x, event.button.y)){
-                        if(auto chatBoard = dynamic_cast<FriendChatBoard *>(this->parent(2))){
-                            chatBoard->setChatPageDBID(this->dbid);
-                            chatBoard->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
+                            else{
+                                setFocus(false);
+                                return input.consumeFocus(true, std::addressof(input.layout));
+                            }
                         }
-                    }
-                    return false;
+                    default:
+                        {
+                            return Widget::processEvent(event, valid);
+                        }
                 }
-            default:
-                {
-                    return false;
-                }
-        }
-    }
-};
-
-struct FriendChatPreviewPage: public Widget
-{
-    Widget canvas;
-    FriendChatPreviewPage(Widget::VarDir argDir,
-
-            Widget::VarOffset argX,
-            Widget::VarOffset argY,
-
-            Widget *argParent     = nullptr,
-            bool    argAutoDelete = false)
-
-        : Widget
-          {
-              std::move(argDir),
-              std::move(argX),
-              std::move(argY),
-
-              UIPage_WIDTH  - UIPage_MARGIN * 2,
-              UIPage_HEIGHT - UIPage_MARGIN * 2,
-
-              {},
-
-              argParent,
-              argAutoDelete,
-          }
-
-        , canvas
-          {
-              DIR_UPLEFT,
-              0,
-              0,
-
-              this->w(),
-              {},
-              {},
-
-              this,
-              false,
-          }
-    {}
-
-    void append(FriendChatPreviewItem *item, bool autoDelete)
-    {
-        item->moveAt(DIR_UPLEFT, 0, canvas.h());
-        canvas.addChild(item, autoDelete);
-    }
-
-    void updateChatPreview(uint32_t argDBID, const std::string &argMsg)
-    {
-        FriendChatPreviewItem *child = dynamic_cast<FriendChatPreviewItem *>(canvas.hasChild([argDBID](const Widget *widgetPtr)
-        {
-            if(auto preview = dynamic_cast<const FriendChatPreviewItem *>(widgetPtr); preview && preview->dbid == argDBID){
-                return true;
             }
-            return false;
-        }));
-
-        if(child){
-            child->message.loadXML(argMsg.c_str());
-        }
-        else{
-            child = new FriendChatPreviewItem
+        case SDL_MOUSEBUTTONDOWN:
             {
-                DIR_UPLEFT,
-                0,
-                0,
+                if(input.in(event.button.x, event.button.y)){
+                    setFocus(false);
+                    return input.consumeFocus(true, std::addressof(input.layout));
+                }
 
-                argDBID,
-                to_u8cstr(argMsg),
-            };
-            append(child, true);
-        }
+                if(in(event.button.x, event.button.y)){
+                    return consumeFocus(true);
+                }
 
-        canvas.moveFront(child);
-        for(int startY = 0; auto &node: m_childList){
-            node.widget->moveAt(DIR_UPLEFT, 0, startY);
-            startY += node.widget->h();
-        }
+                return false;
+            }
+        default:
+            {
+                return Widget::processEvent(event, valid);
+            }
     }
-};
+}
 
-struct PageControl: public Widget
-{
-    PageControl(dir8_t argDir,
+FriendChatBoard::FriendChatPreviewItem::FriendChatPreviewItem(dir8_t argDir,
+        int argX,
+        int argY,
 
-            int argX,
-            int argY,
+        uint32_t argDBID,
+        const char8_t *argChatXMLStr,
 
-            int argSpace,
+        Widget *argParent,
+        bool   argAutoDelete)
 
-            std::initializer_list<std::pair<Widget *, bool>> argChildList,
+    : Widget
+      {
+          argDir,
+          argX,
+          argY,
 
-            Widget *argParent     = nullptr,
-            bool    argAutoDelete = false)
+          FriendChatPreviewItem::WIDTH,
+          FriendChatPreviewItem::HEIGHT,
 
-        : Widget
+          {},
+
+          argParent,
+          argAutoDelete,
+      }
+
+    , dbid(argDBID)
+    , avatar
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          FriendChatPreviewItem::AVATAR_WIDTH,
+          FriendChatPreviewItem::HEIGHT,
+
+          [this](const ImageBoard *) -> SDL_Texture *
           {
-              argDir,
-              argX,
-              argY,
+              if(this->dbid == SYS_CHATDBID_SYSTEM){
+                  return g_progUseDB->retrieve(0X00001100);
+              }
+              return g_progUseDB->retrieve(0X02000000);
+          },
 
-              {},
-              {},
-              {},
+          false,
+          false,
+          0,
 
-              argParent,
-              argAutoDelete,
-          }
-    {
-        int offX = 0;
-        for(auto &[widgetPtr, autoDelete]: argChildList){
-            addChild(widgetPtr, autoDelete);
-            widgetPtr->moveAt(DIR_UPLEFT, offX, (h() - widgetPtr->h()) / 2);
+          colorf::WHITE + colorf::A_SHF(0XFF),
 
-            offX += widgetPtr->w();
-            offX += argSpace;
-        }
+          this,
+          false,
+      }
+
+    , name
+      {
+          DIR_LEFT,
+          FriendChatPreviewItem::AVATAR_WIDTH + FriendChatPreviewItem::GAP,
+          FriendChatPreviewItem::NAME_HEIGHT / 2,
+
+          [this]() -> const char8_t *
+          {
+              if(this->dbid == SYS_CHATDBID_SYSTEM){
+                  return u8"系统消息";
+              }
+              return u8"绝地武士";
+          }(),
+
+          1,
+          14,
+          0,
+          colorf::WHITE + colorf::A_SHF(255),
+
+          this,
+          false,
+      }
+
+    , message
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+          0, // line width
+
+          to_cstr(argChatXMLStr),
+          1,
+
+          {},
+          false,
+          false,
+          false,
+          false,
+
+          1,
+          12,
+          0,
+          colorf::GREY + colorf::A_SHF(255),
+      }
+
+    , preview
+      {
+          DIR_UPLEFT,
+          FriendChatPreviewItem::AVATAR_WIDTH + FriendChatPreviewItem::GAP,
+          FriendChatPreviewItem::NAME_HEIGHT,
+
+          FriendChatPreviewItem::WIDTH - FriendChatPreviewItem::AVATAR_WIDTH - FriendChatPreviewItem::GAP,
+          FriendChatPreviewItem::HEIGHT - FriendChatPreviewItem::NAME_HEIGHT,
+
+          [this](const Widget *, int drawDstX, int drawDstY)
+          {
+              message.drawEx(drawDstX, drawDstY, 0, 0, message.w(), message.h());
+          },
+
+          this,
+          false,
+      }
+
+    , selected
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          this->w(),
+          this->h(),
+
+          [this](const Widget *, int drawDstX, int drawDstY)
+          {
+              if(const auto [mousePX, mousePY] = SDLDeviceHelper::getMousePLoc(); in(mousePX, mousePY)){
+                  g_sdlDevice->fillRectangle(colorf::GREEN              + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
+                  g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
+              }
+              else{
+                  g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(32), drawDstX, drawDstY, w(), h());
+              }
+          },
+
+          this,
+          false,
+      }
+{}
+
+bool FriendChatBoard::FriendChatPreviewItem::processEvent(const SDL_Event &event, bool valid)
+{
+    if(!valid){
+        return consumeFocus(false);
     }
-};
+
+    if(!show()){
+        return consumeFocus(false);
+    }
+
+    switch(event.type){
+        case SDL_MOUSEBUTTONDOWN:
+            {
+                if(in(event.button.x, event.button.y)){
+                    if(auto chatBoard = dynamic_cast<FriendChatBoard *>(this->parent(2))){
+                        chatBoard->setChatPageDBID(this->dbid);
+                        chatBoard->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
+                    }
+                }
+                return false;
+            }
+        default:
+            {
+                return false;
+            }
+    }
+}
+
+FriendChatBoard::FriendChatPreviewPage::FriendChatPreviewPage(Widget::VarDir argDir,
+
+        Widget::VarOffset argX,
+        Widget::VarOffset argY,
+
+        Widget *argParent,
+        bool    argAutoDelete)
+
+    : Widget
+      {
+          std::move(argDir),
+          std::move(argX),
+          std::move(argY),
+
+          UIPage_WIDTH  - UIPage_MARGIN * 2,
+          UIPage_HEIGHT - UIPage_MARGIN * 2,
+
+          {},
+
+          argParent,
+          argAutoDelete,
+      }
+
+    , canvas
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          this->w(),
+          {},
+          {},
+
+          this,
+          false,
+      }
+{}
+
+void FriendChatBoard::FriendChatPreviewPage::append(FriendChatPreviewItem *item, bool autoDelete)
+{
+    item->moveAt(DIR_UPLEFT, 0, canvas.h());
+    canvas.addChild(item, autoDelete);
+}
+
+void FriendChatBoard::FriendChatPreviewPage::updateChatPreview(uint32_t argDBID, const std::string &argMsg)
+{
+    FriendChatPreviewItem *child = dynamic_cast<FriendChatPreviewItem *>(canvas.hasChild([argDBID](const Widget *widgetPtr)
+    {
+        if(auto preview = dynamic_cast<const FriendChatPreviewItem *>(widgetPtr); preview && preview->dbid == argDBID){
+            return true;
+        }
+        return false;
+    }));
+
+    if(child){
+        child->message.loadXML(argMsg.c_str());
+    }
+    else{
+        child = new FriendChatPreviewItem
+        {
+            DIR_UPLEFT,
+            0,
+            0,
+
+            argDBID,
+            to_u8cstr(argMsg),
+        };
+        append(child, true);
+    }
+
+    canvas.moveFront(child);
+    for(int startY = 0; auto &node: m_childList){
+        node.widget->moveAt(DIR_UPLEFT, 0, startY);
+        startY += node.widget->h();
+    }
+}
+
+FriendChatBoard::PageControl::PageControl(dir8_t argDir,
+
+        int argX,
+        int argY,
+
+        int argSpace,
+
+        std::initializer_list<std::pair<Widget *, bool>> argChildList,
+
+        Widget *argParent,
+        bool    argAutoDelete)
+
+    : Widget
+      {
+          argDir,
+          argX,
+          argY,
+
+          {},
+          {},
+          {},
+
+          argParent,
+          argAutoDelete,
+      }
+{
+    int offX = 0;
+    for(auto &[widgetPtr, autoDelete]: argChildList){
+        addChild(widgetPtr, autoDelete);
+        widgetPtr->moveAt(DIR_UPLEFT, offX, (h() - widgetPtr->h()) / 2);
+
+        offX += widgetPtr->w();
+        offX += argSpace;
+    }
+}
 
 FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget *widgetPtr, bool autoDelete)
     : Widget
