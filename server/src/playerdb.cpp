@@ -270,6 +270,9 @@ SDPlayerCandidateList Player::dbQueryPlayerCandidates(const std::string &query)
     while(queryCmd.executeStep()){
         sdPCL.push_back(SDPlayerCandidate
         {
+            .job = queryCmd.getColumn("fld_job"),
+            .avatar = std::nullopt,
+
             .dbid = queryCmd.getColumn("fld_dbid"),
             .name = queryCmd.getColumn("fld_name").getString(),
         });

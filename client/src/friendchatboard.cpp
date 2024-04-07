@@ -353,7 +353,7 @@ struct FriendSearchInputLine: public Widget
                                 {
                                     clearCompletionItems();
                                     for(const auto &candidate: cerealf::deserialize<SDPlayerCandidateList>(data, size)){
-                                        appendCompletionItem([&candidate, &query]
+                                        appendCompletionItem(query == std::to_string(candidate.dbid), candidate, [&candidate, &query]
                                         {
                                             if(const auto pos = candidate.name.find(query); pos != std::string::npos){
                                                 return str_printf(R"###(<par>%s<t color="red">%s</t>%s（%llu）</par>)###", candidate.name.substr(0, pos).c_str(), query.c_str(), candidate.name.substr(pos + query.size()).c_str(), to_llu(candidate.dbid));
@@ -388,7 +388,7 @@ struct FriendSearchInputLine: public Widget
     }
 
     void clearCompletionItems();
-    void appendCompletionItem(const std::string &s);
+    void appendCompletionItem(bool, SDPlayerCandidate, const std::string &);
 };
 
 struct FriendSearchAutoCompletionItem: public Widget
@@ -416,6 +416,9 @@ struct FriendSearchAutoCompletionItem: public Widget
     constexpr static int ICON_MARGIN = 5;
     constexpr static int GAP = 5;
 
+    const bool byID; // when clicked, fill input automatically by ID if true, or name if false
+    const SDPlayerCandidate candidate;
+
     ShapeClipBoard background;
 
     ImageBoard icon;
@@ -426,7 +429,10 @@ struct FriendSearchAutoCompletionItem: public Widget
             Widget::VarOffset argX,
             Widget::VarOffset argY,
 
-            const char *argXMLStr,
+            bool argByID,
+            SDPlayerCandidate argCandidate,
+
+            const char *argLabelXMLStr,
 
             Widget *argParent     = nullptr,
             bool    argAutoDelete = false)
@@ -445,6 +451,9 @@ struct FriendSearchAutoCompletionItem: public Widget
               argParent,
               argAutoDelete,
           }
+
+        , byID(argByID)
+        , candidate(std::move(argCandidate))
 
         , background
           {
@@ -509,7 +518,12 @@ struct FriendSearchAutoCompletionItem: public Widget
               false,
           }
     {
-        label.loadXML(argXMLStr);
+        if(str_haschar(argLabelXMLStr)){
+            label.loadXML(argLabelXMLStr);
+        }
+        else{
+            label.loadXML(str_printf(R"###(<par>%s（%llu）</par>)###", candidate.name.c_str(), to_llu(candidate.dbid)).c_str());
+        }
     }
 };
 
@@ -642,7 +656,7 @@ struct FriendSearchPage: public Widget
           }
     {}
 
-    void appendAutoCompletionItem(const char *xmlStr)
+    void appendAutoCompletionItem(bool byID, SDPlayerCandidate candidate, const char *xmlStr)
     {
         int maxY = 0;
         autocompletes.foreachChild([&maxY](const Widget *widget, bool)
@@ -656,6 +670,8 @@ struct FriendSearchPage: public Widget
             0,
             maxY,
 
+            byID,
+            std::move(candidate),
             xmlStr,
 
             &autocompletes,
@@ -669,9 +685,9 @@ void FriendSearchInputLine::clearCompletionItems()
     dynamic_cast<FriendSearchPage *>(parent())->autocompletes.clearChild();
 }
 
-void FriendSearchInputLine::appendCompletionItem(const std::string &s)
+void FriendSearchInputLine::appendCompletionItem(bool byID, SDPlayerCandidate candidate, const std::string &s)
 {
-    dynamic_cast<FriendSearchPage *>(parent())->appendAutoCompletionItem(s.c_str());
+    dynamic_cast<FriendSearchPage *>(parent())->appendAutoCompletionItem(byID, std::move(candidate), s.c_str());
 }
 
 struct FriendChatItem: public Widget

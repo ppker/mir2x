@@ -149,12 +149,15 @@ struct SDNPCXMLLayout
 
 struct SDPlayerCandidate
 {
+    int job = 0;
+    std::optional<uint64_t> avatar {};
+
     uint32_t dbid = 0;
     std::string name {};
 
     template<typename Archive> void serialize(Archive & ar)
     {
-        ar(dbid, name);
+        ar(job, avatar, dbid, name);
     }
 };
 
