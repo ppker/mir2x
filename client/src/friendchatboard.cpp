@@ -336,24 +336,35 @@ struct FriendSearchInputLine: public Widget
               {
               },
 
-              [this](std::string s)
+              [this](std::string query)
               {
-                  if(s.empty()){
+                  if(query.empty()){
                       clearCompletionItems();
                   }
                   else{
                       CMQueryPlayerCandidates cmQPC;
                       std::memset(&cmQPC, 0, sizeof(cmQPC));
 
-                      cmQPC.input.assign(s);
-                      g_client->send({CM_QUERYPLAYERCANDIDATES, cmQPC}, [this](uint8_t headCode, const uint8_t *data, size_t size)
+                      cmQPC.input.assign(query);
+                      g_client->send({CM_QUERYPLAYERCANDIDATES, cmQPC}, [query = std::move(query), this](uint8_t headCode, const uint8_t *data, size_t size)
                       {
                           switch(headCode){
                               case SM_OK:
                                 {
                                     clearCompletionItems();
-                                    for(const auto &s: cerealf::deserialize<SDPlayerCandidates>(data, size).list){
-                                        appendCompletionItem(s);
+                                    for(const auto &candidate: cerealf::deserialize<SDPlayerCandidateList>(data, size)){
+                                        appendCompletionItem([&candidate, &query]
+                                        {
+                                            if(const auto pos = candidate.name.find(query); pos != std::string::npos){
+                                                return str_printf(R"###(<par>%s<t color="red">%s</t>%s（%llu）</par>)###", candidate.name.substr(0, pos).c_str(), query.c_str(), candidate.name.substr(pos + query.size()).c_str(), to_llu(candidate.dbid));
+                                            }
+                                            else if(std::to_string(candidate.dbid) == query){
+                                                return str_printf(R"###(<par>%s（<t color="red">%llu</t>）</par>)###", candidate.name.c_str(), to_llu(candidate.dbid));
+                                            }
+                                            else{
+                                                return str_printf(R"###(<par>%s（%llu）</par>)###", candidate.name.c_str(), to_llu(candidate.dbid));
+                                            }
+                                        }());
                                     }
                                     break;
                                 }
@@ -660,7 +671,7 @@ void FriendSearchInputLine::clearCompletionItems()
 
 void FriendSearchInputLine::appendCompletionItem(const std::string &s)
 {
-    dynamic_cast<FriendSearchPage *>(parent())->appendAutoCompletionItem(str_printf("<par>%s</par>", s.c_str()).c_str());
+    dynamic_cast<FriendSearchPage *>(parent())->appendAutoCompletionItem(s.c_str());
 }
 
 struct FriendChatItem: public Widget

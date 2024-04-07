@@ -253,24 +253,28 @@ void Player::dbLoadPlayerConfig()
     }
 }
 
-SDPlayerCandidates Player::dbQueryPlayerCandidates(const std::string &query)
+SDPlayerCandidateList Player::dbQueryPlayerCandidates(const std::string &query)
 {
     fflassert(str_haschar(query));
     auto queryCmd = [&query]
     {
         if(query.find_first_not_of("0123456789") == std::string_view::npos){
-            return g_dbPod->createQuery("select fld_name from tbl_char where fld_dbid = %s or instr(fld_name, '%s') > 0", query.c_str(), query.c_str());
+            return g_dbPod->createQuery("select * from tbl_char where fld_dbid = %s or instr(fld_name, '%s') > 0", query.c_str(), query.c_str());
         }
         else{
-            return g_dbPod->createQuery("select fld_name from tbl_char where instr(fld_name, '%s') > 0", query.c_str());
+            return g_dbPod->createQuery("select * from tbl_char where instr(fld_name, '%s') > 0", query.c_str());
         }
     }();
 
-    SDPlayerCandidates sdPC;
+    SDPlayerCandidateList sdPCL;
     while(queryCmd.executeStep()){
-        sdPC.list.push_back(queryCmd.getColumn("fld_name").getString());
+        sdPCL.push_back(SDPlayerCandidate
+        {
+            .dbid = queryCmd.getColumn("fld_dbid"),
+            .name = queryCmd.getColumn("fld_name").getString(),
+        });
     }
-    return sdPC;
+    return sdPCL;
 }
 
 void Player::dbUpdateMagicKey(uint32_t magicID, char key)

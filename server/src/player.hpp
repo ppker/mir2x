@@ -353,7 +353,7 @@ class Player final: public BattleObject
 
     private:
         void dbLoadPlayerConfig();
-        SDPlayerCandidates dbQueryPlayerCandidates(const std::string &);
+        SDPlayerCandidateList dbQueryPlayerCandidates(const std::string &);
 
     private:
         void dbLoadLearnedMagic();

@@ -147,15 +147,18 @@ struct SDNPCXMLLayout
     }
 };
 
-struct SDPlayerCandidates
+struct SDPlayerCandidate
 {
-    std::vector<std::string> list;
+    uint32_t dbid = 0;
+    std::string name {};
 
     template<typename Archive> void serialize(Archive & ar)
     {
-        ar(list);
+        ar(dbid, name);
     }
 };
+
+using SDPlayerCandidateList = std::vector<SDPlayerCandidate>;
 
 struct SDStartInvOp
 {
