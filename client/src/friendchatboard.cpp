@@ -405,6 +405,8 @@ struct FriendSearchAutoCompletionItem: public Widget
     constexpr static int ICON_MARGIN = 5;
     constexpr static int GAP = 5;
 
+    ShapeClipBoard background;
+
     ImageBoard icon;
     LabelBoard label;
 
@@ -431,6 +433,31 @@ struct FriendSearchAutoCompletionItem: public Widget
 
               argParent,
               argAutoDelete,
+          }
+
+        , background
+          {
+              DIR_UPLEFT,
+              0,
+              0,
+
+              this->w(),
+              this->h(),
+
+              [this](const Widget *, int drawDstX, int drawDstY)
+              {
+                  if(const auto [mousePX, mousePY] = SDLDeviceHelper::getMousePLoc(); in(mousePX, mousePY)){
+                      g_sdlDevice->fillRectangle(colorf::GREEN              + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
+                      g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
+                  }
+                  else{
+                      g_sdlDevice->fillRectangle(colorf::GREY               + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
+                      g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(32), drawDstX, drawDstY, w(), h());
+                  }
+              },
+
+              this,
+              false,
           }
 
         , icon
