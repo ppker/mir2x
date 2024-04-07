@@ -13,197 +13,165 @@ constexpr static int UIPage_WIDTH  = 400; // the area excludes border area, marg
 constexpr static int UIPage_HEIGHT = 400;
 constexpr static int UIPage_MARGIN =   4;
 
-struct FriendItem: public Widget
+FriendChatBoard::FriendItem::FriendItem(dir8_t argDir,
+        int argX,
+        int argY,
+
+        uint32_t argDBID,
+        const char8_t *argNameStr,
+
+        std::function<SDL_Texture *(const ImageBoard *)> argLoadImageFunc,
+
+        Widget *argParent,
+        bool argAutoDelete)
+
+    : Widget
+      {
+          argDir,
+          argX,
+          argY,
+
+          UIPage_WIDTH - UIPage_MARGIN * 2,
+          FriendItem::HEIGHT,
+          {},
+
+          argParent,
+          argAutoDelete,
+      }
+
+    , dbid(argDBID)
+
+    , hovered
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          this->w(),
+          this->h(),
+
+          [this](const Widget *, int drawDstX, int drawDstY)
+          {
+              if(const auto [mousePX, mousePY] = SDLDeviceHelper::getMousePLoc(); in(mousePX, mousePY)){
+                  g_sdlDevice->fillRectangle(colorf::GREEN              + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
+                  g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
+              }
+              else{
+                  g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(32), drawDstX, drawDstY, w(), h());
+              }
+          },
+
+          this,
+          false,
+      }
+
+    , avatar
+      {
+          DIR_UPLEFT,
+          FriendItem::ITEM_MARGIN,
+          FriendItem::ITEM_MARGIN,
+
+          FriendItem::AVATAR_WIDTH,
+          FriendItem::HEIGHT - FriendItem::ITEM_MARGIN * 2,
+
+          std::move(argLoadImageFunc),
+
+          false,
+          false,
+          0,
+
+          colorf::WHITE + colorf::A_SHF(0XFF),
+
+          this,
+          false,
+      }
+
+    , name
+      {
+          DIR_LEFT,
+          FriendItem::ITEM_MARGIN + FriendItem::AVATAR_WIDTH + FriendItem::GAP,
+          FriendItem::HEIGHT / 2,
+
+          argNameStr,
+
+          1,
+          14,
+          0,
+          colorf::WHITE + colorf::A_SHF(255),
+
+          this,
+          false,
+      }
+{}
+
+bool FriendChatBoard::FriendItem::processEvent(const SDL_Event &event, bool valid)
 {
-    //   ITEM_MARGIN                    | ITRM_MARGIN
-    // ->| |<-                          v
-    //   +--------------------------+ - -
-    //   | +-----+                  | ^ -
-    //   | |     | +------+         | | ^
-    //   | | IMG | | NAME |         | | HEIGHT
-    //   | |     | +------+         | |
-    //   | +-----+                  | v
-    //   +--------------------------+ -
-    //         ->| |<-
-    //           GAP
-    //   |<------------------------>| UIPage_WIDTH - UIPage_MARGIN * 2
-
-    constexpr static int HEIGHT = 40;
-    constexpr static int ITEM_MARGIN = 3;
-    constexpr static int AVATAR_WIDTH = (HEIGHT - ITEM_MARGIN * 2) * 84 / 94;
-
-    constexpr static int GAP = 5;
-
-    uint32_t dbid;
-    ShapeClipBoard hovered;
-
-    ImageBoard avatar;
-    LabelBoard name;
-
-    FriendItem(dir8_t argDir,
-            int argX,
-            int argY,
-
-            uint32_t argDBID,
-            const char8_t *argNameStr,
-
-            std::function<SDL_Texture *(const ImageBoard *)> argLoadImageFunc,
-
-            Widget *argParent  = nullptr,
-            bool argAutoDelete = false)
-
-        : Widget
-          {
-              argDir,
-              argX,
-              argY,
-
-              UIPage_WIDTH - UIPage_MARGIN * 2,
-              FriendItem::HEIGHT,
-              {},
-
-              argParent,
-              argAutoDelete,
-          }
-
-        , dbid(argDBID)
-
-        , hovered
-          {
-              DIR_UPLEFT,
-              0,
-              0,
-
-              this->w(),
-              this->h(),
-
-              [this](const Widget *, int drawDstX, int drawDstY)
-              {
-                  if(const auto [mousePX, mousePY] = SDLDeviceHelper::getMousePLoc(); in(mousePX, mousePY)){
-                      g_sdlDevice->fillRectangle(colorf::GREEN              + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
-                      g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
-                  }
-                  else{
-                      g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(32), drawDstX, drawDstY, w(), h());
-                  }
-              },
-
-              this,
-              false,
-          }
-
-        , avatar
-          {
-              DIR_UPLEFT,
-              FriendItem::ITEM_MARGIN,
-              FriendItem::ITEM_MARGIN,
-
-              FriendItem::AVATAR_WIDTH,
-              FriendItem::HEIGHT - FriendItem::ITEM_MARGIN * 2,
-
-              std::move(argLoadImageFunc),
-
-              false,
-              false,
-              0,
-
-              colorf::WHITE + colorf::A_SHF(0XFF),
-
-              this,
-              false,
-          }
-
-        , name
-          {
-              DIR_LEFT,
-              FriendItem::ITEM_MARGIN + FriendItem::AVATAR_WIDTH + FriendItem::GAP,
-              FriendItem::HEIGHT / 2,
-
-              argNameStr,
-
-              1,
-              14,
-              0,
-              colorf::WHITE + colorf::A_SHF(255),
-
-              this,
-              false,
-          }
-    {}
-
-    bool processEvent(const SDL_Event &event, bool valid) override
-    {
-        if(!valid){
-            return consumeFocus(false);
-        }
-
-        if(!show()){
-            return consumeFocus(false);
-        }
-
-        switch(event.type){
-            case SDL_MOUSEBUTTONDOWN:
-                {
-                    if(in(event.button.x, event.button.y)){
-                        dynamic_cast<FriendChatBoard *>(this->parent(2))->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
-                    }
-                    return false;
-                }
-            default:
-                {
-                    return false;
-                }
-        }
+    if(!valid){
+        return consumeFocus(false);
     }
-};
 
-struct FriendListPage: public Widget
+    if(!show()){
+        return consumeFocus(false);
+    }
+
+    switch(event.type){
+        case SDL_MOUSEBUTTONDOWN:
+            {
+                if(in(event.button.x, event.button.y)){
+                    dynamic_cast<FriendChatBoard *>(this->parent(2))->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
+                }
+                return false;
+            }
+        default:
+            {
+                return false;
+            }
+    }
+}
+
+FriendChatBoard::FriendListPage::FriendListPage(Widget::VarDir argDir,
+
+        Widget::VarOffset argX,
+        Widget::VarOffset argY,
+
+        Widget *argParent,
+        bool    argAutoDelete)
+
+    : Widget
+      {
+          std::move(argDir),
+          std::move(argX),
+          std::move(argY),
+
+          UIPage_WIDTH  - UIPage_MARGIN * 2,
+          UIPage_HEIGHT - UIPage_MARGIN * 2,
+
+          {},
+
+          argParent,
+          argAutoDelete,
+      }
+
+    , canvas
+      {
+          DIR_UPLEFT,
+          0,
+          0,
+
+          this->w(),
+          {},
+          {},
+
+          this,
+          false,
+      }
+{}
+
+void FriendChatBoard::FriendListPage::append(FriendItem *item, bool autoDelete)
 {
-    Widget canvas;
-    FriendListPage(Widget::VarDir argDir,
-
-            Widget::VarOffset argX,
-            Widget::VarOffset argY,
-
-            Widget *argParent     = nullptr,
-            bool    argAutoDelete = false)
-
-        : Widget
-          {
-              std::move(argDir),
-              std::move(argX),
-              std::move(argY),
-
-              UIPage_WIDTH  - UIPage_MARGIN * 2,
-              UIPage_HEIGHT - UIPage_MARGIN * 2,
-
-              {},
-
-              argParent,
-              argAutoDelete,
-          }
-
-        , canvas
-          {
-              DIR_UPLEFT,
-              0,
-              0,
-
-              this->w(),
-              {},
-              {},
-
-              this,
-              false,
-          }
-    {}
-
-    void append(FriendItem *item, bool autoDelete)
-    {
-        item->moveAt(DIR_UPLEFT, 0, canvas.h());
-        canvas.addChild(item, autoDelete);
-    }
-};
+    item->moveAt(DIR_UPLEFT, 0, canvas.h());
+    canvas.addChild(item, autoDelete);
+}
 
 struct FriendSearchInputLine: public Widget
 {

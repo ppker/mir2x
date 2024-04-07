@@ -10,6 +10,61 @@
 class ProcessRun;
 class FriendChatBoard: public Widget
 {
+    private:
+        struct FriendItem: public Widget
+        {
+            //   ITEM_MARGIN                    | ITRM_MARGIN
+            // ->| |<-                          v
+            //   +--------------------------+ - -
+            //   | +-----+                  | ^ -
+            //   | |     | +------+         | | ^
+            //   | | IMG | | NAME |         | | HEIGHT
+            //   | |     | +------+         | |
+            //   | +-----+                  | v
+            //   +--------------------------+ -
+            //         ->| |<-
+            //           GAP
+            //   |<------------------------>| UIPage_WIDTH - UIPage_MARGIN * 2
+
+            constexpr static int HEIGHT = 40;
+            constexpr static int ITEM_MARGIN = 3;
+            constexpr static int AVATAR_WIDTH = (HEIGHT - ITEM_MARGIN * 2) * 84 / 94;
+
+            constexpr static int GAP = 5;
+
+            uint32_t dbid;
+            ShapeClipBoard hovered;
+
+            ImageBoard avatar;
+            LabelBoard name;
+
+            FriendItem(dir8_t,
+                    int,
+                    int,
+
+                    uint32_t,
+                    const char8_t *,
+                    std::function<SDL_Texture *(const ImageBoard *)>,
+
+                    Widget * = nullptr,
+                    bool     = false);
+
+            bool processEvent(const SDL_Event &, bool) override;
+        };
+
+        struct FriendListPage: public Widget
+        {
+            Widget canvas;
+            FriendListPage(Widget::VarDir,
+                    Widget::VarOffset,
+                    Widget::VarOffset,
+
+                    Widget * = nullptr,
+                    bool     = false);
+
+            void append(FriendItem *, bool);
+        };
+
     public:
         enum UIPageType: int
         {
