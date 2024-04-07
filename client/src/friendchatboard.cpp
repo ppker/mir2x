@@ -338,7 +338,10 @@ struct FriendSearchInputLine: public Widget
 
               [this](std::string s)
               {
-                  if(!s.empty()){
+                  if(s.empty()){
+                      clearCompletionItems();
+                  }
+                  else{
                       CMQueryPlayerCandidates cmQPC;
                       std::memset(&cmQPC, 0, sizeof(cmQPC));
 

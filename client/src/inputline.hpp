@@ -105,7 +105,12 @@ class InputLine: public Widget
         {
             m_cursor = 0;
             m_cursorBlink = 0.0;
-            m_tpset.clear();
+            if(!m_tpset.empty()){
+                m_tpset.clear();
+                if(m_onChange){
+                    m_onChange({});
+                }
+            }
         }
 
     public:
