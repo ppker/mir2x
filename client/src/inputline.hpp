@@ -116,4 +116,6 @@ class InputLine: public Widget
     public:
         void deleteChar();
         void insertChar(char);
+        void setInput(const char *);
+        void insertUTF8String(const char *);
 };

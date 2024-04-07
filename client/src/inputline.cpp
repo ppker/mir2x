@@ -206,3 +206,24 @@ void InputLine::insertChar(char ch)
     m_tpset.insertUTF8String(m_cursor, 0, rawString);
     m_cursor++;
 }
+
+void InputLine::insertUTF8String(const char *utf8Str)
+{
+    if(str_haschar(utf8Str)){
+        m_tpset.insertUTF8String(m_cursor, 0, utf8Str);
+        // TODO move cursor
+    }
+}
+
+void InputLine::setInput(const char *utf8Str)
+{
+    m_cursor = 0;
+    m_cursorBlink = 0.0;
+
+    if(!m_tpset.empty()){
+        m_tpset.clear();
+        if(str_haschar(utf8Str)){
+            m_tpset.insertUTF8String(m_cursor, 0, utf8Str);
+        }
+    }
+}

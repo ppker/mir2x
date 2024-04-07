@@ -109,9 +109,6 @@ class FriendChatBoard: public Widget
 
                     Widget * = nullptr,
                     bool     = false);
-
-            void clear();
-            void appendCompletionItem(bool, SDPlayerCandidate, const std::string &);
         };
 
         struct FriendSearchAutoCompletionItem: public Widget
@@ -159,6 +156,8 @@ class FriendChatBoard: public Widget
 
                     Widget * = nullptr,
                     bool     = false);
+
+            bool processEvent(const SDL_Event &, bool) override;
         };
 
         struct FriendSearchPage: public Widget

@@ -445,9 +445,9 @@ class Widget
         }
 
     public:
-        Widget * parent(unsigned level = 0)
+        Widget * parent(unsigned level = 1)
         {
-            auto widptr = m_parent;
+            auto widptr = this;
             while(widptr && (level > 0)){
                 widptr = widptr->m_parent;
                 level--;
@@ -455,9 +455,9 @@ class Widget
             return widptr;
         }
 
-        const Widget * parent(unsigned level = 0) const
+        const Widget * parent(unsigned level = 1) const
         {
-            auto widptr = m_parent;
+            auto widptr = this;
             while(widptr && (level > 0)){
                 widptr = widptr->m_parent;
                 level--;

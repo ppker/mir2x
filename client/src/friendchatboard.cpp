@@ -114,7 +114,7 @@ bool FriendChatBoard::FriendItem::processEvent(const SDL_Event &event, bool vali
         case SDL_MOUSEBUTTONDOWN:
             {
                 if(in(event.button.x, event.button.y)){
-                    dynamic_cast<FriendChatBoard *>(this->parent(2))->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
+                    dynamic_cast<FriendChatBoard *>(this->parent(3))->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
                 }
                 return false;
             }
@@ -314,11 +314,6 @@ FriendChatBoard::FriendSearchInputLine::FriendSearchInputLine(Widget::VarDir arg
       }
 {}
 
-void FriendChatBoard::FriendSearchInputLine::clear()
-{
-    input.clear();
-}
-
 FriendChatBoard::FriendSearchAutoCompletionItem::FriendSearchAutoCompletionItem(Widget::VarDir argDir,
 
         Widget::VarOffset argX,
@@ -421,6 +416,31 @@ FriendChatBoard::FriendSearchAutoCompletionItem::FriendSearchAutoCompletionItem(
     }
 }
 
+bool FriendChatBoard::FriendSearchAutoCompletionItem::processEvent(const SDL_Event &event, bool valid)
+{
+    if(!valid){
+        return consumeFocus(false);
+    }
+
+    if(!show()){
+        return consumeFocus(false);
+    }
+
+    switch(event.type){
+        case SDL_MOUSEBUTTONDOWN:
+            {
+                if(in(event.button.x, event.button.y)){
+                    dynamic_cast<FriendSearchPage *>(this->parent(2))->input.input.setInput(byID ? std::to_string(candidate.dbid).c_str() : candidate.name.c_str());
+                }
+                return true;
+            }
+        default:
+            {
+                return Widget::processEvent(event, valid);
+            }
+    }
+}
+
 FriendChatBoard::FriendSearchPage::FriendSearchPage(Widget::VarDir argDir,
 
         Widget::VarOffset argX,
@@ -500,7 +520,7 @@ FriendChatBoard::FriendSearchPage::FriendSearchPage(Widget::VarDir argDir,
                   };
 
                   if(const auto id = fnFindAttrValue("id", nullptr)){
-                      input.clear();
+                      input.input.clear();
                   }
               }
           },
@@ -1226,7 +1246,7 @@ bool FriendChatBoard::FriendChatPreviewItem::processEvent(const SDL_Event &event
         case SDL_MOUSEBUTTONDOWN:
             {
                 if(in(event.button.x, event.button.y)){
-                    if(auto chatBoard = dynamic_cast<FriendChatBoard *>(this->parent(2))){
+                    if(auto chatBoard = dynamic_cast<FriendChatBoard *>(this->parent(3))){
                         chatBoard->setChatPageDBID(this->dbid);
                         chatBoard->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
                     }
