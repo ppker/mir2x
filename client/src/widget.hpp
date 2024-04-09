@@ -186,6 +186,7 @@ class WidgetTreeNode // tree concept, used by class Widget only
 
     public:
         void moveFront(const Widget *);
+        void moveBack (const Widget *);
 
     public:
         virtual void onDeath() noexcept {}
@@ -398,7 +399,7 @@ class Widget: public WidgetTreeNode
                 return;
             }
 
-            foreachChild(false, [srcX, srcY, dstX, dstY, srcW, srcH, this](const Widget *widget, bool)
+            foreachChild([srcX, srcY, dstX, dstY, srcW, srcH, this](const Widget *widget, bool)
             {
                 if(widget->show()){
                     int srcXCrop = srcX;
@@ -500,7 +501,7 @@ class Widget: public WidgetTreeNode
     public:
         virtual void update(double fUpdateTime)
         {
-            foreachChild([fUpdateTime, this](Widget *widget, bool)
+            foreachChild(false, [fUpdateTime, this](Widget *widget, bool)
             {
                 widget->update(fUpdateTime);
             });
@@ -522,7 +523,7 @@ class Widget: public WidgetTreeNode
             bool took = false;
             Widget *focusedWidget = nullptr;
 
-            foreachChild([&event, valid, &took, &focusedWidget](Widget *widget, bool)
+            foreachChild(false, [&event, valid, &took, &focusedWidget](Widget *widget, bool)
             {
                 if(widget->show()){
                     took |= widget->processEvent(event, valid && !took);
@@ -538,7 +539,7 @@ class Widget: public WidgetTreeNode
             });
 
             if(hasChild(focusedWidget)){
-                moveFront(focusedWidget);
+                moveBack(focusedWidget);
             }
 
             return took;

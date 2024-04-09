@@ -431,8 +431,9 @@ bool FriendChatBoard::FriendSearchAutoCompletionItem::processEvent(const SDL_Eve
             {
                 if(in(event.button.x, event.button.y)){
                     dynamic_cast<FriendSearchPage *>(this->parent(2))->input.input.setInput(byID ? std::to_string(candidate.dbid).c_str() : candidate.name.c_str());
+                    return consumeFocus(true);
                 }
-                return true;
+                return false;
             }
         default:
             {

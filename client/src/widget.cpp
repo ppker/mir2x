@@ -54,6 +54,24 @@ void WidgetTreeNode::moveFront(const Widget *widget)
     std::rotate(m_childList.begin(), pivot, std::next(pivot));
 }
 
+void WidgetTreeNode::moveBack(const Widget *widget)
+{
+    if(m_inLoop){
+        throw fflerror("can not modify child list while in loop");
+    }
+
+    auto pivot = std::find_if(m_childList.begin(), m_childList.end(), [widget](const auto &x)
+    {
+        return x.widget == widget;
+    });
+
+    if(pivot == m_childList.end()){
+        throw fflerror("can not find child widget");
+    }
+
+    std::rotate(pivot, std::next(pivot), m_childList.end());
+}
+
 void WidgetTreeNode::execDeath() noexcept
 {
     for(auto &child: m_childList){
@@ -72,7 +90,7 @@ void WidgetTreeNode::addChild(Widget *widget, bool autoDelete)
     }
 
     treeNode->m_parent = static_cast<Widget *>(this);
-    m_childList.emplace_front(widget, autoDelete);
+    m_childList.emplace_back(widget, autoDelete);
 }
 
 void WidgetTreeNode::removeChild(Widget *widget, bool triggerDelete)
