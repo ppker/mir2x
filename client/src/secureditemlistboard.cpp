@@ -50,13 +50,13 @@ std::u8string SecuredItemListBoard::getGridHoverLayout(size_t index) const
         fflassert(ir);
 
         return str_printf(
-            u8R"###( <layout>                  )###""\n"
-            u8R"###(     <par>【名称】%s</par> )###""\n"
-            u8R"###(     <par>%s</par>         )###""\n"
-            u8R"###( </layout>                 )###""\n",
+            u8R"###( <layout>  )###""\n"
+            u8R"###(     %s    )###""\n"
+            u8R"###(     %s    )###""\n"
+            u8R"###( </layout> )###""\n",
 
-            ir.name,
-            str_haschar(ir.description) ? ir.description : u8"暂无描述"
+            xmlf::toParString("【名称】%s", ir.name).c_str(),
+            xmlf::toParString("%s", str_haschar(ir.description) ? ir.description : u8"暂无描述").c_str()
         );
     }
     return {};
