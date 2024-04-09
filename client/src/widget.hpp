@@ -22,7 +22,7 @@
 #include "protocoldef.hpp"
 
 class Widget;        // size concept
-class WidgetTreeNode // tree concept
+class WidgetTreeNode // tree concept, used by class Widget only
 {
     private:
         friend class Widget;

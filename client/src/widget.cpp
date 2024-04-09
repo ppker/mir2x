@@ -63,7 +63,7 @@ void WidgetTreeNode::execDeath() noexcept
 void WidgetTreeNode::addChild(Widget *widget, bool autoDelete)
 {
     WidgetTreeNode *treeNode = widget;
-    if(treeNode->m_parent && treeNode->m_parent != this){
+    if(treeNode->m_parent){
         treeNode->m_parent->removeChild(widget, false);
     }
 
@@ -92,6 +92,11 @@ void WidgetTreeNode::purge()
     if(m_inLoop){
         throw fflerror("can not modify child list while in loop");
     }
+
+    foreachChild([](Widget *widget, bool)
+    {
+        widget->purge();
+    });
 
     for(auto widget: m_delayList){
         delete widget;

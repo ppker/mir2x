@@ -563,8 +563,6 @@ void FriendChatBoard::FriendSearchPage::appendAutoCompletionItem(bool byID, SDPl
         std::move(candidate),
         xmlStr.c_str(),
 
-        &autocompletes,
-        true,
     }, true);
 }
 
