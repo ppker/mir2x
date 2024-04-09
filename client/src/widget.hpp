@@ -120,7 +120,7 @@ class WidgetTreeNode // tree concept
         auto foreachChild(bool forward, std::invocable<const Widget *, bool> auto f) const
         {
             const ValueKeeper keepValue(m_inLoop, true);
-            constexpr bool hasBoolResult = std::is_same_v<std::invoke_result_t<decltype(f), Widget *, bool>, bool>;
+            constexpr bool hasBoolResult = std::is_same_v<std::invoke_result_t<decltype(f), const Widget *, bool>, bool>;
 
             if(forward){
                 for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
@@ -173,7 +173,7 @@ class WidgetTreeNode // tree concept
 
         auto foreachChild(std::invocable<const Widget *, bool> auto f) const
         {
-            if constexpr (std::is_same_v<std::invoke_result_t<decltype(f), Widget *, bool>, bool>){
+            if constexpr (std::is_same_v<std::invoke_result_t<decltype(f), const Widget *, bool>, bool>){
                 return foreachChild(true, f);
             }
             else{
