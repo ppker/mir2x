@@ -11,7 +11,7 @@ void LabelBoard::setText(const char8_t *format, ...)
 {
     std::u8string text;
     str_format(format, text);
-    loadXML(xmlf::toParString(text.empty() ? "" : to_cstr(text)).c_str());
+    loadXML(xmlf::toParString("%s", text.empty() ? "" : to_cstr(text)).c_str());
 }
 
 void LabelBoard::loadXML(const char *xmlString)
