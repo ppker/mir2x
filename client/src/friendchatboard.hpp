@@ -100,7 +100,8 @@ class FriendChatBoard: public Widget
             GfxCropDupBoard inputbg;
 
             ImageBoard icon;
-            InputLine input;
+            InputLine  input;
+            LabelBoard hint;
 
             FriendSearchInputLine(Widget::VarDir,
 

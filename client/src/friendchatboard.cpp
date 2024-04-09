@@ -270,6 +270,8 @@ FriendChatBoard::FriendSearchInputLine::FriendSearchInputLine(Widget::VarDir arg
 
           [this](std::string query)
           {
+              hint.setShow(query.empty());
+
               if(query.empty()){
                   dynamic_cast<FriendSearchPage *>(parent())->autocompletes.clearChild();
               }
@@ -308,6 +310,23 @@ FriendChatBoard::FriendSearchInputLine::FriendSearchInputLine(Widget::VarDir arg
                   });
               }
           },
+
+          this,
+          false,
+      }
+
+    , hint
+      {
+          this->input.dir(),
+          this->input.dx(),
+          this->input.dy(),
+
+          u8"输入用户ID或角色名",
+          1,
+          14,
+          0,
+
+          colorf::GREY + colorf::A_SHF(255),
 
           this,
           false,

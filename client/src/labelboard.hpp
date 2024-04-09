@@ -20,7 +20,7 @@ class LabelBoard: public Widget
                 int    argX,
                 int    argY,
 
-                const char8_t *argContent    = u8"",
+                const char8_t *argContent    = nullptr,
                 uint8_t        argFont       = 0,
                 uint8_t        argFontSize   = 10,
                 uint8_t        argFontStyle  = 0,
@@ -54,7 +54,7 @@ class LabelBoard: public Widget
                   argFontColor,
               }
         {
-            setText(u8"%s", argContent);
+            setText(u8"%s", argContent ? argContent : u8"");
         }
 
     public:
