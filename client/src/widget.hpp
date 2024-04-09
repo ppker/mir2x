@@ -384,12 +384,6 @@ class Widget: public WidgetTreeNode
         }
 
     public:
-        virtual ~Widget()
-        {
-            clearChild();
-        }
-
-    public:
         void draw() const
         {
             if(show()){

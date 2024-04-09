@@ -10,6 +10,10 @@ WidgetTreeNode::WidgetTreeNode(Widget *argParent, bool argAutoDelete)
 
 WidgetTreeNode::~WidgetTreeNode()
 {
+    clearChild();
+    for(auto widget: m_delayList){
+        delete widget;
+    }
 }
 
 Widget * WidgetTreeNode::parent(unsigned level)
