@@ -30,4 +30,6 @@ namespace xmlf
             const std::string &, // tag name
             const std::string &, // content
             const std::vector<std::pair<std::string, std::string>> &);
+
+    std::string toParString(const char *);
 }

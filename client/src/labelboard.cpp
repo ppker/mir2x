@@ -1,6 +1,7 @@
 #include "log.hpp"
 #include "totype.hpp"
 #include "strf.hpp"
+#include "xmlf.hpp"
 #include "xmltypeset.hpp"
 #include "labelboard.hpp"
 
@@ -10,7 +11,7 @@ void LabelBoard::setText(const char8_t *format, ...)
 {
     std::u8string text;
     str_format(format, text);
-    loadXML(str_printf("<par>%s</par>", to_cstr(text)).c_str());
+    loadXML(xmlf::toParString(text.empty() ? "" : to_cstr(text)).c_str());
 }
 
 void LabelBoard::loadXML(const char *xmlString)
