@@ -31,5 +31,7 @@ namespace xmlf
             const std::string &, // content
             const std::vector<std::pair<std::string, std::string>> &);
 
-    std::string toParString(const char *);
+    // to support <, >, / in xml string
+    // don't directly pass the raw string to addParXML
+    std::string toParString(const char *, ...);
 }

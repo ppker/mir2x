@@ -220,11 +220,13 @@ std::string xmlf::buildXMLString(const std::string &tagName, const std::string &
     return str_printf("<%s %s>%s</%s>", tagName.c_str(), attributeString.c_str(), content.c_str(), tagName.c_str());
 }
 
-std::string xmlf::toParString(const char *rawString)
+std::string xmlf::toParString(const char *format, ...)
 {
-    fflassert(rawString);
-    tinyxml2::XMLPrinter printer;
+    fflassert(format);
+    std::string text;
+    str_format(format, text);
 
+    tinyxml2::XMLPrinter printer;
     tinyxml2::XMLDocument xmlDoc;
     const char *xmlString = "<par></par>";
 
@@ -232,9 +234,7 @@ std::string xmlf::toParString(const char *rawString)
         throw fflerror("failed to parse xml template: %s", xmlString);
     }
 
-    // to support <, >, / in xml string
-    // don't directly pass the raw string to addParXML
-    xmlDoc.RootElement()->SetText(rawString);
+    xmlDoc.RootElement()->SetText(text.c_str());
     xmlDoc.Print(&printer);
     return printer.CStr();
 }
