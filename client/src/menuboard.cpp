@@ -168,8 +168,7 @@ bool MenuBoard::processEvent(const SDL_Event &event, bool valid)
                     return !consumeFocus(false);
                 }
 
-                bool consumedClick = false;
-                foreachChild([&event, eventX, eventY, &consumedClick, this](Widget *widget, bool)
+                return foreachChild([&event, eventX, eventY, this](Widget *widget, bool)
                 {
                     if(mathf::pointInRectangle(eventX, eventY, widget->x(), widget->y() - m_itemSpace / 2, w() - m_margin[2] - m_margin[3], widget->h() + m_itemSpace)){
                         if(event.type == SDL_MOUSEBUTTONDOWN){
@@ -183,13 +182,10 @@ bool MenuBoard::processEvent(const SDL_Event &event, bool valid)
                         else{
                             consumeFocus(true, widget);
                         }
-
-                        consumedClick = true;
                         return true;
                     }
                     return false;
                 });
-                return consumedClick;
             }
         default:
             {

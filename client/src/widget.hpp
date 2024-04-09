@@ -47,7 +47,7 @@ class WidgetTreeNode // tree concept
         std::vector<Widget *> m_delayList;
 
     private:
-        WidgetTreeNode(Widget * = nullptr, bool = false);
+        WidgetTreeNode(Widget * = nullptr, bool = false); // can only be constructed by Widget::Widget()
 
     public:
         virtual ~WidgetTreeNode();
@@ -74,15 +74,17 @@ class WidgetTreeNode // tree concept
         }
 
     public:
-        void foreachChild(bool forward, std::invocable<Widget *, bool> auto f)
+        auto foreachChild(bool forward, std::invocable<Widget *, bool> auto f)
         {
-            const ValueKeeper keeper(m_inLoop, true);
+            const ValueKeeper keepValue(m_inLoop, true);
+            constexpr bool hasBoolResult = std::is_same_v<std::invoke_result_t<decltype(f), Widget *, bool>, bool>;
+
             if(forward){
                 for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
                     if(p->widget){
-                        if constexpr (std::is_same_v<std::invoke_result_t<decltype(f), Widget *, bool>, bool>){
+                        if constexpr (hasBoolResult){
                             if(f(p->widget, p->autoDelete)){
-                                break;
+                                return true;
                             }
                         }
                         else{
@@ -90,32 +92,42 @@ class WidgetTreeNode // tree concept
                         }
                     }
                 }
+
+                if constexpr (hasBoolResult){
+                    return false;
+                }
             }
             else{
                 for(auto p = m_childList.rbegin(); p != m_childList.rend(); ++p){
                     if(p->widget){
-                        if constexpr (std::is_same_v<std::invoke_result_t<decltype(f), Widget *, bool>, bool>){
+                        if constexpr (hasBoolResult){
                             if(f(p->widget, p->autoDelete)){
-                                break;
+                                return true;
                             }
                         }
                         else{
                             f(p->widget, p->autoDelete);
                         }
                     }
+                }
+
+                if constexpr (hasBoolResult){
+                    return false;
                 }
             }
         }
 
-        void foreachChild(bool forward, std::invocable<const Widget *, bool> auto f) const
+        auto foreachChild(bool forward, std::invocable<const Widget *, bool> auto f) const
         {
-            const ValueKeeper keeper(m_inLoop, true);
+            const ValueKeeper keepValue(m_inLoop, true);
+            constexpr bool hasBoolResult = std::is_same_v<std::invoke_result_t<decltype(f), Widget *, bool>, bool>;
+
             if(forward){
                 for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
                     if(p->widget){
-                        if constexpr (std::is_same_v<std::invoke_result_t<decltype(f), const Widget *, bool>, bool>){
+                        if constexpr (hasBoolResult){
                             if(f(p->widget, p->autoDelete)){
-                                break;
+                                return true;
                             }
                         }
                         else{
@@ -123,32 +135,50 @@ class WidgetTreeNode // tree concept
                         }
                     }
                 }
+
+                if constexpr (hasBoolResult){
+                    return false;
+                }
             }
             else{
                 for(auto p = m_childList.rbegin(); p != m_childList.rend(); ++p){
                     if(p->widget){
-                        if constexpr (std::is_same_v<std::invoke_result_t<decltype(f), const Widget *, bool>, bool>){
+                        if constexpr (hasBoolResult){
                             if(f(p->widget, p->autoDelete)){
-                                break;
+                                return true;
                             }
                         }
                         else{
                             f(p->widget, p->autoDelete);
                         }
                     }
+                }
+
+                if constexpr (hasBoolResult){
+                    return false;
                 }
             }
         }
 
     public:
-        void foreachChild(std::invocable<Widget *, bool> auto f)
+        auto foreachChild(std::invocable<Widget *, bool> auto f)
         {
-            foreachChild(true, f);
+            if constexpr (std::is_same_v<std::invoke_result_t<decltype(f), Widget *, bool>, bool>){
+                return foreachChild(true, f);
+            }
+            else{
+                foreachChild(true, f);
+            }
         }
 
-        void foreachChild(std::invocable<const Widget *, bool> auto f) const
+        auto foreachChild(std::invocable<const Widget *, bool> auto f) const
         {
-            foreachChild(true, f);
+            if constexpr (std::is_same_v<std::invoke_result_t<decltype(f), Widget *, bool>, bool>){
+                return foreachChild(true, f);
+            }
+            else{
+                foreachChild(true, f);
+            }
         }
 
     private:
