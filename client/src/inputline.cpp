@@ -210,8 +210,7 @@ void InputLine::insertChar(char ch)
 void InputLine::insertUTF8String(const char *utf8Str)
 {
     if(str_haschar(utf8Str)){
-        m_tpset.insertUTF8String(m_cursor, 0, utf8Str);
-        // TODO move cursor
+        m_cursor += m_tpset.insertUTF8String(m_cursor, 0, utf8Str);
     }
 }
 

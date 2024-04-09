@@ -969,7 +969,7 @@ void XMLTypeset::deleteToken(int x, int y, int tokenCount)
     }
 }
 
-void XMLTypeset::insertUTF8String(int x, int y, const char *text)
+size_t XMLTypeset::insertUTF8String(int x, int y, const char *text)
 {
     if(!cursorLocValid(x, y)){
         throw fflerror("invalid cursor location: (%d, %d)", x, y);
@@ -981,62 +981,66 @@ void XMLTypeset::insertUTF8String(int x, int y, const char *text)
         if(m_paragraph->leafCount() > 0){
             buildTypeset(0, 0);
         }
-        return;
+        return m_paragraph->tokenCount();
     }
 
     // XMLParagraph doesn't have cursor
     // need to parse here
 
     if(x == 0 && y == 0){
+        size_t addedCount = 0;
         if(m_paragraph->leafRef(0).type() != LEAF_UTF8GROUP){
-            m_paragraph->insertLeafXML(0, xmlText.c_str());
+            addedCount = m_paragraph->insertLeafXML(0, xmlText.c_str());
         }
         else{
-            m_paragraph->insertUTF8String(0, 0, text);
+            addedCount = m_paragraph->insertUTF8String(0, 0, text);
         }
         buildTypeset(0, 0);
-        return;
+        return addedCount;
     }
 
     // we are appending at the last location
     // can't call prevTokenLoc() because this tokenLoc is invalid
 
     if((y == lineCount() - 1) && (x == lineTokenCount(y))){
+        size_t addedCount = 0;
         if(m_paragraph->backLeafRef().type() != LEAF_UTF8GROUP){
-            m_paragraph->insertLeafXML(leafCount(), xmlText.c_str());
+            addedCount = m_paragraph->insertLeafXML(leafCount(), xmlText.c_str());
         }
         else{
-            m_paragraph->insertUTF8String(leafCount() - 1, m_paragraph->backLeafRef().utf8CharOffRef().size(), text);
+            addedCount = m_paragraph->insertUTF8String(leafCount() - 1, m_paragraph->backLeafRef().utf8CharOffRef().size(), text);
         }
         buildTypeset(0, 0);
-        return;
+        return addedCount;
     }
 
     const auto [prevTX, prevTY] = prevTokenLoc(x, y);
     const auto currLeaf = getToken(x, y)->leaf;
     const auto prevLeaf = getToken(prevTX, prevTY)->leaf;
 
+    size_t addedCount = 0;
     if(prevLeaf == currLeaf){
         if(m_paragraph->leafRef(prevLeaf).type() != LEAF_UTF8GROUP){
             throw fflerror("only UTF8 leaf can have length great than 1");
         }
 
         const auto [leaf, leafOff] = leafLocInXMLParagraph(x, y);
-        m_paragraph->insertUTF8String(currLeaf, leafOff, text);
+        addedCount = m_paragraph->insertUTF8String(currLeaf, leafOff, text);
     }
     else{
         if(m_paragraph->leafRef(prevLeaf).type() == LEAF_UTF8GROUP){
-            m_paragraph->insertUTF8String(prevLeaf, m_paragraph->leafRef(prevLeaf).utf8CharOffRef().size(), text);
+            addedCount = m_paragraph->insertUTF8String(prevLeaf, m_paragraph->leafRef(prevLeaf).utf8CharOffRef().size(), text);
         }
         if(m_paragraph->leafRef(currLeaf).type() == LEAF_UTF8GROUP){
-            m_paragraph->insertUTF8String(currLeaf, 0, text);
+            addedCount = m_paragraph->insertUTF8String(currLeaf, 0, text);
         }
         else{
-            m_paragraph->insertLeafXML(currLeaf, xmlText.c_str());
+            addedCount = m_paragraph->insertLeafXML(currLeaf, xmlText.c_str());
         }
     }
 
     buildTypeset(0, 0);
+    return addedCount;
 }
 
 XMLTypeset *XMLTypeset::split(int cursorX, int cursorY)

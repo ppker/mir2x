@@ -360,15 +360,15 @@ void XMLParagraph::loadXMLNode(const tinyxml2::XMLNode *node)
     }
 }
 
-void XMLParagraph::insertLeafXML(int loc, const char *xmlString)
+size_t XMLParagraph::insertLeafXML(int loc, const char *xmlString)
 {
     if(loc < 0 || loc > leafCount() || !xmlString){
         throw fflerror("invalid argument: loc = %d, xmlString = %p", loc, xmlString);
     }
-    insertXMLAfter(leafRef(loc).xmlNode(), xmlString);
+    return insertXMLAfter(leafRef(loc).xmlNode(), xmlString);
 }
 
-void XMLParagraph::insertXMLAfter(tinyxml2::XMLNode *after, const char *xmlString)
+size_t XMLParagraph::insertXMLAfter(tinyxml2::XMLNode *after, const char *xmlString)
 {
     if(!(after && xmlString)){
         throw fflerror("invalid argument: after = %p, xmlString = %p", to_cvptr(after), to_cvptr(xmlString));
@@ -378,24 +378,8 @@ void XMLParagraph::insertXMLAfter(tinyxml2::XMLNode *after, const char *xmlStrin
         throw fflerror("can't find after node in current XMLDocument");
     }
 
-    // to insert XML as leaves, we requires to insert as a new paragraph
+    // to insert XML as leaves, we requires to insert as a new paragraph leaf
     // for emoji and image we have specified tag <emoji>, <image>, but for text we don't have
-
-    // i don't want to define a <text> tag
-    // instead I want to use <font> <underline> <strike> <color> for easier text control
-
-    // example:
-    //      <underline>hello world!</underline>
-    // or:
-    //      <text underline="true">hello world!</text>
-    // looks same
-    //
-    // but:
-    //      <underline> hello world, I like <emoji id="12"/> a lot!</underline>
-    // is better than:
-    //      <text underline="true">hello world, I like </text><emoji id="12"/><text> a lot!</text>
-    //
-    // <text> tag needs pure text while sometimes we may need to put emoji inside text
 
     tinyxml2::XMLDocument xmlDoc;
     if(xmlDoc.Parse(xmlString) != tinyxml2::XML_SUCCESS){
@@ -419,11 +403,13 @@ void XMLParagraph::insertXMLAfter(tinyxml2::XMLNode *after, const char *xmlStrin
         throw fflerror("xmlString is not a paragraph");
     }
 
+    size_t addedLeafCount = 0;
     for(auto p = xmlRoot->FirstChild(); p; p = p->NextSibling()){
         if(auto cloneNode = p->DeepClone(m_xmlDocument.get())){
             if(after->Parent()->InsertAfterChild(after, cloneNode) != cloneNode){
                 throw fflerror("insert node failed");
             }
+            addedLeafCount++;
         }
         else{
             throw fflerror("deep clone node failed");
@@ -439,6 +425,22 @@ void XMLParagraph::insertXMLAfter(tinyxml2::XMLNode *after, const char *xmlStrin
             m_leafList.emplace_back(pNode);
         }
     }
+
+    int afterLoc = -1;
+    size_t addedCount = 0;
+
+    for(int i = 0; i < leafCount(); ++i){
+        if(leafRef(i).xmlNode() == after){
+            afterLoc = i;
+            break;
+        }
+    }
+
+    for(int i = afterLoc + 1; i < leafCount() && addedLeafCount > 0; ++i, --addedLeafCount){
+        addedCount += leafRef(i).length();
+    }
+
+    return addedCount;
 }
 
 void XMLParagraph::deleteToken(int leaf, int leafOff)
@@ -484,4 +486,13 @@ std::string XMLParagraph::getRawString() const
         }
     }
     return rawString;
+}
+
+size_t XMLParagraph::tokenCount() const
+{
+    size_t count = 0;
+    for(int i = 0; i < leafCount(); ++i){
+        count += leafRef(i).length();
+    }
+    return count;
 }

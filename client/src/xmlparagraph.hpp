@@ -92,10 +92,10 @@ class XMLParagraph
         void Join(const XMLParagraph &);
 
     private:
-        void insertXMLAfter(tinyxml2::XMLNode *, const char *);
+        size_t insertXMLAfter(tinyxml2::XMLNode *, const char *);
 
     public:
-        void insertLeafXML(int, const char *);
+        size_t insertLeafXML(int, const char *);
 
     public:
         size_t insertUTF8String(int, int, const char *);
@@ -134,4 +134,7 @@ class XMLParagraph
 
     public:
         std::string getRawString() const;
+
+    public:
+        size_t tokenCount() const;
 };
