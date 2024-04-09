@@ -98,7 +98,7 @@ class XMLParagraph
         void insertLeafXML(int, const char *);
 
     public:
-        void insertUTF8String(int, int, const char *);
+        size_t insertUTF8String(int, int, const char *);
 
     public:
         tinyxml2::XMLNode *CloneLeaf(tinyxml2::XMLDocument *pDoc, int leaf) const

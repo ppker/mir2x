@@ -75,7 +75,7 @@ void XMLParagraph::deleteLeaf(int leaf)
     m_leafList.erase(m_leafList.begin() + leaf);
 }
 
-void XMLParagraph::insertUTF8String(int leaf, int leafOff, const char *utf8String)
+size_t XMLParagraph::insertUTF8String(int leaf, int leafOff, const char *utf8String)
 {
     if(leafRef(leaf).type() != LEAF_UTF8GROUP){
         throw fflerror("the %d-th leaf is not a XMLText", leaf);
@@ -90,7 +90,7 @@ void XMLParagraph::insertUTF8String(int leaf, int leafOff, const char *utf8Strin
     }
 
     if(std::strlen(utf8String) == 0){
-        return;
+        return 0;
     }
 
     if(!utf8::is_valid(utf8String, utf8String + std::strlen(utf8String))){
@@ -134,7 +134,9 @@ void XMLParagraph::insertUTF8String(int leaf, int leafOff, const char *utf8Strin
             utf8OffRef[i] += addedLength;
         }
     }
+
     utf8OffRef.insert(utf8OffRef.begin() + leafOff, addedValueOff.begin(), addedValueOff.end());
+    return addedValueOff.size();
 }
 
 void XMLParagraph::deleteUTF8Char(int leaf, int leafOff, int tokenCount)
