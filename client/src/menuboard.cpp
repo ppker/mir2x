@@ -69,7 +69,7 @@ MenuBoard::MenuBoard(dir8_t argDir,
 void MenuBoard::addChild(Widget *widget, bool autoDelete)
 {
     if(widget){
-        const bool firstChild = m_childList.empty();
+        const bool firstChild = !hasChild();
         Widget::addChild(widget, autoDelete);
 
         if(firstChild){
@@ -168,23 +168,28 @@ bool MenuBoard::processEvent(const SDL_Event &event, bool valid)
                     return !consumeFocus(false);
                 }
 
-                for(auto &p: m_childList){
-                    if(mathf::pointInRectangle(eventX, eventY, p.widget->x(), p.widget->y() - m_itemSpace / 2, w() - m_margin[2] - m_margin[3], p.widget->h() + m_itemSpace)){
+                bool consumedClick = false;
+                foreachChild([&event, eventX, eventY, &consumedClick, this](Widget *widget, bool)
+                {
+                    if(mathf::pointInRectangle(eventX, eventY, widget->x(), widget->y() - m_itemSpace / 2, w() - m_margin[2] - m_margin[3], widget->h() + m_itemSpace)){
                         if(event.type == SDL_MOUSEBUTTONDOWN){
                             if(m_onClickMenu){
-                                m_onClickMenu(p.widget);
+                                m_onClickMenu(widget);
                             }
 
                             setShow(false);
                             setFocus(false);
                         }
                         else{
-                            consumeFocus(true, p.widget);
+                            consumeFocus(true, widget);
                         }
+
+                        consumedClick = true;
                         return true;
                     }
-                }
-                return false;
+                    return false;
+                });
+                return consumedClick;
             }
         default:
             {

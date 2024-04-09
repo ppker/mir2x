@@ -370,3 +370,23 @@ template<typename... Ts> struct varDispatcher: Ts...
 {
     using Ts::operator()...;
 };
+
+template<typename T> class ValueKeeper final
+{
+    private:
+        T &m_ref;
+        T  m_oldValue;
+
+    public:
+        template<typename K> ValueKeeper(T &keep, K &&k)
+            : m_ref(keep)
+            , m_oldValue(keep)
+        {
+            m_ref = k;
+        }
+
+        ~ValueKeeper()
+        {
+            m_ref = m_oldValue;
+        }
+};

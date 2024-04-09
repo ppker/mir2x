@@ -1306,7 +1306,7 @@ void FriendChatBoard::FriendChatPreviewPage::append(FriendChatPreviewItem *item,
 
 void FriendChatBoard::FriendChatPreviewPage::updateChatPreview(uint32_t argDBID, const std::string &argMsg)
 {
-    FriendChatPreviewItem *child = dynamic_cast<FriendChatPreviewItem *>(canvas.hasChild([argDBID](const Widget *widgetPtr)
+    FriendChatPreviewItem *child = dynamic_cast<FriendChatPreviewItem *>(canvas.hasChild([argDBID](const Widget *widgetPtr, bool)
     {
         if(auto preview = dynamic_cast<const FriendChatPreviewItem *>(widgetPtr); preview && preview->dbid == argDBID){
             return true;
@@ -1331,10 +1331,13 @@ void FriendChatBoard::FriendChatPreviewPage::updateChatPreview(uint32_t argDBID,
     }
 
     canvas.moveFront(child);
-    for(int startY = 0; auto &node: m_childList){
-        node.widget->moveAt(DIR_UPLEFT, 0, startY);
-        startY += node.widget->h();
-    }
+
+    int startY = 0;
+    foreachChild([&startY](Widget *widget, bool)
+    {
+        widget->moveAt(DIR_UPLEFT, 0, startY);
+        startY += widget->h();
+    });
 }
 
 FriendChatBoard::PageControl::PageControl(dir8_t argDir,

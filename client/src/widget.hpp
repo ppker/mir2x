@@ -5,6 +5,7 @@
 #include <any>
 #include <list>
 #include <utility>
+#include <vector>
 #include <concepts>
 #include <tuple>
 #include <array>
@@ -20,7 +21,186 @@
 #include "fflerror.hpp"
 #include "protocoldef.hpp"
 
-class Widget
+class Widget;        // size concept
+class WidgetTreeNode // tree concept
+{
+    private:
+        friend class Widget;
+
+    private:
+        struct WidgetChildElement
+        {
+            Widget *widget     = nullptr;
+            bool    autoDelete = false;
+        };
+
+    private:
+        mutable bool m_inLoop = false;
+
+    private:
+        Widget * m_parent;
+
+    private:
+        std::list<WidgetChildElement> m_childList; // widget shall NOT access this list directly
+
+    private:
+        std::vector<Widget *> m_delayList;
+
+    private:
+        WidgetTreeNode(Widget * = nullptr, bool = false);
+
+    public:
+        virtual ~WidgetTreeNode();
+
+    public:
+        /**/  Widget * parent(unsigned = 1);
+        const Widget * parent(unsigned = 1) const;
+
+    public:
+        template<std::invocable<const Widget *, bool, const Widget *, bool> F> void sort(F f)
+        {
+            m_childList.sort(m_childList.begin(), m_childList.end(), [&f](const auto &x, const auto &y)
+            {
+                if(x.widget && y.widget){
+                    return f(x.widget, x.autoDelete, y.widget, y.autoDelete);
+                }
+                else if(x.widget){
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            });
+        }
+
+    public:
+        void foreachChild(bool forward, std::invocable<Widget *, bool> auto f)
+        {
+            const ValueKeeper keeper(m_inLoop, true);
+            if(forward){
+                for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
+                    if(p->widget){
+                        if constexpr (std::is_same_v<std::invoke_result_t<decltype(f), Widget *, bool>, bool>){
+                            if(f(p->widget, p->autoDelete)){
+                                break;
+                            }
+                        }
+                        else{
+                            f(p->widget, p->autoDelete);
+                        }
+                    }
+                }
+            }
+            else{
+                for(auto p = m_childList.rbegin(); p != m_childList.rend(); ++p){
+                    if(p->widget){
+                        if constexpr (std::is_same_v<std::invoke_result_t<decltype(f), Widget *, bool>, bool>){
+                            if(f(p->widget, p->autoDelete)){
+                                break;
+                            }
+                        }
+                        else{
+                            f(p->widget, p->autoDelete);
+                        }
+                    }
+                }
+            }
+        }
+
+        void foreachChild(bool forward, std::invocable<const Widget *, bool> auto f) const
+        {
+            const ValueKeeper keeper(m_inLoop, true);
+            if(forward){
+                for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
+                    if(p->widget){
+                        if constexpr (std::is_same_v<std::invoke_result_t<decltype(f), const Widget *, bool>, bool>){
+                            if(f(p->widget, p->autoDelete)){
+                                break;
+                            }
+                        }
+                        else{
+                            f(p->widget, p->autoDelete);
+                        }
+                    }
+                }
+            }
+            else{
+                for(auto p = m_childList.rbegin(); p != m_childList.rend(); ++p){
+                    if(p->widget){
+                        if constexpr (std::is_same_v<std::invoke_result_t<decltype(f), const Widget *, bool>, bool>){
+                            if(f(p->widget, p->autoDelete)){
+                                break;
+                            }
+                        }
+                        else{
+                            f(p->widget, p->autoDelete);
+                        }
+                    }
+                }
+            }
+        }
+
+    public:
+        void foreachChild(std::invocable<Widget *, bool> auto f)
+        {
+            foreachChild(true, f);
+        }
+
+        void foreachChild(std::invocable<const Widget *, bool> auto f) const
+        {
+            foreachChild(true, f);
+        }
+
+    private:
+        void execDeath() noexcept;
+
+    public:
+        void moveFront(const Widget *);
+
+    public:
+        virtual void onDeath() noexcept {}
+
+    public:
+        /**/  Widget *firstChild()       { for(auto &child: m_childList){ if(child.widget){ return child.widget; } } return nullptr; }
+        const Widget *firstChild() const { for(auto &child: m_childList){ if(child.widget){ return child.widget; } } return nullptr; }
+
+    public:
+        /**/  Widget *lastChild()       { for(auto p = m_childList.rbegin(); p != m_childList.rend(); ++p){ if(p->widget){ return p->widget; } } return nullptr; }
+        const Widget *lastChild() const { for(auto p = m_childList.rbegin(); p != m_childList.rend(); ++p){ if(p->widget){ return p->widget; } } return nullptr; }
+
+    public:
+        virtual void purge();
+        virtual void clearChild();
+        virtual void addChild(Widget *, bool);
+        virtual void removeChild(Widget *, bool);
+
+    public:
+        bool hasChild() const;
+        bool hasChild(const Widget *) const;
+
+    public:
+        Widget *hasChild(std::invocable<const Widget *, bool> auto f)
+        {
+            for(auto &child: m_childList){
+                if(child.widget && f(child.widget, child.autoDelete)){
+                    return child.widget;
+                }
+            }
+            return nullptr;
+        }
+
+        const Widget *hasChild(std::invocable<const Widget *, bool> auto f) const
+        {
+            for(auto &child: m_childList){
+                if(child.widget && f(child.widget, child.autoDelete)){
+                    return child.widget;
+                }
+            }
+            return nullptr;
+        }
+};
+
+class Widget: public WidgetTreeNode
 {
     public:
         using VarDir    = std::variant<             dir8_t, std::function<dir8_t(const Widget *)>>;
@@ -116,9 +296,6 @@ class Widget
         static       std::function<int(const Widget *)> &asFuncSize(      Widget::VarSize &varSize) { return std::get<std::function<int(const Widget *)>>(varSize); }
 
     protected:
-        Widget * m_parent;
-
-    protected:
         bool m_show   = true;
         bool m_focus  = false;
         bool m_active = true;
@@ -137,15 +314,6 @@ class Widget
         Widget::VarSize m_w;
         Widget::VarSize m_h;
 
-    protected:
-        struct ChildWidgetElement
-        {
-            Widget *widget     = nullptr;
-            bool    autoDelete = false;
-        };
-
-        std::list<ChildWidgetElement> m_childList;
-
     public:
         Widget(Widget::VarDir argDir,
 
@@ -160,17 +328,13 @@ class Widget
                 Widget *argParent     = nullptr,
                 bool    argAutoDelete = false)
 
-            : m_parent(argParent)
+            : WidgetTreeNode(argParent, argAutoDelete)
             , m_dir(std::move(argDir))
             , m_x  (std::move(argX))
             , m_y  (std::move(argY))
             , m_w  (std::move(argW))
             , m_h  (std::move(argH))
         {
-            if(m_parent){
-                m_parent->addChild(this, argAutoDelete);
-            }
-
             // don't check if w/h is a function
             // because it may refers to sub-widget which has not be initialized yet
 
@@ -210,34 +374,32 @@ class Widget
                 return;
             }
 
-            for(auto p = m_childList.rbegin(); p != m_childList.rend(); ++p){
-                if(!p->widget->show()){
-                    continue;
+            foreachChild(false, [srcX, srcY, dstX, dstY, srcW, srcH, this](const Widget *widget, bool)
+            {
+                if(widget->show()){
+                    int srcXCrop = srcX;
+                    int srcYCrop = srcY;
+                    int dstXCrop = dstX;
+                    int dstYCrop = dstY;
+                    int srcWCrop = srcW;
+                    int srcHCrop = srcH;
+
+                    if(mathf::cropChildROI(
+                                &srcXCrop, &srcYCrop,
+                                &srcWCrop, &srcHCrop,
+                                &dstXCrop, &dstYCrop,
+
+                                w(),
+                                h(),
+
+                                widget->dx(),
+                                widget->dy(),
+                                widget-> w(),
+                                widget-> h())){
+                        widget->drawEx(dstXCrop, dstYCrop, srcXCrop, srcYCrop, srcWCrop, srcHCrop);
+                    }
                 }
-
-                int srcXCrop = srcX;
-                int srcYCrop = srcY;
-                int dstXCrop = dstX;
-                int dstYCrop = dstY;
-                int srcWCrop = srcW;
-                int srcHCrop = srcH;
-
-                if(!mathf::cropChildROI(
-                            &srcXCrop, &srcYCrop,
-                            &srcWCrop, &srcHCrop,
-                            &dstXCrop, &dstYCrop,
-
-                            w(),
-                            h(),
-
-                            p->widget->dx(),
-                            p->widget->dy(),
-                            p->widget-> w(),
-                            p->widget-> h())){
-                    continue;
-                }
-                p->widget->drawEx(dstXCrop, dstYCrop, srcXCrop, srcYCrop, srcWCrop, srcHCrop);
-            }
+            });
         }
 
     private:
@@ -314,9 +476,10 @@ class Widget
     public:
         virtual void update(double fUpdateTime)
         {
-            for(auto &child: m_childList){
-                child.widget->update(fUpdateTime);
-            }
+            foreachChild([fUpdateTime, this](Widget *widget, bool)
+            {
+                widget->update(fUpdateTime);
+            });
         }
 
     public:
@@ -333,28 +496,27 @@ class Widget
             }
 
             bool took = false;
-            auto focusedNode = m_childList.end();
+            Widget *focusedWidget = nullptr;
 
-            for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
-                if(!p->widget->show()){
-                    continue;
+            foreachChild([&event, valid, &took, &focusedWidget](Widget *widget, bool)
+            {
+                if(widget->show()){
+                    took |= widget->processEvent(event, valid && !took);
+                    if(widget->focus()){
+                        if(focusedWidget){
+                            throw fflerror("multiple widget focused by one event");
+                        }
+                        else{
+                            focusedWidget = widget;
+                        }
+                    }
                 }
+            });
 
-                took |= p->widget->processEvent(event, valid && !took);
-                if(p->widget->focus()){
-                    if(focusedNode == m_childList.end()){
-                        focusedNode = p;
-                    }
-                    else{
-                        throw fflerror("multiple widget focused by one event");
-                    }
-                }
+            if(hasChild(focusedWidget)){
+                moveFront(focusedWidget);
             }
 
-            if(focusedNode != m_childList.begin() && focusedNode != m_childList.end()){
-                m_childList.push_front(*focusedNode);
-                m_childList.erase(focusedNode);
-            }
             return took;
         }
 
@@ -401,11 +563,12 @@ class Widget
                 [this](const auto &)
                 {
                     int maxW = 0;
-                    for(const auto &child: m_childList){
-                        if(child.widget->show()){
-                            maxW = std::max<int>(maxW, child.widget->dx() + child.widget->w());
+                    foreachChild([&maxW](const Widget *widget, bool)
+                    {
+                        if(widget->show()){
+                            maxW = std::max<int>(maxW, widget->dx() + widget->w());
                         }
-                    }
+                    });
                     return maxW;
                 }
             }, m_w);
@@ -431,38 +594,19 @@ class Widget
                 [this](const auto &)
                 {
                     int maxH = 0;
-                    for(const auto &child: m_childList){
-                        if(child.widget->show()){
-                            maxH = std::max<int>(maxH, child.widget->dy() + child.widget->h());
+                    foreachChild([&maxH](const Widget *widget, bool)
+                    {
+                        if(widget->show()){
+                            maxH = std::max<int>(maxH, widget->dy() + widget->h());
                         }
-                    }
+                    });
+
                     return maxH;
                 }
             }, m_h);
 
             fflassert(height >= 0, m_h);
             return height;
-        }
-
-    public:
-        Widget * parent(unsigned level = 1)
-        {
-            auto widptr = this;
-            while(widptr && (level > 0)){
-                widptr = widptr->m_parent;
-                level--;
-            }
-            return widptr;
-        }
-
-        const Widget * parent(unsigned level = 1) const
-        {
-            auto widptr = this;
-            while(widptr && (level > 0)){
-                widptr = widptr->m_parent;
-                level--;
-            }
-            return widptr;
         }
 
     public:
@@ -490,67 +634,27 @@ class Widget
     public:
         virtual void setFocus(bool argFocus)
         {
-            for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
-                p->widget->setFocus(false);
-            }
+            foreachChild([](Widget * widget, bool)
+            {
+                widget->setFocus(false);
+            });
+
             m_focus = argFocus;
         }
 
         virtual bool focus() const
         {
-            for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
-                if(p->widget->focus()){
-                    return true;
-                }
+            bool hasFocus = false;
+            foreachChild([&hasFocus](const Widget * widget, bool) -> bool
+            {
+                return hasFocus = widget->focus();
+            });
+
+            if(hasFocus){
+                return true;
             }
+
             return m_focus;
-        }
-
-    public:
-        void clearChild()
-        {
-            for(auto &child: m_childList){
-                if(child.autoDelete){
-                    delete child.widget;
-                }
-            }
-            m_childList.clear();
-        }
-
-    public:
-        bool hasChild() const
-        {
-            return !m_childList.empty();
-        }
-
-        bool hasChild(const Widget *child) const
-        {
-            for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
-                if(p->widget == child){
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        const Widget *hasChild(std::function<bool(const Widget *)> fnOp) const
-        {
-            for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
-                if(fnOp && fnOp(p->widget)){
-                    return p->widget;
-                }
-            }
-            return nullptr;
-        }
-
-        Widget *hasChild(std::function<bool(const Widget *)> fnOp)
-        {
-            for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
-                if(fnOp && fnOp(p->widget)){
-                    return p->widget;
-                }
-            }
-            return nullptr;
         }
 
         // focus helper
@@ -603,13 +707,8 @@ class Widget
         }
 
     public:
-        Widget *focusedChild() const
-        {
-            if(!m_childList.empty() && m_childList.front().widget->focus()){
-                return m_childList.front().widget;
-            }
-            return nullptr;
-        }
+        /**/  Widget *focusedChild()       { if(firstChild() && firstChild()->focus()){ return firstChild(); } return nullptr; }
+        const Widget *focusedChild() const { if(firstChild() && firstChild()->focus()){ return firstChild(); } return nullptr; }
 
     public:
         virtual void setShow(bool argShow)
@@ -677,6 +776,7 @@ class Widget
         void moveXTo(Widget::VarOffset arg) { m_x = std::move(arg); }
         void moveYTo(Widget::VarOffset arg) { m_y = std::move(arg); }
 
+    public:
         void moveTo(Widget::VarOffset argX, Widget::VarOffset argY)
         {
             m_x = std::move(argX);
@@ -684,70 +784,13 @@ class Widget
         }
 
     public:
-        void setW(Widget::VarSize argSize)
-        {
-            m_w = std::move(argSize);
-        }
+        void setW(Widget::VarSize argSize) { m_w = std::move(argSize); }
+        void setH(Widget::VarSize argSize) { m_h = std::move(argSize); }
 
-        void setH(Widget::VarSize argSize)
-        {
-            m_h = std::move(argSize);
-        }
-
+    public:
         void setSize(Widget::VarSize argW, Widget::VarSize argH)
         {
             m_w = std::move(argW);
             m_h = std::move(argH);
-        }
-
-    public:
-        virtual void addChild(Widget *widget, bool autoDelete)
-        {
-            if(widget->m_parent){
-                widget->m_parent->removeChild(widget, false);
-            }
-
-            widget->m_parent = this;
-            m_childList.emplace_front(widget, autoDelete);
-        }
-
-        virtual void removeChild(Widget *widget, bool triggerDelete)
-        {
-            for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
-                if(p->widget == widget){
-                    p->widget->m_parent = nullptr;
-                    if(triggerDelete && p->autoDelete){
-                        delete p->widget;
-                    }
-
-                    m_childList.erase(p);
-                    return;
-                }
-            }
-        }
-
-    public:
-        void moveFront(const Widget *child)
-        {
-            for(auto p = std::next(m_childList.begin()); p != m_childList.end(); ++p){
-                if(p->widget == child){
-                    m_childList.splice(m_childList.begin(), m_childList, p, std::next(p));
-                    return;
-                }
-            }
-        }
-
-    public:
-        const char *name() const
-        {
-            return typeid(*this).name();
-        }
-
-    public:
-        template<std::invocable<const Widget *, bool> F> void foreachChild(F f) const
-        {
-            for(const auto &child: m_childList){
-                f(child.widget, child.autoDelete);
-            }
         }
 };
