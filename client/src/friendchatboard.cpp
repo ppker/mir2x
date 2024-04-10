@@ -266,6 +266,8 @@ FriendChatBoard::FriendSearchInputLine::FriendSearchInputLine(Widget::VarDir arg
           nullptr,
           [this]()
           {
+              dynamic_cast<FriendSearchPage *>(parent())->candidates.setShow(true);
+              dynamic_cast<FriendSearchPage *>(parent())->autocompletes.setShow(false);
           },
 
           [this](std::string query)
@@ -273,7 +275,11 @@ FriendChatBoard::FriendSearchInputLine::FriendSearchInputLine(Widget::VarDir arg
               hint.setShow(query.empty());
 
               if(query.empty()){
+                  dynamic_cast<FriendSearchPage *>(parent())->candidates.clearChild();
                   dynamic_cast<FriendSearchPage *>(parent())->autocompletes.clearChild();
+
+                  dynamic_cast<FriendSearchPage *>(parent())->candidates.setShow(false);
+                  dynamic_cast<FriendSearchPage *>(parent())->autocompletes.setShow(true);
               }
               else{
                   CMQueryPlayerCandidates cmQPC;
@@ -285,8 +291,11 @@ FriendChatBoard::FriendSearchInputLine::FriendSearchInputLine(Widget::VarDir arg
                       switch(headCode){
                           case SM_OK:
                             {
+                                dynamic_cast<FriendSearchPage *>(parent())->candidates.clearChild();
                                 dynamic_cast<FriendSearchPage *>(parent())->autocompletes.clearChild();
+
                                 for(const auto &candidate: cerealf::deserialize<SDPlayerCandidateList>(data, size)){
+                                    dynamic_cast<FriendSearchPage *>(parent())->appendCandidate(candidate);
                                     dynamic_cast<FriendSearchPage *>(parent())->appendAutoCompletionItem(query == std::to_string(candidate.dbid), candidate, [&candidate, &query]
                                     {
                                         if(const auto pos = candidate.name.find(query); pos != std::string::npos){
@@ -563,9 +572,48 @@ FriendChatBoard::FriendSearchPage::FriendSearchPage(Widget::VarDir argDir,
           this,
           false,
       }
+
+    , candidates
+      {
+          DIR_UPLEFT,
+          0,
+          FriendSearchInputLine::HEIGHT,
+
+          FriendSearchPage::WIDTH,
+          FriendSearchPage::HEIGHT - FriendSearchInputLine::HEIGHT,
+
+          {},
+
+          this,
+          false,
+      }
 {}
 
-void FriendChatBoard::FriendSearchPage::appendAutoCompletionItem(bool byID, SDPlayerCandidate candidate, const std::string &xmlStr)
+void FriendChatBoard::FriendSearchPage::appendCandidate(const SDPlayerCandidate &candidate)
+{
+    int maxY = 0;
+    candidates.foreachChild([&maxY](const Widget *widget, bool)
+    {
+        maxY = std::max<int>(maxY, widget->dy() + widget->h());
+    });
+
+    candidates.addChild(new FriendItem
+    {
+        DIR_UPLEFT,
+        0,
+        maxY,
+
+        candidate.dbid,
+        to_u8cstr(candidate.name),
+
+        [](const ImageBoard *)
+        {
+            return g_progUseDB->retrieve(0X00001100);
+        },
+    }, true);
+}
+
+void FriendChatBoard::FriendSearchPage::appendAutoCompletionItem(bool byID, const SDPlayerCandidate &candidate, const std::string &xmlStr)
 {
     int maxY = 0;
     autocompletes.foreachChild([&maxY](const Widget *widget, bool)
@@ -580,12 +628,11 @@ void FriendChatBoard::FriendSearchPage::appendAutoCompletionItem(bool byID, SDPl
         maxY,
 
         byID,
-        std::move(candidate),
+        candidate,
         xmlStr.c_str(),
 
     }, true);
 }
-
 
 FriendChatBoard::FriendChatItem::FriendChatItem(dir8_t argDir,
         int argX,

@@ -182,7 +182,7 @@ class FriendChatBoard: public Widget
             LayoutBoard clear;
 
             Widget autocompletes;
-            // Widget candidates;
+            Widget candidates;
 
             FriendSearchPage(Widget::VarDir,
 
@@ -192,7 +192,8 @@ class FriendChatBoard: public Widget
                     Widget * = nullptr,
                     bool     = false);
 
-            void appendAutoCompletionItem(bool, SDPlayerCandidate, const std::string &);
+            void appendCandidate(const SDPlayerCandidate &);
+            void appendAutoCompletionItem(bool, const SDPlayerCandidate &, const std::string &);
         };
 
         struct FriendChatItem: public Widget
