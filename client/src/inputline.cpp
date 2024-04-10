@@ -214,15 +214,31 @@ void InputLine::insertUTF8String(const char *utf8Str)
     }
 }
 
-void InputLine::setInput(const char *utf8Str)
+void InputLine::clear()
 {
     m_cursor = 0;
     m_cursorBlink = 0.0;
 
     if(!m_tpset.empty()){
         m_tpset.clear();
-        if(str_haschar(utf8Str)){
-            m_tpset.insertUTF8String(m_cursor, 0, utf8Str);
+
+        if(m_onChange){
+            m_onChange({});
         }
+    }
+}
+
+void InputLine::setInput(const char *utf8Str)
+{
+    m_cursor = 0;
+    m_cursorBlink = 0.0;
+
+    m_tpset.clear();
+    if(str_haschar(utf8Str)){
+        m_cursor = m_tpset.insertUTF8String(m_cursor, 0, utf8Str);
+    }
+
+    if(m_onChange){
+        m_onChange(m_tpset.getRawString());
     }
 }

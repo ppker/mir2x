@@ -101,17 +101,8 @@ class InputLine: public Widget
             return m_tpset.getRawString();
         }
 
-        virtual void clear()
-        {
-            m_cursor = 0;
-            m_cursorBlink = 0.0;
-            if(!m_tpset.empty()){
-                m_tpset.clear();
-                if(m_onChange){
-                    m_onChange({});
-                }
-            }
-        }
+    public:
+        virtual void clear();
 
     public:
         void deleteChar();
