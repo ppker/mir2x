@@ -124,14 +124,20 @@ bool FriendChatBoard::FriendItem::processEvent(const SDL_Event &event, bool vali
     switch(event.type){
         case SDL_MOUSEBUTTONDOWN:
             {
-                if(in(event.button.x, event.button.y)){
-                    dynamic_cast<FriendChatBoard *>(this->parent(3))->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
+                if(Widget::processEvent(event, valid)){
+                    return consumeFocus(true);
                 }
-                return false;
+                else if(in(event.button.x, event.button.y)){
+                    dynamic_cast<FriendChatBoard *>(this->parent(3))->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
+                    return consumeFocus(true);
+                }
+                else{
+                    return false;
+                }
             }
         default:
             {
-                return false;
+                return Widget::processEvent(event, valid);
             }
     }
 }
