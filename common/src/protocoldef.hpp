@@ -366,7 +366,17 @@ enum TeamErrorType: int
     TEAMERR_END,
 };
 
-template<typename... Ts> struct varDispatcher: Ts...
+enum AddFriendResultType: int
+{
+    AF_NONE     = 0,
+    AF_BEGIN    = 1,
+    AF_ACCEPTED = 1,
+    AF_REJECTED,
+
+
+};
+
+template<typename... Ts> struct VarDispatcher: Ts...
 {
     using Ts::operator()...;
 };

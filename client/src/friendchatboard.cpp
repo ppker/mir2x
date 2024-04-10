@@ -663,11 +663,27 @@ void FriendChatBoard::FriendSearchPage::appendCandidate(const SDPlayerCandidate 
 
                 nullptr,
                 nullptr,
-                [this](const std::unordered_map<std::string, std::string> &attrList, int oldState, int newState)
+                [dbid = candidate.dbid, name = candidate.name, this](const std::unordered_map<std::string, std::string> &attrList, int oldState, int newState)
                 {
                     if(oldState == BEVENT_ON && newState == BEVENT_DOWN){
                         if(const auto id = LayoutBoard::findAttrValue(attrList, "id"); to_sv(id) == "add"){
-                            std::cout << "add new" << std::endl;
+                            CMAddFriend cmAF;
+                            std::memset(&cmAF, 0, sizeof(cmAF));
+
+                            cmAF.dbid = dbid;
+                            g_client->send({CM_ADDFRIEND, cmAF}, [](uint8_t headCode, const uint8_t *buf, size_t bufSize)
+                            {
+                                switch(headCode){
+                                    case SM_OK:
+                                        {
+                                            break;
+                                        }
+                                    default:
+                                        {
+                                            break;
+                                        }
+                                }
+                            });
                         }
                     }
                 },

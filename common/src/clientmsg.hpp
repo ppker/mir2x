@@ -43,6 +43,7 @@ enum CMType: uint8_t
     CM_CONSUMEITEM,
     CM_MAKEITEM,
     CM_BUY,
+    CM_ADDFRIEND,
     CM_CHATMESSAGE,
     CM_REQUESTEQUIPWEAR,
     CM_REQUESTGRABWEAR,
@@ -211,6 +212,11 @@ struct CMBuy
     uint32_t itemID;
     uint32_t seqID;
     uint32_t count;
+};
+
+struct CMAddFriend
+{
+    uint32_t dbid;
 };
 
 struct CMRequestEquipWear
