@@ -474,6 +474,9 @@ class FriendChatBoard: public Widget
             LabelBoard * const title   = nullptr;
             Widget     * const control = nullptr;
             Widget     * const page    = nullptr;
+
+            std::function<void(int, Widget *)> enter = nullptr;
+            std::function<void(int, Widget *)> exit  = nullptr;
         };
 
     private:

@@ -587,7 +587,9 @@ FriendChatBoard::FriendSearchPage::FriendSearchPage(Widget::VarDir argDir,
           this,
           false,
       }
-{}
+{
+    candidates.setShow(false);
+}
 
 void FriendChatBoard::FriendSearchPage::appendCandidate(const SDPlayerCandidate &candidate)
 {
