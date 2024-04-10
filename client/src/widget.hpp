@@ -379,8 +379,10 @@ class Widget: public WidgetTreeNode
             if(Widget::hasIntSize(m_h)){ fflassert(Widget::asIntSize(m_h) >= 0, m_h); }
 
             for(const auto &[childPtr, offDir, offX, offY, autoDelete]: argChildList){
-                addChild(childPtr, autoDelete);
-                childPtr->moveAt(offDir, offX, offY);
+                if(childPtr){
+                    addChild(childPtr, autoDelete);
+                    childPtr->moveAt(offDir, offX, offY);
+                }
             }
         }
 

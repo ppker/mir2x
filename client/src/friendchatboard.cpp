@@ -18,6 +18,8 @@ FriendChatBoard::FriendItem::FriendItem(dir8_t argDir,
 
         std::function<SDL_Texture *(const ImageBoard *)> argLoadImageFunc,
 
+        std::pair<Widget *, bool> argFuncWidget,
+
         Widget *argParent,
         bool argAutoDelete)
 
@@ -29,7 +31,16 @@ FriendChatBoard::FriendItem::FriendItem(dir8_t argDir,
 
           UIPage_WIDTH - UIPage_MARGIN * 2,
           FriendItem::HEIGHT,
-          {},
+
+          {
+              {
+                  argFuncWidget.first,
+                  DIR_RIGHT,
+                  UIPage_WIDTH - UIPage_MARGIN * 2 - FriendItem::FUNC_MARGIN - 1,
+                  FriendItem::HEIGHT / 2,
+                  argFuncWidget.second,
+              },
+          },
 
           argParent,
           argAutoDelete,
@@ -612,6 +623,46 @@ void FriendChatBoard::FriendSearchPage::appendCandidate(const SDPlayerCandidate 
         {
             return g_progUseDB->retrieve(0X00001100);
         },
+
+        {
+            new LayoutBoard
+            {
+                DIR_UPLEFT,
+                0,
+                0,
+                0,
+
+                R"###(<layout><par><event id="add">添加</event></par></layout>)###",
+                0,
+
+                {},
+
+                false,
+                false,
+                false,
+                false,
+
+                1,
+                12,
+                0,
+                colorf::WHITE + colorf::A_SHF(255),
+                0,
+
+                LALIGN_LEFT,
+                0,
+                0,
+
+                0,
+                0,
+
+                nullptr,
+                nullptr,
+                nullptr,
+            },
+
+            true,
+        },
+
     }, true);
 }
 
@@ -2060,6 +2111,7 @@ void FriendChatBoard::setFriendList(const SDFriendList &)
         {
             return g_progUseDB->retrieve(0X00001100);
         },
+
     }, true);
 
     dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(new FriendItem

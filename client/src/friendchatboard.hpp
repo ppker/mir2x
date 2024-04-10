@@ -20,22 +20,23 @@ class FriendChatBoard: public Widget
         {
             //   ITEM_MARGIN                    | ITRM_MARGIN
             // ->| |<-                          v
-            //   +--------------------------+ - -
-            //   | +-----+                  | ^ -
-            //   | |     | +------+         | | ^
-            //   | | IMG | | NAME |         | | HEIGHT
-            //   | |     | +------+         | |
-            //   | +-----+                  | v
-            //   +--------------------------+ -
-            //         ->| |<-
+            //   +---------------------------+ - -
+            //   | +-----+                   | ^ -
+            //   | |     | +------+ +------+ | | ^
+            //   | | IMG | | NAME | | FUNC | | | HEIGHT
+            //   | |     | +------+ +------+ | |
+            //   | +-----+                   | v
+            //   +---------------------------+ -
+            //         ->| |<-          -->| |<-- FUNC_MARGIN
             //           GAP
-            //   |<------------------------>| UIPage_WIDTH - UIPage_MARGIN * 2
+            //   |<------------------------->| UIPage_WIDTH - UIPage_MARGIN * 2
 
             constexpr static int HEIGHT = 40;
             constexpr static int ITEM_MARGIN = 3;
             constexpr static int AVATAR_WIDTH = (HEIGHT - ITEM_MARGIN * 2) * 84 / 94;
 
             constexpr static int GAP = 5;
+            constexpr static int FUNC_MARGIN = 5;
 
             uint32_t dbid;
             ShapeClipBoard hovered;
@@ -50,6 +51,8 @@ class FriendChatBoard: public Widget
                     uint32_t,
                     const char8_t *,
                     std::function<SDL_Texture *(const ImageBoard *)>,
+
+                    std::pair<Widget *, bool> argFuncWidget = {},
 
                     Widget * = nullptr,
                     bool     = false);

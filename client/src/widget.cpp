@@ -84,7 +84,9 @@ void WidgetTreeNode::execDeath() noexcept
 
 void WidgetTreeNode::addChild(Widget *widget, bool autoDelete)
 {
+    fflassert(widget);
     WidgetTreeNode *treeNode = widget;
+
     if(treeNode->m_parent){
         treeNode->m_parent->removeChild(widget, false);
     }
