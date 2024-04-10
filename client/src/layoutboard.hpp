@@ -359,4 +359,7 @@ class LayoutBoard: public Widget
             Widget::setFocus(argFocus);
             m_cursorBlink = 0.0;
         }
+
+    public:
+        static const char * findAttrValue(const std::unordered_map<std::string, std::string> &, const char *, const char * = nullptr);
 };

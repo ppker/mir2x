@@ -572,3 +572,11 @@ std::string LayoutBoard::getXML() const
     xmlString.append("</layout>");
     return xmlString;
 }
+
+const char * LayoutBoard::findAttrValue(const std::unordered_map<std::string, std::string> &attrList, const char *key, const char *valDefault)
+{
+    if(auto p = attrList.find(key); p != attrList.end() && str_haschar(p->second)){
+        return p->second.c_str();
+    }
+    return valDefault;
+}

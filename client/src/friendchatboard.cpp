@@ -663,7 +663,14 @@ void FriendChatBoard::FriendSearchPage::appendCandidate(const SDPlayerCandidate 
 
                 nullptr,
                 nullptr,
-                nullptr,
+                [this](const std::unordered_map<std::string, std::string> &attrList, int oldState, int newState)
+                {
+                    if(oldState == BEVENT_DOWN && newState == BEVENT_ON){
+                        if(const auto id = LayoutBoard::findAttrValue(attrList, "id"); to_sv(id) == "add"){
+                            std::cout << "add new" << std::endl;
+                        }
+                    }
+                },
             },
 
             true,
