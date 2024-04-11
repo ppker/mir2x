@@ -514,6 +514,7 @@ Player::Player(const SDInitPlayer &initParam, const ServerMap *mapPtr)
     dbLoadWear();
     dbLoadBelt();
     dbLoadInventory();
+    dbLoadFriendList();
     dbLoadLearnedMagic();
     dbLoadPlayerConfig();
 }
