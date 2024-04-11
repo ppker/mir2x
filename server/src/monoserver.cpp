@@ -370,7 +370,7 @@ void MonoServer::createDefaultDatabase()
     createAccountCharacter("test", to_cstr(u8"亚当"),  true, JOB_TAOIST  | JOB_WIZARD);
     createAccountCharacter("good", to_cstr(u8"夏娃"), false, JOB_WARRIOR | JOB_WIZARD);
     createAccountCharacter("id_1", to_cstr(u8"逗逼"),  true, JOB_WIZARD);
-    createAccountCharacter("id_2", to_cstr(u8"搞笑"),  true, JOB_WIZARD);
+    createAccountCharacter("id_2", to_cstr(u8"盖亚"),  true, JOB_WIZARD);
 
     addLog(LOGTYPE_INFO, "Create default sqlite3 database done");
 }
