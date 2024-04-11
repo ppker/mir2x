@@ -1037,18 +1037,18 @@ FriendChatBoard::FriendChatInputContainer::FriendChatInputContainer(dir8_t argDi
               }
 
               auto message = layout.getXML();
-              auto boardPtr = FriendChatBoard::getParentBoard(this);
               auto newItem = new FriendChatItem
               {
                   DIR_UPLEFT,
                   0,
                   0,
 
-                  to_u8cstr(boardPtr->m_processRun->getMyHero()->getName()),
+                  to_u8cstr(FriendChatBoard::getParentBoard(this)->m_processRun->getMyHero()->getName()),
                   to_u8cstr(message),
 
-                  [boardPtr](const ImageBoard *)
+                  [this](const ImageBoard *)
                   {
+                      auto boardPtr = FriendChatBoard::getParentBoard(this);
                       return g_progUseDB->retrieve(Hero::faceGfxID(boardPtr->m_processRun->getMyHero()->gender(), boardPtr->m_processRun->getMyHero()->job()));
                   },
 
@@ -1295,7 +1295,18 @@ FriendChatBoard::FriendChatPreviewItem::FriendChatPreviewItem(dir8_t argDir,
               if(this->dbid == SYS_CHATDBID_SYSTEM){
                   return g_progUseDB->retrieve(0X00001100);
               }
-              return g_progUseDB->retrieve(0X02000000);
+
+              auto boardPtr = FriendChatBoard::getParentBoard(this);
+              const auto p = std::find_if(boardPtr->m_sdFriendList.begin(), boardPtr->m_sdFriendList.end(), [this](const auto &x)
+              {
+                  return this->dbid == x.dbid;
+              });
+
+              if(p == boardPtr->m_sdFriendList.end()){
+                  return g_progUseDB->retrieve(0X010007CF);
+              }
+
+              return g_progUseDB->retrieve(Hero::faceGfxID(p->gender, p->job));
           },
 
           false,
@@ -2268,12 +2279,22 @@ void FriendChatBoard::setChatPageDBID(uint32_t argDBID)
 
                         to_u8cstr(cerealf::deserialize<std::string>(msg.message)),
 
-                        [chatPage](const ImageBoard *)
+                        [chatPage, this](const ImageBoard *)
                         {
                             if(chatPage->dbid == SYS_CHATDBID_SYSTEM){
                                 return g_progUseDB->retrieve(0X00001100);
                             }
-                            return g_progUseDB->retrieve(0X02000000);
+
+                            const auto p = std::find_if(m_sdFriendList.begin(), m_sdFriendList.end(), [chatPage](const auto &x)
+                            {
+                                return chatPage->dbid == x.dbid;
+                            });
+
+                            if(p == m_sdFriendList.end()){
+                                return g_progUseDB->retrieve(0X010007CF);
+                            }
+
+                            return g_progUseDB->retrieve(Hero::faceGfxID(p->gender, p->job));
                         },
 
                         true,
