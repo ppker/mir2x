@@ -694,6 +694,7 @@ void FriendChatBoard::FriendSearchPage::appendCandidate(const SDPlayerCandidate 
                                                     }
                                                 case AF_EXIST:
                                                     {
+                                                        FriendChatBoard::getParentBoard(this)->m_processRun->addCBLog(CBLOG_ERR, u8"重复添加好友%s", to_cstr(candidate.name));
                                                         break;
                                                     }
                                                 default:
