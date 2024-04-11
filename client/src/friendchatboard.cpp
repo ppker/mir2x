@@ -1,6 +1,7 @@
 #include <initializer_list>
 #include "sdldevice.hpp"
 #include "client.hpp"
+#include "hero.hpp"
 #include "pngtexdb.hpp"
 #include "processrun.hpp"
 #include "friendchatboard.hpp"
@@ -625,9 +626,9 @@ void FriendChatBoard::FriendSearchPage::appendCandidate(const SDPlayerCandidate 
         candidate.dbid,
         to_u8cstr(candidate.name),
 
-        [](const ImageBoard *)
+        [&candidate](const ImageBoard *)
         {
-            return g_progUseDB->retrieve(0X00001100);
+            return g_progUseDB->retrieve(Hero::faceGfxID(candidate.gender, candidate.job));
         },
 
         {

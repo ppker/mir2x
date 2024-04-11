@@ -220,6 +220,12 @@ class Hero: public CreatureMovable
     public:
         uint32_t faceGfxID() const
         {
-            return UINT32_C(0X02000000) + to_u32(jobf::jobGfxIndex(job()).front().value() * 2 + (gender() ? 0 : 1));
+            return Hero::faceGfxID(job(), gender());
+        }
+
+    public:
+        uint32_t static faceGfxID(bool argGender, int argJob)
+        {
+            return UINT32_C(0X02000000) + to_u32(jobf::jobGfxIndex(argJob).front().value() * 2 + (argGender ? 0 : 1));
         }
 };

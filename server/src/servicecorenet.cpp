@@ -143,7 +143,7 @@ void ServiceCore::net_CM_ONLINE(uint32_t channID, uint8_t, const uint8_t *, size
         .mp        = queryChar.getColumn("fld_mp"),
         .exp       = queryChar.getColumn("fld_exp"),
         .gold      = queryChar.getColumn("fld_gold"),
-        .gender    = queryChar.getColumn("fld_gender").getInt() > 0,
+        .gender    = queryChar.getColumn("fld_gender").getUInt() > 0,
         .job       = queryChar.getColumn("fld_job"),
         .hair      = queryChar.getColumn("fld_hair"),
         .hairColor = queryChar.getColumn("fld_haircolor"),

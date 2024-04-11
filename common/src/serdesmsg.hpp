@@ -149,6 +149,8 @@ struct SDNPCXMLLayout
 
 struct SDPlayerCandidate
 {
+    bool gender = 0;
+
     int job = 0;
     std::optional<uint64_t> avatar {};
 
@@ -157,7 +159,7 @@ struct SDPlayerCandidate
 
     template<typename Archive> void serialize(Archive & ar)
     {
-        ar(job, avatar, dbid, name);
+        ar(gender, job, avatar, dbid, name);
     }
 };
 

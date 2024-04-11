@@ -270,6 +270,8 @@ SDPlayerCandidateList Player::dbQueryPlayerCandidates(const std::string &query)
     while(queryCmd.executeStep()){
         sdPCL.push_back(SDPlayerCandidate
         {
+            .gender = queryCmd.getColumn("fld_gender").getUInt() > 0,
+
             .job = queryCmd.getColumn("fld_job"),
             .avatar = std::nullopt,
 
