@@ -16,7 +16,7 @@ void NotifyBoard::addLog(const char8_t * format, ...)
     m_boardList.emplace_back();
     m_boardList.back().typeset =std::make_unique<XMLTypeset>(m_lineW, LALIGN_LEFT, false, m_font, m_fontSize, m_fontStyle, m_fontColor);
 
-    const auto xmlString = xmlf::toParString(text.empty() ? "" : to_cstr(text));
+    const auto xmlString = xmlf::toParString("%s", text.empty() ? "" : to_cstr(text));
     m_boardList.back().typeset->loadXML(xmlString.c_str());
     updateSize();
 }
