@@ -266,7 +266,7 @@ std::optional<SDPlayerCandidate> Player::dbLoadPlayerCandidate(uint32_t argDBID)
 
             .dbid = query.getColumn("fld_dbid"),
             .name = query.getColumn("fld_name").getString(),
-        });
+        };
     }
     else{
         return {};
