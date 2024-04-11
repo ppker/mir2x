@@ -1501,6 +1501,9 @@ void FriendChatBoard::FriendChatPreviewPage::updateChatPreview(uint32_t argDBID,
 
             argDBID,
             to_u8cstr(argMsg),
+
+            this, // image load func uses getParentBoard(this)
+            true,
         };
         append(child, true);
     }
@@ -2255,8 +2258,7 @@ void FriendChatBoard::addMessage(const SDChatMessage &newmsg)
 
 void FriendChatBoard::setChatPageDBID(uint32_t argDBID)
 {
-    auto chatPage = dynamic_cast<FriendChatPage *>(m_uiPageList[UIPage_CHAT].page);
-    if(chatPage->dbid != argDBID){
+    if(auto chatPage = dynamic_cast<FriendChatPage *>(m_uiPageList[UIPage_CHAT].page); chatPage->dbid != argDBID){
         chatPage->dbid = argDBID;
         chatPage->chat.canvas.clearChild();
 
@@ -2269,12 +2271,22 @@ void FriendChatBoard::setChatPageDBID(uint32_t argDBID)
                         0,
                         0,
 
-                        [chatPage]() -> const char8_t *
+                        [chatPage, this]() -> const char8_t *
                         {
                             if(chatPage->dbid == SYS_CHATDBID_SYSTEM){
                                 return u8"系统消息";
                             }
-                            return u8"绝地武士";
+
+                            const auto p = std::find_if(m_sdFriendList.begin(), m_sdFriendList.end(), [chatPage](const auto &x)
+                            {
+                                return chatPage->dbid == x.dbid;
+                            });
+
+                            if(p == m_sdFriendList.end()){
+                                return u8"未知";
+                            }
+
+                            return to_u8cstr(p->name);
                         }(),
 
                         to_u8cstr(cerealf::deserialize<std::string>(msg.message)),
