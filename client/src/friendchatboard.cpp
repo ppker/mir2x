@@ -626,9 +626,9 @@ void FriendChatBoard::FriendSearchPage::appendCandidate(const SDPlayerCandidate 
         candidate.dbid,
         to_u8cstr(candidate.name),
 
-        [&candidate](const ImageBoard *)
+        [gender = candidate.gender, job = candidate.job](const ImageBoard *)
         {
-            return g_progUseDB->retrieve(Hero::faceGfxID(candidate.gender, candidate.job));
+            return g_progUseDB->retrieve(Hero::faceGfxID(gender, job));
         },
 
         {
