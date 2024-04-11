@@ -679,7 +679,7 @@ void FriendChatBoard::FriendSearchPage::appendCandidate(const SDPlayerCandidate 
                                             switch(const auto sdAFN = cerealf::deserialize<SDAddFriendNotif>(buf, bufSize); sdAFN.notif){
                                                 case AF_ACCEPTED:
                                                     {
-                                                        dynamic_cast<FriendChatPreviewPage *>(FriendChatBoard::getParentBoard(this)->m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(dbid, str_printf(R"###(<par><t color="red">%s</t>已经通过你的好友申请，现在可以开始聊天了。</par>)###", to_cstr(name)));
+                                                        dynamic_cast<FriendChatPreviewPage *>(FriendChatBoard::getParentBoard(this)->m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(dbid, str_printf(R"###(<layout><par><t color="red">%s</t>已经通过你的好友申请，现在可以开始聊天了。</par></layout>)###", to_cstr(name)));
                                                         break;
                                                     }
                                                 case AF_EXIST:
