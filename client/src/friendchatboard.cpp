@@ -626,7 +626,7 @@ void FriendChatBoard::FriendSearchPage::appendCandidate(const SDPlayerCandidate 
         },
 
         {
-            new LayoutBoard
+            (candidate.dbid == FriendChatBoard::getParentBoard(this)->m_processRun->getMyHero()->dbid()) ? nullptr : new LayoutBoard
             {
                 DIR_UPLEFT,
                 0,
@@ -658,15 +658,15 @@ void FriendChatBoard::FriendSearchPage::appendCandidate(const SDPlayerCandidate 
 
                 nullptr,
                 nullptr,
-                [dbid = candidate.dbid, name = candidate.name, this](const std::unordered_map<std::string, std::string> &attrList, int event)
+                [candidate, this](const std::unordered_map<std::string, std::string> &attrList, int event)
                 {
                     if(event == BEVENT_PRESS){
                         if(const auto id = LayoutBoard::findAttrValue(attrList, "id"); to_sv(id) == "add"){
                             CMAddFriend cmAF;
                             std::memset(&cmAF, 0, sizeof(cmAF));
 
-                            cmAF.dbid = dbid;
-                            g_client->send({CM_ADDFRIEND, cmAF}, [dbid, name, this](uint8_t headCode, const uint8_t *buf, size_t bufSize)
+                            cmAF.dbid = candidate.dbid;
+                            g_client->send({CM_ADDFRIEND, cmAF}, [candidate, this](uint8_t headCode, const uint8_t *buf, size_t bufSize)
                             {
                                 switch(headCode){
                                     case SM_OK:
@@ -674,7 +674,22 @@ void FriendChatBoard::FriendSearchPage::appendCandidate(const SDPlayerCandidate 
                                             switch(const auto sdAFN = cerealf::deserialize<SDAddFriendNotif>(buf, bufSize); sdAFN.notif){
                                                 case AF_ACCEPTED:
                                                     {
-                                                        dynamic_cast<FriendChatPreviewPage *>(FriendChatBoard::getParentBoard(this)->m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(dbid, str_printf(R"###(<layout><par><t color="red">%s</t>已经通过你的好友申请，现在可以开始聊天了。</par></layout>)###", to_cstr(name)));
+                                                        FriendChatBoard::getParentBoard(this)->m_sdFriendList.push_back(candidate);
+                                                        dynamic_cast<FriendChatPreviewPage *>(FriendChatBoard::getParentBoard(this)->m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(candidate.dbid, str_printf(R"###(<layout><par><t color="red">%s</t>已经通过你的好友申请，现在可以开始聊天了。</par></layout>)###", to_cstr(candidate.name)));
+                                                        dynamic_cast<FriendListPage *>(FriendChatBoard::getParentBoard(this)->m_uiPageList[UIPage_FRIENDLIST].page)->append(new FriendItem
+                                                        {
+                                                            DIR_UPLEFT,
+                                                            0,
+                                                            0,
+
+                                                            candidate.dbid,
+                                                            to_u8cstr(candidate.name),
+
+                                                            [candidate, this](const ImageBoard *)
+                                                            {
+                                                                return g_progUseDB->retrieve(Hero::faceGfxID(candidate.gender, candidate.job));
+                                                            },
+                                                        }, true);
                                                         break;
                                                     }
                                                 case AF_EXIST:
@@ -690,7 +705,7 @@ void FriendChatBoard::FriendSearchPage::appendCandidate(const SDPlayerCandidate 
                                         }
                                     default:
                                         {
-                                            throw fflerror("failed to add friend: %s", to_cstr(name));
+                                            throw fflerror("failed to add friend: %s", to_cstr(candidate.name));
                                         }
                                 }
                             });
