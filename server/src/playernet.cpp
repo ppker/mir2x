@@ -321,7 +321,7 @@ void Player::net_CM_ADDFRIEND(uint8_t, const uint8_t *buf, size_t, uint64_t resp
         postNetMessage(SM_OK, cerealf::serialize(sdAFN), respID);
 
         if(sdAFN.notif == AF_ACCEPTED){
-            m_sdFriendList.push_back(dbQueryPlayerCandidates(std::to_string(cmAF.dbid)).front());
+            m_sdFriendList.push_back(dbLoadPlayerCandidate(cmAF.dbid).value());
         }
     }
 }
