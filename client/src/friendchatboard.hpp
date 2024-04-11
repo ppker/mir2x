@@ -523,6 +523,7 @@ class FriendChatBoard: public Widget
         const std::array<UIPageWidgetGroup, UIPage_END> m_uiPageList; // {buttons, page}
 
     private:
+        SDFriendList m_sdFriendList;
         std::list<FriendMessage> m_friendMessageList;
 
     public:

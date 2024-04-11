@@ -1037,18 +1037,19 @@ FriendChatBoard::FriendChatInputContainer::FriendChatInputContainer(dir8_t argDi
               }
 
               auto message = layout.getXML();
+              auto boardPtr = FriendChatBoard::getParentBoard(this);
               auto newItem = new FriendChatItem
               {
                   DIR_UPLEFT,
                   0,
                   0,
 
-                  u8"绝地武士",
+                  to_u8cstr(boardPtr->m_processRun->getMyHero()->getName()),
                   to_u8cstr(message),
 
-                  [](const ImageBoard *)
+                  [boardPtr](const ImageBoard *)
                   {
-                      return g_progUseDB->retrieve(0X00001100);
+                      return g_progUseDB->retrieve(Hero::faceGfxID(boardPtr->m_processRun->getMyHero()->gender(), boardPtr->m_processRun->getMyHero()->job()));
                   },
 
                   true,
@@ -2143,6 +2144,7 @@ bool FriendChatBoard::processEvent(const SDL_Event &event, bool valid)
 
 void FriendChatBoard::setFriendList(const SDFriendList &sdFL)
 {
+    m_sdFriendList = sdFL;
     std::unordered_set<uint32_t> seenDBIDList;
 
     seenDBIDList.insert(SYS_CHATDBID_SYSTEM);

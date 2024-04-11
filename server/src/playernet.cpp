@@ -316,7 +316,9 @@ void Player::net_CM_CHATMESSAGE(uint8_t, const uint8_t *buf, size_t bufSize, uin
 void Player::net_CM_ADDFRIEND(uint8_t, const uint8_t *buf, size_t, uint64_t respID)
 {
     const auto cmAF = ClientMsg::conv<CMAddFriend>(buf);
-    postNetMessage(SM_OK, cerealf::serialize(dbAddFriend(cmAF.dbid)), respID);
+    if(cmAF.dbid != dbid()){
+        postNetMessage(SM_OK, cerealf::serialize(dbAddFriend(cmAF.dbid)), respID);
+    }
 }
 
 void Player::net_CM_BUY(uint8_t, const uint8_t *buf, size_t, uint64_t)
