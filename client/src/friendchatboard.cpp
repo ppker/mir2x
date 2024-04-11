@@ -557,18 +557,10 @@ FriendChatBoard::FriendSearchPage::FriendSearchPage(Widget::VarDir argDir,
 
           nullptr,
           nullptr,
-          [this](const std::unordered_map<std::string, std::string> &attrList, int oldState, int newState)
+          [this](const std::unordered_map<std::string, std::string> &attrList, int event)
           {
-              if(oldState == BEVENT_DOWN && newState == BEVENT_ON){
-                  const auto fnFindAttrValue = [&attrList](const char *key, const char *valDefault) -> const char *
-                  {
-                      if(auto p = attrList.find(key); p != attrList.end() && str_haschar(p->second)){
-                          return p->second.c_str();
-                      }
-                      return valDefault;
-                  };
-
-                  if(const auto id = fnFindAttrValue("id", nullptr)){
+              if(event == BEVENT_RELEASE){
+                  if(const auto id = LayoutBoard::findAttrValue(attrList, "id", nullptr)){
                       input.input.clear();
                   }
               }
@@ -666,9 +658,9 @@ void FriendChatBoard::FriendSearchPage::appendCandidate(const SDPlayerCandidate 
 
                 nullptr,
                 nullptr,
-                [dbid = candidate.dbid, name = candidate.name, this](const std::unordered_map<std::string, std::string> &attrList, int oldState, int newState)
+                [dbid = candidate.dbid, name = candidate.name, this](const std::unordered_map<std::string, std::string> &attrList, int event)
                 {
-                    if(oldState == BEVENT_ON && newState == BEVENT_DOWN){
+                    if(event == BEVENT_PRESS){
                         if(const auto id = LayoutBoard::findAttrValue(attrList, "id"); to_sv(id) == "add"){
                             CMAddFriend cmAF;
                             std::memset(&cmAF, 0, sizeof(cmAF));

@@ -56,18 +56,10 @@ QuestStateBoard::QuestStateBoard(int argX, int argY, ProcessRun *runPtr, Widget 
 
           nullptr,
           nullptr,
-          [this](const std::unordered_map<std::string, std::string> &attrList, int oldEvent, int newEvent)
+          [this](const std::unordered_map<std::string, std::string> &attrList, int event)
           {
-              if(oldEvent == BEVENT_DOWN && newEvent == BEVENT_ON){
-                  const auto fnFindAttrValue = [&attrList](const char *key, const char *valDefault) -> const char *
-                  {
-                      if(auto p = attrList.find(key); p != attrList.end() && str_haschar(p->second)){
-                          return p->second.c_str();
-                      }
-                      return valDefault;
-                  };
-
-                  if(const auto id = fnFindAttrValue("id", nullptr)){
+              if(event == BEVENT_RELEASE){
+                  if(const auto id = LayoutBoard::findAttrValue(attrList, "id", nullptr)){
                       m_questDesp.at(id).folded = !m_questDesp.at(id).folded;
                       m_loadRequested = true;
                   }

@@ -48,19 +48,11 @@ NPCChatBoard::NPCChatBoard(ProcessRun *proc, Widget *pwidget, bool autoDelete)
 
           nullptr,
           nullptr,
-          [this](const std::unordered_map<std::string, std::string> &attrList, int oldEvent, int newEvent)
+          [this](const std::unordered_map<std::string, std::string> &attrList, int event)
           {
-              if(oldEvent == BEVENT_DOWN && newEvent == BEVENT_ON){
-                  const auto fnFindAttrValue = [&attrList](const char *key, const char *valDefault) -> const char *
-                  {
-                      if(auto p = attrList.find(key); p != attrList.end() && str_haschar(p->second)){
-                          return p->second.c_str();
-                      }
-                      return valDefault;
-                  };
-
-                  if(const auto id = fnFindAttrValue("id", nullptr)){
-                      const auto autoClose = [id, closeAttr = fnFindAttrValue("close", nullptr)]() -> bool
+              if(event == BEVENT_RELEASE){
+                  if(const auto id = LayoutBoard::findAttrValue(attrList, "id", nullptr)){
+                      const auto autoClose = [id, closeAttr = LayoutBoard::findAttrValue(attrList, "close", nullptr)]() -> bool
                       {
                           if(closeAttr){
                               for(const auto  trueStr: {"1", "TRUE" }){ if(str_toupper(closeAttr) ==  trueStr){ return true ; }}
@@ -71,7 +63,7 @@ NPCChatBoard::NPCChatBoard(ProcessRun *proc, Widget *pwidget, bool autoDelete)
                               return to_sv(id) == SYS_EXIT;
                           }
                       }();
-                      onClickEvent(fnFindAttrValue("path", m_eventPath.c_str()), id, fnFindAttrValue("args", nullptr), autoClose);
+                      onClickEvent(LayoutBoard::findAttrValue(attrList, "path", m_eventPath.c_str()), id, LayoutBoard::findAttrValue(attrList, "args", nullptr), autoClose);
                   }
               }
           },

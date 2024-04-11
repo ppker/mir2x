@@ -474,8 +474,19 @@ bool LayoutBoard::processEvent(const SDL_Event &event, bool valid)
                     const auto leafID = node->tpset->getToken(tokenX, tokenY)->leaf;
                     const auto oldEvent = node->tpset->markLeafEvent(leafID, newEvent);
 
+                    const static std::map<std::pair<int, int>, int> buttonState2Event
+                    {
+                        {{BEVENT_OFF , BEVENT_ON  }, BEVENT_ENTER  },
+                        {{BEVENT_ON  , BEVENT_OFF }, BEVENT_LEAVE  },
+                        {{BEVENT_ON  , BEVENT_DOWN}, BEVENT_PRESS  },
+                        {{BEVENT_DOWN, BEVENT_ON  }, BEVENT_RELEASE},
+                        {{BEVENT_ON  , BEVENT_ON  }, BEVENT_HOVER  },
+                    };
+
                     if(const auto attrListPtr = node->tpset->leafEvent(leafID); attrListPtr && m_eventCB){
-                        m_eventCB(*attrListPtr, oldEvent, newEvent);
+                        if(auto eventiter = buttonState2Event.find({oldEvent, newEvent}); eventiter != buttonState2Event.end()){
+                            m_eventCB(*attrListPtr, eventiter->second);
+                        }
                     }
                     node->tpset->clearEvent(leafID);
                     return true;

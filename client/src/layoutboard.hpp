@@ -79,7 +79,7 @@ class LayoutBoard: public Widget
     private:
         const std::function<void()> m_onTab;
         const std::function<void()> m_onCR;
-        const std::function<void(const std::unordered_map<std::string, std::string> &, int, int)> m_eventCB;
+        const std::function<void(const std::unordered_map<std::string, std::string> &, int)> m_eventCB;
 
     public:
         LayoutBoard(
@@ -114,7 +114,7 @@ class LayoutBoard: public Widget
 
                 std::function<void()> argOnTab = nullptr,
                 std::function<void()> argOnCR  = nullptr,
-                std::function<void(const std::unordered_map<std::string, std::string> &, int, int)> argEventCB = nullptr,
+                std::function<void(const std::unordered_map<std::string, std::string> &, int)> argEventCB = nullptr,
 
                 Widget *argParent     = nullptr,
                 bool    argAutoDelete = false)

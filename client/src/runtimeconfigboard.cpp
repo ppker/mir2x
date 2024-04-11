@@ -744,18 +744,10 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
 
           nullptr,
           nullptr,
-          [this](const std::unordered_map<std::string, std::string> &attrList, int oldState, int newState)
+          [this](const std::unordered_map<std::string, std::string> &attrList, int event)
           {
-              if(oldState == BEVENT_DOWN && newState == BEVENT_ON){
-                  const auto fnFindAttrValue = [&attrList](const char *key, const char *valDefault) -> const char *
-                  {
-                      if(auto p = attrList.find(key); p != attrList.end() && str_haschar(p->second)){
-                          return p->second.c_str();
-                      }
-                      return valDefault;
-                  };
-
-                  if(const auto id = fnFindAttrValue("id", nullptr)){
+              if(event == BEVENT_RELEASE){
+                  if(const auto id = LayoutBoard::findAttrValue(attrList, "id", nullptr)){
                       for(const auto &[label, page]: std::initializer_list<std::tuple<const char8_t *, Widget *>>
                       {
                           {u8"系统", &m_pageSystem},
