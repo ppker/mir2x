@@ -1846,7 +1846,12 @@ void Player::postOnlineOK()
     postNetMessage(SM_PLAYERCONFIG,     cerealf::serialize(m_sdPlayerConfig));
     postNetMessage(SM_FRIENDLIST,       cerealf::serialize(m_sdFriendList));
 
-    std::vector<uint32_t> friendDBIDList;
+    std::vector<uint32_t> friendDBIDList
+    {
+        SYS_CHATDBID_SYSTEM,
+        dbid(),
+    };
+
     std::for_each(m_sdFriendList.begin(), m_sdFriendList.end(), [&friendDBIDList](const auto &candidate)
     {
         friendDBIDList.push_back(candidate.dbid);
