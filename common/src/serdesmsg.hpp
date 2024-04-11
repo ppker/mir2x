@@ -643,7 +643,7 @@ struct SDPlayerConfig
     }
 };
 
-using SDFriendList = std::vector<uint32_t>;
+using SDFriendList = std::vector<SDPlayerCandidate>;
 using SDXMLMessage = std::string;
 
 struct SDAddFriendNotif

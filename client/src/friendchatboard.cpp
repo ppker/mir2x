@@ -2141,8 +2141,11 @@ bool FriendChatBoard::processEvent(const SDL_Event &event, bool valid)
     }
 }
 
-void FriendChatBoard::setFriendList(const SDFriendList &)
+void FriendChatBoard::setFriendList(const SDFriendList &sdFL)
 {
+    std::unordered_set<uint32_t> seenDBIDList;
+
+    seenDBIDList.insert(SYS_CHATDBID_SYSTEM);
     dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(new FriendItem
     {
         DIR_UPLEFT,
@@ -2159,6 +2162,7 @@ void FriendChatBoard::setFriendList(const SDFriendList &)
 
     }, true);
 
+    seenDBIDList.insert(m_processRun->getMyHero()->dbid());
     dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(new FriendItem
     {
         DIR_UPLEFT,
@@ -2170,20 +2174,31 @@ void FriendChatBoard::setFriendList(const SDFriendList &)
 
         [this](const ImageBoard *)
         {
-            return g_progUseDB->retrieve(to_u32(0X02000000) + [this]() -> uint32_t
-            {
-                if(m_processRun->getMyHero()->job() & JOB_WARRIOR){
-                    return 0;
-                }
-                else if(m_processRun->getMyHero()->job() & JOB_TAOIST){
-                    return 2;
-                }
-                else{
-                    return 4;
-                }
-            }() + (m_processRun->getMyHero()->gender() ? 0 : 1));
+            return g_progUseDB->retrieve(Hero::faceGfxID(m_processRun->getMyHero()->gender(), m_processRun->getMyHero()->job()));
         },
     }, true);
+
+    for(const auto &sdPC: sdFL){
+        if(seenDBIDList.contains(sdPC.dbid)){
+            continue;
+        }
+
+        seenDBIDList.insert(sdPC.dbid);
+        dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(new FriendItem
+        {
+            DIR_UPLEFT,
+            0,
+            0,
+
+            sdPC.dbid,
+            to_u8cstr(sdPC.name),
+
+            [gender =sdPC.gender, job = sdPC.job, this](const ImageBoard *)
+            {
+                return g_progUseDB->retrieve(Hero::faceGfxID(gender, job));
+            },
+        }, true);
+    }
 }
 
 void FriendChatBoard::addMessage(const SDChatMessage &newmsg)

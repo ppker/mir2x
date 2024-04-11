@@ -523,10 +523,19 @@ void Player::dbLoadFriendList()
     // |<--primary key-->|
 
     m_sdFriendList.clear();
-    auto query = g_dbPod->createQuery("select * from tbl_friend where fld_dbid = %llu", to_llu(dbid()));
+    auto query = g_dbPod->createQuery("select * from tbl_char where fld_dbid in (select fld_friend from tbl_friend where fld_dbid = %llu)", to_llu(dbid()));
 
     while(query.executeStep()){
-        m_sdFriendList.push_back(check_cast<uint32_t, unsigned>(query.getColumn("fld_friend")));
+        m_sdFriendList.push_back(SDPlayerCandidate
+        {
+            .gender = query.getColumn("fld_gender").getUInt() > 0,
+
+            .job = query.getColumn("fld_job"),
+            .avatar = std::nullopt,
+
+            .dbid = query.getColumn("fld_dbid"),
+            .name = query.getColumn("fld_name").getString(),
+        });
     }
 }
 
