@@ -671,16 +671,31 @@ void FriendChatBoard::FriendSearchPage::appendCandidate(const SDPlayerCandidate 
                             std::memset(&cmAF, 0, sizeof(cmAF));
 
                             cmAF.dbid = dbid;
-                            g_client->send({CM_ADDFRIEND, cmAF}, [](uint8_t headCode, const uint8_t *buf, size_t bufSize)
+                            g_client->send({CM_ADDFRIEND, cmAF}, [dbid, name, this](uint8_t headCode, const uint8_t *buf, size_t bufSize)
                             {
                                 switch(headCode){
                                     case SM_OK:
                                         {
+                                            switch(const auto sdAFN = cerealf::deserialize<SDAddFriendNotif>(buf, bufSize); sdAFN.notif){
+                                                case AF_ACCEPTED:
+                                                    {
+                                                        dynamic_cast<FriendChatPreviewPage *>(FriendChatBoard::getParentBoard(this)->m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(dbid, str_printf(R"###(<par><t color="red">%s</t>已经通过你的好友申请，现在可以开始聊天了。</par>)###", to_cstr(name)));
+                                                        break;
+                                                    }
+                                                case AF_EXIST:
+                                                    {
+                                                        break;
+                                                    }
+                                                default:
+                                                    {
+                                                        break;
+                                                    }
+                                            }
                                             break;
                                         }
                                     default:
                                         {
-                                            break;
+                                            throw fflerror("failed to add friend: %s", to_cstr(name));
                                         }
                                 }
                             });
@@ -2271,4 +2286,32 @@ void FriendChatBoard::setUIPage(int uiPage, const char *titleStr)
             m_uiPageList[m_uiPage].title->setText(to_u8cstr(titleStr));
         }
     }
+}
+
+FriendChatBoard *FriendChatBoard::getParentBoard(Widget *widget)
+{
+    fflassert(widget);
+    while(widget){
+        if(auto p = dynamic_cast<FriendChatBoard *>(widget)){
+            return p;
+        }
+        else{
+            widget = widget->parent();
+        }
+    }
+    throw fflerror("widget is not a decedent of FriendChatBoard");
+}
+
+const FriendChatBoard *FriendChatBoard::getParentBoard(const Widget *widget)
+{
+    fflassert(widget);
+    while(widget){
+        if(auto p = dynamic_cast<const FriendChatBoard *>(widget)){
+            return p;
+        }
+        else{
+            widget = widget->parent();
+        }
+    }
+    throw fflerror("widget is not a decedent of FriendChatBoard");
 }

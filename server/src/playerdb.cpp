@@ -596,6 +596,32 @@ SDChatMessageList Player::dbRetrieveLatestChatMessage(const uint32_t *dbidList, 
     return result;
 }
 
+SDAddFriendNotif Player::dbAddFriend(uint32_t argDBID)
+{
+    auto query = g_dbPod->createQuery(
+        u8R"###( insert or ignore into tbl_friend(fld_dbid, fld_friend) )###"
+        u8R"###( values                                                 )###"
+        u8R"###(     (%llu, %llu)                                       )###"
+        u8R"###( returning                                              )###"
+        u8R"###(     fld_dbid;                                          )###",
+
+        to_llu(dbid()),
+        to_llu(argDBID));
+
+    if(query.executeStep()){
+        return SDAddFriendNotif
+        {
+            .notif = AF_ACCEPTED,
+        };
+    }
+    else{
+        return SDAddFriendNotif
+        {
+            .notif = AF_EXIST,
+        };
+    }
+}
+
 // std::vector<SDChatMessage> Player::dbRetrieveChatMessageList(const DBRetrieveChatMessageListParams &params)
 // {
 //     std::vector<std::string> conds;

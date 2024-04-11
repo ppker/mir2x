@@ -712,6 +712,7 @@ void Player::operateNet(uint8_t nType, const uint8_t *pData, size_t nDataLen, ui
 #define _support_cm(cm) case cm: net_##cm(nType, pData, nDataLen, respID); break
         _support_cm(CM_ACTION                    );
         _support_cm(CM_BUY                       );
+        _support_cm(CM_ADDFRIEND                 );
         _support_cm(CM_CHATMESSAGE               );
         _support_cm(CM_CONSUMEITEM               );
         _support_cm(CM_DROPITEM                  );

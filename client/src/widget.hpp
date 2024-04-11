@@ -257,7 +257,7 @@ class Widget: public WidgetTreeNode
 
         static dir8_t evalDir(const Widget::VarDir &varDir, const Widget *widgetPtr)
         {
-            return std::visit(varDispatcher
+            return std::visit(VarDispatcher
             {
                 [](const dir8_t &arg)
                 {
@@ -290,7 +290,7 @@ class Widget: public WidgetTreeNode
 
         static int evalOffset(const Widget::VarOffset &varOffset, const Widget *widgetPtr)
         {
-            return std::visit(varDispatcher
+            return std::visit(VarDispatcher
             {
                 [](const int &arg)
                 {
@@ -575,7 +575,7 @@ class Widget: public WidgetTreeNode
 
         virtual int w() const
         {
-            const auto width = std::visit(varDispatcher
+            const auto width = std::visit(VarDispatcher
             {
                 [](const int &arg)
                 {
@@ -606,7 +606,7 @@ class Widget: public WidgetTreeNode
 
         virtual int h() const
         {
-            const auto height = std::visit(varDispatcher
+            const auto height = std::visit(VarDispatcher
             {
                 [](const int &arg)
                 {

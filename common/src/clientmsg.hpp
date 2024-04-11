@@ -309,6 +309,7 @@ namespace
         _RSVD_register_clientmsg(CM_CONSUMEITEM,                1, sizeof(CMConsumeItem)               );
         _RSVD_register_clientmsg(CM_MAKEITEM,                   1, sizeof(CMMakeItem)                  );
         _RSVD_register_clientmsg(CM_BUY,                        1, sizeof(CMBuy)                       );
+        _RSVD_register_clientmsg(CM_ADDFRIEND,                  1, sizeof(CMAddFriend)                 );
         _RSVD_register_clientmsg(CM_CHATMESSAGE,                3                                      );
         _RSVD_register_clientmsg(CM_REQUESTEQUIPWEAR,           1, sizeof(CMRequestEquipWear)          );
         _RSVD_register_clientmsg(CM_REQUESTGRABWEAR,            1, sizeof(CMRequestGrabWear)           );

@@ -184,6 +184,7 @@ class Player final: public BattleObject
     private:
         void net_CM_ACTION                    (uint8_t, const uint8_t *, size_t, uint64_t);
         void net_CM_BUY                       (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_ADDFRIEND                 (uint8_t, const uint8_t *, size_t, uint64_t);
         void net_CM_CHATMESSAGE               (uint8_t, const uint8_t *, size_t, uint64_t);
         void net_CM_CONSUMEITEM               (uint8_t, const uint8_t *, size_t, uint64_t);
         void net_CM_DROPITEM                  (uint8_t, const uint8_t *, size_t, uint64_t);
@@ -365,6 +366,9 @@ class Player final: public BattleObject
     private:
         void dbLearnMagic(uint32_t);
         void dbAddMagicExp(uint32_t, size_t);
+
+    private:
+        SDAddFriendNotif dbAddFriend(uint32_t);
 
     protected:
         void checkFriend(uint64_t, std::function<void(int)>) override;

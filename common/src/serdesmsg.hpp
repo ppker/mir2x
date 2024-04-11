@@ -644,6 +644,15 @@ struct SDPlayerConfig
 using SDFriendList = std::vector<uint32_t>;
 using SDXMLMessage = std::string;
 
+struct SDAddFriendNotif
+{
+    int notif = 0;
+    template<typename Archive> void serialize(Archive & ar)
+    {
+        ar(notif);
+    }
+};
+
 struct SDChatMessage
 {
     uint64_t id = 0;

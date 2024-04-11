@@ -370,10 +370,11 @@ enum AddFriendResultType: int
 {
     AF_NONE     = 0,
     AF_BEGIN    = 1,
-    AF_ACCEPTED = 1,
-    AF_REJECTED,
-
-
+    AF_ACCEPTED = 1,    // manually/automatically accepted
+    AF_REJECTED,        // manually/automatically rejected
+    AF_PENDING,         // waiting response
+    AF_EXIST,           // has already been your friend
+    AF_END,
 };
 
 template<typename... Ts> struct VarDispatcher: Ts...
