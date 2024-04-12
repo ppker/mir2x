@@ -4,8 +4,11 @@
 #include "serdesmsg.hpp"
 #include "texslider.hpp"
 #include "inputline.hpp"
+#include "labelboard.hpp"
+#include "layoutboard.hpp"
 #include "imageboard.hpp"
 #include "tritexbutton.hpp"
+#include "shapeclipboard.hpp"
 #include "gfxcropdupboard.hpp"
 
 class ProcessRun;
@@ -73,7 +76,7 @@ class FriendChatBoard: public Widget
             void append(FriendItem *, bool);
         };
 
-        struct FriendSearchInputLine: public Widget
+        struct SearchInputLine: public Widget
         {
             // o: (0,0)
             // x: (3,3) : fixed by gfx resource border
@@ -106,7 +109,7 @@ class FriendChatBoard: public Widget
             InputLine  input;
             LabelBoard hint;
 
-            FriendSearchInputLine(Widget::VarDir,
+            SearchInputLine(Widget::VarDir,
 
                     Widget::VarOffset,
                     Widget::VarOffset,
@@ -115,7 +118,7 @@ class FriendChatBoard: public Widget
                     bool     = false);
         };
 
-        struct FriendSearchAutoCompletionItem: public Widget
+        struct SearchAutoCompletionItem: public Widget
         {
             // o: (0,0)
             // x: (3,3)
@@ -148,7 +151,7 @@ class FriendChatBoard: public Widget
             ImageBoard icon;
             LabelBoard label;
 
-            FriendSearchAutoCompletionItem(Widget::VarDir,
+            SearchAutoCompletionItem(Widget::VarDir,
 
                     Widget::VarOffset,
                     Widget::VarOffset,
@@ -164,7 +167,7 @@ class FriendChatBoard: public Widget
             bool processEvent(const SDL_Event &, bool) override;
         };
 
-        struct FriendSearchPage: public Widget
+        struct SearchPage: public Widget
         {
             //                  -->| |<-- CLEAR_GAP
             // |<----------WIDTH----------->|
@@ -181,13 +184,13 @@ class FriendChatBoard: public Widget
 
             constexpr static int CLEAR_GAP = 10;
 
-            FriendSearchInputLine input;
+            SearchInputLine input;
             LayoutBoard clear;
 
             Widget autocompletes;
             Widget candidates;
 
-            FriendSearchPage(Widget::VarDir,
+            SearchPage(Widget::VarDir,
 
                     Widget::VarOffset,
                     Widget::VarOffset,
@@ -199,7 +202,7 @@ class FriendChatBoard: public Widget
             void appendAutoCompletionItem(bool, const SDPlayerCandidate &, const std::string &);
         };
 
-        struct FriendChatItem: public Widget
+        struct ChatItem: public Widget
         {
             //          WIDTH
             // |<------------------->|
@@ -246,7 +249,7 @@ class FriendChatBoard: public Widget
             constexpr static int TRIANGLE_WIDTH  = 4;
             constexpr static int TRIANGLE_HEIGHT = 6;
 
-            constexpr static int MAX_WIDTH = UIPage_WIDTH - UIPage_MARGIN * 2 - FriendChatItem::TRIANGLE_WIDTH - FriendChatItem::GAP - FriendChatItem::AVATAR_WIDTH;
+            constexpr static int MAX_WIDTH = UIPage_WIDTH - UIPage_MARGIN * 2 - ChatItem::TRIANGLE_WIDTH - ChatItem::GAP - ChatItem::AVATAR_WIDTH;
 
             constexpr static int MESSAGE_MARGIN = 5;
             constexpr static int MESSAGE_CORNER = 3;
@@ -267,7 +270,7 @@ class FriendChatBoard: public Widget
             LayoutBoard    message;
             ShapeClipBoard background;
 
-            FriendChatItem(dir8_t,
+            ChatItem(dir8_t,
                     int,
                     int,
 
@@ -286,7 +289,7 @@ class FriendChatBoard: public Widget
             void update(double) override;
         };
 
-        struct FriendChatItemContainer: public Widget
+        struct ChatItemContainer: public Widget
         {
             // use canvas to hold all chat item
             // then we can align canvas always to buttom when needed
@@ -298,7 +301,7 @@ class FriendChatBoard: public Widget
             // ShapeClipBoard can achieve this on drawing, but prefer ShapeClipBoard when drawing primitives
 
             Widget canvas;
-            FriendChatItemContainer(dir8_t,
+            ChatItemContainer(dir8_t,
 
                     int,
                     int,
@@ -308,14 +311,14 @@ class FriendChatBoard: public Widget
                     Widget * = nullptr,
                     bool     = false);
 
-            void append(FriendChatItem *, bool);
+            void append(ChatItem *, bool);
             bool hasItem(const Widget *) const;
         };
 
-        struct FriendChatInputContainer: public Widget
+        struct ChatInputContainer: public Widget
         {
             LayoutBoard layout;
-            FriendChatInputContainer(dir8_t,
+            ChatInputContainer(dir8_t,
 
                     int,
                     int,
@@ -324,7 +327,7 @@ class FriendChatBoard: public Widget
                     bool     = false);
         };
 
-        struct FriendChatPage: public Widget
+        struct ChatPage: public Widget
         {
             // chat page is different, it uses the UIPage_MARGIN area
             // because we fill different color to chat area and input area
@@ -372,12 +375,12 @@ class FriendChatBoard: public Widget
             uint32_t dbid = 0;
             ShapeClipBoard background;
 
-            FriendChatInputContainer input;
-            FriendChatItemContainer  chat;
+            ChatInputContainer input;
+            ChatItemContainer  chat;
 
             LabelBoard placeholder; // show when there is no chat message
 
-            FriendChatPage(dir8_t,
+            ChatPage(dir8_t,
 
                     int,
                     int,
@@ -388,7 +391,7 @@ class FriendChatBoard: public Widget
             bool processEvent(const SDL_Event &, bool) override;
         };
 
-        struct FriendChatPreviewItem: public Widget
+        struct ChatPreviewItem: public Widget
         {
             constexpr static int WIDTH  = UIPage_WIDTH - UIPage_MARGIN * 2;
             constexpr static int HEIGHT = 50;
@@ -421,7 +424,7 @@ class FriendChatBoard: public Widget
             ShapeClipBoard preview;
             ShapeClipBoard selected;
 
-            FriendChatPreviewItem(dir8_t,
+            ChatPreviewItem(dir8_t,
                     int,
                     int,
 
@@ -434,10 +437,10 @@ class FriendChatBoard: public Widget
             bool processEvent(const SDL_Event &, bool) override;
         };
 
-        struct FriendChatPreviewPage: public Widget
+        struct ChatPreviewPage: public Widget
         {
             Widget canvas;
-            FriendChatPreviewPage(Widget::VarDir,
+            ChatPreviewPage(Widget::VarDir,
 
                     Widget::VarOffset,
                     Widget::VarOffset,
@@ -445,7 +448,7 @@ class FriendChatBoard: public Widget
                     Widget * = nullptr,
                     bool     = false);
 
-            void append(FriendChatPreviewItem *, bool);
+            void append(ChatPreviewItem *, bool);
             void updateChatPreview(uint32_t, const std::string &);
         };
 
