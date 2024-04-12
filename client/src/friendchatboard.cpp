@@ -977,6 +977,7 @@ void FriendChatBoard::FriendChatItemContainer::append(FriendChatItem *chatItem, 
     }
 
     canvas.addChild(chatItem, autoDelete);
+    dynamic_cast<FriendChatPage *>(parent())->placeholder.setShow(false);
 }
 
 bool FriendChatBoard::FriendChatItemContainer::hasItem(const Widget *item) const
@@ -1224,9 +1225,9 @@ FriendChatBoard::FriendChatPage::FriendChatPage(dir8_t argDir,
           u8"没有任何聊天记录，现在就开始聊天吧！",
 
           1,
-          10,
+          12,
           0,
-          colorf::GREY + colorf::A_SHF(127),
+          colorf::GREY + colorf::A_SHF(200),
 
           this,
           false,
@@ -2437,6 +2438,8 @@ void FriendChatBoard::loadChatPage(uint32_t argDBID)
             }
         }
     }
+
+    chatPage->placeholder.setShow(!chatPage->chat.canvas.hasChild());
 }
 
 FriendChatBoard *FriendChatBoard::getParentBoard(Widget *widget)
