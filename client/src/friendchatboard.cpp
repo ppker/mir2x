@@ -673,40 +673,40 @@ void FriendChatBoard::setFriendList(const SDFriendList &sdFL)
     }
 }
 
-void FriendChatBoard::addMessage(const SDChatMessage &newmsg)
+void FriendChatBoard::addMessage(const SDChatMessage &recvMsg)
 {
-    const auto saveInDBID = [&newmsg, this]
+    const auto peerDBID = [&recvMsg, this]
     {
-        if(newmsg.from == m_processRun->getMyHero()->dbid()){
-            return newmsg.to;
+        if(recvMsg.from == m_processRun->getMyHero()->dbid()){
+            return recvMsg.to;
         }
-        else if(newmsg.to == m_processRun->getMyHero()->dbid()){
-            return newmsg.from;
+        else if(recvMsg.to == m_processRun->getMyHero()->dbid()){
+            return recvMsg.from;
         }
         else{
-            throw fflerror("received invalid chat message: from %llu, to %llu, self %llu", to_llu(newmsg.from), to_llu(newmsg.to), to_llu(m_processRun->getMyHero()->dbid()));
+            throw fflerror("received invalid chat message: from %llu, to %llu, self %llu", to_llu(recvMsg.from), to_llu(recvMsg.to), to_llu(m_processRun->getMyHero()->dbid()));
         }
     }();
 
-    auto p = std::find_if(m_friendMessageList.begin(), m_friendMessageList.end(), [saveInDBID](const auto &item)
+    auto peerIter = std::find_if(m_friendMessageList.begin(), m_friendMessageList.end(), [peerDBID](const auto &item)
     {
-        return item.dbid == saveInDBID;
+        return item.dbid == peerDBID;
     });
 
-    if(p == m_friendMessageList.end()){
-        m_friendMessageList.emplace_front(saveInDBID);
+    if(peerIter == m_friendMessageList.end()){
+        m_friendMessageList.emplace_front(peerDBID);
     }
-    else if(p != m_friendMessageList.begin()){
-        m_friendMessageList.splice(m_friendMessageList.begin(), m_friendMessageList, p, std::next(p));
+    else if(peerIter != m_friendMessageList.begin()){
+        m_friendMessageList.splice(m_friendMessageList.begin(), m_friendMessageList, peerIter, std::next(peerIter));
     }
 
-    p = m_friendMessageList.begin();
-    if(std::find_if(p->list.begin(), p->list.end(), [&newmsg](const auto &msg){ return msg.id == newmsg.id; }) == p->list.end()){
-        p->unread++;
-        p->list.push_back(newmsg);
+    peerIter = m_friendMessageList.begin();
+    if(std::find_if(peerIter->list.begin(), peerIter->list.end(), [&recvMsg](const auto &msg){ return msg.id == recvMsg.id; }) == peerIter->list.end()){
+        peerIter->unread++;
+        peerIter->list.push_back(recvMsg);
 
-        if(p->list.size() >= 2 && p->list.back().timestamp < p->list.rbegin()[1].timestamp){
-            std::sort(p->list.begin(), p->list.end(), [](const auto &x, const auto &y)
+        if(peerIter->list.size() >= 2 && peerIter->list.back().timestamp < peerIter->list.rbegin()[1].timestamp){
+            std::sort(peerIter->list.begin(), peerIter->list.end(), [](const auto &x, const auto &y)
             {
                 if(x.timestamp != y.timestamp){
                     return x.timestamp < y.timestamp;
@@ -716,19 +716,19 @@ void FriendChatBoard::addMessage(const SDChatMessage &newmsg)
                 }
             });
 
-            if(dynamic_cast<ChatPage *>(m_uiPageList[UIPage_CHAT].page)->dbid == p->dbid){
-                loadChatPage(p->dbid);
+            if(dynamic_cast<ChatPage *>(m_uiPageList[UIPage_CHAT].page)->dbid == peerIter->dbid){
+                loadChatPage(peerIter->dbid);
             }
         }
         else{
-            if(auto chatPage = dynamic_cast<ChatPage *>(m_uiPageList[UIPage_CHAT].page); chatPage->dbid == p->dbid){
+            if(auto chatPage = dynamic_cast<ChatPage *>(m_uiPageList[UIPage_CHAT].page); chatPage->dbid == peerIter->dbid){
                 chatPage->chat.append(new ChatItem
                 {
                     DIR_UPLEFT,
                     0,
                     0,
 
-                    [currDBID = p->dbid, this]() -> const char8_t *
+                    [currDBID = peerIter->dbid, this]() -> const char8_t *
                     {
                         if(currDBID == SYS_CHATDBID_SYSTEM){
                             return u8"系统消息";
@@ -746,9 +746,9 @@ void FriendChatBoard::addMessage(const SDChatMessage &newmsg)
                         return to_u8cstr(friendIter->name);
                     }(),
 
-                    to_u8cstr(cerealf::deserialize<std::string>(p->list.back().message)),
+                    to_u8cstr(cerealf::deserialize<std::string>(peerIter->list.back().message)),
 
-                    [currDBID = p->dbid, this](const ImageBoard *)
+                    [currDBID = peerIter->dbid, this](const ImageBoard *)
                     {
                         if(currDBID == SYS_CHATDBID_SYSTEM){
                             return g_progUseDB->retrieve(0X00001100);
@@ -772,8 +772,8 @@ void FriendChatBoard::addMessage(const SDChatMessage &newmsg)
                     {},
                 }, true);
             }
-            dynamic_cast<ChatPreviewPage *>(m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(saveInDBID, cerealf::deserialize<std::string>(p->list.back().message));
         }
+        dynamic_cast<ChatPreviewPage *>(m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(peerDBID, cerealf::deserialize<std::string>(peerIter->list.back().message));
     }
 }
 
