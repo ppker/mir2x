@@ -38,12 +38,6 @@ FriendChatBoard::ChatPreviewPage::ChatPreviewPage(Widget::VarDir argDir,
       }
 {}
 
-void FriendChatBoard::ChatPreviewPage::append(ChatPreviewItem *item, bool autoDelete)
-{
-    item->moveAt(DIR_UPLEFT, 0, canvas.h());
-    canvas.addChild(item, autoDelete);
-}
-
 void FriendChatBoard::ChatPreviewPage::updateChatPreview(uint32_t argDBID, const std::string &argMsg)
 {
     ChatPreviewItem *child = dynamic_cast<ChatPreviewItem *>(canvas.hasChild([argDBID](const Widget *widgetPtr, bool)
@@ -67,10 +61,12 @@ void FriendChatBoard::ChatPreviewPage::updateChatPreview(uint32_t argDBID, const
             argDBID,
             to_u8cstr(argMsg),
 
-            this, // image load func uses getParentBoard(this)
+            &canvas, // image load func uses getParentBoard(this)
             true,
         };
-        append(child, true);
+
+        child->moveAt(DIR_UPLEFT, 0, canvas.h());
+        canvas.addChild(child, true);
     }
 
     canvas.moveFront(child);

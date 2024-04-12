@@ -41,23 +41,9 @@ FriendChatBoard::ChatPreviewItem::ChatPreviewItem(dir8_t argDir,
           ChatPreviewItem::AVATAR_WIDTH,
           ChatPreviewItem::HEIGHT,
 
-          [this](const ImageBoard *) -> SDL_Texture *
+          [argDBID, this](const ImageBoard *) -> SDL_Texture *
           {
-              if(this->dbid == SYS_CHATDBID_SYSTEM){
-                  return g_progUseDB->retrieve(0X00001100);
-              }
-
-              auto boardPtr = FriendChatBoard::getParentBoard(this);
-              const auto p = std::find_if(boardPtr->m_sdFriendList.begin(), boardPtr->m_sdFriendList.end(), [this](const auto &x)
-              {
-                  return this->dbid == x.dbid;
-              });
-
-              if(p == boardPtr->m_sdFriendList.end()){
-                  return g_progUseDB->retrieve(0X010007CF);
-              }
-
-              return g_progUseDB->retrieve(Hero::faceGfxID(p->gender, p->job));
+              return g_progUseDB->retrieve((argDBID == SYS_CHATDBID_SYSTEM) ? 0X00001100 : 0X010007CF);
           },
 
           false,
@@ -76,13 +62,7 @@ FriendChatBoard::ChatPreviewItem::ChatPreviewItem(dir8_t argDir,
           ChatPreviewItem::AVATAR_WIDTH + ChatPreviewItem::GAP,
           ChatPreviewItem::NAME_HEIGHT / 2,
 
-          [this]() -> const char8_t *
-          {
-              if(this->dbid == SYS_CHATDBID_SYSTEM){
-                  return u8"系统消息";
-              }
-              return u8"绝地武士";
-          }(),
+          argDBID == SYS_CHATDBID_SYSTEM ? u8"系统消息" : u8"未知用户",
 
           1,
           14,
@@ -156,7 +136,26 @@ FriendChatBoard::ChatPreviewItem::ChatPreviewItem(dir8_t argDir,
           this,
           false,
       }
-{}
+{
+    if(this->dbid != SYS_CHATDBID_SYSTEM){
+        FriendChatBoard::getParentBoard(this)->queryPlayerCandidate(this->dbid, [canvas = parent(), this](const SDPlayerCandidate *candidate)
+        {
+            if(!canvas->hasChild(this)){
+                return;
+            }
+
+            if(!candidate){
+                return;
+            }
+
+            this->name.setText(to_u8cstr(candidate->name));
+            this->avatar.setLoadFunc([gender = candidate->gender, job = candidate->job](const ImageBoard *)
+            {
+                return g_progUseDB->retrieve(Hero::faceGfxID(gender, job));
+            });
+        });
+    }
+}
 
 bool FriendChatBoard::ChatPreviewItem::processEvent(const SDL_Event &event, bool valid)
 {

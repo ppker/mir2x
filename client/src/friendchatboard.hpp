@@ -450,7 +450,6 @@ class FriendChatBoard: public Widget
                     Widget * = nullptr,
                     bool     = false);
 
-            void append(ChatPreviewItem *, bool);
             void updateChatPreview(uint32_t, const std::string &);
         };
 
