@@ -61,7 +61,7 @@ FriendChatBoard::FriendItem::FriendItem(dir8_t argDir,
           [this](const Widget *, int drawDstX, int drawDstY)
           {
               if(const auto [mousePX, mousePY] = SDLDeviceHelper::getMousePLoc(); in(mousePX, mousePY)){
-                  g_sdlDevice->fillRectangle(colorf::GREEN              + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
+                  g_sdlDevice->fillRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
                   g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
               }
               else{
@@ -404,7 +404,7 @@ FriendChatBoard::FriendSearchAutoCompletionItem::FriendSearchAutoCompletionItem(
           [this](const Widget *, int drawDstX, int drawDstY)
           {
               if(const auto [mousePX, mousePY] = SDLDeviceHelper::getMousePLoc(); in(mousePX, mousePY)){
-                  g_sdlDevice->fillRectangle(colorf::GREEN              + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
+                  g_sdlDevice->fillRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
                   g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
               }
               else{
@@ -1423,7 +1423,7 @@ FriendChatBoard::FriendChatPreviewItem::FriendChatPreviewItem(dir8_t argDir,
           [this](const Widget *, int drawDstX, int drawDstY)
           {
               if(const auto [mousePX, mousePY] = SDLDeviceHelper::getMousePLoc(); in(mousePX, mousePY)){
-                  g_sdlDevice->fillRectangle(colorf::GREEN              + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
+                  g_sdlDevice->fillRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
                   g_sdlDevice->drawRectangle(colorf::RGB(231, 231, 189) + colorf::A_SHF(64), drawDstX, drawDstY, w(), h());
               }
               else{

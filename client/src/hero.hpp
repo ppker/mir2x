@@ -220,7 +220,7 @@ class Hero: public CreatureMovable
     public:
         uint32_t faceGfxID() const
         {
-            return Hero::faceGfxID(job(), gender());
+            return Hero::faceGfxID(gender(), job());
         }
 
     public:
