@@ -1214,6 +1214,23 @@ FriendChatBoard::FriendChatPage::FriendChatPage(dir8_t argDir,
           this,
           false,
       }
+
+    , placeholder
+      {
+          DIR_UP,
+          UIPage_WIDTH / 2,
+          UIPage_MARGIN + FriendChatPage::PLACEHOLDER_MARGIN,
+
+          u8"没有任何聊天记录，现在就开始聊天吧！",
+
+          1,
+          10,
+          0,
+          colorf::GREY + colorf::A_SHF(127),
+
+          this,
+          false,
+      }
 {}
 
 bool FriendChatBoard::FriendChatPage::processEvent(const SDL_Event &event, bool valid)

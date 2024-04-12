@@ -367,11 +367,15 @@ class FriendChatBoard: public Widget
             constexpr static int INPUT_MIN_HEIGHT =  10;
             constexpr static int INPUT_MAX_HEIGHT = 200;
 
+            constexpr static int PLACEHOLDER_MARGIN = 10;
+
             uint32_t dbid = 0;
             ShapeClipBoard background;
 
             FriendChatInputContainer input;
             FriendChatItemContainer  chat;
+
+            LabelBoard placeholder; // show when there is no chat message
 
             FriendChatPage(dir8_t,
 
