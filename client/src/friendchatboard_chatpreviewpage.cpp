@@ -69,7 +69,7 @@ void FriendChatBoard::ChatPreviewPage::updateChatPreview(uint32_t argDBID, const
     canvas.moveFront(child);
 
     int startY = 0;
-    foreachChild([&startY](Widget *widget, bool)
+    canvas.foreachChild([&startY](Widget *widget, bool)
     {
         widget->moveAt(DIR_UPLEFT, 0, startY);
         startY += widget->h();
