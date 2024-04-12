@@ -274,6 +274,8 @@ class FriendChatBoard: public Widget
                     int,
                     int,
 
+                    std::optional<uint64_t>,
+
                     const char8_t *,
                     const char8_t *,
 
@@ -312,7 +314,7 @@ class FriendChatBoard: public Widget
                     bool     = false);
 
             void append(ChatItem *, bool);
-            void append(uint32_t, bool, const std::string &);
+            void append(uint32_t, std::optional<uint64_t>, bool, const std::string &);
 
             bool hasItem(const Widget *) const;
         };

@@ -781,7 +781,7 @@ void FriendChatBoard::addMessage(const SDChatMessage &recvMsg)
         }
         else{
             if(auto chatPage = dynamic_cast<ChatPage *>(m_uiPageList[UIPage_CHAT].page); chatPage->dbid == peerIter->dbid){
-                chatPage->chat.append(peerIter->dbid, peerDBID != m_processRun->getMyHero()->dbid(), cerealf::deserialize<std::string>(peerIter->list.back().message));
+                chatPage->chat.append(peerIter->dbid, peerIter->list.back().id, peerDBID != m_processRun->getMyHero()->dbid(), cerealf::deserialize<std::string>(peerIter->list.back().message));
             }
         }
         dynamic_cast<ChatPreviewPage *>(m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(peerDBID, cerealf::deserialize<std::string>(peerIter->list.back().message));
@@ -827,7 +827,7 @@ void FriendChatBoard::loadChatPage(uint32_t argDBID)
             }
 
             for(const auto &msg: node.list){
-                chatPage->chat.append(msg.from, msg.from != m_processRun->getMyHero()->dbid(), cerealf::deserialize<std::string>(msg.message));
+                chatPage->chat.append(msg.from, msg.id, msg.from != m_processRun->getMyHero()->dbid(), cerealf::deserialize<std::string>(msg.message));
             }
         }
     }

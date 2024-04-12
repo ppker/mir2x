@@ -78,6 +78,7 @@ FriendChatBoard::ChatInputContainer::ChatInputContainer(dir8_t argDir,
                   0,
                   0,
 
+                  {},
                   to_u8cstr(FriendChatBoard::getParentBoard(this)->m_processRun->getMyHero()->getName()),
                   to_u8cstr(message),
 

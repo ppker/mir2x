@@ -7,6 +7,8 @@ FriendChatBoard::ChatItem::ChatItem(dir8_t argDir,
         int argX,
         int argY,
 
+        std::optional<uint64_t> argIDOpt,
+
         const char8_t *argNameStr,
         const char8_t *argMessageStr,
 
@@ -33,6 +35,7 @@ FriendChatBoard::ChatItem::ChatItem(dir8_t argDir,
           argAutoDelete,
       }
 
+    , idOpt(argIDOpt)
     , showName(argShowName)
     , avatarLeft(argAvatarLeft)
     , bgColor(std::move(argBGColor))

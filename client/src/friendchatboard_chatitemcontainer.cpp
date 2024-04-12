@@ -48,7 +48,7 @@ FriendChatBoard::ChatItemContainer::ChatItemContainer(dir8_t argDir,
       }
 {}
 
-void FriendChatBoard::ChatItemContainer::append(uint32_t argDBID, bool argAvatarLeft, const std::string &argMsg)
+void FriendChatBoard::ChatItemContainer::append(uint32_t argDBID, std::optional<uint64_t> argIDOpt, bool argAvatarLeft, const std::string &argMsg)
 {
     if(argDBID == SYS_CHATDBID_SYSTEM){
         append(new ChatItem
@@ -57,6 +57,7 @@ void FriendChatBoard::ChatItemContainer::append(uint32_t argDBID, bool argAvatar
             0,
             0,
 
+            argIDOpt,
             u8"系统消息",
             to_u8cstr(argMsg),
 
@@ -72,7 +73,7 @@ void FriendChatBoard::ChatItemContainer::append(uint32_t argDBID, bool argAvatar
         }, true);
     }
     else{
-        FriendChatBoard::getParentBoard(this)->queryPlayerCandidate(argDBID, [argDBID, argAvatarLeft, argMsg, this](const SDPlayerCandidate *candidate)
+        FriendChatBoard::getParentBoard(this)->queryPlayerCandidate(argDBID, [argIDOpt, argAvatarLeft, argMsg, this](const SDPlayerCandidate *candidate)
         {
             if(!candidate){
                 return;
@@ -84,10 +85,11 @@ void FriendChatBoard::ChatItemContainer::append(uint32_t argDBID, bool argAvatar
                 0,
                 0,
 
+                argIDOpt,
                 to_u8cstr(candidate->name),
                 to_u8cstr(argMsg),
 
-                [argDBID, gender = candidate->gender, job = candidate->job, this](const ImageBoard *)
+                [gender = candidate->gender, job = candidate->job, this](const ImageBoard *)
                 {
                     return g_progUseDB->retrieve(Hero::faceGfxID(gender, job));
                 },
