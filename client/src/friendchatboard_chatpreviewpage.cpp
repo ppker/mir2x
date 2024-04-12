@@ -64,9 +64,6 @@ void FriendChatBoard::ChatPreviewPage::updateChatPreview(uint32_t argDBID, const
             &canvas, // image load func uses getParentBoard(this)
             true,
         };
-
-        child->moveAt(DIR_UPLEFT, 0, canvas.h());
-        canvas.addChild(child, true);
     }
 
     canvas.moveFront(child);
