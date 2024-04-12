@@ -673,6 +673,65 @@ void FriendChatBoard::setFriendList(const SDFriendList &sdFL)
     }
 }
 
+const SDPlayerCandidate *FriendChatBoard::findFriend(uint32_t argDBID) const
+{
+    if(auto p = std::find_if(m_sdFriendList.begin(), m_sdFriendList.end(), [argDBID](const auto &x) { return argDBID == x.dbid; }); p != m_sdFriendList.end()){
+        return std::addressof(*p);
+    }
+    return nullptr;
+}
+
+void FriendChatBoard::queryPlayerCandidate(uint32_t argDBID, std::function<void(const SDPlayerCandidate *)> fnOp)
+{
+    if(auto p = findFriend(argDBID)){
+        if(fnOp){
+            fnOp(p);
+        }
+    }
+    else{
+        CMQueryPlayerCandidates cmQPC;
+        std::memset(&cmQPC, 0, sizeof(cmQPC));
+
+        cmQPC.input.assign(std::to_string(argDBID));
+        g_client->send({CM_QUERYPLAYERCANDIDATES, cmQPC}, [argDBID, fnOp = std::move(fnOp), this](uint8_t headCode, const uint8_t *data, size_t size)
+        {
+            switch(headCode){
+                case SM_OK:
+                  {
+                      switch(const auto sdPCL = cerealf::deserialize<SDPlayerCandidateList>(data, size); sdPCL.size()){
+                          case 0:
+                              {
+                                  if(fnOp){
+                                      fnOp(nullptr);
+                                  }
+                                  return;
+                              }
+                          case 1:
+                              {
+                                  if(sdPCL.begin()->dbid == argDBID){
+                                      if(fnOp){
+                                          fnOp(std::addressof(sdPCL.front()));
+                                      }
+                                      return;
+                                  }
+
+                                  [[fallthrough]];
+                              }
+                          default:
+                              {
+                                  throw fflerror("invalid query result from server, dbid %llu", to_llu(argDBID));
+                              }
+                      }
+                  }
+              default:
+                  {
+                      throw fflerror("query failed in server");
+                  }
+            }
+        });
+    }
+}
+
 void FriendChatBoard::addMessage(const SDChatMessage &recvMsg)
 {
     const auto peerDBID = [&recvMsg, this]

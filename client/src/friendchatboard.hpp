@@ -545,6 +545,12 @@ class FriendChatBoard: public Widget
         bool processEvent(const SDL_Event &, bool) override;
 
     public:
+        const SDPlayerCandidate *findFriend(uint32_t) const;
+
+    private:
+        void queryPlayerCandidate(uint32_t, std::function<void(const SDPlayerCandidate *)>);
+
+    public:
         void addMessage(const SDChatMessage &);
         void setFriendList(const SDFriendList &);
 
