@@ -617,10 +617,10 @@ SDChatMessageList Player::dbRetrieveLatestChatMessage(const uint32_t *dbidList, 
     while(query.executeStep()){
         result.push_back(SDChatMessage
         {
-            .id        = check_cast<uint64_t, unsigned>(query.getColumn("fld_id")),
-            .from      = check_cast<uint32_t, unsigned>(query.getColumn("fld_from")),
-            .to        = check_cast<uint32_t, unsigned>(query.getColumn("fld_to")),
-            .timestamp = check_cast<uint64_t, unsigned>(query.getColumn("fld_timestamp")),
+            .id        = to_u64(query.getColumn("fld_id").getInt64()),
+            .from      = to_u32(query.getColumn("fld_from")),
+            .to        = to_u32(query.getColumn("fld_to")),
+            .timestamp = to_u64(query.getColumn("fld_timestamp").getInt64()),
             .message   = query.getColumn("fld_message").getString(),
         });
     }
