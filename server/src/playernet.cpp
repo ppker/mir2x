@@ -295,21 +295,21 @@ void Player::net_CM_CHATMESSAGE(uint8_t, const uint8_t *buf, size_t bufSize, uin
     msgBuf = as_sv(buf + 4, bufSize - 4);
 
     const auto [msgId, tstamp] = dbSaveChatMessage(toDBID, msgBuf);
-
-    forwardNetPackage(uidf::getPlayerUID(toDBID), SM_CHATMESSAGELIST, cerealf::serialize(SDChatMessageList
-    {
-        SDChatMessage
+    if(toDBID != dbid()){
+        forwardNetPackage(uidf::getPlayerUID(toDBID), SM_CHATMESSAGELIST, cerealf::serialize(SDChatMessageList
         {
-            .id = msgId,
+            SDChatMessage
+            {
+                .id = msgId,
 
-            .from = dbid(),
-            .to   = toDBID,
+                .from = dbid(),
+                .to   = toDBID,
 
-            .timestamp = tstamp,
-            .message = std::move(msgBuf), // keep serialized
-        },
-    }));
-
+                .timestamp = tstamp,
+                .message = std::move(msgBuf), // keep serialized
+            },
+        }));
+    }
     postNetMessage(SM_OK, cerealf::serialize(SDChatMessageID{msgId}), respID);
 }
 

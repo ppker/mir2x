@@ -544,6 +544,9 @@ class FriendChatBoard: public Widget
         void setUIPage(int, const char * = nullptr);
 
     public:
+        void loadChatPage(uint32_t);
+
+    public:
         static       FriendChatBoard *getParentBoard(      Widget *);
         static const FriendChatBoard *getParentBoard(const Widget *);
 };
