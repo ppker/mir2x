@@ -737,10 +737,14 @@ void Player::operateNet(uint8_t nType, const uint8_t *pData, size_t nDataLen, ui
         _support_cm(CM_REQUESTKILLPETS           );
         _support_cm(CM_REQUESTLEAVETEAM          );
         _support_cm(CM_REQUESTRETRIEVESECUREDITEM);
+        _support_cm(CM_REQUESTLATESTCHATMESSAGE  );
         _support_cm(CM_REQUESTSPACEMOVE          );
         _support_cm(CM_SETMAGICKEY               );
         _support_cm(CM_SETRUNTIMECONFIG          );
-        default: break;
+        default:
+            {
+                throw fflerror("unsupported client message: %s", ClientMsg(nType).name().c_str());
+            }
 #undef _support_cm
     }
 }
