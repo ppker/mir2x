@@ -48,12 +48,8 @@ FriendChatBoard::ChatItemContainer::ChatItemContainer(dir8_t argDir,
       }
 {}
 
-void FriendChatBoard::ChatItemContainer::append(uint32_t argDBID, const std::string &argMsg)
+void FriendChatBoard::ChatItemContainer::append(uint32_t argDBID, bool argAvatarLeft, const std::string &argMsg)
 {
-    if(const auto chatPage = dynamic_cast<ChatPage *>(parent()); chatPage->dbid != argDBID){
-        throw fflerror("append chat message from %llu to chat page which is used for another friend %llu", to_llu(argDBID), to_llu(chatPage->dbid));
-    }
-
     if(argDBID == SYS_CHATDBID_SYSTEM){
         append(new ChatItem
         {
@@ -70,18 +66,14 @@ void FriendChatBoard::ChatItemContainer::append(uint32_t argDBID, const std::str
             },
 
             true,
-            true,
+            argAvatarLeft,
 
             {},
         }, true);
     }
     else{
-        FriendChatBoard::getParentBoard(this)->queryPlayerCandidate(argDBID, [argDBID, argMsg, this](const SDPlayerCandidate *candidate)
+        FriendChatBoard::getParentBoard(this)->queryPlayerCandidate(argDBID, [argDBID, argAvatarLeft, argMsg, this](const SDPlayerCandidate *candidate)
         {
-            if(dynamic_cast<ChatPage *>(parent())->dbid != argDBID){
-                return;
-            }
-
             if(!candidate){
                 return;
             }
@@ -101,7 +93,7 @@ void FriendChatBoard::ChatItemContainer::append(uint32_t argDBID, const std::str
                 },
 
                 true,
-                true,
+                argAvatarLeft,
 
                 {},
             }, true);
