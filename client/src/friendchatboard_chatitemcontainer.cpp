@@ -54,57 +54,59 @@ void FriendChatBoard::ChatItemContainer::append(uint32_t argDBID, const std::str
         throw fflerror("append chat message from %llu to chat page which is used for another friend %llu", to_llu(argDBID), to_llu(chatPage->dbid));
     }
 
-    append(new ChatItem
-    {
-        DIR_UPLEFT,
-        0,
-        0,
-
-        [argDBID, this]() -> const char8_t *
+    if(argDBID == SYS_CHATDBID_SYSTEM){
+        append(new ChatItem
         {
-            if(argDBID == SYS_CHATDBID_SYSTEM){
-                return u8"系统消息";
-            }
+            DIR_UPLEFT,
+            0,
+            0,
 
-            const auto boardPtr = FriendChatBoard::getParentBoard(this);
-            const auto p = std::find_if(boardPtr->m_sdFriendList.begin(), boardPtr->m_sdFriendList.end(), [argDBID](const auto &x)
+            u8"系统消息",
+            to_u8cstr(argMsg),
+
+            [](const ImageBoard *)
             {
-                return argDBID == x.dbid;
-            });
-
-            if(p == boardPtr->m_sdFriendList.end()){
-                return u8"未知";
-            }
-
-            return to_u8cstr(p->name);
-        }(),
-
-        to_u8cstr(argMsg),
-
-        [argDBID, this](const ImageBoard *)
-        {
-            if(argDBID == SYS_CHATDBID_SYSTEM){
                 return g_progUseDB->retrieve(0X00001100);
+            },
+
+            true,
+            true,
+
+            {},
+        }, true);
+    }
+    else{
+        FriendChatBoard::getParentBoard(this)->queryPlayerCandidate(argDBID, [argDBID, argMsg, this](const SDPlayerCandidate *candidate)
+        {
+            if(dynamic_cast<ChatPage *>(parent())->dbid != argDBID){
+                return;
             }
 
-            const auto boardPtr = FriendChatBoard::getParentBoard(this);
-            const auto p = std::find_if(boardPtr->m_sdFriendList.begin(), boardPtr->m_sdFriendList.end(), [argDBID](const auto &x)
+            if(!candidate){
+                return;
+            }
+
+            this->append(new ChatItem
             {
-                return argDBID == x.dbid;
-            });
+                DIR_UPLEFT,
+                0,
+                0,
 
-            if(p == boardPtr->m_sdFriendList.end()){
-                return g_progUseDB->retrieve(0X010007CF);
-            }
+                to_u8cstr(candidate->name),
+                to_u8cstr(argMsg),
 
-            return g_progUseDB->retrieve(Hero::faceGfxID(p->gender, p->job));
-        },
+                [argDBID, gender = candidate->gender, job = candidate->job, this](const ImageBoard *)
+                {
+                    return g_progUseDB->retrieve(Hero::faceGfxID(gender, job));
+                },
 
-        true,
-        true,
+                true,
+                true,
 
-        {},
-    }, true);
+                {},
+            }, true);
+        });
+    }
 }
 
 void FriendChatBoard::ChatItemContainer::append(ChatItem *chatItem, bool autoDelete)
