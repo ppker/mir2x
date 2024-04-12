@@ -722,55 +722,7 @@ void FriendChatBoard::addMessage(const SDChatMessage &recvMsg)
         }
         else{
             if(auto chatPage = dynamic_cast<ChatPage *>(m_uiPageList[UIPage_CHAT].page); chatPage->dbid == peerIter->dbid){
-                chatPage->chat.append(new ChatItem
-                {
-                    DIR_UPLEFT,
-                    0,
-                    0,
-
-                    [currDBID = peerIter->dbid, this]() -> const char8_t *
-                    {
-                        if(currDBID == SYS_CHATDBID_SYSTEM){
-                            return u8"系统消息";
-                        }
-
-                        const auto friendIter = std::find_if(m_sdFriendList.begin(), m_sdFriendList.end(), [currDBID](const auto &x)
-                        {
-                            return currDBID == x.dbid;
-                        });
-
-                        if(friendIter == m_sdFriendList.end()){
-                            return u8"未知";
-                        }
-
-                        return to_u8cstr(friendIter->name);
-                    }(),
-
-                    to_u8cstr(cerealf::deserialize<std::string>(peerIter->list.back().message)),
-
-                    [currDBID = peerIter->dbid, this](const ImageBoard *)
-                    {
-                        if(currDBID == SYS_CHATDBID_SYSTEM){
-                            return g_progUseDB->retrieve(0X00001100);
-                        }
-
-                        const auto friendIter = std::find_if(m_sdFriendList.begin(), m_sdFriendList.end(), [currDBID](const auto &x)
-                        {
-                            return currDBID == x.dbid;
-                        });
-
-                        if(friendIter == m_sdFriendList.end()){
-                            return g_progUseDB->retrieve(0X010007CF);
-                        }
-
-                        return g_progUseDB->retrieve(Hero::faceGfxID(friendIter->gender, friendIter->job));
-                    },
-
-                    true,
-                    true,
-
-                    {},
-                }, true);
+                chatPage->chat.append(peerIter->dbid, cerealf::deserialize<std::string>(peerIter->list.back().message));
             }
         }
         dynamic_cast<ChatPreviewPage *>(m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(peerDBID, cerealf::deserialize<std::string>(peerIter->list.back().message));
@@ -807,8 +759,8 @@ void FriendChatBoard::setUIPage(int uiPage, const char *titleStr)
 void FriendChatBoard::loadChatPage(uint32_t argDBID)
 {
     auto chatPage = dynamic_cast<ChatPage *>(m_uiPageList[UIPage_CHAT].page);
-
     chatPage->chat.canvas.clearChild();
+
     for(const auto &node: m_friendMessageList){
         if(node.dbid == argDBID){
             if(node.list.size() <= 1){
@@ -816,55 +768,7 @@ void FriendChatBoard::loadChatPage(uint32_t argDBID)
             }
 
             for(const auto &msg: node.list){
-                chatPage->chat.append(new ChatItem
-                {
-                    DIR_UPLEFT,
-                    0,
-                    0,
-
-                    [chatPage, this]() -> const char8_t *
-                    {
-                        if(chatPage->dbid == SYS_CHATDBID_SYSTEM){
-                            return u8"系统消息";
-                        }
-
-                        const auto p = std::find_if(m_sdFriendList.begin(), m_sdFriendList.end(), [chatPage](const auto &x)
-                        {
-                            return chatPage->dbid == x.dbid;
-                        });
-
-                        if(p == m_sdFriendList.end()){
-                            return u8"未知";
-                        }
-
-                        return to_u8cstr(p->name);
-                    }(),
-
-                    to_u8cstr(cerealf::deserialize<std::string>(msg.message)),
-
-                    [chatPage, this](const ImageBoard *)
-                    {
-                        if(chatPage->dbid == SYS_CHATDBID_SYSTEM){
-                            return g_progUseDB->retrieve(0X00001100);
-                        }
-
-                        const auto p = std::find_if(m_sdFriendList.begin(), m_sdFriendList.end(), [chatPage](const auto &x)
-                        {
-                            return chatPage->dbid == x.dbid;
-                        });
-
-                        if(p == m_sdFriendList.end()){
-                            return g_progUseDB->retrieve(0X010007CF);
-                        }
-
-                        return g_progUseDB->retrieve(Hero::faceGfxID(p->gender, p->job));
-                    },
-
-                    true,
-                    true,
-
-                    {},
-                }, true);
+                chatPage->chat.append(argDBID, cerealf::deserialize<std::string>(msg.message));
             }
         }
     }

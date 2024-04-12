@@ -312,6 +312,8 @@ class FriendChatBoard: public Widget
                     bool     = false);
 
             void append(ChatItem *, bool);
+            void append(uint32_t, const std::string &);
+
             bool hasItem(const Widget *) const;
         };
 
