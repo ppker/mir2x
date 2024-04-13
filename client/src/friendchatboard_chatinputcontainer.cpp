@@ -42,7 +42,7 @@ FriendChatBoard::ChatInputContainer::ChatInputContainer(dir8_t argDir,
 
           this->w(),
 
-          "<layout><par>正在输入的内容。。。</par></layout>",
+          nullptr,
           0,
 
           {},
