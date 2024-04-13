@@ -103,7 +103,7 @@ FriendChatBoard::ChatInputContainer::ChatInputContainer(dir8_t argDir,
               auto msgbuf = cerealf::serialize(message);
 
               msgbuf.insert(msgbuf.begin(), dbidsv.begin(), dbidsv.end());
-              g_client->send({CM_CHATMESSAGE, msgbuf}, [newItem, this](uint8_t headCode, const uint8_t *buf, size_t bufSize)
+              g_client->send({CM_CHATMESSAGE, msgbuf}, [newItem, message, toDBID, this](uint8_t headCode, const uint8_t *buf, size_t bufSize)
               {
                   switch(headCode){
                       case SM_OK:
@@ -111,9 +111,22 @@ FriendChatBoard::ChatInputContainer::ChatInputContainer(dir8_t argDir,
                               // TBD allocator may reuse memory
                               // so item with same memory address may not be same item
 
+                              const auto sdCMID = cerealf::deserialize<SDChatMessageID>(buf, bufSize);
                               if(dynamic_cast<ChatPage *>(parent())->chat.hasItem(newItem)){
-                                  newItem->idOpt = cerealf::deserialize<SDChatMessageID>(buf, bufSize);
+                                  newItem->idOpt = sdCMID.id;
                               }
+
+                              // create manually here
+                              // sever won't echo the sent chat message
+
+                              FriendChatBoard::getParentBoard(this)->addMessage(SDChatMessage
+                              {
+                                  .id = sdCMID.id,
+                                  .from = FriendChatBoard::getParentBoard(this)->m_processRun->getMyHero()->dbid(),
+                                  .to = toDBID,
+                                  .timestamp = sdCMID.timestamp,
+                                  .message = cerealf::serialize(message),
+                              });
                               break;
                           }
                       default:

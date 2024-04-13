@@ -671,7 +671,17 @@ struct SDChatMessage
     }
 };
 
-using SDChatMessageID = uint64_t;
+struct SDChatMessageID
+{
+    uint64_t id = 0;
+    uint64_t timestamp = 0;
+
+    template<typename Archive> void serialize(Archive & ar)
+    {
+        ar(id, timestamp);
+    }
+};
+
 using SDChatMessageList = std::vector<SDChatMessage>;
 
 struct SDNPCEvent
