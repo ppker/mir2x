@@ -568,7 +568,7 @@ class FriendChatBoard: public Widget
 
     public:
         void setChatPeer(const SDChatPeer &, bool);
-        void setUIPage(int, const char * = nullptr);
+        void setUIPage(int);
 
     public:
         void loadChatPage();

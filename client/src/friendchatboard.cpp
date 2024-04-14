@@ -274,6 +274,16 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                   this,
                   true,
               },
+
+              .enter = [](int, Widget *)
+              {
+                  std::cout << "1222222" << std::endl;
+              },
+
+              .exit = [](int, Widget *)
+              {
+
+              },
           },
 
           UIPageWidgetGroup // UIPage_CHATPREVIEW
@@ -839,22 +849,28 @@ void FriendChatBoard::setChatPeer(const SDChatPeer &sdCP, bool forceReload)
     }
 }
 
-void FriendChatBoard::setUIPage(int uiPage, const char *titleStr)
+void FriendChatBoard::setUIPage(int uiPage)
 {
     fflassert(uiPage >= 0, uiPage);
     fflassert(uiPage < UIPage_END, uiPage);
 
-    if(m_uiPage != uiPage){
-        m_uiLastPage = m_uiPage;
-        m_uiPage     = uiPage;
+    const auto fromPage = m_uiPage;
+    const auto   toPage =   uiPage;
 
-        m_uiPageList[m_uiLastPage].page->setFocus(false);
-        m_uiPageList[m_uiPage    ].page->setFocus(true );
-
-
-        if(titleStr){
-            m_uiPageList[m_uiPage].title->setText(to_u8cstr(titleStr));
+    if(fromPage != toPage){
+        if(m_uiPageList[fromPage].exit){
+            m_uiPageList[fromPage].exit(toPage, m_uiPageList[fromPage].page);
         }
+
+        if(m_uiPageList[toPage].enter){
+            m_uiPageList[toPage].enter(fromPage, m_uiPageList[toPage].page);
+        }
+
+        m_uiLastPage = fromPage;
+        m_uiPage     =   toPage;
+
+        m_uiPageList[fromPage].page->setFocus(false);
+        m_uiPageList[  toPage].page->setFocus(true );
     }
 }
 

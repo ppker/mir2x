@@ -149,7 +149,7 @@ bool FriendChatBoard::FriendItem::processEvent(const SDL_Event &event, bool vali
                         throw fflerror("item is not associated with a friend: dbid %llu", to_llu(this->dbid));
                     }
 
-                    boardPtr->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
+                    boardPtr->setUIPage(FriendChatBoard::UIPage_CHAT);
                     boardPtr->m_processRun->requestLatestChatMessage({this->dbid}, 50, true, true);
                     return consumeFocus(true);
                 }

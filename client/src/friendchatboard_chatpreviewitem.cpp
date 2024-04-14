@@ -189,7 +189,7 @@ bool FriendChatBoard::ChatPreviewItem::processEvent(const SDL_Event &event, bool
                         auto boardPtr = FriendChatBoard::getParentBoard(this);
 
                         boardPtr->setChatPeer(*peer, true);
-                        boardPtr->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
+                        boardPtr->setUIPage(FriendChatBoard::UIPage_CHAT);
                     });
                     return consumeFocus(true);
                 }
