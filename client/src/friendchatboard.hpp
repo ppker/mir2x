@@ -511,15 +511,6 @@ class FriendChatBoard: public Widget
             std::vector<SDChatMessage> list;
         };
 
-        // locally sent messages that not confirmed to be received by server side yet
-        // each message needs a locally used sequential id
-
-        struct LocalMessagePending
-        {
-            size_t seq = 1;
-            std::map<size_t, SDChatMessage> list;
-        };
-
     private:
         ProcessRun *m_processRun;
 
@@ -547,7 +538,7 @@ class FriendChatBoard: public Widget
         std::list<SDChatPeer> m_strangerList;
 
     private:
-        LocalMessagePending m_localMessageList;
+        std::unordered_map<uint64_t, SDChatMessage> m_localMessageList;
         std::list<FriendMessage> m_friendMessageList;
 
     public:
@@ -566,8 +557,8 @@ class FriendChatBoard: public Widget
         void queryChatPeer(bool, uint32_t, std::function<void(const SDChatPeer *)>);
 
     public:
-        void addMessage(const SDChatMessage &);
-        size_t addMessagePending(const SDChatMessage &);
+        void addMessage(std::optional<uint64_t>, const SDChatMessage &);
+        void addMessagePending(uint64_t, const SDChatMessage &);
 
     public:
         void finishMessagePending(size_t, const SDChatMessageDBSeq &);

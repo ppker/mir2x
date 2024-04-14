@@ -94,16 +94,16 @@ FriendChatBoard::ChatInputContainer::ChatInputContainer(dir8_t argDir,
                   msgbuf.append(chatMessage.message.begin(), chatMessage.message.end());
 
                   const auto widgetID = chatItem->id();
-                  const auto pendingID = FriendChatBoard::getParentBoard(this)->addMessagePending(chatMessage);
                   const auto chatItemCanvas = std::addressof(dynamic_cast<FriendChatBoard::ChatPage *>(parent())->chat.canvas);
 
-                  g_client->send({CM_CHATMESSAGE, msgbuf}, [widgetID, pendingID, chatItemCanvas, chatMessage, this](uint8_t headCode, const uint8_t *buf, size_t bufSize)
+                  FriendChatBoard::getParentBoard(this)->addMessagePending(widgetID, chatMessage);
+                  g_client->send({CM_CHATMESSAGE, msgbuf}, [widgetID, chatItemCanvas, chatMessage, this](uint8_t headCode, const uint8_t *buf, size_t bufSize)
                   {
                       switch(headCode){
                           case SM_OK:
                               {
                                   const auto sdCMDBS = cerealf::deserialize<SDChatMessageDBSeq>(buf, bufSize);
-                                  FriendChatBoard::getParentBoard(this)->finishMessagePending(pendingID, sdCMDBS);
+                                  FriendChatBoard::getParentBoard(this)->finishMessagePending(widgetID, sdCMDBS);
 
                                   if(auto p = chatItemCanvas->hasChild(widgetID)){
                                       dynamic_cast<FriendChatBoard::ChatItem *>(p)->idOpt = sdCMDBS.id;

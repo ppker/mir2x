@@ -732,8 +732,9 @@ void FriendChatBoard::queryChatPeer(bool argGroup, uint32_t argDBID, std::functi
     }
 }
 
-void FriendChatBoard::addMessage(const SDChatMessage &sdCM)
+void FriendChatBoard::addMessage(std::optional<uint64_t> localPendingID, const SDChatMessage &sdCM)
 {
+    fflassert(sdCM.seq.has_value());
     const auto peerDBID = [&sdCM, this]
     {
         if(sdCM.from == m_processRun->getMyHero()->dbid()){
@@ -781,28 +782,36 @@ void FriendChatBoard::addMessage(const SDChatMessage &sdCM)
         }
         else{
             if(auto chatPage = dynamic_cast<ChatPage *>(m_uiPageList[UIPage_CHAT].page); chatPage->peer.dbid == peerIter->dbid){
-                chatPage->chat.append(peerIter->list.back(), nullptr);
+                if(localPendingID.has_value()){
+                    if(auto p = chatPage->chat.canvas.hasChild(localPendingID.value())){
+                        dynamic_cast<FriendChatBoard::ChatItem *>(p)->idOpt = peerIter->list.back().seq.value().id;
+                    }
+                }
+                else{
+                    chatPage->chat.append(peerIter->list.back(), nullptr);
+                }
             }
         }
         dynamic_cast<ChatPreviewPage *>(m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(peerDBID, cerealf::deserialize<std::string>(peerIter->list.back().message));
     }
 }
 
-size_t FriendChatBoard::addMessagePending(const SDChatMessage &sdCM)
+void FriendChatBoard::addMessagePending(uint64_t localPendingID, const SDChatMessage &sdCM)
 {
     fflassert(!sdCM.seq.has_value());
-    m_localMessageList.list.emplace(m_localMessageList.seq, sdCM);
-    return m_localMessageList.seq++;
+    if(!m_localMessageList.emplace(localPendingID, sdCM).second){
+        throw fflerror("adding a pending message with local pending id which has already been used: %llu", to_llu(localPendingID));
+    }
 }
 
 void FriendChatBoard::finishMessagePending(size_t localPendingID, const SDChatMessageDBSeq &sdCMDBS)
 {
-    if(auto p = m_localMessageList.list.find(localPendingID); p != m_localMessageList.list.end()){
+    if(auto p = m_localMessageList.find(localPendingID); p != m_localMessageList.end()){
         auto chatMessage = std::move(p->second);
-        m_localMessageList.list.erase(p);
+        m_localMessageList.erase(p);
 
         chatMessage.seq = sdCMDBS;
-        addMessage(chatMessage);
+        addMessage({}, chatMessage);
     }
     else{
         throw fflerror("invalid local pending message id: %zu", localPendingID);
