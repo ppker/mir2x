@@ -675,7 +675,7 @@ void FriendChatBoard::queryChatPeer(bool argGroup, uint32_t argDBID, std::functi
         }
     }
 
-    else if(argDBID == m_processRun->getMyHero()->dbid()){
+    else if(!argGroup && argDBID == m_processRun->getMyHero()->dbid()){
         if(argOp){
             const SDChatPeer groupPeer
             {
@@ -688,7 +688,7 @@ void FriendChatBoard::queryChatPeer(bool argGroup, uint32_t argDBID, std::functi
         }
     }
 
-    else if(auto p = findFriend(argDBID); p && !argGroup){
+    else if(auto p = argGroup ? nullptr : findFriend(argDBID)){
         if(argOp){
             argOp(p);
         }
