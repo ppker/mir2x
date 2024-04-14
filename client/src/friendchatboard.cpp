@@ -864,7 +864,7 @@ void FriendChatBoard::loadChatPage()
     chatPage->chat.canvas.clearChild();
 
     for(const auto &elem: m_friendMessageList){
-        if(elem.dbid == chatPage->peer.dbid){
+        if(elem.group == chatPage->peer.group && elem.dbid == chatPage->peer.dbid){
             for(const auto &msg: elem.list){
                 chatPage->chat.append(msg, nullptr);
             }
@@ -873,7 +873,9 @@ void FriendChatBoard::loadChatPage()
     }
 
     for(const auto &[localID, sdCM]: m_localMessageList){
-        chatPage->chat.append(sdCM, nullptr);
+        if(sdCM.group == chatPage->peer.group && sdCM.to == chatPage->peer.dbid){
+            chatPage->chat.append(sdCM, nullptr);
+        }
     }
 
     chatPage->placeholder.setShow(!chatPage->chat.canvas.hasChild());
