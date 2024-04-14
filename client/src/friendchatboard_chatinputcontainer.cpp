@@ -104,10 +104,6 @@ FriendChatBoard::ChatInputContainer::ChatInputContainer(dir8_t argDir,
                               {
                                   const auto sdCMDBS = cerealf::deserialize<SDChatMessageDBSeq>(buf, bufSize);
                                   FriendChatBoard::getParentBoard(this)->finishMessagePending(widgetID, sdCMDBS);
-
-                                  if(auto p = chatItemCanvas->hasChild(widgetID)){
-                                      dynamic_cast<FriendChatBoard::ChatItem *>(p)->pending = false;
-                                  }
                                   break;
                               }
                           default:

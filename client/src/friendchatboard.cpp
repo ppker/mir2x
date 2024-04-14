@@ -811,7 +811,7 @@ void FriendChatBoard::finishMessagePending(size_t localPendingID, const SDChatMe
         m_localMessageList.erase(p);
 
         chatMessage.seq = sdCMDBS;
-        addMessage({}, chatMessage);
+        addMessage(localPendingID, chatMessage);
     }
     else{
         throw fflerror("invalid local pending message id: %zu", localPendingID);
