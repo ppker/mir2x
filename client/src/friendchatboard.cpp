@@ -675,6 +675,19 @@ void FriendChatBoard::queryChatPeer(bool argGroup, uint32_t argDBID, std::functi
         }
     }
 
+    else if(argDBID == m_processRun->getMyHero()->dbid()){
+        if(argOp){
+            const SDChatPeer groupPeer
+            {
+                .dbid   = m_processRun->getMyHero()->dbid(),
+                .name   = m_processRun->getMyHero()->getName(),
+                .gender = m_processRun->getMyHero()->gender(),
+                .job    = m_processRun->getMyHero()->job(),
+            };
+            argOp(std::addressof(groupPeer));
+        }
+    }
+
     else if(auto p = findFriend(argDBID); p && !argGroup){
         if(argOp){
             argOp(p);
