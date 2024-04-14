@@ -627,9 +627,10 @@ void FriendChatBoard::setFriendList(const SDFriendList &sdFL)
     seenDBIDList.insert(m_processRun->getMyHero()->dbid());
     dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(SDChatPeer
     {
-        .dbid = m_processRun->getMyHero()->dbid(),
-        .name = m_processRun->getMyHero()->getName(),
-
+        .dbid   = m_processRun->getMyHero()->dbid(),
+        .name   = m_processRun->getMyHero()->getName(),
+        .gender = m_processRun->getMyHero()->gender(),
+        .job    = m_processRun->getMyHero()->job(),
     });
 
     for(const auto &sdPC: sdFL){
