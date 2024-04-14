@@ -253,19 +253,21 @@ void Player::dbLoadPlayerConfig()
     }
 }
 
-std::optional<SDPlayerCandidate> Player::dbLoadPlayerCandidate(uint32_t argDBID)
+std::optional<SDChatPeer> Player::dbLoadChatPeer(uint32_t argDBID)
 {
     auto query = g_dbPod->createQuery("select * from tbl_char where fld_dbid = %llu", to_llu(argDBID));
     if(query.executeStep()){
-        return SDPlayerCandidate
+        return SDChatPeer
         {
-            .gender = query.getColumn("fld_gender").getUInt() > 0,
-
-            .job = query.getColumn("fld_job"),
-            .avatar = std::nullopt,
-
             .dbid = query.getColumn("fld_dbid"),
             .name = query.getColumn("fld_name").getString(),
+
+            .group = false,
+
+            .gender = query.getColumn("fld_gender").getUInt() > 0,
+            .job = query.getColumn("fld_job"),
+
+            .avatar = std::nullopt,
         };
     }
     else{
@@ -273,7 +275,7 @@ std::optional<SDPlayerCandidate> Player::dbLoadPlayerCandidate(uint32_t argDBID)
     }
 }
 
-SDPlayerCandidateList Player::dbQueryPlayerCandidates(const std::string &query)
+SDChatPeerList Player::dbQueryChatPeerList(const std::string &query)
 {
     fflassert(str_haschar(query));
     auto queryCmd = [&query]
@@ -286,17 +288,19 @@ SDPlayerCandidateList Player::dbQueryPlayerCandidates(const std::string &query)
         }
     }();
 
-    SDPlayerCandidateList sdPCL;
+    SDChatPeerList sdPCL;
     while(queryCmd.executeStep()){
-        sdPCL.push_back(SDPlayerCandidate
+        sdPCL.push_back(SDChatPeer
         {
-            .gender = queryCmd.getColumn("fld_gender").getUInt() > 0,
-
-            .job = queryCmd.getColumn("fld_job"),
-            .avatar = std::nullopt,
-
             .dbid = queryCmd.getColumn("fld_dbid"),
             .name = queryCmd.getColumn("fld_name").getString(),
+
+            .group = false,
+
+            .gender = queryCmd.getColumn("fld_gender").getUInt() > 0,
+            .job = queryCmd.getColumn("fld_job"),
+
+            .avatar = std::nullopt,
         });
     }
     return sdPCL;
@@ -546,29 +550,32 @@ void Player::dbLoadFriendList()
     auto query = g_dbPod->createQuery("select * from tbl_char where fld_dbid in (select fld_friend from tbl_friend where fld_dbid = %llu)", to_llu(dbid()));
 
     while(query.executeStep()){
-        m_sdFriendList.push_back(SDPlayerCandidate
+        m_sdFriendList.push_back(SDChatPeer
         {
-            .gender = query.getColumn("fld_gender").getUInt() > 0,
-
-            .job = query.getColumn("fld_job"),
-            .avatar = std::nullopt,
-
             .dbid = query.getColumn("fld_dbid"),
             .name = query.getColumn("fld_name").getString(),
+
+            .group = false,
+
+            .gender = query.getColumn("fld_gender").getUInt() > 0,
+            .job = query.getColumn("fld_job"),
+
+            .avatar = std::nullopt,
         });
     }
 }
 
-std::tuple<uint64_t, uint64_t> Player::dbSaveChatMessage(uint32_t toDBID, const std::string_view &sv)
+std::tuple<uint64_t, uint64_t> Player::dbSaveChatMessage(bool argGroup, uint32_t toDBID, const std::string_view &sv)
 {
     auto tstamp= hres_tstamp::localtime();
     auto query = g_dbPod->createQuery(
-        u8R"###( insert into tbl_chatmessage(fld_from, fld_to, fld_timestamp, fld_message) )###"
-        u8R"###( values                                                                    )###"
-        u8R"###(     (%llu, %llu, %llu, ?)                                                 )###"
-        u8R"###( returning                                                                 )###"
-        u8R"###(     fld_id;                                                               )###",
+        u8R"###( insert into tbl_chatmessage(fld_group, fld_from, fld_to, fld_timestamp, fld_message) )###"
+        u8R"###( values                                                                               )###"
+        u8R"###(     (%d, %llu, %llu, %llu, ?)                                                        )###"
+        u8R"###( returning                                                                            )###"
+        u8R"###(     fld_id;                                                                          )###",
 
+        to_boolint(argGroup),
         to_llu(dbid()),
         to_llu(toDBID),
         to_llu(tstamp));
@@ -617,11 +624,18 @@ SDChatMessageList Player::dbRetrieveLatestChatMessage(const uint32_t *dbidList, 
     while(query.executeStep()){
         result.push_back(SDChatMessage
         {
-            .id        = to_u64(query.getColumn("fld_id").getInt64()),
-            .from      = to_u32(query.getColumn("fld_from")),
-            .to        = to_u32(query.getColumn("fld_to")),
-            .timestamp = to_u64(query.getColumn("fld_timestamp").getInt64()),
-            .message   = query.getColumn("fld_message").getString(),
+            .seq = SDChatMessageDBSeq
+            {
+                .id        = to_u64(query.getColumn("fld_id").getInt64()),
+                .timestamp = to_u64(query.getColumn("fld_timestamp").getInt64()),
+            },
+
+            .group = query.getColumn("fld_group").getUInt() > 0,
+
+            .from = to_u32(query.getColumn("fld_from")),
+            .to   = to_u32(query.getColumn("fld_to")),
+
+            .message = query.getColumn("fld_message").getString(),
         });
     }
     return result;

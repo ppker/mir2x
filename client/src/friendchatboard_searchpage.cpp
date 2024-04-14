@@ -122,7 +122,7 @@ FriendChatBoard::SearchPage::SearchPage(Widget::VarDir argDir,
     candidates.setShow(false);
 }
 
-void FriendChatBoard::SearchPage::appendCandidate(const SDPlayerCandidate &candidate)
+void FriendChatBoard::SearchPage::appendCandidate(const SDChatPeer &candidate)
 {
     int maxY = 0;
     candidates.foreachChild([&maxY](const Widget *widget, bool)
@@ -240,7 +240,7 @@ void FriendChatBoard::SearchPage::appendCandidate(const SDPlayerCandidate &candi
     }, true);
 }
 
-void FriendChatBoard::SearchPage::appendAutoCompletionItem(bool byID, const SDPlayerCandidate &candidate, const std::string &xmlStr)
+void FriendChatBoard::SearchPage::appendAutoCompletionItem(bool byID, const SDChatPeer &candidate, const std::string &xmlStr)
 {
     int maxY = 0;
     autocompletes.foreachChild([&maxY](const Widget *widget, bool)

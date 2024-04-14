@@ -35,7 +35,7 @@ enum CMType: uint8_t
     CM_QUERYUIDBUFF,
     CM_QUERYPLAYERNAME,
     CM_QUERYPLAYERWLDESP,
-    CM_QUERYPLAYERCANDIDATES,
+    CM_QUERYCHATPEERLIST,
     CM_CREATEACCOUNT,
     CM_NPCEVENT,
     CM_QUERYSELLITEMLIST,
@@ -145,7 +145,7 @@ struct CMQueryPlayerWLDesp
     uint64_t uid;
 };
 
-struct CMQueryPlayerCandidates
+struct CMQueryChatPeerList
 {
     FixedBuf<128> input;
 };
@@ -299,7 +299,7 @@ namespace
         _RSVD_register_clientmsg(CM_QUERYUIDBUFF,               1, sizeof(CMQueryUIDBuff)              );
         _RSVD_register_clientmsg(CM_QUERYPLAYERNAME,            1, sizeof(CMQueryPlayerName)           );
         _RSVD_register_clientmsg(CM_QUERYPLAYERWLDESP,          1, sizeof(CMQueryPlayerWLDesp)         );
-        _RSVD_register_clientmsg(CM_QUERYPLAYERCANDIDATES,      1, sizeof(CMQueryPlayerCandidates)     );
+        _RSVD_register_clientmsg(CM_QUERYCHATPEERLIST,      1, sizeof(CMQueryChatPeerList)     );
         _RSVD_register_clientmsg(CM_CREATEACCOUNT,              1, sizeof(CMCreateAccount)             );
         _RSVD_register_clientmsg(CM_CHANGEPASSWORD,             1, sizeof(CMChangePassword)            );
         _RSVD_register_clientmsg(CM_SETRUNTIMECONFIG,           1, sizeof(CMSetRuntimeConfig)          );

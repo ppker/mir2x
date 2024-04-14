@@ -196,7 +196,7 @@ class Player final: public BattleObject
         void net_CM_QUERYGOLD                 (uint8_t, const uint8_t *, size_t, uint64_t);
         void net_CM_QUERYPLAYERNAME           (uint8_t, const uint8_t *, size_t, uint64_t);
         void net_CM_QUERYPLAYERWLDESP         (uint8_t, const uint8_t *, size_t, uint64_t);
-        void net_CM_QUERYPLAYERCANDIDATES     (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_QUERYCHATPEERLIST            (uint8_t, const uint8_t *, size_t, uint64_t);
         void net_CM_QUERYSELLITEMLIST         (uint8_t, const uint8_t *, size_t, uint64_t);
         void net_CM_QUERYUIDBUFF              (uint8_t, const uint8_t *, size_t, uint64_t);
         void net_CM_REQUESTADDEXP             (uint8_t, const uint8_t *, size_t, uint64_t);
@@ -333,7 +333,7 @@ class Player final: public BattleObject
         void dbRemoveInventoryItem(uint32_t, uint32_t);
 
     private:
-        std::tuple<uint64_t, uint64_t> dbSaveChatMessage(uint32_t, const std::string_view &);
+        std::tuple<uint64_t, uint64_t> dbSaveChatMessage(bool, uint32_t, const std::string_view &);
         SDChatMessageList dbRetrieveLatestChatMessage(const uint32_t *, size_t, size_t, bool, bool);
 
     private:
@@ -353,8 +353,8 @@ class Player final: public BattleObject
 
     private:
         void dbLoadPlayerConfig();
-        std::optional<SDPlayerCandidate> dbLoadPlayerCandidate(uint32_t);
-        SDPlayerCandidateList dbQueryPlayerCandidates(const std::string &);
+        std::optional<SDChatPeer> dbLoadChatPeer(uint32_t);
+        SDChatPeerList dbQueryChatPeerList(const std::string &);
 
     private:
         void dbLoadLearnedMagic();

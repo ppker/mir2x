@@ -35,6 +35,9 @@ class WidgetTreeNode // tree concept, used by class Widget only
         };
 
     private:
+        const uint64_t m_id;
+
+    private:
         mutable bool m_inLoop = false;
 
     private:
@@ -55,6 +58,12 @@ class WidgetTreeNode // tree concept, used by class Widget only
     public:
         /**/  Widget * parent(unsigned = 1);
         const Widget * parent(unsigned = 1) const;
+
+    public:
+        uint64_t id() const
+        {
+            return m_id;
+        }
 
     public:
         template<std::invocable<const Widget *, bool, const Widget *, bool> F> void sort(F f)
@@ -200,14 +209,36 @@ class WidgetTreeNode // tree concept, used by class Widget only
         const Widget *lastChild() const { for(auto p = m_childList.rbegin(); p != m_childList.rend(); ++p){ if(p->widget){ return p->widget; } } return nullptr; }
 
     public:
+        void clearChild(std::invocable<const Widget *, bool> auto f)
+        {
+            for(auto &child: m_childList){
+                if(child.widget){
+                    if(f(child.widget, child.autoDelete)){
+                        if(child.autoDelete){
+                            m_delayList.push_back(child.widget);
+                        }
+                        child.widget = nullptr;
+                    }
+                }
+            }
+        }
+
+        void clearChild()
+        {
+            clearChild([](const Widget *, bool){ return true; });
+        }
+
+    public:
         virtual void purge();
-        virtual void clearChild();
         virtual void addChild(Widget *, bool);
         virtual void removeChild(Widget *, bool);
 
     public:
         bool hasChild() const;
-        bool hasChild(const Widget *) const;
+
+    public:
+        /**/  Widget *hasChild(uint64_t);
+        const Widget *hasChild(uint64_t) const;
 
     public:
         Widget *hasChild(std::invocable<const Widget *, bool> auto f)
@@ -523,25 +554,25 @@ class Widget: public WidgetTreeNode
             }
 
             bool took = false;
-            Widget *focusedWidget = nullptr;
+            uint64_t focusedWidgetID = 0;
 
-            foreachChild(false, [&event, valid, &took, &focusedWidget](Widget *widget, bool)
+            foreachChild(false, [&event, valid, &took, &focusedWidgetID](Widget *widget, bool)
             {
                 if(widget->show()){
                     took |= widget->processEvent(event, valid && !took);
                     if(widget->focus()){
-                        if(focusedWidget){
+                        if(focusedWidgetID){
                             throw fflerror("multiple widget focused by one event");
                         }
                         else{
-                            focusedWidget = widget;
+                            focusedWidgetID = widget->id();
                         }
                     }
                 }
             });
 
-            if(hasChild(focusedWidget)){
-                moveBack(focusedWidget);
+            if(auto widget = hasChild(focusedWidgetID)){
+                moveBack(widget);
             }
 
             return took;
@@ -704,7 +735,7 @@ class Widget: public WidgetTreeNode
         {
             if(argFocus){
                 if(child){
-                    if(hasChild(child)){
+                    if(hasChild(child->id())){
                         if(child->focus()){
                             // don't setup here
                             // when we setup focus in a deep call, this preserve focus of deep sub-widget

@@ -130,11 +130,6 @@ using SDQuestTriggerVar = std::variant<
     SDQuestTriggerGainItem
 >;
 
-template<typename... Ts> struct SDQuestTriggerDispatcher: Ts...
-{
-    using Ts::operator()...;
-};
-
 struct SDNPCXMLLayout
 {
     uint64_t npcUID = 0;
@@ -147,23 +142,25 @@ struct SDNPCXMLLayout
     }
 };
 
-struct SDPlayerCandidate
+struct SDChatPeer
 {
-    bool gender = 0;
-
-    int job = 0;
-    std::optional<uint64_t> avatar {};
-
     uint32_t dbid = 0;
     std::string name {};
 
+    bool group = false;
+
+    bool gender = false;
+    int job = 0;
+
+    std::optional<uint64_t> avatar {};
+
     template<typename Archive> void serialize(Archive & ar)
     {
-        ar(gender, job, avatar, dbid, name);
+        ar(dbid, name, gender, job, avatar);
     }
 };
 
-using SDPlayerCandidateList = std::vector<SDPlayerCandidate>;
+using SDChatPeerList = std::vector<SDChatPeer>;
 
 struct SDStartInvOp
 {
@@ -643,7 +640,7 @@ struct SDPlayerConfig
     }
 };
 
-using SDFriendList = std::vector<SDPlayerCandidate>;
+using SDFriendList = std::vector<SDChatPeer>;
 using SDXMLMessage = std::string;
 
 struct SDAddFriendNotif
@@ -655,23 +652,7 @@ struct SDAddFriendNotif
     }
 };
 
-struct SDChatMessage
-{
-    uint64_t id = 0;
-
-    uint32_t from = 0;
-    uint32_t to   = 0;
-
-    uint64_t timestamp = 0;
-    std::string message; // always serialized
-
-    template<typename Archive> void serialize(Archive & ar)
-    {
-        ar(id, from, to, timestamp, message);
-    }
-};
-
-struct SDChatMessageID
+struct SDChatMessageDBSeq
 {
     uint64_t id = 0;
     uint64_t timestamp = 0;
@@ -679,6 +660,30 @@ struct SDChatMessageID
     template<typename Archive> void serialize(Archive & ar)
     {
         ar(id, timestamp);
+    }
+};
+
+struct SDChatMessage
+{
+    std::optional<SDChatMessageDBSeq> seq {};
+    std::optional<uint64_t> refer {};
+
+    // group chat support
+    // if in a group chat, this->from is always player dbid or SYS_CHATDBID_GROUP, this->to is a group id
+
+    // group may broadcast messages
+    // in this case this->from is SYS_CHATDBID_GROUP
+
+    bool group = false;
+
+    uint32_t from = 0;
+    uint32_t to   = 0;
+
+    std::string message; // always serialized
+
+    template<typename Archive> void serialize(Archive & ar)
+    {
+        ar(seq, refer, group, from, to, message);
     }
 };
 

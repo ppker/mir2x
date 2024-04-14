@@ -13,7 +13,7 @@ void Quest::on_AM_REMOTECALL(const ActorMsgPack &mpk)
 
 void Quest::on_AM_RUNQUESTTRIGGER(const ActorMsgPack &mpk)
 {
-    std::visit(SDQuestTriggerDispatcher
+    std::visit(VarDispatcher
     {
         [&mpk, this](const SDQuestTriggerLevelUp &sdQTLU)
         {

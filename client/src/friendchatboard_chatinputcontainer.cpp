@@ -72,68 +72,50 @@ FriendChatBoard::ChatInputContainer::ChatInputContainer(dir8_t argDir,
               }
 
               auto message = layout.getXML();
-              auto newItem = new ChatItem
-              {
-                  DIR_UPLEFT,
-                  0,
-                  0,
-
-                  {},
-                  to_u8cstr(FriendChatBoard::getParentBoard(this)->m_processRun->getMyHero()->getName()),
-                  to_u8cstr(message),
-
-                  [this](const ImageBoard *)
-                  {
-                      auto boardPtr = FriendChatBoard::getParentBoard(this);
-                      return g_progUseDB->retrieve(Hero::faceGfxID(boardPtr->m_processRun->getMyHero()->gender(), boardPtr->m_processRun->getMyHero()->job()));
-                  },
-
-                  true,
-                  false,
-
-                  {},
-              };
-
-              dynamic_cast<ChatPage *>(parent())->chat.append(newItem, true);
               layout.clear();
 
-              const uint32_t toDBID = dynamic_cast<ChatPage *>(parent())->dbid;
+              auto chatBoard = FriendChatBoard::getParentBoard(this);
+              auto chatPage  = dynamic_cast<ChatPage *>(chatBoard->m_uiPageList[UIPage_CHAT].page);
 
-              auto dbidsv = as_sv(toDBID);
-              auto msgbuf = cerealf::serialize(message);
-
-              msgbuf.insert(msgbuf.begin(), dbidsv.begin(), dbidsv.end());
-              g_client->send({CM_CHATMESSAGE, msgbuf}, [newItem, message, toDBID, this](uint8_t headCode, const uint8_t *buf, size_t bufSize)
+              const SDChatMessage chatMessage
               {
-                  switch(headCode){
-                      case SM_OK:
-                          {
-                              // TBD allocator may reuse memory
-                              // so item with same memory address may not be same item
+                  .group = chatPage->peer.group,
+                  .from  = chatBoard->m_processRun->getMyHero()->dbid(),
+                  .to    = chatPage->peer.dbid,
+                  .message = cerealf::serialize(message),
+              };
 
-                              const auto sdCMID = cerealf::deserialize<SDChatMessageID>(buf, bufSize);
-                              if(dynamic_cast<ChatPage *>(parent())->chat.hasItem(newItem)){
-                                  newItem->idOpt = sdCMID.id;
-                              }
+              chatPage->chat.append(chatMessage, [chatMessage, this](const FriendChatBoard::ChatItem *chatItem)
+              {
+                  auto dbidsv = as_sv(chatMessage.from);
+                  auto msgbuf = std::string();
 
-                              // create manually here
-                              // sever won't echo the sent chat message
+                  msgbuf.append(dbidsv.begin(), dbidsv.end());
+                  msgbuf.append(chatMessage.message.begin(), chatMessage.message.end());
 
-                              FriendChatBoard::getParentBoard(this)->addMessage(SDChatMessage
+                  const auto widgetID = chatItem->id();
+                  const auto pendingID = FriendChatBoard::getParentBoard(this)->addMessagePending(chatMessage);
+                  const auto chatItemCanvas = std::addressof(dynamic_cast<FriendChatBoard::ChatPage *>(parent())->chat.canvas);
+
+                  g_client->send({CM_CHATMESSAGE, msgbuf}, [widgetID, pendingID, chatItemCanvas, chatMessage, this](uint8_t headCode, const uint8_t *buf, size_t bufSize)
+                  {
+                      switch(headCode){
+                          case SM_OK:
                               {
-                                  .id = sdCMID.id,
-                                  .from = FriendChatBoard::getParentBoard(this)->m_processRun->getMyHero()->dbid(),
-                                  .to = toDBID,
-                                  .timestamp = sdCMID.timestamp,
-                                  .message = cerealf::serialize(message),
-                              });
-                              break;
-                          }
-                      default:
-                          {
-                              throw fflerror("failed to send message");
-                          }
-                  }
+                                  const auto sdCMDBS = cerealf::deserialize<SDChatMessageDBSeq>(buf, bufSize);
+                                  FriendChatBoard::getParentBoard(this)->finishMessagePending(pendingID, sdCMDBS);
+
+                                  if(auto p = chatItemCanvas->hasChild(widgetID)){
+                                      dynamic_cast<FriendChatBoard::ChatItem *>(p)->idOpt = sdCMDBS.id;
+                                  }
+                                  break;
+                              }
+                          default:
+                              {
+                                  throw fflerror("failed to send message");
+                              }
+                      }
+                  });
               });
           },
           nullptr,

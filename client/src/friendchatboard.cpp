@@ -673,7 +673,7 @@ void FriendChatBoard::setFriendList(const SDFriendList &sdFL)
     }
 }
 
-const SDPlayerCandidate *FriendChatBoard::findFriend(uint32_t argDBID) const
+const SDChatPeer *FriendChatBoard::findFriend(uint32_t argDBID) const
 {
     if(auto p = std::find_if(m_sdFriendList.begin(), m_sdFriendList.end(), [argDBID](const auto &x) { return argDBID == x.dbid; }); p != m_sdFriendList.end()){
         return std::addressof(*p);
@@ -681,46 +681,76 @@ const SDPlayerCandidate *FriendChatBoard::findFriend(uint32_t argDBID) const
     return nullptr;
 }
 
-void FriendChatBoard::queryPlayerCandidate(uint32_t argDBID, std::function<void(const SDPlayerCandidate *)> fnOp)
+void FriendChatBoard::queryChatPeer(bool argGroup, uint32_t argDBID, std::function<void(const SDChatPeer *)> argOp)
 {
-    if(auto p = findFriend(argDBID)){
-        if(fnOp){
-            fnOp(p);
+    if(argDBID == SYS_CHATDBID_SYSTEM){
+        if(argOp){
+            const SDChatPeer sysPeer
+            {
+                .dbid = SYS_CHATDBID_SYSTEM,
+                .name = "系统助手",
+            };
+            argOp(std::addressof(sysPeer));
         }
     }
-    else{
-        CMQueryPlayerCandidates cmQPC;
-        std::memset(&cmQPC, 0, sizeof(cmQPC));
 
-        cmQPC.input.assign(std::to_string(argDBID));
-        g_client->send({CM_QUERYPLAYERCANDIDATES, cmQPC}, [argDBID, fnOp = std::move(fnOp), this](uint8_t headCode, const uint8_t *data, size_t size)
+    else if(argDBID == SYS_CHATDBID_GROUP){
+        if(argOp){
+            const SDChatPeer groupPeer
+            {
+                .dbid = SYS_CHATDBID_GROUP,
+                .name = "群管理助手",
+            };
+            argOp(std::addressof(groupPeer));
+        }
+    }
+
+    else if(auto p = findFriend(argDBID); p && !argGroup){
+        if(argOp){
+            argOp(p);
+        }
+    }
+
+    else if(auto strangerIter = std::find_if(m_strangerList.begin(), m_strangerList.end(), [argGroup, argDBID](const auto &x)
+    {
+        return x.group == argGroup && x.dbid == argDBID;
+
+    }); strangerIter != m_strangerList.end()){
+        if(argOp){
+            argOp(std::addressof(*strangerIter));
+        }
+    }
+
+    else{
+        CMQueryChatPeerList cmQCPL;
+        std::memset(&cmQCPL, 0, sizeof(cmQCPL));
+
+        cmQCPL.input.assign(std::to_string(argDBID));
+        g_client->send({CM_QUERYCHATPEERLIST, cmQCPL}, [argGroup, argDBID, argOp = std::move(argOp), this](uint8_t headCode, const uint8_t *data, size_t size)
         {
             switch(headCode){
                 case SM_OK:
                   {
-                      switch(const auto sdPCL = cerealf::deserialize<SDPlayerCandidateList>(data, size); sdPCL.size()){
-                          case 0:
-                              {
-                                  if(fnOp){
-                                      fnOp(nullptr);
+                      if(const auto sdPCL = cerealf::deserialize<SDChatPeerList>(data, size); sdPCL.empty()){
+                          if(argOp){
+                              argOp(nullptr);
+                          }
+                          return;
+                      }
+                      else{
+                          for(const auto &peer: sdPCL){
+                              if(peer.group == argGroup && peer.dbid == argDBID){
+                                  if(argOp){
+                                      argOp(&peer);
                                   }
                                   return;
                               }
-                          case 1:
-                              {
-                                  if(sdPCL.begin()->dbid == argDBID){
-                                      if(fnOp){
-                                          fnOp(std::addressof(sdPCL.front()));
-                                      }
-                                      return;
-                                  }
+                          }
 
-                                  [[fallthrough]];
-                              }
-                          default:
-                              {
-                                  throw fflerror("invalid query result from server, dbid %llu", to_llu(argDBID));
-                              }
+                          if(argOp){
+                              argOp(nullptr);
+                          }
+                          return;
                       }
                   }
               default:
@@ -732,67 +762,88 @@ void FriendChatBoard::queryPlayerCandidate(uint32_t argDBID, std::function<void(
     }
 }
 
-void FriendChatBoard::addMessage(const SDChatMessage &recvMsg)
+void FriendChatBoard::addMessage(const SDChatMessage &sdCM)
 {
-    const auto peerDBID = [&recvMsg, this]
+    const auto peerDBID = [&sdCM, this]
     {
-        if(recvMsg.from == m_processRun->getMyHero()->dbid()){
-            return recvMsg.to;
+        if(sdCM.from == m_processRun->getMyHero()->dbid()){
+            return sdCM.to;
         }
-        else if(recvMsg.to == m_processRun->getMyHero()->dbid()){
-            return recvMsg.from;
+        else if(sdCM.to == m_processRun->getMyHero()->dbid()){
+            return sdCM.from;
         }
         else{
-            throw fflerror("received invalid chat message: from %llu, to %llu, self %llu", to_llu(recvMsg.from), to_llu(recvMsg.to), to_llu(m_processRun->getMyHero()->dbid()));
+            throw fflerror("received invalid chat message: from %llu, to %llu, self %llu", to_llu(sdCM.from), to_llu(sdCM.to), to_llu(m_processRun->getMyHero()->dbid()));
         }
     }();
 
-    auto peerIter = std::find_if(m_friendMessageList.begin(), m_friendMessageList.end(), [peerDBID](const auto &item)
+    auto peerIter = std::find_if(m_friendMessageList.begin(), m_friendMessageList.end(), [peerDBID, &sdCM](const auto &item)
     {
-        return item.dbid == peerDBID;
+        return item.dbid == peerDBID && item.group == sdCM.group;
     });
 
     if(peerIter == m_friendMessageList.end()){
-        m_friendMessageList.emplace_front(peerDBID);
+        m_friendMessageList.emplace_front(sdCM.group, peerDBID);
     }
     else if(peerIter != m_friendMessageList.begin()){
         m_friendMessageList.splice(m_friendMessageList.begin(), m_friendMessageList, peerIter, std::next(peerIter));
     }
 
     peerIter = m_friendMessageList.begin();
-    if(std::find_if(peerIter->list.begin(), peerIter->list.end(), [&recvMsg](const auto &msg){ return msg.id == recvMsg.id; }) == peerIter->list.end()){
+    if(std::find_if(peerIter->list.begin(), peerIter->list.end(), [&sdCM](const auto &msg){ return msg.seq.value().id == sdCM.seq.value().id; }) == peerIter->list.end()){
         peerIter->unread++;
-        peerIter->list.push_back(recvMsg);
+        peerIter->list.push_back(sdCM);
 
-        if(peerIter->list.size() >= 2 && peerIter->list.back().timestamp < peerIter->list.rbegin()[1].timestamp){
+        if(peerIter->list.size() >= 2 && peerIter->list.back().seq.value().timestamp < peerIter->list.rbegin()[1].seq.value().timestamp){
             std::sort(peerIter->list.begin(), peerIter->list.end(), [](const auto &x, const auto &y)
             {
-                if(x.timestamp != y.timestamp){
-                    return x.timestamp < y.timestamp;
+                if(x.seq.value().timestamp != y.seq.value().timestamp){
+                    return x.seq.value().timestamp < y.seq.value().timestamp;
                 }
                 else{
-                    return x.id < y.id;
+                    return x.seq.value().id < y.seq.value().id;
                 }
             });
 
-            if(dynamic_cast<ChatPage *>(m_uiPageList[UIPage_CHAT].page)->dbid == peerIter->dbid){
-                loadChatPage(peerIter->dbid);
+            if(dynamic_cast<ChatPage *>(m_uiPageList[UIPage_CHAT].page)->peer.dbid == peerIter->dbid){
+                loadChatPage();
             }
         }
         else{
-            if(auto chatPage = dynamic_cast<ChatPage *>(m_uiPageList[UIPage_CHAT].page); chatPage->dbid == peerIter->dbid){
-                chatPage->chat.append(peerIter->dbid, peerIter->list.back().id, peerDBID != m_processRun->getMyHero()->dbid(), cerealf::deserialize<std::string>(peerIter->list.back().message));
+            if(auto chatPage = dynamic_cast<ChatPage *>(m_uiPageList[UIPage_CHAT].page); chatPage->peer.dbid == peerIter->dbid){
+                chatPage->chat.append(peerIter->list.back(), nullptr);
             }
         }
         dynamic_cast<ChatPreviewPage *>(m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(peerDBID, cerealf::deserialize<std::string>(peerIter->list.back().message));
     }
 }
 
-void FriendChatBoard::setChatPageDBID(uint32_t argDBID)
+size_t FriendChatBoard::addMessagePending(const SDChatMessage &sdCM)
 {
-    if(auto chatPage = dynamic_cast<ChatPage *>(m_uiPageList[UIPage_CHAT].page); chatPage->dbid != argDBID){
-        chatPage->dbid = argDBID;
-        loadChatPage(argDBID);
+    fflassert(!sdCM.seq.has_value());
+    m_localMessageList.list.emplace(m_localMessageList.seq, sdCM);
+    return m_localMessageList.seq++;
+}
+
+void FriendChatBoard::finishMessagePending(size_t localPendingID, const SDChatMessageDBSeq &sdCMDBS)
+{
+    if(auto p = m_localMessageList.list.find(localPendingID); p != m_localMessageList.list.end()){
+        auto chatMessage = std::move(p->second);
+        m_localMessageList.list.erase(p);
+
+        chatMessage.seq = sdCMDBS;
+        addMessage(chatMessage);
+    }
+    else{
+        throw fflerror("invalid local pending message id: %zu", localPendingID);
+    }
+}
+
+void FriendChatBoard::setChatPeer(const SDChatPeer &sdCP, bool forceReload)
+{
+    if(auto chatPage = dynamic_cast<ChatPage *>(m_uiPageList[UIPage_CHAT].page); (chatPage->peer.dbid != sdCP.dbid) || forceReload){
+        chatPage->peer = sdCP;
+        loadChatPage();
     }
 }
 
@@ -815,20 +866,17 @@ void FriendChatBoard::setUIPage(int uiPage, const char *titleStr)
     }
 }
 
-void FriendChatBoard::loadChatPage(uint32_t argDBID)
+void FriendChatBoard::loadChatPage()
 {
     auto chatPage = dynamic_cast<ChatPage *>(m_uiPageList[UIPage_CHAT].page);
     chatPage->chat.canvas.clearChild();
 
-    for(const auto &node: m_friendMessageList){
-        if(node.dbid == argDBID){
-            if(node.list.size() <= 1){
-                m_processRun->requestLatestChatMessage({node.dbid}, 0, true, true);
+    for(const auto &elem: m_friendMessageList){
+        if(elem.dbid == chatPage->peer.dbid){
+            for(const auto &msg: elem.list){
+                chatPage->chat.append(msg, nullptr);
             }
-
-            for(const auto &msg: node.list){
-                chatPage->chat.append(msg.from, msg.id, msg.from != m_processRun->getMyHero()->dbid(), cerealf::deserialize<std::string>(msg.message));
-            }
+            break;
         }
     }
 

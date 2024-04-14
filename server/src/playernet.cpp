@@ -272,16 +272,16 @@ void Player::net_CM_QUERYPLAYERWLDESP(uint8_t, const uint8_t *buf, size_t, uint6
     }
 }
 
-void Player::net_CM_QUERYPLAYERCANDIDATES(uint8_t, const uint8_t *buf, size_t, uint64_t respID)
+void Player::net_CM_QUERYCHATPEERLIST(uint8_t, const uint8_t *buf, size_t, uint64_t respID)
 {
-    const auto cmQPC = ClientMsg::conv<CMQueryPlayerCandidates>(buf);
-    const auto input = cmQPC.input.to_str();
+    const auto cmQPCL = ClientMsg::conv<CMQueryChatPeerList>(buf);
+    const auto input = cmQPCL.input.to_str();
 
     if(input.empty()){
         postNetMessage(SM_ERROR, respID);
     }
     else{
-        postNetMessage(SM_OK, cerealf::serialize(dbQueryPlayerCandidates(input)), respID);
+        postNetMessage(SM_OK, cerealf::serialize(dbQueryChatPeerList(input)), respID);
     }
 }
 
@@ -294,26 +294,35 @@ void Player::net_CM_CHATMESSAGE(uint8_t, const uint8_t *buf, size_t bufSize, uin
 
     msgBuf = as_sv(buf + 4, bufSize - 4);
 
-    const auto [msgId, tstamp] = dbSaveChatMessage(toDBID, msgBuf);
+    const auto [msgId, tstamp] = dbSaveChatMessage(false, toDBID, msgBuf);
     if(toDBID != dbid()){
         forwardNetPackage(uidf::getPlayerUID(toDBID), SM_CHATMESSAGELIST, cerealf::serialize(SDChatMessageList
         {
             SDChatMessage
             {
-                .id = msgId,
+                .seq = SDChatMessageDBSeq
+                {
+                    .id = msgId,
+                    .timestamp = tstamp,
+                },
+
+                .refer = std::nullopt,
+
+                .group = false,
 
                 .from = dbid(),
                 .to   = toDBID,
 
-                .timestamp = tstamp,
                 .message = std::move(msgBuf), // keep serialized
             },
         }));
     }
-    postNetMessage(SM_OK, cerealf::serialize(SDChatMessageID
+
+    postNetMessage(SM_OK, cerealf::serialize(SDChatMessageDBSeq
     {
         .id = msgId,
         .timestamp = tstamp,
+
     }), respID);
 }
 
@@ -325,7 +334,7 @@ void Player::net_CM_ADDFRIEND(uint8_t, const uint8_t *buf, size_t, uint64_t resp
         postNetMessage(SM_OK, cerealf::serialize(sdAFN), respID);
 
         if(sdAFN.notif == AF_ACCEPTED){
-            m_sdFriendList.push_back(dbLoadPlayerCandidate(cmAF.dbid).value());
+            m_sdFriendList.push_back(dbLoadChatPeer(cmAF.dbid).value());
         }
     }
 }

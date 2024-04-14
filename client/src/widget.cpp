@@ -1,7 +1,13 @@
+#include <atomic>
 #include "widget.hpp"
 
 WidgetTreeNode::WidgetTreeNode(Widget *argParent, bool argAutoDelete)
-    : m_parent(argParent)
+    : m_id([]
+      {
+          static std::atomic<uint64_t> s_widgetSeqID = 1;
+          return s_widgetSeqID.fetch_add(1);
+      }())
+    , m_parent(argParent)
 {
     if(m_parent){
         m_parent->addChild(static_cast<Widget *>(this), argAutoDelete);
@@ -133,29 +139,27 @@ void WidgetTreeNode::purge()
     });
 }
 
-void WidgetTreeNode::clearChild()
-{
-    for(auto &child: m_childList){
-        if(child.widget){
-            if(child.autoDelete){
-                m_delayList.push_back(child.widget);
-            }
-            child.widget = nullptr;
-        }
-    }
-}
-
 bool WidgetTreeNode::hasChild() const
 {
     return firstChild();
 }
 
-bool WidgetTreeNode::hasChild(const Widget *child) const
+Widget *WidgetTreeNode::hasChild(uint64_t argID)
 {
     for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
-        if(p->widget && p->widget == child){
-            return true;
+        if(p->widget && p->widget->id() == argID){
+            return p->widget;
         }
     }
-    return false;
+    return nullptr;
+}
+
+const Widget *WidgetTreeNode::hasChild(uint64_t argID) const
+{
+    for(auto p = m_childList.begin(); p != m_childList.end(); ++p){
+        if(p->widget && p->widget->id() == argID){
+            return p->widget;
+        }
+    }
+    return nullptr;
 }

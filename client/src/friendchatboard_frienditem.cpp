@@ -1,4 +1,5 @@
 #include "sdldevice.hpp"
+#include "processrun.hpp"
 #include "friendchatboard.hpp"
 
 extern SDLDevice *g_sdlDevice;
@@ -122,8 +123,33 @@ bool FriendChatBoard::FriendItem::processEvent(const SDL_Event &event, bool vali
                     return consumeFocus(true);
                 }
                 else if(in(event.button.x, event.button.y)){
-                    dynamic_cast<FriendChatBoard *>(this->parent(3))->setChatPageDBID(this->dbid);
-                    dynamic_cast<FriendChatBoard *>(this->parent(3))->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
+                    auto boardPtr = FriendChatBoard::getParentBoard(this);
+                    if(this->dbid == boardPtr->m_processRun->getMyHero()->dbid()){
+                        boardPtr->setChatPeer(SDChatPeer
+                        {
+                            .dbid   = boardPtr->m_processRun->getMyHero()->dbid(),
+                            .name   = boardPtr->m_processRun->getMyHero()->getName(),
+                            .gender = boardPtr->m_processRun->getMyHero()->gender(),
+                            .job    = boardPtr->m_processRun->getMyHero()->job(),
+
+                        }, true);
+                    }
+                    else if(this->dbid == SYS_CHATDBID_SYSTEM){
+                        boardPtr->setChatPeer(SDChatPeer
+                        {
+                            .dbid   = SYS_CHATDBID_SYSTEM,
+                            .name   = "系统助手",
+
+                        }, true);
+                    }
+                    else if(auto peer = boardPtr->findFriend(this->dbid)){
+                        boardPtr->setChatPeer(*peer, true);
+                    }
+                    else{
+                        throw fflerror("item is not associated with a friend: dbid %llu", to_llu(this->dbid));
+                    }
+
+                    boardPtr->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
                     return consumeFocus(true);
                 }
                 else{

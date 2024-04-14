@@ -58,6 +58,7 @@ void FriendChatBoard::ChatPreviewPage::updateChatPreview(uint32_t argDBID, const
             0,
             0,
 
+            false,
             argDBID,
             to_u8cstr(argMsg),
 

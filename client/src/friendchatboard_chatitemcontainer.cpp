@@ -1,5 +1,6 @@
 #include "hero.hpp"
 #include "pngtexdb.hpp"
+#include "processrun.hpp"
 #include "friendchatboard.hpp"
 
 extern PNGTexDB *g_progUseDB;
@@ -48,76 +49,65 @@ FriendChatBoard::ChatItemContainer::ChatItemContainer(dir8_t argDir,
       }
 {}
 
-void FriendChatBoard::ChatItemContainer::append(uint32_t argDBID, std::optional<uint64_t> argIDOpt, bool argAvatarLeft, const std::string &argMsg)
+void FriendChatBoard::ChatItemContainer::append(const SDChatMessage &sdCM, std::function<void(const FriendChatBoard::ChatItem *)> fnOp)
 {
-    if(argDBID == SYS_CHATDBID_SYSTEM){
-        append(new ChatItem
+    FriendChatBoard::getParentBoard(this)->queryChatPeer(sdCM.group, sdCM.from, [sdCM, fnOp = std::move(fnOp), this](const SDChatPeer *peer)
+    {
+        if(!peer){
+            return;
+        }
+
+        const auto chatPage = dynamic_cast<ChatPage *>(parent());
+        const auto self = FriendChatBoard::getParentBoard(this)->m_processRun->getMyHero();
+
+        if(sdCM.group && chatPage->peer.group && sdCM.to == chatPage->peer.dbid){
+            // group chat
+        }
+        else if(!sdCM.group && !chatPage->peer.group && (sdCM.from == chatPage->peer.dbid || sdCM.to == chatPage->peer.dbid)){
+            // personal chat
+        }
+        else{
+            return;
+        }
+
+        auto chatItem = new ChatItem
         {
             DIR_UPLEFT,
             0,
             0,
 
-            argIDOpt,
-            u8"系统消息",
-            to_u8cstr(argMsg),
+            sdCM.seq.has_value() ? std::make_optional(sdCM.seq.value().id) : std::nullopt,
 
-            [](const ImageBoard *)
+            to_u8cstr(peer->name),
+            to_u8cstr(cerealf::deserialize<std::string>(sdCM.message)),
+
+            [from = sdCM.from, gender = peer->gender, job = peer->job](const ImageBoard *)
             {
-                return g_progUseDB->retrieve(0X00001100);
+                if     (from == SYS_CHATDBID_SYSTEM) return g_progUseDB->retrieve(0X00001100);
+                else if(from == SYS_CHATDBID_GROUP ) return g_progUseDB->retrieve(0X00001300);
+                else                                 return g_progUseDB->retrieve(Hero::faceGfxID(gender, job));
             },
 
-            true,
-            argAvatarLeft,
+            peer->dbid != self->dbid(),
+            peer->dbid != self->dbid(),
 
             {},
-        }, true);
-    }
-    else{
-        FriendChatBoard::getParentBoard(this)->queryPlayerCandidate(argDBID, [argIDOpt, argAvatarLeft, argMsg, this](const SDPlayerCandidate *candidate)
-        {
-            if(!candidate){
-                return;
-            }
+        };
 
-            this->append(new ChatItem
-            {
-                DIR_UPLEFT,
-                0,
-                0,
+        const auto startY = canvas.hasChild() ? (canvas.h() + ChatItem::ITEM_SPACE) : 0;
 
-                argIDOpt,
-                to_u8cstr(candidate->name),
-                to_u8cstr(argMsg),
+        if(chatItem->avatarLeft){
+            chatItem->moveAt(DIR_UPLEFT, 0, startY);
+        }
+        else{
+            chatItem->moveAt(DIR_UPRIGHT, canvas.w() - 1, startY);
+        }
 
-                [gender = candidate->gender, job = candidate->job, this](const ImageBoard *)
-                {
-                    return g_progUseDB->retrieve(Hero::faceGfxID(gender, job));
-                },
+        canvas.addChild(chatItem, true);
+        if(fnOp){
+            fnOp(chatItem);
+        }
 
-                true,
-                argAvatarLeft,
-
-                {},
-            }, true);
-        });
-    }
-}
-
-void FriendChatBoard::ChatItemContainer::append(ChatItem *chatItem, bool autoDelete)
-{
-    const auto startY = canvas.hasChild() ? (canvas.h() + ChatItem::ITEM_SPACE) : 0;
-    if(chatItem->avatarLeft){
-        chatItem->moveAt(DIR_UPLEFT, 0, startY);
-    }
-    else{
-        chatItem->moveAt(DIR_UPRIGHT, canvas.w() - 1, startY);
-    }
-
-    canvas.addChild(chatItem, autoDelete);
-    dynamic_cast<ChatPage *>(parent())->placeholder.setShow(false);
-}
-
-bool FriendChatBoard::ChatItemContainer::hasItem(const Widget *item) const
-{
-    return canvas.hasChild(item);
+        dynamic_cast<ChatPage *>(parent())->placeholder.setShow(false);
+    });
 }

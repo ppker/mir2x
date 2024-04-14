@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <unordered_map>
 #include "widget.hpp"
 #include "serdesmsg.hpp"
 #include "texslider.hpp"
@@ -144,7 +145,7 @@ class FriendChatBoard: public Widget
             constexpr static int GAP = 5;
 
             const bool byID; // when clicked, fill input automatically by ID if true, or name if false
-            const SDPlayerCandidate candidate;
+            const SDChatPeer candidate;
 
             ShapeClipBoard background;
 
@@ -157,7 +158,7 @@ class FriendChatBoard: public Widget
                     Widget::VarOffset,
 
                     bool,
-                    SDPlayerCandidate,
+                    SDChatPeer,
 
                     const char * = nullptr,
 
@@ -198,8 +199,8 @@ class FriendChatBoard: public Widget
                     Widget * = nullptr,
                     bool     = false);
 
-            void appendCandidate(const SDPlayerCandidate &);
-            void appendAutoCompletionItem(bool, const SDPlayerCandidate &, const std::string &);
+            void appendCandidate(const SDChatPeer &);
+            void appendAutoCompletionItem(bool, const SDChatPeer &, const std::string &);
         };
 
         struct ChatItem: public Widget
@@ -313,10 +314,7 @@ class FriendChatBoard: public Widget
                     Widget * = nullptr,
                     bool     = false);
 
-            void append(ChatItem *, bool);
-            void append(uint32_t, std::optional<uint64_t>, bool, const std::string &);
-
-            bool hasItem(const Widget *) const;
+            void append(const SDChatMessage &, std::function<void(const ChatItem *)>);
         };
 
         struct ChatInputContainer: public Widget
@@ -376,7 +374,7 @@ class FriendChatBoard: public Widget
 
             constexpr static int PLACEHOLDER_MARGIN = 10;
 
-            uint32_t dbid = 0;
+            SDChatPeer peer;
             ShapeClipBoard background;
 
             ChatInputContainer input;
@@ -419,6 +417,7 @@ class FriendChatBoard: public Widget
             // |<--------------------->|
             //           WIDTH
 
+            const bool group;
             const uint32_t dbid;
 
             ImageBoard  avatar;
@@ -432,6 +431,7 @@ class FriendChatBoard: public Widget
                     int,
                     int,
 
+                    bool,
                     uint32_t,
                     const char8_t *,
 
@@ -504,10 +504,20 @@ class FriendChatBoard: public Widget
     private:
         struct FriendMessage
         {
-            uint32_t dbid   = 0;
-            size_t   unread = 0;
+            bool group = false;
+            uint32_t dbid = 0;
 
+            size_t unread = 0;
             std::vector<SDChatMessage> list;
+        };
+
+        // locally sent messages that not confirmed to be received by server side yet
+        // each message needs a locally used sequential id
+
+        struct LocalMessagePending
+        {
+            size_t seq = 1;
+            std::map<size_t, SDChatMessage> list;
         };
 
     private:
@@ -534,6 +544,10 @@ class FriendChatBoard: public Widget
 
     private:
         SDFriendList m_sdFriendList;
+        std::list<SDChatPeer> m_strangerList;
+
+    private:
+        LocalMessagePending m_localMessageList;
         std::list<FriendMessage> m_friendMessageList;
 
     public:
@@ -546,21 +560,27 @@ class FriendChatBoard: public Widget
         bool processEvent(const SDL_Event &, bool) override;
 
     public:
-        const SDPlayerCandidate *findFriend(uint32_t) const;
+        const SDChatPeer *findFriend(uint32_t) const;
 
     private:
-        void queryPlayerCandidate(uint32_t, std::function<void(const SDPlayerCandidate *)>);
+        void queryChatPeer(bool, uint32_t, std::function<void(const SDChatPeer *)>);
 
     public:
         void addMessage(const SDChatMessage &);
+        size_t addMessagePending(const SDChatMessage &);
+
+    public:
+        void finishMessagePending(size_t, const SDChatMessageDBSeq &);
+
+    public:
         void setFriendList(const SDFriendList &);
 
     public:
-        void setChatPageDBID(uint32_t);
+        void setChatPeer(const SDChatPeer &, bool);
         void setUIPage(int, const char * = nullptr);
 
     public:
-        void loadChatPage(uint32_t);
+        void loadChatPage();
 
     public:
         static       FriendChatBoard *getParentBoard(      Widget *);

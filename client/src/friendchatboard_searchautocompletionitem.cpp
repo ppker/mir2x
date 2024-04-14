@@ -11,7 +11,7 @@ FriendChatBoard::SearchAutoCompletionItem::SearchAutoCompletionItem(Widget::VarD
         Widget::VarOffset argY,
 
         bool argByID,
-        SDPlayerCandidate argCandidate,
+        SDChatPeer argCandidate,
 
         const char *argLabelXMLStr,
 

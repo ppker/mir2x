@@ -119,11 +119,11 @@ FriendChatBoard::SearchInputLine::SearchInputLine(Widget::VarDir argDir,
                   dynamic_cast<SearchPage *>(parent())->autocompletes.setShow(true);
               }
               else{
-                  CMQueryPlayerCandidates cmQPC;
+                  CMQueryChatPeerList cmQPC;
                   std::memset(&cmQPC, 0, sizeof(cmQPC));
 
                   cmQPC.input.assign(query);
-                  g_client->send({CM_QUERYPLAYERCANDIDATES, cmQPC}, [query = std::move(query), this](uint8_t headCode, const uint8_t *data, size_t size)
+                  g_client->send({CM_QUERYCHATPEERLIST, cmQPC}, [query = std::move(query), this](uint8_t headCode, const uint8_t *data, size_t size)
                   {
                       switch(headCode){
                           case SM_OK:
@@ -131,7 +131,7 @@ FriendChatBoard::SearchInputLine::SearchInputLine(Widget::VarDir argDir,
                                 dynamic_cast<SearchPage *>(parent())->candidates.clearChild();
                                 dynamic_cast<SearchPage *>(parent())->autocompletes.clearChild();
 
-                                for(const auto &candidate: cerealf::deserialize<SDPlayerCandidateList>(data, size)){
+                                for(const auto &candidate: cerealf::deserialize<SDChatPeerList>(data, size)){
                                     dynamic_cast<SearchPage *>(parent())->appendCandidate(candidate);
                                     dynamic_cast<SearchPage *>(parent())->appendAutoCompletionItem(query == std::to_string(candidate.dbid), candidate, [&candidate, &query]
                                     {
