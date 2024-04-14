@@ -258,8 +258,8 @@ class FriendChatBoard: public Widget
             constexpr static int MESSAGE_MIN_WIDTH  = 10; // handling small size message
             constexpr static int MESSAGE_MIN_HEIGHT = 10;
 
+            bool pending = true;
             double accuTime = 0.0;
-            std::optional<uint64_t> idOpt {};
 
             const bool showName;
             const bool avatarLeft;
@@ -275,7 +275,7 @@ class FriendChatBoard: public Widget
                     int,
                     int,
 
-                    std::optional<uint64_t>,
+                    bool,
 
                     const char8_t *,
                     const char8_t *,

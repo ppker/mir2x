@@ -76,7 +76,7 @@ void FriendChatBoard::ChatItemContainer::append(const SDChatMessage &sdCM, std::
             0,
             0,
 
-            sdCM.seq.has_value() ? std::make_optional(sdCM.seq.value().id) : std::nullopt,
+            !sdCM.seq.has_value(),
 
             to_u8cstr(peer->name),
             to_u8cstr(cerealf::deserialize<std::string>(sdCM.message)),

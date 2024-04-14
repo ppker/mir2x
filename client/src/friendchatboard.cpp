@@ -784,7 +784,7 @@ void FriendChatBoard::addMessage(std::optional<uint64_t> localPendingID, const S
             if(auto chatPage = dynamic_cast<ChatPage *>(m_uiPageList[UIPage_CHAT].page); chatPage->peer.dbid == peerIter->dbid){
                 if(localPendingID.has_value()){
                     if(auto p = chatPage->chat.canvas.hasChild(localPendingID.value())){
-                        dynamic_cast<FriendChatBoard::ChatItem *>(p)->idOpt = peerIter->list.back().seq.value().id;
+                        dynamic_cast<FriendChatBoard::ChatItem *>(p)->pending = false;
                     }
                 }
                 else{

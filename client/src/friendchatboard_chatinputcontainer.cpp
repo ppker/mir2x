@@ -106,7 +106,7 @@ FriendChatBoard::ChatInputContainer::ChatInputContainer(dir8_t argDir,
                                   FriendChatBoard::getParentBoard(this)->finishMessagePending(widgetID, sdCMDBS);
 
                                   if(auto p = chatItemCanvas->hasChild(widgetID)){
-                                      dynamic_cast<FriendChatBoard::ChatItem *>(p)->idOpt = sdCMDBS.id;
+                                      dynamic_cast<FriendChatBoard::ChatItem *>(p)->pending = false;
                                   }
                                   break;
                               }

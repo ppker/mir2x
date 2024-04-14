@@ -7,7 +7,7 @@ FriendChatBoard::ChatItem::ChatItem(dir8_t argDir,
         int argX,
         int argY,
 
-        std::optional<uint64_t> argIDOpt,
+        bool argPending,
 
         const char8_t *argNameStr,
         const char8_t *argMessageStr,
@@ -35,7 +35,7 @@ FriendChatBoard::ChatItem::ChatItem(dir8_t argDir,
           argAutoDelete,
       }
 
-    , idOpt(argIDOpt)
+    , pending(argPending)
     , showName(argShowName)
     , avatarLeft(argAvatarLeft)
     , bgColor(std::move(argBGColor))
@@ -100,11 +100,11 @@ FriendChatBoard::ChatItem::ChatItem(dir8_t argDir,
                   if(avatarLeft){
                       return colorf::RED + colorf::A_SHF(128);
                   }
-                  else if(idOpt.has_value()){
-                      return colorf::GREEN + colorf::A_SHF(128);
+                  else if(pending){
+                      return colorf::fadeRGBA(colorf::GREY + colorf::A_SHF(128), colorf::GREEN + colorf::A_SHF(128), std::fabs(std::fmod(accuTime / 1000.0, 2.0) - 1.0));
                   }
                   else{
-                      return colorf::fadeRGBA(colorf::GREY + colorf::A_SHF(128), colorf::GREEN + colorf::A_SHF(128), std::fabs(std::fmod(accuTime / 1000.0, 2.0) - 1.0));
+                      return colorf::GREEN + colorf::A_SHF(128);
                   }
               }());
 
