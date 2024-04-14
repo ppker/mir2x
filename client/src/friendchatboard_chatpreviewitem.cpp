@@ -1,6 +1,7 @@
 #include "hero.hpp"
 #include "pngtexdb.hpp"
 #include "sdldevice.hpp"
+#include "processrun.hpp"
 #include "friendchatboard.hpp"
 
 extern PNGTexDB *g_progUseDB;
@@ -174,6 +175,7 @@ bool FriendChatBoard::ChatPreviewItem::processEvent(const SDL_Event &event, bool
         case SDL_MOUSEBUTTONDOWN:
             {
                 if(in(event.button.x, event.button.y)){
+                    FriendChatBoard::getParentBoard(this)->m_processRun->requestLatestChatMessage({this->dbid}, 50, true, true);
                     FriendChatBoard::getParentBoard(this)->queryChatPeer(this->group, this->dbid, [canvas = this->parent(), widgetID = this->id(), this](const SDChatPeer *peer)
                     {
                         if(!peer){

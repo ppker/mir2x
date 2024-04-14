@@ -150,6 +150,7 @@ bool FriendChatBoard::FriendItem::processEvent(const SDL_Event &event, bool vali
                     }
 
                     boardPtr->setUIPage(FriendChatBoard::UIPage_CHAT, name.getText(true).c_str());
+                    boardPtr->m_processRun->requestLatestChatMessage({this->dbid}, 50, true, true);
                     return consumeFocus(true);
                 }
                 else{
