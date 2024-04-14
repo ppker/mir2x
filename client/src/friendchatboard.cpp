@@ -618,37 +618,19 @@ void FriendChatBoard::setFriendList(const SDFriendList &sdFL)
     std::unordered_set<uint32_t> seenDBIDList;
 
     seenDBIDList.insert(SYS_CHATDBID_SYSTEM);
-    dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(new FriendItem
+    dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(SDChatPeer
     {
-        DIR_UPLEFT,
-        0,
-        0,
-
-        SYS_CHATDBID_SYSTEM,
-        u8"系统消息",
-
-        [](const ImageBoard *)
-        {
-            return g_progUseDB->retrieve(0X00001100);
-        },
-
-    }, true);
+        .dbid = SYS_CHATDBID_SYSTEM,
+        .name = "系统助手",
+    });
 
     seenDBIDList.insert(m_processRun->getMyHero()->dbid());
-    dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(new FriendItem
+    dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(SDChatPeer
     {
-        DIR_UPLEFT,
-        0,
-        0,
+        .dbid = m_processRun->getMyHero()->dbid(),
+        .name = m_processRun->getMyHero()->getName(),
 
-        m_processRun->getMyHero()->dbid(),
-        to_u8cstr(m_processRun->getMyHero()->getName()),
-
-        [this](const ImageBoard *)
-        {
-            return g_progUseDB->retrieve(Hero::faceGfxID(m_processRun->getMyHero()->gender(), m_processRun->getMyHero()->job()));
-        },
-    }, true);
+    });
 
     for(const auto &sdPC: sdFL){
         if(seenDBIDList.contains(sdPC.dbid)){
@@ -656,20 +638,7 @@ void FriendChatBoard::setFriendList(const SDFriendList &sdFL)
         }
 
         seenDBIDList.insert(sdPC.dbid);
-        dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(new FriendItem
-        {
-            DIR_UPLEFT,
-            0,
-            0,
-
-            sdPC.dbid,
-            to_u8cstr(sdPC.name),
-
-            [gender =sdPC.gender, job = sdPC.job, this](const ImageBoard *)
-            {
-                return g_progUseDB->retrieve(Hero::faceGfxID(gender, job));
-            },
-        }, true);
+        dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(sdPC);
     }
 }
 

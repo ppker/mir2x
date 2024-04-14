@@ -74,7 +74,7 @@ class FriendChatBoard: public Widget
                     Widget * = nullptr,
                     bool     = false);
 
-            void append(FriendItem *, bool);
+            void append(const SDChatPeer &);
         };
 
         struct SearchInputLine: public Widget

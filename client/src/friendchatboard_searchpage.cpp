@@ -195,20 +195,7 @@ void FriendChatBoard::SearchPage::appendCandidate(const SDChatPeer &candidate)
                                                     {
                                                         FriendChatBoard::getParentBoard(this)->m_sdFriendList.push_back(candidate);
                                                         dynamic_cast<ChatPreviewPage *>(FriendChatBoard::getParentBoard(this)->m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(candidate.dbid, str_printf(R"###(<layout><par><t color="red">%s</t>已经通过你的好友申请，现在可以开始聊天了。</par></layout>)###", to_cstr(candidate.name)));
-                                                        dynamic_cast<FriendListPage *>(FriendChatBoard::getParentBoard(this)->m_uiPageList[UIPage_FRIENDLIST].page)->append(new FriendItem
-                                                        {
-                                                            DIR_UPLEFT,
-                                                            0,
-                                                            0,
-
-                                                            candidate.dbid,
-                                                            to_u8cstr(candidate.name),
-
-                                                            [candidate, this](const ImageBoard *)
-                                                            {
-                                                                return g_progUseDB->retrieve(Hero::faceGfxID(candidate.gender, candidate.job));
-                                                            },
-                                                        }, true);
+                                                        dynamic_cast<FriendListPage *>(FriendChatBoard::getParentBoard(this)->m_uiPageList[UIPage_FRIENDLIST].page)->append(candidate);
                                                         break;
                                                     }
                                                 case AF_EXIST:
