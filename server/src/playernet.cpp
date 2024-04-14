@@ -834,9 +834,10 @@ void Player::net_CM_SETRUNTIMECONFIG(uint8_t, const uint8_t *buf, size_t, uint64
 void Player::net_CM_REQUESTLATESTCHATMESSAGE(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmRLCM = ClientMsg::conv<CMRequestLatestChatMessage>(buf);
-
-    size_t dbidCount = 0;
-    while(dbidCount < std::extent_v<decltype(cmRLCM.dbidList)> && cmRLCM.dbidList[dbidCount++]){}
+    const size_t dbidCount = std::count_if(std::begin(cmRLCM.dbidList), std::end(cmRLCM.dbidList), [](const auto &x)
+    {
+        return x > 0;
+    });
 
     if(dbidCount > 0){
         postNetMessage(SM_CHATMESSAGELIST, cerealf::serialize(dbRetrieveLatestChatMessage(cmRLCM.dbidList, dbidCount, cmRLCM.limitCount, cmRLCM.includeSend, cmRLCM.includeRecv)));

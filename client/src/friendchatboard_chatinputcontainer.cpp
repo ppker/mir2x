@@ -87,7 +87,7 @@ FriendChatBoard::ChatInputContainer::ChatInputContainer(dir8_t argDir,
 
               chatPage->chat.append(chatMessage, [chatMessage, this](const FriendChatBoard::ChatItem *chatItem)
               {
-                  auto dbidsv = as_sv(chatMessage.from);
+                  auto dbidsv = as_sv(chatMessage.to);
                   auto msgbuf = std::string();
 
                   msgbuf.append(dbidsv.begin(), dbidsv.end());
