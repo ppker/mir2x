@@ -140,26 +140,24 @@ FriendChatBoard::ChatPreviewItem::ChatPreviewItem(dir8_t argDir,
           false,
       }
 {
-    if(this->dbid != SYS_CHATDBID_SYSTEM){
-        FriendChatBoard::getParentBoard(this)->queryChatPeer(this->group, this->dbid, [canvas = parent(), widgetID = id(), this](const SDChatPeer *peer)
+    FriendChatBoard::getParentBoard(this)->queryChatPeer(this->group, this->dbid, [canvas = parent(), widgetID = id(), this](const SDChatPeer *peer)
+    {
+        if(!canvas->hasChild(widgetID)){
+            return;
+        }
+
+        if(!peer){
+            return;
+        }
+
+        this->name.setText(to_u8cstr(peer->name));
+        this->avatar.setLoadFunc([dbid = peer->dbid, group = peer->group, gender = peer->gender, job = peer->job](const ImageBoard *)
         {
-            if(!canvas->hasChild(widgetID)){
-                return;
-            }
-
-            if(!peer){
-                return;
-            }
-
-            this->name.setText(to_u8cstr(peer->name));
-            this->avatar.setLoadFunc([dbid = peer->dbid, group = peer->group, gender = peer->gender, job = peer->job](const ImageBoard *)
-            {
-                if     (group                      ) return g_progUseDB->retrieve(0X00001300);
-                else if(dbid == SYS_CHATDBID_SYSTEM) return g_progUseDB->retrieve(0X00001100);
-                else                                 return g_progUseDB->retrieve(Hero::faceGfxID(gender, job));
-            });
+            if     (group                      ) return g_progUseDB->retrieve(0X00001300);
+            else if(dbid == SYS_CHATDBID_SYSTEM) return g_progUseDB->retrieve(0X00001100);
+            else                                 return g_progUseDB->retrieve(Hero::faceGfxID(gender, job));
         });
-    }
+    });
 }
 
 bool FriendChatBoard::ChatPreviewItem::processEvent(const SDL_Event &event, bool valid)
