@@ -872,6 +872,10 @@ void FriendChatBoard::loadChatPage()
         }
     }
 
+    for(const auto &[localID, sdCM]: m_localMessageList){
+        chatPage->chat.append(sdCM, nullptr);
+    }
+
     chatPage->placeholder.setShow(!chatPage->chat.canvas.hasChild());
 }
 
