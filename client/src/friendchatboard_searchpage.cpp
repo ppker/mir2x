@@ -193,9 +193,13 @@ void FriendChatBoard::SearchPage::appendCandidate(const SDChatPeer &candidate)
                                             switch(const auto sdAFN = cerealf::deserialize<SDAddFriendNotif>(buf, bufSize); sdAFN.notif){
                                                 case AF_ACCEPTED:
                                                     {
-                                                        FriendChatBoard::getParentBoard(this)->m_sdFriendList.push_back(candidate);
-                                                        dynamic_cast<ChatPreviewPage *>(FriendChatBoard::getParentBoard(this)->m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(candidate.dbid, str_printf(R"###(<layout><par><t color="red">%s</t>已经通过你的好友申请，现在可以开始聊天了。</par></layout>)###", to_cstr(candidate.name)));
-                                                        dynamic_cast<FriendListPage *>(FriendChatBoard::getParentBoard(this)->m_uiPageList[UIPage_FRIENDLIST].page)->append(candidate);
+                                                        auto boardPtr = FriendChatBoard::getParentBoard(this);
+                                                        boardPtr->m_sdFriendList.push_back(candidate);
+
+                                                        dynamic_cast<FriendListPage  *>(boardPtr->m_uiPageList[UIPage_FRIENDLIST ].page)->append(candidate);
+                                                        dynamic_cast<ChatPreviewPage *>(boardPtr->m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(candidate.dbid, str_printf(R"###(<layout><par><t color="red">%s</t>已经通过你的好友申请，现在可以开始聊天了。</par></layout>)###", to_cstr(candidate.name)));
+
+                                                        boardPtr->setUIPage(UIPage_CHATPREVIEW);
                                                         break;
                                                     }
                                                 case AF_EXIST:

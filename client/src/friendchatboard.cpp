@@ -428,6 +428,31 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                               0,
                               0,
 
+                              {0X00000900, 0X00000900, 0X00000901},
+                              {
+                                  SYS_U32NIL,
+                                  SYS_U32NIL,
+                                  0X01020000 + 105,
+                              },
+
+                              nullptr,
+                              nullptr,
+                              [this](ButtonBase *)
+                              {
+                                  setUIPage(UIPage_FRIENDSEARCH);
+                              },
+                          },
+
+                          true,
+                      },
+
+                      {
+                          new TritexButton
+                          {
+                              DIR_UPLEFT,
+                              0,
+                              0,
+
                               {0X00000170, 0X00000170, 0X00000171},
                               {
                                   SYS_U32NIL,
