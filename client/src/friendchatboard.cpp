@@ -287,10 +287,6 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                       }
                   }()));
               },
-
-              .exit = [](int, UIPage *)
-              {
-              },
           },
 
           UIPage // UIPage_CHATPREVIEW
