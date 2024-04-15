@@ -275,9 +275,17 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                   true,
               },
 
-              .enter = [](int, UIPage *uiPage)
+              .enter = [this](int, UIPage *uiPage)
               {
-                  uiPage->title->setText(to_u8cstr(dynamic_cast<ChatPage *>(uiPage->page)->peer.name));
+                  uiPage->title->setText(to_u8cstr([chatPage = dynamic_cast<ChatPage *>(uiPage->page), this]()
+                  {
+                      if(chatPage->peer.group || findFriend(chatPage->peer.dbid)){
+                          return chatPage->peer.name;
+                      }
+                      else{
+                          return str_printf("陌生人 %s", chatPage->peer.name.c_str());
+                      }
+                  }()));
               },
 
               .exit = [](int, UIPage *)
