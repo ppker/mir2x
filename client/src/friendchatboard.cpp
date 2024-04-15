@@ -464,7 +464,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                               nullptr,
                               [this](ButtonBase *)
                               {
-                                  setUIPage(UIPage_FRIENDSEARCH);
+                                  // create group
                               },
                           },
 

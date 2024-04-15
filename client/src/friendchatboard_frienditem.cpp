@@ -42,6 +42,7 @@ FriendChatBoard::FriendItem::FriendItem(dir8_t argDir,
       }
 
     , dbid(argDBID)
+    , widgetID(argFuncWidget.first ? argFuncWidget.first->id() : 0)
 
     , hovered
       {
@@ -105,6 +106,16 @@ FriendChatBoard::FriendItem::FriendItem(dir8_t argDir,
           false,
       }
 {}
+
+void FriendChatBoard::FriendItem::setFuncWidget(Widget *argFuncWidget, bool argAutoDelete)
+{
+    clearChild([this](const Widget *widget, bool)
+    {
+        return this->widgetID == widget->id();
+    });
+
+    addChild(argFuncWidget, argAutoDelete);
+}
 
 bool FriendChatBoard::FriendItem::processEvent(const SDL_Event &event, bool valid)
 {

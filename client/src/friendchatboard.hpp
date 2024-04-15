@@ -43,6 +43,8 @@ class FriendChatBoard: public Widget
             constexpr static int FUNC_MARGIN = 5;
 
             uint32_t dbid;
+            uint64_t widgetID;
+
             ShapeClipBoard hovered;
 
             ImageBoard avatar;
@@ -61,6 +63,7 @@ class FriendChatBoard: public Widget
                     Widget * = nullptr,
                     bool     = false);
 
+            void setFuncWidget(Widget *, bool);
             bool processEvent(const SDL_Event &, bool) override;
         };
 
