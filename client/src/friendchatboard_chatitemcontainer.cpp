@@ -32,11 +32,15 @@ FriendChatBoard::ChatItemContainer::ChatItemContainer(dir8_t argDir,
 
     , canvas
       {
-          DIR_DOWNLEFT,
+          DIR_UPLEFT,
           0,
           [this](const Widget *self)
           {
-              return std::min<int>(self->h(), this->h()) - 1;
+              if(self->h() < this->h()){
+                  return 0;
+              }
+
+              return -1 * to_dround((self->h() - this->h()) * FriendChatBoard::getParentBoard(this)->m_uiPageList[UIPage_CHAT].slider->getValue());
           },
 
           this->w(),
