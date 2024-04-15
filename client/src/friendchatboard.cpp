@@ -839,6 +839,9 @@ void FriendChatBoard::addMessage(std::optional<uint64_t> localPendingID, const S
         peerIter->unread++;
         peerIter->list.push_back(sdCM);
 
+        auto chatPage = dynamic_cast<ChatPage *>(m_uiPageList[UIPage_CHAT].page);
+        auto chatPreviewPage = dynamic_cast<ChatPreviewPage *>(m_uiPageList[UIPage_CHATPREVIEW].page);
+
         if(peerIter->list.size() >= 2 && peerIter->list.back().seq.value().timestamp < peerIter->list.rbegin()[1].seq.value().timestamp){
             std::sort(peerIter->list.begin(), peerIter->list.end(), [](const auto &x, const auto &y)
             {
@@ -850,12 +853,12 @@ void FriendChatBoard::addMessage(std::optional<uint64_t> localPendingID, const S
                 }
             });
 
-            if(dynamic_cast<ChatPage *>(m_uiPageList[UIPage_CHAT].page)->peer.dbid == peerIter->dbid){
+            if(chatPage->peer.dbid == peerIter->dbid){
                 loadChatPage();
             }
         }
         else{
-            if(auto chatPage = dynamic_cast<ChatPage *>(m_uiPageList[UIPage_CHAT].page); chatPage->peer.dbid == peerIter->dbid){
+            if(chatPage->peer.dbid == peerIter->dbid){
                 if(localPendingID.has_value()){
                     if(auto p = chatPage->chat.canvas.hasChild(localPendingID.value())){
                         dynamic_cast<FriendChatBoard::ChatItem *>(p)->pending = false;
@@ -866,7 +869,18 @@ void FriendChatBoard::addMessage(std::optional<uint64_t> localPendingID, const S
                 }
             }
         }
-        dynamic_cast<ChatPreviewPage *>(m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(peerDBID, cerealf::deserialize<std::string>(peerIter->list.back().message));
+
+        if(chatPage->peer.dbid == peerIter->dbid){
+            if(chatPage->chat.h() >= chatPage->chat.canvas.h()){
+                m_uiPageList[UIPage_CHAT].slider->setShow(false);
+            }
+            else{
+                m_uiPageList[UIPage_CHAT].slider->setShow(true);
+                m_uiPageList[UIPage_CHAT].slider->setValue(1.0, false);
+            }
+        }
+
+        chatPreviewPage->updateChatPreview(peerDBID, cerealf::deserialize<std::string>(peerIter->list.back().message));
     }
 }
 
