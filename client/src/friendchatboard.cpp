@@ -137,7 +137,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
 
     , m_uiPageList
       {
-          UIPageWidgetGroup // UIPage_CHAT
+          UIPage // UIPage_CHAT
           {
               .title = new LabelBoard
               {
@@ -275,18 +275,17 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                   true,
               },
 
-              .enter = [](int, Widget *)
+              .enter = [](int, UIPage *uiPage)
               {
-                  std::cout << "1222222" << std::endl;
+                  uiPage->title->setText(to_u8cstr(dynamic_cast<ChatPage *>(uiPage->page)->peer.name));
               },
 
-              .exit = [](int, Widget *)
+              .exit = [](int, UIPage *)
               {
-
               },
           },
 
-          UIPageWidgetGroup // UIPage_CHATPREVIEW
+          UIPage // UIPage_CHATPREVIEW
           {
               .title = new LabelBoard
               {
@@ -352,7 +351,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
               },
           },
 
-          UIPageWidgetGroup // UIPage_FRIENDLIST
+          UIPage // UIPage_FRIENDLIST
           {
               .title = new LabelBoard
               {
@@ -443,7 +442,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
               },
           },
 
-          UIPageWidgetGroup // UIPage_FRIENDSEARCH
+          UIPage // UIPage_FRIENDSEARCH
           {
               .title = new LabelBoard
               {
@@ -859,11 +858,11 @@ void FriendChatBoard::setUIPage(int uiPage)
 
     if(fromPage != toPage){
         if(m_uiPageList[fromPage].exit){
-            m_uiPageList[fromPage].exit(toPage, m_uiPageList[fromPage].page);
+            m_uiPageList[fromPage].exit(toPage, std::addressof(m_uiPageList[fromPage]));
         }
 
         if(m_uiPageList[toPage].enter){
-            m_uiPageList[toPage].enter(fromPage, m_uiPageList[toPage].page);
+            m_uiPageList[toPage].enter(fromPage, std::addressof(m_uiPageList[toPage]));
         }
 
         m_uiLastPage = fromPage;

@@ -482,14 +482,14 @@ class FriendChatBoard: public Widget
         };
 
     private:
-        struct UIPageWidgetGroup
+        struct UIPage
         {
             LabelBoard * const title   = nullptr;
             Widget     * const control = nullptr;
             Widget     * const page    = nullptr;
 
-            std::function<void(int, Widget *)> enter = nullptr;
-            std::function<void(int, Widget *)> exit  = nullptr;
+            std::function<void(int, UIPage *)> enter = nullptr;
+            std::function<void(int, UIPage *)> exit  = nullptr;
         };
 
     private:
@@ -531,7 +531,7 @@ class FriendChatBoard: public Widget
     private:
         int m_uiLastPage = UIPage_CHATPREVIEW;
         int m_uiPage     = UIPage_CHATPREVIEW;
-        const std::array<UIPageWidgetGroup, UIPage_END> m_uiPageList; // {buttons, page}
+        std::array<FriendChatBoard::UIPage, UIPage_END> m_uiPageList; // {buttons, page}
 
     private:
         SDFriendList m_sdFriendList;
