@@ -16,7 +16,7 @@ class XMLRoot
         tinyxml2::XMLDocument m_xmlDoc;
 
     public:
-        /* ctor */  XMLRoot() = default;
+        /* ctor */  XMLRoot(): m_xmlDoc(true, tinyxml2::PEDANTIC_WHITESPACE) {}
         /* dtor */ ~XMLRoot() = default;
 
     public:

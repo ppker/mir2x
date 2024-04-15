@@ -227,7 +227,7 @@ std::string xmlf::toParString(const char *format, ...)
     str_format(format, text);
 
     tinyxml2::XMLPrinter printer;
-    tinyxml2::XMLDocument xmlDoc;
+    tinyxml2::XMLDocument xmlDoc(true, tinyxml2::PEDANTIC_WHITESPACE);
     const char *xmlString = "<par></par>";
 
     if(xmlDoc.Parse(xmlString) != tinyxml2::XML_SUCCESS){

@@ -314,7 +314,7 @@ void XMLParagraph::loadXML(const char *xmlString)
         throw fflerror("xml is not a valid utf8 string: %s", xmlString);
     }
 
-    tinyxml2::XMLDocument xmlDoc;
+    tinyxml2::XMLDocument xmlDoc(true, tinyxml2::PEDANTIC_WHITESPACE);
     if(xmlDoc.Parse(xmlString) != tinyxml2::XML_SUCCESS){
         throw fflerror("tinyxml2::XMLDocument::Parse() failed: %s", xmlString);
     }
@@ -381,7 +381,7 @@ size_t XMLParagraph::insertXMLAfter(tinyxml2::XMLNode *after, const char *xmlStr
     // to insert XML as leaves, we requires to insert as a new paragraph leaf
     // for emoji and image we have specified tag <emoji>, <image>, but for text we don't have
 
-    tinyxml2::XMLDocument xmlDoc;
+    tinyxml2::XMLDocument xmlDoc(true, tinyxml2::PEDANTIC_WHITESPACE);
     if(xmlDoc.Parse(xmlString) != tinyxml2::XML_SUCCESS){
         throw fflerror("tinyxml2::XMLDocument::Parse() failed: %s", xmlString);
     }

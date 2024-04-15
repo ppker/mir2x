@@ -1088,17 +1088,13 @@ RuntimeConfigBoard::RuntimeConfigBoard(int argX, int argY, int argW, int argH, P
       }())
 {
     m_leftMenu.loadXML(
-        R"###( <layout>                                      )###""\n"
-        R"###(     <par><event id="系统">系 统</event></par> )###""\n"
-        R"###(     <par>                              </par> )###""\n"
-        R"###(     <par><event id="社交">社 交</event></par> )###""\n"
-        R"###(     <par>                              </par> )###""\n"
-        R"###(     <par><event id="网络">网 络</event></par> )###""\n"
-        R"###(     <par>                              </par> )###""\n"
-        R"###(     <par><event id="游戏">游 戏</event></par> )###""\n"
-        R"###(     <par>                              </par> )###""\n"
-        R"###(     <par><event id="帮助">帮 助</event></par> )###""\n"
-        R"###( </layout>                                     )###""\n"
+        R"###( <layout>                                                 )###""\n"
+        R"###(     <par><event id="系统">系 统</event></par><par></par> )###""\n"
+        R"###(     <par><event id="社交">社 交</event></par><par></par> )###""\n"
+        R"###(     <par><event id="网络">网 络</event></par><par></par> )###""\n"
+        R"###(     <par><event id="游戏">游 戏</event></par><par></par> )###""\n"
+        R"###(     <par><event id="帮助">帮 助</event></par><par></par> )###""\n"
+        R"###( </layout>                                                )###""\n"
     );
 
     // 1.0f -> SDL_MIX_MAXVOLUME

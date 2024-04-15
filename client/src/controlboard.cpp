@@ -1222,7 +1222,7 @@ void ControlBoard::addLog(int logType, const char *log)
             }
     }
 
-    tinyxml2::XMLDocument xmlDoc;
+    tinyxml2::XMLDocument xmlDoc(true, tinyxml2::PEDANTIC_WHITESPACE);
     const char *xmlString = [logType]() -> const char *
     {
         // use hex to give alpha

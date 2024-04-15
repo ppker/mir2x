@@ -24,7 +24,7 @@ void LayoutBoard::loadXML(const char *xmlString, size_t parLimit)
     }
 
     m_parNodeList.clear();
-    tinyxml2::XMLDocument xmlDoc;
+    tinyxml2::XMLDocument xmlDoc(true, tinyxml2::PEDANTIC_WHITESPACE);
 
     if(xmlDoc.Parse(xmlString) != tinyxml2::XML_SUCCESS){
         throw fflerror("parse xml failed: %s", xmlString ? xmlString : "(null)");
@@ -256,7 +256,7 @@ void LayoutBoard::setupStartY(int fromPar)
 
 void LayoutBoard::addParXML(int loc, const std::array<int, 4> &parMargin, const char *xmlString)
 {
-    tinyxml2::XMLDocument xmlDoc;
+    tinyxml2::XMLDocument xmlDoc(true, tinyxml2::PEDANTIC_WHITESPACE);
     if(xmlDoc.Parse(xmlString) != tinyxml2::XML_SUCCESS){
         throw fflerror("parse xml failed: %s", xmlString ? xmlString : "(null)");
     }

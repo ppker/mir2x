@@ -18,7 +18,7 @@ class XMLParagraph
 
     public:
         XMLParagraph(const char *xmlString = nullptr)
-            : m_xmlDocument(std::make_unique<tinyxml2::XMLDocument>())
+            : m_xmlDocument(std::make_unique<tinyxml2::XMLDocument>(true, tinyxml2::PEDANTIC_WHITESPACE))
         {
             loadXML(xmlString ? xmlString : "<par/>");
         }
