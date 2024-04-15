@@ -1046,16 +1046,6 @@ size_t XMLTypeset::insertUTF8String(int x, int y, const char *text)
 XMLTypeset *XMLTypeset::split(int cursorX, int cursorY)
 {
     fflassert(cursorLocValid(cursorX, cursorY));
-    const auto [leaf, cursorInLeaf] = [cursorX, cursorY, this]() -> std::tuple<int, int>
-    {
-        if(std::tie(cursorX, cursorY) == lastCursorLoc()){
-            return {m_paragraph->leafCount() - 1, m_paragraph->leafRef(m_paragraph->leafCount() - 1).length()};
-        }
-        else{
-            return leafLocInXMLParagraph(cursorX, cursorY);
-        }
-    }();
-
     auto newTpset = new XMLTypeset
     {
         MaxLineWidth(),
@@ -1072,6 +1062,20 @@ XMLTypeset *XMLTypeset::split(int cursorX, int cursorY)
         m_lineSpace,
         m_wordSpace,
     };
+
+    if(m_paragraph->empty()){
+        return newTpset;
+    }
+
+    const auto [leaf, cursorInLeaf] = [cursorX, cursorY, this]() -> std::tuple<int, int>
+    {
+        if(std::tie(cursorX, cursorY) == lastCursorLoc()){
+            return {m_paragraph->leafCount() - 1, m_paragraph->leafRef(m_paragraph->leafCount() - 1).length()};
+        }
+        else{
+            return leafLocInXMLParagraph(cursorX, cursorY);
+        }
+    }();
 
     newTpset->m_lineList.insert(newTpset->m_lineList.end(), m_lineList.begin(), m_lineList.begin() + cursorY + (cursorX == lineTokenCount(cursorY)));
     newTpset->m_leaf2TokenLoc.insert(newTpset->m_leaf2TokenLoc.end(), m_leaf2TokenLoc.begin(), m_leaf2TokenLoc.begin() + leaf + (cursorInLeaf == m_paragraph->leafRef(leaf).length()));
