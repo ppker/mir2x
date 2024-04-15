@@ -486,6 +486,7 @@ class FriendChatBoard: public Widget
         {
             LabelBoard * const title   = nullptr;
             Widget     * const control = nullptr;
+            TexSlider  * const slider  = nullptr;
             Widget     * const page    = nullptr;
 
             std::function<void(int, UIPage *)> enter = nullptr;
@@ -521,9 +522,6 @@ class FriendChatBoard: public Widget
     private:
         ImageBoard m_background;
         GfxCropDupBoard m_backgroundCropDup;
-
-    private:
-        TexSlider m_slider;
 
     private:
         TritexButton m_close;

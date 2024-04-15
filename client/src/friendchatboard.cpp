@@ -90,22 +90,6 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
           false,
       }
 
-    , m_slider
-      {
-          DIR_UPLEFT,
-          m_frameCropDup.w() - 30,
-          70,
-          9,
-          m_frameCropDup.h() - 140,
-
-          false,
-          3,
-          nullptr,
-
-          this,
-          false,
-      }
-
     , m_close
       {
           DIR_UPLEFT,
@@ -265,6 +249,22 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                   true,
               },
 
+              .slider = new TexSlider
+              {
+                  DIR_UPLEFT,
+                  m_frameCropDup.w() - 30,
+                  70,
+                  9,
+                  m_frameCropDup.h() - 140,
+
+                  false,
+                  3,
+                  nullptr,
+
+                  this,
+                  true,
+              },
+
               .page = new ChatPage
               {
                   DIR_UPLEFT,
@@ -339,6 +339,22 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                           true,
                       },
                   },
+
+                  this,
+                  true,
+              },
+
+              .slider = new TexSlider
+              {
+                  DIR_UPLEFT,
+                  m_frameCropDup.w() - 30,
+                  70,
+                  9,
+                  m_frameCropDup.h() - 140,
+
+                  false,
+                  3,
+                  nullptr,
 
                   this,
                   true,
@@ -435,6 +451,22 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                   true,
               },
 
+              .slider = new TexSlider
+              {
+                  DIR_UPLEFT,
+                  m_frameCropDup.w() - 30,
+                  70,
+                  9,
+                  m_frameCropDup.h() - 140,
+
+                  false,
+                  3,
+                  nullptr,
+
+                  this,
+                  true,
+              },
+
               .page = new FriendListPage
               {
                   DIR_UPLEFT,
@@ -501,6 +533,22 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                   true,
               },
 
+              .slider = new TexSlider
+              {
+                  DIR_UPLEFT,
+                  m_frameCropDup.w() - 30,
+                  70,
+                  9,
+                  m_frameCropDup.h() - 140,
+
+                  false,
+                  3,
+                  nullptr,
+
+                  this,
+                  true,
+              },
+
               .page = new SearchPage
               {
                   DIR_UPLEFT,
@@ -525,7 +573,7 @@ void FriendChatBoard::drawEx(int dstX, int dstY, int srcX, int srcY, int srcW, i
         static_cast<const Widget *>(&m_frameCropDup),
         static_cast<const Widget *>( m_uiPageList[m_uiPage].title),
         static_cast<const Widget *>( m_uiPageList[m_uiPage].control),
-        static_cast<const Widget *>(&m_slider),
+        static_cast<const Widget *>( m_uiPageList[m_uiPage].slider),
         static_cast<const Widget *>(&m_close),
     }){
         int drawSrcX = srcX;
@@ -563,7 +611,7 @@ bool FriendChatBoard::processEvent(const SDL_Event &event, bool valid)
     }
 
     if(m_close                        .processEvent(event, valid)){ return true; }
-    if(m_slider                       .processEvent(event, valid)){ return true; }
+    if(m_uiPageList[m_uiPage].slider ->processEvent(event, valid)){ return true; }
     if(m_uiPageList[m_uiPage].page   ->processEvent(event, valid)){ return true; }
     if(m_uiPageList[m_uiPage].control->processEvent(event, valid)){ return true; }
 
