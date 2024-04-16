@@ -44,6 +44,7 @@ class FriendChatBoard: public Widget
 
             uint32_t dbid;
             uint64_t widgetID;
+            std::function<void(FriendItem *)> onClick;
 
             ShapeClipBoard hovered;
 
@@ -58,6 +59,7 @@ class FriendChatBoard: public Widget
                     const char8_t *,
                     std::function<SDL_Texture *(const ImageBoard *)>,
 
+                    std::function<void(FriendItem *)> = nullptr,
                     std::pair<Widget *, bool> argFuncWidget = {},
 
                     Widget * = nullptr,

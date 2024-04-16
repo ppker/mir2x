@@ -144,6 +144,8 @@ void FriendChatBoard::SearchPage::appendCandidate(const SDChatPeer &candidate)
             return g_progUseDB->retrieve(Hero::faceGfxID(gender, job));
         },
 
+        nullptr,
+
         {
             (candidate.dbid == FriendChatBoard::getParentBoard(this)->m_processRun->getMyHero()->dbid()) ? nullptr : new LayoutBoard
             {

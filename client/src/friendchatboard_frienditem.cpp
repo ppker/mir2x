@@ -13,6 +13,7 @@ FriendChatBoard::FriendItem::FriendItem(dir8_t argDir,
 
         std::function<SDL_Texture *(const ImageBoard *)> argLoadImageFunc,
 
+        std::function<void(FriendChatBoard::FriendItem *)> argOnClick,
         std::pair<Widget *, bool> argFuncWidget,
 
         Widget *argParent,
@@ -43,6 +44,7 @@ FriendChatBoard::FriendItem::FriendItem(dir8_t argDir,
 
     , dbid(argDBID)
     , widgetID(argFuncWidget.first ? argFuncWidget.first->id() : 0)
+    , onClick(std::move(argOnClick))
 
     , hovered
       {
@@ -134,34 +136,9 @@ bool FriendChatBoard::FriendItem::processEvent(const SDL_Event &event, bool vali
                     return consumeFocus(true);
                 }
                 else if(in(event.button.x, event.button.y)){
-                    auto boardPtr = FriendChatBoard::getParentBoard(this);
-                    if(this->dbid == boardPtr->m_processRun->getMyHero()->dbid()){
-                        boardPtr->setChatPeer(SDChatPeer
-                        {
-                            .dbid   = boardPtr->m_processRun->getMyHero()->dbid(),
-                            .name   = boardPtr->m_processRun->getMyHero()->getName(),
-                            .gender = boardPtr->m_processRun->getMyHero()->gender(),
-                            .job    = boardPtr->m_processRun->getMyHero()->job(),
-
-                        }, true);
+                    if(onClick){
+                        onClick(this);
                     }
-                    else if(this->dbid == SYS_CHATDBID_SYSTEM){
-                        boardPtr->setChatPeer(SDChatPeer
-                        {
-                            .dbid   = SYS_CHATDBID_SYSTEM,
-                            .name   = "系统助手",
-
-                        }, true);
-                    }
-                    else if(auto peer = boardPtr->findFriend(this->dbid)){
-                        boardPtr->setChatPeer(*peer, true);
-                    }
-                    else{
-                        throw fflerror("item is not associated with a friend: dbid %llu", to_llu(this->dbid));
-                    }
-
-                    boardPtr->setUIPage(FriendChatBoard::UIPage_CHAT);
-                    boardPtr->m_processRun->requestLatestChatMessage({this->dbid}, 50, true, true);
                     return consumeFocus(true);
                 }
                 else{
