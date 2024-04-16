@@ -334,6 +334,29 @@ void MonoServer::createDefaultDatabase()
         u8R"###(     primary key (fld_dbid)                                          )###"
         u8R"###( );                                                                  )###",
 
+        u8R"###( create table tbl_group(                                             )###"
+        u8R"###(     fld_dbid           int unsigned not null,                       )###"
+        u8R"###(     fld_creator        int unsigned not null,                       )###"
+        u8R"###(     fld_createtime     integer not null,                            )###"
+        u8R"###(     fld_name           blob null default (x''),                     )###"
+        u8R"###(     fld_description    blob null default (x''),                     )###"
+        u8R"###(     fld_announcement   blob null default (x''),                     )###"
+        u8R"###(                                                                     )###"
+        u8R"###(     foreign key (fld_creator) references tbl_char(fld_dbid),        )###"
+        u8R"###(     primary key (fld_dbid, fld_friend)                              )###"
+        u8R"###( );                                                                  )###",
+
+        u8R"###( create table tbl_groupmember(                                       )###"
+        u8R"###(     fld_group          int unsigned not null,                       )###"
+        u8R"###(     fld_member         int unsigned not null,                       )###"
+        u8R"###(     fld_priority       int unsigned not null,                       )###"
+        u8R"###(     fld_jointime       integer not null,                            )###"
+        u8R"###(                                                                     )###"
+        u8R"###(     foreign key (fld_group ) references tbl_group(fld_dbid),        )###"
+        u8R"###(     foreign key (fld_member) references tbl_char (fld_dbid),        )###"
+        u8R"###(     primary key (fld_group, fld_member)                             )###"
+        u8R"###( );                                                                  )###",
+
         u8R"###( create table tbl_friend(                                            )###"
         u8R"###(     fld_dbid           int unsigned not null,                       )###"
         u8R"###(     fld_friend         int unsigned not null,                       )###"
