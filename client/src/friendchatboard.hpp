@@ -204,7 +204,7 @@ class FriendChatBoard: public Widget
                     Widget * = nullptr,
                     bool     = false);
 
-            void appendCandidate(const SDChatPeer &);
+            void appendFriendItem(const SDChatPeer &);
             void appendAutoCompletionItem(bool, const SDChatPeer &, const std::string &);
         };
 

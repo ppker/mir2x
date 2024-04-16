@@ -132,7 +132,7 @@ FriendChatBoard::SearchInputLine::SearchInputLine(Widget::VarDir argDir,
                                 dynamic_cast<SearchPage *>(parent())->autocompletes.clearChild();
 
                                 for(const auto &candidate: cerealf::deserialize<SDChatPeerList>(data, size)){
-                                    dynamic_cast<SearchPage *>(parent())->appendCandidate(candidate);
+                                    dynamic_cast<SearchPage *>(parent())->appendFriendItem(candidate);
                                     dynamic_cast<SearchPage *>(parent())->appendAutoCompletionItem(query == std::to_string(candidate.dbid), candidate, [&candidate, &query]
                                     {
                                         if(const auto pos = candidate.name.find(query); pos != std::string::npos){

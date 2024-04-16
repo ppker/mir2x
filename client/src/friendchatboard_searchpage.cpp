@@ -122,7 +122,7 @@ FriendChatBoard::SearchPage::SearchPage(Widget::VarDir argDir,
     candidates.setShow(false);
 }
 
-void FriendChatBoard::SearchPage::appendCandidate(const SDChatPeer &candidate)
+void FriendChatBoard::SearchPage::appendFriendItem(const SDChatPeer &candidate)
 {
     int maxY = 0;
     candidates.foreachChild([&maxY](const Widget *widget, bool)
