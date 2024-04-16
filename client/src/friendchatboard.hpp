@@ -483,6 +483,7 @@ class FriendChatBoard: public Widget
             UIPage_CHATPREVIEW,
             UIPage_FRIENDLIST,
             UIPage_FRIENDSEARCH,
+            UIPage_CREATEGROUP,
             UIPage_END,
         };
 

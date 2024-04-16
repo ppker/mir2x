@@ -464,7 +464,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                               nullptr,
                               [this](ButtonBase *)
                               {
-                                  // create group
+                                  setUIPage(UIPage_CREATEGROUP);
                               },
                           },
 
@@ -575,6 +575,136 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
               },
 
               .page = new SearchPage
+              {
+                  DIR_UPLEFT,
+                  UIPage_BORDER[2] + UIPage_MARGIN,
+                  UIPage_BORDER[0] + UIPage_MARGIN,
+
+                  this,
+                  true,
+              },
+          },
+
+          UIPage // UIPage_CREATEGROUP
+          {
+              .title = new LabelBoard
+              {
+                  DIR_NONE,
+                  45 + (m_frameCropDup.w() - 45 - 190) / 2,
+                  29,
+
+                  u8"【创建群聊】",
+                  1,
+                  14,
+                  0,colorf::WHITE + colorf::A_SHF(255),
+
+                  this,
+                  true,
+              },
+
+              .control = new PageControl
+              {
+                  DIR_RIGHT,
+                  m_frameCropDup.w() - 42,
+                  28,
+                  2,
+
+                  {
+                      {
+                          new TritexButton
+                          {
+                              DIR_UPLEFT,
+                              0,
+                              0,
+
+                              {0X000008F0, 0X000008F0, 0X000008F1},
+                              {
+                                  SYS_U32NIL,
+                                  SYS_U32NIL,
+                                  0X01020000 + 105,
+                              },
+
+                              nullptr,
+                              nullptr,
+                              [this](ButtonBase *)
+                              {
+                                  setUIPage(UIPage_CHATPREVIEW);
+                              },
+                          },
+
+                          true,
+                      },
+
+                      {
+                          new TritexButton
+                          {
+                              DIR_UPLEFT,
+                              0,
+                              0,
+
+                              {0X00000910, 0X00000910, 0X00000911},
+                              {
+                                  SYS_U32NIL,
+                                  SYS_U32NIL,
+                                  0X01020000 + 105,
+                              },
+
+                              nullptr,
+                              nullptr,
+                              [this](ButtonBase *)
+                              {
+                              },
+                          },
+
+                          true,
+                      },
+
+                      {
+                          new TritexButton
+                          {
+                              DIR_UPLEFT,
+                              0,
+                              0,
+
+                              {0X00000860, 0X00000860, 0X00000861},
+                              {
+                                  SYS_U32NIL,
+                                  SYS_U32NIL,
+                                  0X01020000 + 105,
+                              },
+
+                              nullptr,
+                              nullptr,
+                              [this](ButtonBase *)
+                              {
+                              },
+                          },
+
+                          true,
+                      },
+                  },
+
+                  this,
+                  true,
+              },
+
+              .slider = new TexSlider
+              {
+                  DIR_UPLEFT,
+                  m_frameCropDup.w() - 30,
+                  70,
+                  9,
+                  m_frameCropDup.h() - 140,
+
+                  false,
+                  3,
+                  nullptr,
+
+                  this,
+                  true,
+              },
+
+              .page = new FriendListPage
               {
                   DIR_UPLEFT,
                   UIPage_BORDER[2] + UIPage_MARGIN,
