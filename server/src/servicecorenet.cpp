@@ -82,8 +82,8 @@ void ServiceCore::net_CM_QUERYCHAR(uint32_t channID, uint8_t, const uint8_t *, s
     std::memset(&smQCOK, 0, sizeof(smQCOK));
 
     smQCOK.name.assign((std::string)(queryChar.getColumn("fld_name")));
-    smQCOK.job = queryChar.getColumn("fld_job");
     smQCOK.gender = queryChar.getColumn("fld_gender");
+    smQCOK.job = queryChar.getColumn("fld_job");
     smQCOK.exp = queryChar.getColumn("fld_exp");
     g_netDriver->post(channID, SM_QUERYCHAROK, &smQCOK, sizeof(smQCOK), respID);
 }
@@ -439,17 +439,17 @@ void ServiceCore::net_CM_CREATECHAR(uint32_t channID, uint8_t, const uint8_t *bu
     try{
         g_dbPod->exec
         (
-            u8R"###( insert into tbl_char(fld_dbid, fld_name, fld_job, fld_map, fld_mapx, fld_mapy, fld_gender) )###"
+            u8R"###( insert into tbl_char(fld_dbid, fld_name, fld_gender, fld_job, fld_map, fld_mapx, fld_mapy) )###"
             u8R"###( values                                                                                     )###"
             u8R"###(     (%llu, '%s', %d, %d, %d, %d, %d);                                                      )###",
 
             to_llu(dbidOpt.value().first),
             to_cstr(cmCC.name),
+            to_d(cmCC.gender),
             to_d(cmCC.job),
             to_d(DBCOM_MAPID(u8"道馆_1")),
             405,
-            120,
-            to_d(cmCC.gender)
+            120
         );
 
         g_netDriver->post(channID, SM_CREATECHAROK, nullptr, 0, respID);
