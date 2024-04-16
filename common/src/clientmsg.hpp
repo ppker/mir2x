@@ -7,6 +7,7 @@
 #include "conceptf.hpp"
 #include "fixedbuf.hpp"
 #include "actionnode.hpp"
+#include "staticvector.hpp"
 
 enum CMType: uint8_t
 {
@@ -36,6 +37,7 @@ enum CMType: uint8_t
     CM_QUERYPLAYERNAME,
     CM_QUERYPLAYERWLDESP,
     CM_QUERYCHATPEERLIST,
+    CM_CREATECHATGROUP,
     CM_CREATEACCOUNT,
     CM_NPCEVENT,
     CM_QUERYSELLITEMLIST,
@@ -148,6 +150,11 @@ struct CMQueryPlayerWLDesp
 struct CMQueryChatPeerList
 {
     FixedBuf<128> input;
+};
+
+struct CMCreateChatGroup
+{
+    StaticVector<uint32_t, 512> list;
 };
 
 struct CMCreateAccount
@@ -299,7 +306,8 @@ namespace
         _RSVD_register_clientmsg(CM_QUERYUIDBUFF,               1, sizeof(CMQueryUIDBuff)              );
         _RSVD_register_clientmsg(CM_QUERYPLAYERNAME,            1, sizeof(CMQueryPlayerName)           );
         _RSVD_register_clientmsg(CM_QUERYPLAYERWLDESP,          1, sizeof(CMQueryPlayerWLDesp)         );
-        _RSVD_register_clientmsg(CM_QUERYCHATPEERLIST,      1, sizeof(CMQueryChatPeerList)     );
+        _RSVD_register_clientmsg(CM_QUERYCHATPEERLIST,          1, sizeof(CMQueryChatPeerList)         );
+        _RSVD_register_clientmsg(CM_CREATECHATGROUP,            1, sizeof(CMCreateChatGroup)           );
         _RSVD_register_clientmsg(CM_CREATEACCOUNT,              1, sizeof(CMCreateAccount)             );
         _RSVD_register_clientmsg(CM_CHANGEPASSWORD,             1, sizeof(CMChangePassword)            );
         _RSVD_register_clientmsg(CM_SETRUNTIMECONFIG,           1, sizeof(CMSetRuntimeConfig)          );

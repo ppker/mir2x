@@ -653,6 +653,39 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                               nullptr,
                               [this](ButtonBase *)
                               {
+                                  std::vector<uint32_t> dbidList;
+                                  dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_CREATEGROUP].page)->canvas.foreachChild([&dbidList](const Widget *widget, bool)
+                                  {
+                                      if(const auto friendItem = dynamic_cast<const FriendItem *>(widget)){
+                                          if(const auto checkBox = dynamic_cast<const CheckBox *>(friendItem->hasChild(friendItem->widgetID)); checkBox->checkedValue()){
+                                              dbidList.push_back(friendItem->dbid);
+                                          }
+                                      }
+                                  });
+
+                                  CMCreateChatGroup cmCCG;
+                                  std::memset(&cmCCG, 0, sizeof(cmCCG));
+
+                                  if(dbidList.size() > cmCCG.list.capacity()){
+                                      throw fflerror("selected too many friends, max %zu", cmCCG.list.capacity());
+                                  }
+
+                                  cmCCG.list.size = dbidList.size();
+                                  std::copy(dbidList.begin(), dbidList.end(), cmCCG.list.data);
+
+                                  g_client->send({CM_CREATECHATGROUP, cmCCG}, [](uint8_t headCode, const uint8_t *, size_t)
+                                  {
+                                      switch(headCode){
+                                          case SM_OK:
+                                              {
+                                                  break;
+                                              }
+                                          default:
+                                              {
+                                                  throw fflerror("failed to create group");
+                                              }
+                                      }
+                                  });
                               },
                           },
 
@@ -1203,4 +1236,8 @@ const FriendChatBoard *FriendChatBoard::getParentBoard(const Widget *widget)
         }
     }
     throw fflerror("widget is not a decedent of FriendChatBoard");
+}
+
+void FriendChatBoard::addGroup(SDCreateChatGroup)
+{
 }

@@ -741,6 +741,7 @@ void Player::operateNet(uint8_t nType, const uint8_t *pData, size_t nDataLen, ui
         _support_cm(CM_REQUESTSPACEMOVE          );
         _support_cm(CM_SETMAGICKEY               );
         _support_cm(CM_SETRUNTIMECONFIG          );
+        _support_cm(CM_CREATECHATGROUP           );
         default:
             {
                 throw fflerror("unsupported client message: %s", ClientMsg(nType).name().c_str());

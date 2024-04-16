@@ -846,6 +846,12 @@ void ProcessRun::on_SM_GRABBELTERROR(const uint8_t *buf, size_t)
     }
 }
 
+void ProcessRun::on_SM_CREATECHATGROUP(const uint8_t *buf, size_t size)
+{
+    const auto sdCCG = cerealf::deserialize<SDCreateChatGroup>(buf, size);
+    dynamic_cast<FriendChatBoard *>(getWidget("FriendChatBoard"))->addGroup(sdCCG);
+}
+
 void ProcessRun::on_SM_STARTINPUT(const uint8_t *buf, size_t bufSize)
 {
     const auto sdSI = cerealf::deserialize<SDStartInput>(buf, bufSize);

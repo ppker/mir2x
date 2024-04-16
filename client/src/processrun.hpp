@@ -254,6 +254,7 @@ class ProcessRun: public Process
         void on_SM_QUESTDESPUPDATE(const uint8_t *, size_t);
         void on_SM_QUESTDESPLIST(const uint8_t *, size_t);
         void on_SM_CHATMESSAGELIST(const uint8_t *, size_t);
+        void on_SM_CREATECHATGROUP(const uint8_t *, size_t);
 
     public:
         bool canMove(bool, int, int, int);

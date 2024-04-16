@@ -666,3 +666,11 @@ SDAddFriendNotif Player::dbAddFriend(uint32_t argDBID)
         };
     }
 }
+
+SDCreateChatGroup Player::dbCreateChatGroup(const uint32_t *dbidList, size_t size)
+{
+    fflassert(dbidList);
+    fflassert(size > 0);
+
+    return {};
+}

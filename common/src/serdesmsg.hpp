@@ -410,6 +410,17 @@ struct SDWLDesp
 
 using SDUIDList = std::vector<uint64_t>;
 
+struct SDCreateChatGroup
+{
+    uint32_t groupDBID;
+    SDUIDList list;
+
+    template<typename Archive> void serialize(Archive & ar)
+    {
+        ar(groupDBID, list);
+    }
+};
+
 struct SDUIDWLDesp
 {
     uint64_t uid = 0;

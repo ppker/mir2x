@@ -580,4 +580,7 @@ class FriendChatBoard: public Widget
     public:
         static       FriendChatBoard *getParentBoard(      Widget *);
         static const FriendChatBoard *getParentBoard(const Widget *);
+
+    public:
+        void addGroup(SDCreateChatGroup);
 };

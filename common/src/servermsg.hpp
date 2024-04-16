@@ -22,6 +22,7 @@ enum SMType: uint8_t
     SM_QUERYCHARERROR,
     SM_CREATECHAROK,
     SM_CREATECHARERROR,
+    SM_CREATECHATGROUP,
     SM_DELETECHAROK,
     SM_DELETECHARERROR,
     SM_ONLINEOK,
@@ -359,6 +360,7 @@ namespace
         _RSVD_register_servermsg(SM_CHANGEPASSWORDERROR, 1, sizeof(SMChangePasswordError));
         _RSVD_register_servermsg(SM_CREATECHAROK,        0                               );
         _RSVD_register_servermsg(SM_CREATECHARERROR,     1, sizeof(SMCreateCharError)    );
+        _RSVD_register_servermsg(SM_CREATECHATGROUP,     3                               );
         _RSVD_register_servermsg(SM_DELETECHAROK,        0                               );
         _RSVD_register_servermsg(SM_DELETECHARERROR,     1, sizeof(SMDeleteCharError)    );
         _RSVD_register_servermsg(SM_ONLINEOK,            1, sizeof(SMOnlineOK)           );

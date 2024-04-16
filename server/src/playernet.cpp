@@ -843,3 +843,13 @@ void Player::net_CM_REQUESTLATESTCHATMESSAGE(uint8_t, const uint8_t *buf, size_t
         postNetMessage(SM_CHATMESSAGELIST, cerealf::serialize(dbRetrieveLatestChatMessage(cmRLCM.dbidList, dbidCount, cmRLCM.limitCount, cmRLCM.includeSend, cmRLCM.includeRecv)));
     }
 }
+
+void Player::net_CM_CREATECHATGROUP(uint8_t, const uint8_t *buf, size_t, uint64_t)
+{
+    const auto cmCCG = ClientMsg::conv<CMCreateChatGroup>(buf);
+    const auto sdCCG = dbCreateChatGroup(cmCCG.list.data, cmCCG.list.size);
+
+    for(const auto sdBuf = cerealf::serialize(sdCCG); const auto dbid: sdCCG.list){
+        forwardNetPackage(uidf::getPlayerUID(dbid), SM_CREATECHATGROUP, sdBuf);
+    }
+}

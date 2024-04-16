@@ -213,6 +213,7 @@ class Player final: public BattleObject
         void net_CM_REQUESTSPACEMOVE          (uint8_t, const uint8_t *, size_t, uint64_t);
         void net_CM_SETMAGICKEY               (uint8_t, const uint8_t *, size_t, uint64_t);
         void net_CM_SETRUNTIMECONFIG          (uint8_t, const uint8_t *, size_t, uint64_t);
+        void net_CM_CREATECHATGROUP           (uint8_t, const uint8_t *, size_t, uint64_t);
 
     protected:
         void reportGold();
@@ -369,6 +370,9 @@ class Player final: public BattleObject
 
     private:
         SDAddFriendNotif dbAddFriend(uint32_t);
+
+    private:
+        SDCreateChatGroup dbCreateChatGroup(const uint32_t *, size_t);
 
     protected:
         void checkFriend(uint64_t, std::function<void(int)>) override;
