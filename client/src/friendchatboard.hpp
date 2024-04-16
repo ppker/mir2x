@@ -79,7 +79,7 @@ class FriendChatBoard: public Widget
                     Widget * = nullptr,
                     bool     = false);
 
-            void append(const SDChatPeer &);
+            void append(const SDChatPeer &, std::function<void(FriendItem *)> = nullptr, std::pair<Widget *, bool> = {});
         };
 
         struct SearchInputLine: public Widget

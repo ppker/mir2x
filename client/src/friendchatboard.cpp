@@ -833,12 +833,43 @@ void FriendChatBoard::setFriendList(const SDFriendList &sdFL)
     m_sdFriendList = sdFL;
     std::unordered_set<uint32_t> seenDBIDList;
 
+    auto fnOnClick = [this](FriendChatBoard::FriendItem *item)
+    {
+        if(item->dbid == m_processRun->getMyHero()->dbid()){
+            setChatPeer(SDChatPeer
+            {
+                .dbid   = m_processRun->getMyHero()->dbid(),
+                .name   = m_processRun->getMyHero()->getName(),
+                .gender = m_processRun->getMyHero()->gender(),
+                .job    = m_processRun->getMyHero()->job(),
+
+            }, true);
+        }
+        else if(item->dbid == SYS_CHATDBID_SYSTEM){
+            setChatPeer(SDChatPeer
+            {
+                .dbid   = SYS_CHATDBID_SYSTEM,
+                .name   = "系统助手",
+
+            }, true);
+        }
+        else if(auto peer = findFriend(item->dbid)){
+            setChatPeer(*peer, true);
+        }
+        else{
+            throw fflerror("item is not associated with a friend: dbid %llu", to_llu(item->dbid));
+        }
+
+        setUIPage(FriendChatBoard::UIPage_CHAT);
+        m_processRun->requestLatestChatMessage({item->dbid}, 50, true, true);
+    };
+
     seenDBIDList.insert(SYS_CHATDBID_SYSTEM);
     dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(SDChatPeer
     {
         .dbid = SYS_CHATDBID_SYSTEM,
         .name = "系统助手",
-    });
+    }, fnOnClick);
 
     seenDBIDList.insert(m_processRun->getMyHero()->dbid());
     dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(SDChatPeer
@@ -847,7 +878,7 @@ void FriendChatBoard::setFriendList(const SDFriendList &sdFL)
         .name   = m_processRun->getMyHero()->getName(),
         .gender = m_processRun->getMyHero()->gender(),
         .job    = m_processRun->getMyHero()->job(),
-    });
+    }, fnOnClick);
 
     for(const auto &sdPC: sdFL){
         if(seenDBIDList.contains(sdPC.dbid)){
@@ -855,7 +886,7 @@ void FriendChatBoard::setFriendList(const SDFriendList &sdFL)
         }
 
         seenDBIDList.insert(sdPC.dbid);
-        dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(sdPC);
+        dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(sdPC, fnOnClick);
     }
 }
 
