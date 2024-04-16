@@ -710,6 +710,14 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                               nullptr,
                               [this](ButtonBase *)
                               {
+                                  dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_CREATEGROUP].page)->canvas.foreachChild([](Widget *widget, bool)
+                                  {
+                                      if(auto friendItem = dynamic_cast<FriendItem *>(widget)){
+                                          if(auto checkBox = dynamic_cast<CheckBox *>(friendItem->hasChild(friendItem->widgetID)); checkBox->checkedValue()){
+                                              checkBox->toggle();
+                                          }
+                                      }
+                                  });
                               },
                           },
 
@@ -750,29 +758,40 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
               .enter = [this](int, UIPage *uiPage)
               {
                   auto listPage = dynamic_cast<FriendChatBoard::FriendListPage *>(uiPage->page);
-
-                  listPage->canvas.clearChild();
-                  for(const auto &peer: m_sdFriendList){
-                      listPage->append(peer, nullptr,
+                  listPage->canvas.clearChild([this](const Widget *widget, bool)
+                  {
+                      return std::find_if(m_sdFriendList.begin(), m_sdFriendList.end(), [widget](const auto &x)
                       {
-                          new CheckBox
+                          return dynamic_cast<const FriendItem *>(widget)->dbid == x.dbid;
+
+                      }) == m_sdFriendList.end();
+                  });
+
+                  for(const auto &peer: m_sdFriendList){
+                      if(!listPage->canvas.hasChild([&peer](const Widget *widget, bool)
+                      {
+                          return dynamic_cast<const FriendItem *>(widget)->dbid == peer.dbid;
+                      })){
+                          listPage->append(peer, nullptr,
                           {
-                              DIR_UPLEFT,
-                              0,
-                              0,
+                              new CheckBox
+                              {
+                                  DIR_UPLEFT,
+                                  0,
+                                  0,
 
-                              FriendItem::HEIGHT / 3,
-                              FriendItem::HEIGHT / 3,
+                                  FriendItem::HEIGHT / 3,
+                                  FriendItem::HEIGHT / 3,
 
-                              colorf::RGB(231, 231, 189) + colorf::A_SHF(128),
+                                  colorf::RGB(231, 231, 189) + colorf::A_SHF(128),
 
-                              nullptr,
-                              nullptr,
-                              nullptr,
-                          },
-
-                          true,
-                      });
+                                  nullptr,
+                                  nullptr,
+                                  nullptr,
+                              },
+                              true,
+                          });
+                      }
                   }
               },
           },
