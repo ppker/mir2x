@@ -349,7 +349,7 @@ void MonoServer::createDefaultDatabase()
         u8R"###( create table tbl_groupmember(                                       )###"
         u8R"###(     fld_group          int unsigned not null,                       )###"
         u8R"###(     fld_member         int unsigned not null,                       )###"
-        u8R"###(     fld_priority       int unsigned not null,                       )###"
+        u8R"###(     fld_permission     int unsigned not null,                       )###"
         u8R"###(     fld_jointime       integer not null,                            )###"
         u8R"###(                                                                     )###"
         u8R"###(     foreign key (fld_group ) references tbl_group(fld_dbid),        )###"
