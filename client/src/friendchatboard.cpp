@@ -720,11 +720,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
 
                   listPage->canvas.clearChild();
                   for(const auto &peer: m_sdFriendList){
-                      listPage->append(peer, [](FriendChatBoard::FriendItem *)
-                      {
-
-                      },
-
+                      listPage->append(peer, nullptr,
                       {
                           new CheckBox
                           {
