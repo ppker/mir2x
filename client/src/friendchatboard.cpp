@@ -713,6 +713,39 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                   this,
                   true,
               },
+
+              .enter = [this](int, UIPage *uiPage)
+              {
+                  auto listPage = dynamic_cast<FriendChatBoard::FriendListPage *>(uiPage->page);
+
+                  listPage->canvas.clearChild();
+                  for(const auto &peer: m_sdFriendList){
+                      listPage->append(peer, [](FriendChatBoard::FriendItem *)
+                      {
+
+                      },
+
+                      {
+                          new CheckBox
+                          {
+                              DIR_UPLEFT,
+                              0,
+                              0,
+
+                              FriendItem::HEIGHT / 3,
+                              FriendItem::HEIGHT / 3,
+
+                              colorf::RGB(231, 231, 189) + colorf::A_SHF(128),
+
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                          },
+
+                          true,
+                      });
+                  }
+              },
           },
       }
 {
