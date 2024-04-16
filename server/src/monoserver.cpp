@@ -337,7 +337,7 @@ void MonoServer::createDefaultDatabase()
         u8R"###( ) strict;                                                          )###",
 
         u8R"###( create table tbl_chatgroup(                                        )###"
-        u8R"###(     fld_dbid           integer not null primary key autoincrement, )###"
+        u8R"###(     fld_id             integer not null primary key autoincrement, )###"
         u8R"###(     fld_creator        integer not null,                           )###"
         u8R"###(     fld_createtime     integer not null,                           )###"
         u8R"###(     fld_name           blob        null default (x''),             )###"
@@ -353,7 +353,7 @@ void MonoServer::createDefaultDatabase()
         u8R"###(     fld_permission     integer not null,                           )###"
         u8R"###(     fld_jointime       integer not null,                           )###"
         u8R"###(                                                                    )###"
-        u8R"###(     foreign key (fld_group ) references tbl_chatgroup(fld_dbid),   )###"
+        u8R"###(     foreign key (fld_group ) references tbl_chatgroup(fld_id  ),   )###"
         u8R"###(     foreign key (fld_member) references tbl_char     (fld_dbid),   )###"
         u8R"###(     primary key (fld_group, fld_member)                            )###"
         u8R"###( ) strict;                                                          )###",
