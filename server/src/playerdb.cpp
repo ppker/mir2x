@@ -569,16 +569,16 @@ std::tuple<uint64_t, uint64_t> Player::dbSaveChatMessage(bool argGroup, uint32_t
 {
     auto tstamp= hres_tstamp::localtime();
     auto query = g_dbPod->createQuery(
-        u8R"###( insert into tbl_chatmessage(fld_group, fld_from, fld_to, fld_timestamp, fld_message) )###"
-        u8R"###( values                                                                               )###"
-        u8R"###(     (%d, %llu, %llu, %llu, ?)                                                        )###"
-        u8R"###( returning                                                                            )###"
-        u8R"###(     fld_id;                                                                          )###",
+        u8R"###( insert into tbl_chatmessage(fld_timestamp, fld_from, fld_to, fld_groupchat, fld_message) )###"
+        u8R"###( values                                                                                   )###"
+        u8R"###(     (%llu, %llu, %llu, %d, ?)                                                            )###"
+        u8R"###( returning                                                                                )###"
+        u8R"###(     fld_id;                                                                              )###",
 
-        to_boolint(argGroup),
+        to_llu(tstamp),
         to_llu(dbid()),
         to_llu(toDBID),
-        to_llu(tstamp));
+        to_boolint(argGroup));
 
     query.bind(1, sv.data(), sv.size());
     if(query.executeStep()){
@@ -630,7 +630,7 @@ SDChatMessageList Player::dbRetrieveLatestChatMessage(const uint32_t *dbidList, 
                 .timestamp = to_u64(query.getColumn("fld_timestamp").getInt64()),
             },
 
-            .group = query.getColumn("fld_group").getUInt() > 0,
+            .group = query.getColumn("fld_groupchat").getUInt() > 0,
 
             .from = to_u32(query.getColumn("fld_from")),
             .to   = to_u32(query.getColumn("fld_to")),

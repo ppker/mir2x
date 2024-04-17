@@ -164,13 +164,13 @@ bool MonoServer::createAccountCharacter(const char *id, const char *charName, bo
     );
 
     auto query = g_dbPod->createQuery(
-        u8R"###( insert into tbl_chatmessage(fld_group, fld_from, fld_to, fld_timestamp, fld_message) )###"
-        u8R"###( values                                                                               )###"
-        u8R"###(     (0, %llu, %llu, %llu, ?);                                                        )###",
+        u8R"###( insert into tbl_chatmessage(fld_timestamp, fld_from, fld_to, fld_groupchat, fld_message) )###"
+        u8R"###( values                                                                                   )###"
+        u8R"###(     (%llu, %llu, %llu, 0, ?);                                                            )###",
 
+        to_llu(hres_tstamp::localtime()),
         to_llu(SYS_CHATDBID_SYSTEM),
-        to_llu(dbid),
-        to_llu(hres_tstamp::localtime()));
+        to_llu(dbid));
 
     query.bind(1, cerealf::serialize(std::string("<layout><par>欢迎来到mir2x传奇的世界！</par></layout>")));
     query.exec();
@@ -229,155 +229,152 @@ void MonoServer::createDefaultDatabase()
 {
     const char8_t *defSQLCmdList[]
     {
-        u8R"###( create table tbl_account(                                          )###"
-        u8R"###(     fld_dbid           integer not null primary key autoincrement, )###"
-        u8R"###(     fld_account        text    not null,                           )###"
-        u8R"###(     fld_password       text    not null                            )###"
-        u8R"###( ) strict;                                                          )###",
+        u8R"###( create table tbl_account(                                               )###"
+        u8R"###(     fld_dbid           integer not null primary key autoincrement,      )###"
+        u8R"###(     fld_account        text    not null,                                )###"
+        u8R"###(     fld_password       text    not null                                 )###"
+        u8R"###( ) strict;                                                               )###",
 
-        u8R"###( insert into tbl_account(fld_dbid, fld_account, fld_password)       )###"
-        u8R"###( values                                                             )###"
-        u8R"###(     (1, 'admin', 'admin');                                         )###",
+        u8R"###( insert into tbl_account(fld_dbid, fld_account, fld_password)            )###"
+        u8R"###( values                                                                  )###"
+        u8R"###(     (1, 'admin', 'admin');                                              )###",
 
-        u8R"###( create table tbl_char(                                             )###"
-        u8R"###(     fld_dbid           integer not null primary key,               )###"
-        u8R"###(     fld_name           text    not null,                           )###"
-        u8R"###(     fld_namecolor      integer default 0,                          )###"
-        u8R"###(     fld_gender         integer not null,                           )###"
-        u8R"###(     fld_job            integer not null,                           )###"
-        u8R"###(     fld_map            integer not null,                           )###"
-        u8R"###(     fld_mapx           integer not null,                           )###"
-        u8R"###(     fld_mapy           integer not null,                           )###"
-        u8R"###(     fld_hp             integer default 10,                         )###"
-        u8R"###(     fld_mp             integer default 10,                         )###"
-        u8R"###(     fld_exp            integer default 0,                          )###"
-        u8R"###(     fld_gold           integer default 10000,                      )###"
-        u8R"###(     fld_hair           integer default 0,                          )###"
-        u8R"###(     fld_haircolor      integer default 0,                          )###"
-        u8R"###(                                                                    )###"
-        u8R"###(     foreign key (fld_dbid) references tbl_account(fld_dbid)        )###"
-        u8R"###( ) strict;                                                          )###",
+        u8R"###( create table tbl_char(                                                  )###"
+        u8R"###(     fld_dbid           integer not null primary key,                    )###"
+        u8R"###(     fld_name           text    not null,                                )###"
+        u8R"###(     fld_namecolor      integer default 0,                               )###"
+        u8R"###(     fld_gender         integer not null check(fld_gender in (0, 1)),    )###"
+        u8R"###(     fld_job            integer not null,                                )###"
+        u8R"###(     fld_map            integer not null,                                )###"
+        u8R"###(     fld_mapx           integer not null,                                )###"
+        u8R"###(     fld_mapy           integer not null,                                )###"
+        u8R"###(     fld_hp             integer default 10,                              )###"
+        u8R"###(     fld_mp             integer default 10,                              )###"
+        u8R"###(     fld_exp            integer default 0,                               )###"
+        u8R"###(     fld_gold           integer default 10000,                           )###"
+        u8R"###(     fld_hair           integer default 0,                               )###"
+        u8R"###(     fld_haircolor      integer default 0,                               )###"
+        u8R"###(                                                                         )###"
+        u8R"###(     foreign key (fld_dbid) references tbl_account(fld_dbid)             )###"
+        u8R"###( ) strict;                                                               )###",
 
-        u8R"###( create table tbl_charvarlist(                                      )###"
-        u8R"###(     fld_dbid           integer not null,                           )###"
-        u8R"###(     fld_var            text    not null,                           )###"
-        u8R"###(     fld_value          blob        null,                           )###"
-        u8R"###(                                                                    )###"
-        u8R"###(     foreign key (fld_dbid) references tbl_char(fld_dbid),          )###"
-        u8R"###(     primary key (fld_dbid, fld_var)                                )###"
-        u8R"###( ) strict;                                                          )###",
+        u8R"###( create table tbl_charvarlist(                                           )###"
+        u8R"###(     fld_dbid           integer not null,                                )###"
+        u8R"###(     fld_var            text    not null,                                )###"
+        u8R"###(     fld_value          blob        null,                                )###"
+        u8R"###(                                                                         )###"
+        u8R"###(     foreign key (fld_dbid) references tbl_char(fld_dbid),               )###"
+        u8R"###(     primary key (fld_dbid, fld_var)                                     )###"
+        u8R"###( ) strict;                                                               )###",
 
-        u8R"###( create table tbl_belt(                                             )###"
-        u8R"###(     fld_dbid           integer not null,                           )###"
-        u8R"###(     fld_belt           integer not null,                           )###"
-        u8R"###(                                                                    )###"
-        u8R"###(     fld_itemid         integer not null,                           )###"
-        u8R"###(     fld_count          integer not null,                           )###"
-        u8R"###(                                                                    )###"
-        u8R"###(     foreign key (fld_dbid) references tbl_char(fld_dbid),          )###"
-        u8R"###(     primary key (fld_dbid, fld_belt)                               )###"
-        u8R"###( ) strict;                                                          )###",
+        u8R"###( create table tbl_belt(                                                  )###"
+        u8R"###(     fld_dbid           integer not null,                                )###"
+        u8R"###(     fld_belt           integer not null,                                )###"
+        u8R"###(                                                                         )###"
+        u8R"###(     fld_itemid         integer not null,                                )###"
+        u8R"###(     fld_count          integer not null,                                )###"
+        u8R"###(                                                                         )###"
+        u8R"###(     foreign key (fld_dbid) references tbl_char(fld_dbid),               )###"
+        u8R"###(     primary key (fld_dbid, fld_belt)                                    )###"
+        u8R"###( ) strict;                                                               )###",
 
-        u8R"###( create table tbl_wear(                                             )###"
-        u8R"###(     fld_dbid           integer not null,                           )###"
-        u8R"###(     fld_wear           integer not null,                           )###"
-        u8R"###(                                                                    )###"
-        u8R"###(     fld_itemid         integer not null,                           )###"
-        u8R"###(     fld_count          integer not null,                           )###"
-        u8R"###(     fld_duration       integer not null,                           )###"
-        u8R"###(     fld_maxduration    integer not null,                           )###"
-        u8R"###(     fld_extattrlist    blob    not null,                           )###"
-        u8R"###(                                                                    )###"
-        u8R"###(     foreign key (fld_dbid) references tbl_char(fld_dbid),          )###"
-        u8R"###(     primary key (fld_dbid, fld_wear)                               )###"
-        u8R"###( ) strict;                                                          )###",
+        u8R"###( create table tbl_wear(                                                  )###"
+        u8R"###(     fld_dbid           integer not null,                                )###"
+        u8R"###(     fld_wear           integer not null,                                )###"
+        u8R"###(                                                                         )###"
+        u8R"###(     fld_itemid         integer not null,                                )###"
+        u8R"###(     fld_count          integer not null,                                )###"
+        u8R"###(     fld_duration       integer not null,                                )###"
+        u8R"###(     fld_maxduration    integer not null,                                )###"
+        u8R"###(     fld_extattrlist    blob    not null,                                )###"
+        u8R"###(                                                                         )###"
+        u8R"###(     foreign key (fld_dbid) references tbl_char(fld_dbid),               )###"
+        u8R"###(     primary key (fld_dbid, fld_wear)                                    )###"
+        u8R"###( ) strict;                                                               )###",
 
-        u8R"###( create table tbl_inventory(                                        )###"
-        u8R"###(     fld_dbid           integer not null,                           )###"
-        u8R"###(     fld_itemid         integer not null,                           )###"
-        u8R"###(     fld_seqid          integer not null,                           )###"
-        u8R"###(     fld_count          integer not null,                           )###"
-        u8R"###(     fld_duration       integer not null,                           )###"
-        u8R"###(     fld_maxduration    integer not null,                           )###"
-        u8R"###(     fld_extattrlist    blob    not null,                           )###"
-        u8R"###(                                                                    )###"
-        u8R"###(     foreign key (fld_dbid) references tbl_char(fld_dbid),          )###"
-        u8R"###(     primary key (fld_dbid, fld_itemid, fld_seqid)                  )###"
-        u8R"###( ) strict;                                                          )###",
+        u8R"###( create table tbl_inventory(                                             )###"
+        u8R"###(     fld_dbid           integer not null,                                )###"
+        u8R"###(     fld_itemid         integer not null,                                )###"
+        u8R"###(     fld_seqid          integer not null,                                )###"
+        u8R"###(     fld_count          integer not null,                                )###"
+        u8R"###(     fld_duration       integer not null,                                )###"
+        u8R"###(     fld_maxduration    integer not null,                                )###"
+        u8R"###(     fld_extattrlist    blob    not null,                                )###"
+        u8R"###(                                                                         )###"
+        u8R"###(     foreign key (fld_dbid) references tbl_char(fld_dbid),               )###"
+        u8R"###(     primary key (fld_dbid, fld_itemid, fld_seqid)                       )###"
+        u8R"###( ) strict;                                                               )###",
 
-        u8R"###( create table tbl_secureditemlist(                                  )###"
-        u8R"###(     fld_dbid           integer not null,                           )###"
-        u8R"###(     fld_itemid         integer not null,                           )###"
-        u8R"###(     fld_seqid          integer not null,                           )###"
-        u8R"###(     fld_count          integer not null,                           )###"
-        u8R"###(     fld_duration       integer not null,                           )###"
-        u8R"###(     fld_maxduration    integer not null,                           )###"
-        u8R"###(     fld_extattrlist    blob    not null,                           )###"
-        u8R"###(                                                                    )###"
-        u8R"###(     foreign key (fld_dbid) references tbl_char(fld_dbid),          )###"
-        u8R"###(     primary key (fld_dbid, fld_itemid, fld_seqid)                  )###"
-        u8R"###( ) strict;                                                          )###",
+        u8R"###( create table tbl_secureditemlist(                                       )###"
+        u8R"###(     fld_dbid           integer not null,                                )###"
+        u8R"###(     fld_itemid         integer not null,                                )###"
+        u8R"###(     fld_seqid          integer not null,                                )###"
+        u8R"###(     fld_count          integer not null,                                )###"
+        u8R"###(     fld_duration       integer not null,                                )###"
+        u8R"###(     fld_maxduration    integer not null,                                )###"
+        u8R"###(     fld_extattrlist    blob    not null,                                )###"
+        u8R"###(                                                                         )###"
+        u8R"###(     foreign key (fld_dbid) references tbl_char(fld_dbid),               )###"
+        u8R"###(     primary key (fld_dbid, fld_itemid, fld_seqid)                       )###"
+        u8R"###( ) strict;                                                               )###",
 
-        u8R"###( create table tbl_learnedmagiclist(                                 )###"
-        u8R"###(     fld_dbid           integer not null,                           )###"
-        u8R"###(     fld_magicid        integer not null,                           )###"
-        u8R"###(     fld_exp            integer default 0,                          )###"
-        u8R"###(                                                                    )###"
-        u8R"###(     foreign key (fld_dbid) references tbl_char(fld_dbid),          )###"
-        u8R"###(     primary key (fld_dbid, fld_magicid)                            )###"
-        u8R"###( ) strict;                                                          )###",
+        u8R"###( create table tbl_learnedmagiclist(                                      )###"
+        u8R"###(     fld_dbid           integer not null,                                )###"
+        u8R"###(     fld_magicid        integer not null,                                )###"
+        u8R"###(     fld_exp            integer default 0,                               )###"
+        u8R"###(                                                                         )###"
+        u8R"###(     foreign key (fld_dbid) references tbl_char(fld_dbid),               )###"
+        u8R"###(     primary key (fld_dbid, fld_magicid)                                 )###"
+        u8R"###( ) strict;                                                               )###",
 
-        u8R"###( create table tbl_playerconfig(                                     )###"
-        u8R"###(     fld_dbid           integer not null,                           )###"
-        u8R"###(     fld_magickeylist   blob        null default (x''),             )###"
-        u8R"###(     fld_runtimeconfig  blob        null default (x''),             )###"
-        u8R"###(                                                                    )###"
-        u8R"###(     foreign key (fld_dbid) references tbl_char(fld_dbid),          )###"
-        u8R"###(     primary key (fld_dbid)                                         )###"
-        u8R"###( ) strict;                                                          )###",
+        u8R"###( create table tbl_playerconfig(                                          )###"
+        u8R"###(     fld_dbid           integer not null,                                )###"
+        u8R"###(     fld_magickeylist   blob        null default (x''),                  )###"
+        u8R"###(     fld_runtimeconfig  blob        null default (x''),                  )###"
+        u8R"###(                                                                         )###"
+        u8R"###(     foreign key (fld_dbid) references tbl_char(fld_dbid),               )###"
+        u8R"###(     primary key (fld_dbid)                                              )###"
+        u8R"###( ) strict;                                                               )###",
 
-        u8R"###( create table tbl_chatgroup(                                        )###"
-        u8R"###(     fld_id             integer not null primary key autoincrement, )###"
-        u8R"###(     fld_creator        integer not null,                           )###"
-        u8R"###(     fld_createtime     integer not null,                           )###"
-        u8R"###(     fld_name           blob        null default (x''),             )###"
-        u8R"###(     fld_description    blob        null default (x''),             )###"
-        u8R"###(     fld_announcement   blob        null default (x''),             )###"
-        u8R"###(                                                                    )###"
-        u8R"###(     foreign key (fld_creator) references tbl_char(fld_dbid)        )###"
-        u8R"###( ) strict;                                                          )###",
+        u8R"###( create table tbl_chatgroup(                                             )###"
+        u8R"###(     fld_id             integer not null primary key autoincrement,      )###"
+        u8R"###(     fld_creator        integer not null,                                )###"
+        u8R"###(     fld_createtime     integer not null,                                )###"
+        u8R"###(     fld_name           blob        null default (x''),                  )###"
+        u8R"###(     fld_description    blob        null default (x''),                  )###"
+        u8R"###(     fld_announcement   blob        null default (x''),                  )###"
+        u8R"###(                                                                         )###"
+        u8R"###(     foreign key (fld_creator) references tbl_char(fld_dbid)             )###"
+        u8R"###( ) strict;                                                               )###",
 
-        u8R"###( create table tbl_chatgroupmember(                                  )###"
-        u8R"###(     fld_group          integer not null,                           )###"
-        u8R"###(     fld_member         integer not null,                           )###"
-        u8R"###(     fld_permission     integer not null,                           )###"
-        u8R"###(     fld_jointime       integer not null,                           )###"
-        u8R"###(                                                                    )###"
-        u8R"###(     foreign key (fld_group ) references tbl_chatgroup(fld_id  ),   )###"
-        u8R"###(     foreign key (fld_member) references tbl_char     (fld_dbid),   )###"
-        u8R"###(     primary key (fld_group, fld_member)                            )###"
-        u8R"###( ) strict;                                                          )###",
+        u8R"###( create table tbl_chatgroupmember(                                       )###"
+        u8R"###(     fld_group          integer not null,                                )###"
+        u8R"###(     fld_member         integer not null,                                )###"
+        u8R"###(     fld_permission     integer not null,                                )###"
+        u8R"###(     fld_jointime       integer not null,                                )###"
+        u8R"###(                                                                         )###"
+        u8R"###(     foreign key (fld_group ) references tbl_chatgroup(fld_id  ),        )###"
+        u8R"###(     foreign key (fld_member) references tbl_char     (fld_dbid),        )###"
+        u8R"###(     primary key (fld_group, fld_member)                                 )###"
+        u8R"###( ) strict;                                                               )###",
 
-        u8R"###( create table tbl_friend(                                           )###"
-        u8R"###(     fld_dbid           integer not null,                           )###"
-        u8R"###(     fld_friend         integer not null,                           )###"
-        u8R"###(                                                                    )###"
-        u8R"###(     foreign key (fld_dbid  ) references tbl_char(fld_dbid),        )###"
-        u8R"###(     foreign key (fld_friend) references tbl_char(fld_dbid),        )###"
-        u8R"###(     primary key (fld_dbid, fld_friend)                             )###"
-        u8R"###( ) strict;                                                          )###",
+        u8R"###( create table tbl_friend(                                                )###"
+        u8R"###(     fld_dbid           integer not null,                                )###"
+        u8R"###(     fld_friend         integer not null,                                )###"
+        u8R"###(                                                                         )###"
+        u8R"###(     foreign key (fld_dbid  ) references tbl_char(fld_dbid),             )###"
+        u8R"###(     foreign key (fld_friend) references tbl_char(fld_dbid),             )###"
+        u8R"###(     primary key (fld_dbid, fld_friend)                                  )###"
+        u8R"###( ) strict;                                                               )###",
 
-        u8R"###( create table tbl_chatmessage(                                      )###"
-        u8R"###(     fld_id             integer not null primary key autoincrement, )###"
-        u8R"###(     fld_group          integer not null,                           )###"
-        u8R"###(     fld_from           integer not null,                           )###"
-        u8R"###(     fld_to             integer not null,                           )###"
-        u8R"###(     fld_timestamp      integer not null,                           )###"
-        u8R"###(     fld_message        blob        null default (x''),             )###"
-        u8R"###(                                                                    )###"
-        u8R"###(     foreign key (fld_from) references tbl_char(fld_dbid),          )###"
-        u8R"###(     foreign key (fld_to  ) references tbl_char(fld_dbid)           )###"
-        u8R"###( ) strict;                                                          )###",
+        u8R"###( create table tbl_chatmessage(                                           )###"
+        u8R"###(     fld_id             integer not null primary key autoincrement,      )###"
+        u8R"###(     fld_timestamp      integer not null,                                )###"
+        u8R"###(     fld_from           integer not null,                                )###"
+        u8R"###(     fld_to             integer not null,                                )###"
+        u8R"###(     fld_groupchat      integer not null check(fld_groupchat in (0, 1)), )###"
+        u8R"###(     fld_message        blob        null default (x'')                   )###"
+        u8R"###( ) strict;                                                               )###",
     };
 
     {
