@@ -663,6 +663,10 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                                       }
                                   });
 
+                                  if(dbidList.empty()){
+                                      return;
+                                  }
+
                                   CMCreateChatGroup cmCCG;
                                   std::memset(&cmCCG, 0, sizeof(cmCCG));
 
@@ -771,6 +775,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                       if(!listPage->canvas.hasChild([&peer](const Widget *widget, bool)
                       {
                           return dynamic_cast<const FriendItem *>(widget)->dbid == peer.dbid;
+
                       })){
                           listPage->append(peer, nullptr,
                           {
