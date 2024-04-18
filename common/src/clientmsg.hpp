@@ -154,6 +154,7 @@ struct CMQueryChatPeerList
 
 struct CMCreateChatGroup
 {
+    FixedBuf<128> name;
     StaticVector<uint32_t, 512> list;
 };
 

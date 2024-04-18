@@ -142,21 +142,58 @@ struct SDNPCXMLLayout
     }
 };
 
-struct SDChatPeer
+struct SDChatGroupMember
 {
     uint32_t dbid = 0;
+    uint16_t priority = 0;
+    template<typename Archive> void serialize(Archive & ar)
+    {
+        ar(dbid, priority);
+    }
+};
+
+struct SDChatPeer
+{
+    struct Player
+    {
+        bool gender = false;
+        int job = 0;
+
+        template<typename Archive> void serialize(Archive & ar)
+        {
+            ar(gender, job);
+        }
+    };
+
+    struct ChatGroup
+    {
+        uint32_t creator = 0;
+        uint32_t createtime = 0;
+
+        std::vector<SDChatGroupMember> memberList;
+        template<typename Archive> void serialize(Archive & ar)
+        {
+            ar(memberList);
+        }
+    };
+
+    uint32_t id = 0;
     std::string name {};
-
-    bool group = false;
-
-    bool gender = false;
-    int job = 0;
-
     std::optional<uint64_t> avatar {};
+
+    std::variant<Player, ChatGroup> vardesp;
+
+    bool group() const
+    {
+        return std::get_if<ChatGroup>(&vardesp);
+    }
+
+    const Player    &getPlayer   () const { return std::get<Player   >(vardesp); }
+    const ChatGroup &getChatGroup() const { return std::get<ChatGroup>(vardesp); }
 
     template<typename Archive> void serialize(Archive & ar)
     {
-        ar(dbid, name, gender, job, avatar);
+        ar(group, id, name, avatar, vardesp);
     }
 };
 
@@ -409,17 +446,6 @@ struct SDWLDesp
 };
 
 using SDUIDList = std::vector<uint64_t>;
-
-struct SDCreateChatGroup
-{
-    uint32_t groupDBID;
-    SDUIDList list;
-
-    template<typename Archive> void serialize(Archive & ar)
-    {
-        ar(groupDBID, list);
-    }
-};
 
 struct SDUIDWLDesp
 {

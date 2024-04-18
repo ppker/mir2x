@@ -539,7 +539,7 @@ class FriendChatBoard: public Widget
 
     private:
         SDFriendList m_sdFriendList;
-        std::list<SDChatPeer> m_strangerList;
+        std::list<SDChatPeer> m_cachedChatPeerList;
 
     private:
         std::unordered_map<uint64_t, SDChatMessage> m_localMessageList;
@@ -555,7 +555,7 @@ class FriendChatBoard: public Widget
         bool processEvent(const SDL_Event &, bool) override;
 
     public:
-        const SDChatPeer *findFriend(uint32_t) const;
+        const SDChatPeer *findChatPeer(bool, uint32_t, bool /* friendListOnly */ = true) const;
 
     private:
         void queryChatPeer(bool, uint32_t, std::function<void(const SDChatPeer *)>);
@@ -582,5 +582,6 @@ class FriendChatBoard: public Widget
         static const FriendChatBoard *getParentBoard(const Widget *);
 
     public:
-        void addGroup(SDCreateChatGroup);
+        void addGroup(const SDChatPeer &);
+        void addFriendListChatPeer(const SDChatPeer &);
 };

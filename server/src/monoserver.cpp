@@ -339,7 +339,7 @@ void MonoServer::createDefaultDatabase()
         u8R"###(     fld_id             integer not null primary key autoincrement,      )###"
         u8R"###(     fld_creator        integer not null,                                )###"
         u8R"###(     fld_createtime     integer not null,                                )###"
-        u8R"###(     fld_name           blob        null default (x''),                  )###"
+        u8R"###(     fld_name           text        null default (x''),                  )###"
         u8R"###(     fld_description    blob        null default (x''),                  )###"
         u8R"###(     fld_announcement   blob        null default (x''),                  )###"
         u8R"###(                                                                         )###"

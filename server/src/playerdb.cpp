@@ -664,10 +664,33 @@ SDAddFriendNotif Player::dbAddFriend(uint32_t argDBID)
     }
 }
 
-SDCreateChatGroup Player::dbCreateChatGroup(const uint32_t *dbidList, size_t size)
+SDCreateChatGroup Player::dbCreateChatGroup(const char *name, const uint32_t *dbidList, size_t size)
 {
+    fflassert(str_haschar(name));
     fflassert(dbidList);
     fflassert(size > 0);
 
-    return {};
+    const auto tstamp = hres_tstamp::localtime();
+    auto query = g_dbPod->createQuery(
+            u8R"###( insert into tbl_chatgroup(fld_creator, fld_createtime, fld_name) )###"
+            u8R"###( values                                                           )###"
+            u8R"###(     (%llu, %llu, '%s')                                           )###"
+            u8R"###( returning                                                        )###"
+            u8R"###(     fld_id;                                                      )###",
+
+
+            to_llu(dbid()),
+            to_llu(tstamp),
+            name);
+
+    if(query.executeStep()){
+        return SDCreateChatGroup
+        {
+            .id = query.getColumn("fld_id"),
+            .list = SDUIDList(dbidList, dbidList + size),
+        };
+    }
+    else{
+        throw fflerror("failed to create a group");
+    }
 }

@@ -279,7 +279,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
               {
                   uiPage->title->setText(to_u8cstr([chatPage = dynamic_cast<ChatPage *>(uiPage->page), this]()
                   {
-                      if(chatPage->peer.group || findFriend(chatPage->peer.dbid)){
+                      if(chatPage->peer.group || findChatPeer(chatPage->peer.dbid)){
                           return chatPage->peer.name;
                       }
                       else{
@@ -667,28 +667,39 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                                       return;
                                   }
 
-                                  CMCreateChatGroup cmCCG;
-                                  std::memset(&cmCCG, 0, sizeof(cmCCG));
-
-                                  if(dbidList.size() > cmCCG.list.capacity()){
-                                      throw fflerror("selected too many friends, max %zu", cmCCG.list.capacity());
+                                  if(dbidList.size() > CMCreateChatGroup().list.capacity()){
+                                      throw fflerror("selected too many friends, max %zu", CMCreateChatGroup().list.capacity());
                                   }
 
-                                  cmCCG.list.size = dbidList.size();
-                                  std::copy(dbidList.begin(), dbidList.end(), cmCCG.list.data);
+                                  auto inputBoardPtr = dynamic_cast<InputStringBoard *>(m_processRun->getWidget("InputStringBoard"));
 
-                                  g_client->send({CM_CREATECHATGROUP, cmCCG}, [](uint8_t headCode, const uint8_t *, size_t)
+                                  inputBoardPtr->setSecurity(false);
+                                  inputBoardPtr->waitInput(u8"<layout><par>请输入你要建立的群名称</par></layout>", [dbidList, this](std::u8string inputString)
                                   {
-                                      switch(headCode){
-                                          case SM_OK:
-                                              {
-                                                  break;
-                                              }
-                                          default:
-                                              {
-                                                  throw fflerror("failed to create group");
-                                              }
+                                      if(inputString.empty()){
+                                          m_processRun->addCBLog(CBLOG_ERR, u8"无效输入:%s", to_cstr(inputString));
+                                          return;
                                       }
+
+                                      CMCreateChatGroup cmCCG;
+                                      std::memset(&cmCCG, 0, sizeof(cmCCG));
+
+                                      cmCCG.name.assign(inputString);
+                                      cmCCG.list.assign(dbidList.begin(), dbidList.end());
+
+                                      g_client->send({CM_CREATECHATGROUP, cmCCG}, [](uint8_t headCode, const uint8_t *, size_t)
+                                      {
+                                          switch(headCode){
+                                              case SM_OK:
+                                                  {
+                                                      break;
+                                                  }
+                                              default:
+                                                  {
+                                                      throw fflerror("failed to create group");
+                                                  }
+                                          }
+                                      });
                                   });
                               },
                           },
@@ -809,6 +820,32 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
               },
           },
       }
+
+    , m_cachedChatPeerList
+      {
+          SDChatPeer
+          {
+                .dbid = SYS_CHATDBID_SYSTEM,
+                .name = "系统助手",
+                .group = false,
+          },
+
+          SDChatPeer
+          {
+              .dbid = SYS_CHATDBID_GROUP,
+              .name = "群管理助手",
+              .group = false,
+          },
+
+          SDChatPeer
+          {
+              .dbid   = m_processRun->getMyHero()->dbid(),
+              .name   = m_processRun->getMyHero()->getName(),
+              .group  = false,
+              .gender = m_processRun->getMyHero()->gender(),
+              .job    = m_processRun->getMyHero()->job(),
+          },
+      }
 {
     setShow(false);
 }
@@ -922,57 +959,33 @@ bool FriendChatBoard::processEvent(const SDL_Event &event, bool valid)
     }
 }
 
+void FriendChatBoard::addFriendListChatPeer(bool argGroup, uint32_t argDBID)
+{
+    queryChatPeer(argGroup, argDBID, [this](const SDChatPeer *peer)
+    {
+        if(!peer){
+            return;
+        }
+
+        dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(*peer, [peerInst = *peer, this](FriendChatBoard::FriendItem *item)
+        {
+            setChatPeer(peerInst, true);
+            setUIPage(FriendChatBoard::UIPage_CHAT);
+            m_processRun->requestLatestChatMessage({item->dbid}, 50, true, true);
+        };
+    });
+}
+
 void FriendChatBoard::setFriendList(const SDFriendList &sdFL)
 {
     m_sdFriendList = sdFL;
     std::unordered_set<uint32_t> seenDBIDList;
 
-    auto fnOnClick = [this](FriendChatBoard::FriendItem *item)
-    {
-        if(item->dbid == m_processRun->getMyHero()->dbid()){
-            setChatPeer(SDChatPeer
-            {
-                .dbid   = m_processRun->getMyHero()->dbid(),
-                .name   = m_processRun->getMyHero()->getName(),
-                .gender = m_processRun->getMyHero()->gender(),
-                .job    = m_processRun->getMyHero()->job(),
-
-            }, true);
-        }
-        else if(item->dbid == SYS_CHATDBID_SYSTEM){
-            setChatPeer(SDChatPeer
-            {
-                .dbid   = SYS_CHATDBID_SYSTEM,
-                .name   = "系统助手",
-
-            }, true);
-        }
-        else if(auto peer = findFriend(item->dbid)){
-            setChatPeer(*peer, true);
-        }
-        else{
-            throw fflerror("item is not associated with a friend: dbid %llu", to_llu(item->dbid));
-        }
-
-        setUIPage(FriendChatBoard::UIPage_CHAT);
-        m_processRun->requestLatestChatMessage({item->dbid}, 50, true, true);
-    };
-
     seenDBIDList.insert(SYS_CHATDBID_SYSTEM);
-    dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(SDChatPeer
-    {
-        .dbid = SYS_CHATDBID_SYSTEM,
-        .name = "系统助手",
-    }, fnOnClick);
+    addFriendListChatPeer(false, SYS_CHATDBID_SYSTEM);
 
     seenDBIDList.insert(m_processRun->getMyHero()->dbid());
-    dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(SDChatPeer
-    {
-        .dbid   = m_processRun->getMyHero()->dbid(),
-        .name   = m_processRun->getMyHero()->getName(),
-        .gender = m_processRun->getMyHero()->gender(),
-        .job    = m_processRun->getMyHero()->job(),
-    }, fnOnClick);
+    addFriendListChatPeer(false, m_processRun->getMyHero()->dbid());
 
     for(const auto &sdPC: sdFL){
         if(seenDBIDList.contains(sdPC.dbid)){
@@ -980,68 +993,37 @@ void FriendChatBoard::setFriendList(const SDFriendList &sdFL)
         }
 
         seenDBIDList.insert(sdPC.dbid);
-        dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_FRIENDLIST].page)->append(sdPC, fnOnClick);
+        addFriendListChatPeer(sdPC.group, sdPC.dbid);
     }
 }
 
-const SDChatPeer *FriendChatBoard::findFriend(uint32_t argDBID) const
+const SDChatPeer *FriendChatBoard::findChatPeer(bool argGroup, uint32_t argDBID, bool friendListOnly) const
 {
-    if(auto p = std::find_if(m_sdFriendList.begin(), m_sdFriendList.end(), [argDBID](const auto &x) { return argDBID == x.dbid; }); p != m_sdFriendList.end()){
+    const auto fnOp = [argGroup, argDBID](const SDChatPeer &peer)
+    {
+        return peer.group == argGroup && peer.dbid == argDBID;
+    };
+
+    if(auto p = std::find_if(m_sdFriendList.begin(), m_sdFriendList.end(), fnOp) != m_sdFriendList.end()){
         return std::addressof(*p);
     }
+
+    if(friendListOnly){
+        return nullptr;
+    }
+
+    if(auto p = std::find_if(m_cachedChatPeerList.begin(), m_cachedChatPeerList.end(), fnOp) != m_cachedChatPeerList.end()){
+        return std::addressof(*p);
+    }
+
     return nullptr;
 }
 
 void FriendChatBoard::queryChatPeer(bool argGroup, uint32_t argDBID, std::function<void(const SDChatPeer *)> argOp)
 {
-    if(argDBID == SYS_CHATDBID_SYSTEM){
-        if(argOp){
-            const SDChatPeer sysPeer
-            {
-                .dbid = SYS_CHATDBID_SYSTEM,
-                .name = "系统助手",
-            };
-            argOp(std::addressof(sysPeer));
-        }
-    }
-
-    else if(argDBID == SYS_CHATDBID_GROUP){
-        if(argOp){
-            const SDChatPeer groupPeer
-            {
-                .dbid = SYS_CHATDBID_GROUP,
-                .name = "群管理助手",
-            };
-            argOp(std::addressof(groupPeer));
-        }
-    }
-
-    else if(!argGroup && argDBID == m_processRun->getMyHero()->dbid()){
-        if(argOp){
-            const SDChatPeer groupPeer
-            {
-                .dbid   = m_processRun->getMyHero()->dbid(),
-                .name   = m_processRun->getMyHero()->getName(),
-                .gender = m_processRun->getMyHero()->gender(),
-                .job    = m_processRun->getMyHero()->job(),
-            };
-            argOp(std::addressof(groupPeer));
-        }
-    }
-
-    else if(auto p = argGroup ? nullptr : findFriend(argDBID)){
+    if(auto p = argGroup ? nullptr : findChatPeer(argGroup, argDBID, false)){
         if(argOp){
             argOp(p);
-        }
-    }
-
-    else if(auto strangerIter = std::find_if(m_strangerList.begin(), m_strangerList.end(), [argGroup, argDBID](const auto &x)
-    {
-        return x.group == argGroup && x.dbid == argDBID;
-
-    }); strangerIter != m_strangerList.end()){
-        if(argOp){
-            argOp(std::addressof(*strangerIter));
         }
     }
 
@@ -1242,6 +1224,17 @@ void FriendChatBoard::loadChatPage()
     chatPage->placeholder.setShow(!chatPage->chat.canvas.hasChild());
 }
 
+void FriendChatBoard::addGroup(SDChatPeer sdCP)
+{
+    if(findChatPeer(true, sdCP.dbid)){
+        return;
+    }
+
+    m_sdFriendList.push_back(sdCP);
+    addFriendListChatPeer(true, sdCP.dbid);
+    updateChatPreview(true, sdCP.dbid, "你已经加入了群聊，现在就可以聊天了。");
+}
+
 FriendChatBoard *FriendChatBoard::getParentBoard(Widget *widget)
 {
     fflassert(widget);
@@ -1268,8 +1261,4 @@ const FriendChatBoard *FriendChatBoard::getParentBoard(const Widget *widget)
         }
     }
     throw fflerror("widget is not a decedent of FriendChatBoard");
-}
-
-void FriendChatBoard::addGroup(SDCreateChatGroup)
-{
 }

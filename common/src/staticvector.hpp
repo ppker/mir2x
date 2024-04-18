@@ -23,7 +23,7 @@ template<conceptf::TriviallyCopyable T, size_t Capacity> struct StaticVector
         size = 0;
     }
 
-    constexpr size_t capacity() const
+    constexpr static size_t capacity()
     {
         return Capacity;
     }
@@ -55,6 +55,21 @@ template<conceptf::TriviallyCopyable T, size_t Capacity> struct StaticVector
         }
         else{
             throw fflerror("emtpy vector");
+        }
+    }
+
+    template<class InputIt> void assign(InputIt first, InputIt last)
+    {
+        if(const auto inputsize = std::distance(first, last); inputsize < 0){
+            throw fflerror("invalid range");
+        }
+
+        else if((size_t)(inputsize) > capacity()){
+            throw fflerror("size of range %zu exceeds capacity %zu", (size_t)(inputsize), capacity());
+        }
+        else{
+            size = inputsize;
+            std::copy(first, last, data);
         }
     }
 };

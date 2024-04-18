@@ -372,7 +372,7 @@ class Player final: public BattleObject
         SDAddFriendNotif dbAddFriend(uint32_t);
 
     private:
-        SDCreateChatGroup dbCreateChatGroup(const uint32_t *, size_t);
+        SDChatPeer dbCreateChatGroup(const std::string_view &, const uint32_t *, size_t);
 
     protected:
         void checkFriend(uint64_t, std::function<void(int)>) override;
