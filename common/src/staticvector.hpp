@@ -58,3 +58,5 @@ template<conceptf::TriviallyCopyable T, size_t Capacity> struct StaticVector
         }
     }
 };
+
+static_assert(std::is_trivially_copyable_v<StaticVector<char, 128>>);

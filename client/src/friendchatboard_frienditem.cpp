@@ -43,7 +43,7 @@ FriendChatBoard::FriendItem::FriendItem(dir8_t argDir,
       }
 
     , dbid(argDBID)
-    , widgetID(argFuncWidget.first ? argFuncWidget.first->id() : 0)
+    , funcWidgetID(argFuncWidget.first ? argFuncWidget.first->id() : 0)
     , onClick(std::move(argOnClick))
 
     , hovered
@@ -113,7 +113,7 @@ void FriendChatBoard::FriendItem::setFuncWidget(Widget *argFuncWidget, bool argA
 {
     clearChild([this](const Widget *widget, bool)
     {
-        return this->widgetID == widget->id();
+        return this->funcWidgetID == widget->id();
     });
 
     addChild(argFuncWidget, argAutoDelete);

@@ -55,24 +55,14 @@ template<typename T> T as_type(const void *buf, size_t bufSize = sizeof(T))
     return t;
 }
 
-inline std::string_view as_sv(const void *buf, size_t bufSize = 0)
+inline std::string_view as_sv(const void *buf, size_t bufSize)
 {
-    if(bufSize == 0){
-        return std::string_view(reinterpret_cast<const char *>(buf));
-    }
-    else{
-        return std::string_view(reinterpret_cast<const char *>(buf), bufSize);
-    }
+    return std::string_view(reinterpret_cast<const char *>(buf), bufSize);
 }
 
-inline std::u8string_view as_u8sv(const void *buf, size_t bufSize = 0)
+inline std::u8string_view as_u8sv(const void *buf, size_t bufSize)
 {
-    if(bufSize == 0){
-        return std::u8string_view(reinterpret_cast<const char8_t *>(buf));
-    }
-    else{
-        return std::u8string_view(reinterpret_cast<const char8_t *>(buf), bufSize);
-    }
+    return std::u8string_view(reinterpret_cast<const char8_t *>(buf), bufSize);
 }
 
 inline std::string_view as_sv(const conceptf::TriviallyCopyable auto &t)

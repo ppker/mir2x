@@ -43,7 +43,7 @@ class FriendChatBoard: public Widget
             constexpr static int FUNC_MARGIN = 5;
 
             uint32_t dbid;
-            uint64_t widgetID;
+            uint64_t funcWidgetID;
             std::function<void(FriendItem *)> onClick;
 
             ShapeClipBoard hovered;

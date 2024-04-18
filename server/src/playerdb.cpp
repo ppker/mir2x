@@ -40,7 +40,7 @@ void Player::dbSetVar(const std::string &var, luaf::luaVar value)
             to_llu(dbid()),
             var.c_str());
 
-        query.bind(1, cerealf::serialize(value));
+        query.bindBlob(1, cerealf::serialize(value));
         query.exec();
     }
 }
@@ -112,7 +112,6 @@ void Player::dbLoadInventory()
 void Player::dbUpdateInventoryItem(const SDItem &item)
 {
     fflassert(item);
-    const auto attrBuf = cerealf::serialize(item.extAttrList);
     auto query = g_dbPod->createQuery(
             u8R"###( replace into tbl_inventory(fld_dbid, fld_itemid, fld_seqid, fld_count, fld_duration, fld_maxduration, fld_extattrlist) )###"
             u8R"###( values                                                                                                                 )###"
@@ -125,7 +124,7 @@ void Player::dbUpdateInventoryItem(const SDItem &item)
             to_llu(item.duration[0]),
             to_llu(item.duration[1]));
 
-    query.bind(1, attrBuf.data(), attrBuf.length());
+    query.bindBlob(1, cerealf::serialize(item.extAttrList));
     query.exec();
 }
 
@@ -150,7 +149,6 @@ void Player::dbSecureItem(uint32_t itemID, uint32_t seqID)
     const auto &item = findInventoryItem(itemID, seqID);
     fflassert(item);
 
-    const auto attrBuf = cerealf::serialize(item.extAttrList);
     auto query = g_dbPod->createQuery(
             u8R"###( replace into tbl_secureditemlist(fld_dbid, fld_itemid, fld_seqid, fld_count, fld_duration, fld_maxduration, fld_extattrlist) )###"
             u8R"###( values                                                                                                                       )###"
@@ -163,7 +161,7 @@ void Player::dbSecureItem(uint32_t itemID, uint32_t seqID)
             to_llu(item.duration[0]),
             to_llu(item.duration[1]));
 
-    query.bind(1, attrBuf.data(), attrBuf.length());
+    query.bindBlob(1, cerealf::serialize(item.extAttrList));
     query.exec();
 }
 
@@ -326,7 +324,7 @@ void Player::dbUpdateMagicKey(uint32_t magicID, char key)
 
             to_llu(dbid()));
 
-    query.bind(1, keyBuf.data(), keyBuf.length());
+    query.bindBlob(1, keyBuf.data(), keyBuf.length());
     query.exec();
 }
 
@@ -343,7 +341,7 @@ void Player::dbUpdateRuntimeConfig()
 
             to_llu(dbid()));
 
-    query.bind(1, configBuf.data(), configBuf.length());
+    query.bindBlob(1, configBuf.data(), configBuf.length());
     query.exec();
 }
 
@@ -465,7 +463,6 @@ void Player::dbUpdateWearItem(int wltype, const SDItem &item)
     // only save itemID and wltype
     // drop the seqID when saving to database
 
-    const auto attrBuf = cerealf::serialize(item.extAttrList);
     auto query = g_dbPod->createQuery(
             u8R"###( replace into tbl_wear(fld_dbid, fld_wear, fld_itemid, fld_count, fld_duration, fld_maxduration, fld_extattrlist) )###"
             u8R"###( values                                                                                                           )###"
@@ -478,7 +475,7 @@ void Player::dbUpdateWearItem(int wltype, const SDItem &item)
             to_llu(item.duration[0]),
             to_llu(item.duration[1]));
 
-    query.bind(1, attrBuf.data(), attrBuf.length());
+    query.bindBlob(1, cerealf::serialize(item.extAttrList));
     query.exec();
 }
 
@@ -580,7 +577,7 @@ std::tuple<uint64_t, uint64_t> Player::dbSaveChatMessage(bool argGroup, uint32_t
         to_llu(toDBID),
         to_boolint(argGroup));
 
-    query.bind(1, sv.data(), sv.size());
+    query.bindBlob(1, sv.data(), sv.size());
     if(query.executeStep()){
         return {query.getColumn("fld_id").getInt64(), tstamp};
     }

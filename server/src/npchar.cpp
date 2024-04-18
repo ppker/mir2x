@@ -150,7 +150,7 @@ NPChar::LuaThreadRunner::LuaThreadRunner(NPChar *npc)
         }
 
         auto query = g_dbPod->createQuery(u8R"###(replace into %s(fld_key, fld_value) values('%s', ?))###", npcDBName.c_str(), key.c_str());
-        query.bind(1, cerealf::serialize(luaf::buildLuaVar(obj)));
+        query.bindBlob(1, cerealf::serialize(luaf::buildLuaVar(obj)));
         query.exec();
     });
 

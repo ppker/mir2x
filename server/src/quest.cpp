@@ -75,7 +75,7 @@ Quest::LuaThreadRunner::LuaThreadRunner(Quest *quest)
                 to_llu(timestamp),
                 to_llu(timestamp));
 
-            query.bind(1, cerealf::serialize(luaf::buildLuaVar(despTable)));
+            query.bindBlob(1, cerealf::serialize(luaf::buildLuaVar(despTable)));
             query.exec();
         }
         else{
@@ -160,7 +160,7 @@ Quest::LuaThreadRunner::LuaThreadRunner(Quest *quest)
                 fieldName.c_str(),
                 fieldName.c_str());
 
-            query.bind(1, cerealf::serialize(luaf::buildLuaVar(obj)));
+            query.bindBlob(1, cerealf::serialize(luaf::buildLuaVar(obj)));
             query.exec();
         }
     });
@@ -184,7 +184,7 @@ Quest::LuaThreadRunner::LuaThreadRunner(Quest *quest)
             to_llu(dbid),
             to_llu(timestamp));
 
-        query.bind(1, cerealf::serialize(luaf::buildLuaVar(std::unordered_map<std::string, std::vector<std::string>>
+        query.bindBlob(1, cerealf::serialize(luaf::buildLuaVar(std::unordered_map<std::string, std::vector<std::string>>
         {
             {SYS_QSTFSM, {SYS_DONE}},
         })));

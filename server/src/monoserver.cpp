@@ -172,7 +172,7 @@ bool MonoServer::createAccountCharacter(const char *id, const char *charName, bo
         to_llu(SYS_CHATDBID_SYSTEM),
         to_llu(dbid));
 
-    query.bind(1, cerealf::serialize(std::string("<layout><par>欢迎来到mir2x传奇的世界！</par></layout>")));
+    query.bindBlob(1, cerealf::serialize(std::string("<layout><par>欢迎来到mir2x传奇的世界！</par></layout>")));
     query.exec();
 
     uint32_t seqID = 1;
@@ -190,7 +190,6 @@ bool MonoServer::createAccountCharacter(const char *id, const char *charName, bo
         }
 
         fflassert(item);
-        const auto attrBuf = cerealf::serialize(item.extAttrList);
         auto query = g_dbPod->createQuery(
                 u8R"###( replace into tbl_inventory(fld_dbid, fld_itemid, fld_seqid, fld_count, fld_duration, fld_maxduration, fld_extattrlist) )###"
                 u8R"###( values                                                                                                                 )###"
@@ -203,7 +202,7 @@ bool MonoServer::createAccountCharacter(const char *id, const char *charName, bo
                 to_llu(item.duration[0]),
                 to_llu(item.duration[1]));
 
-        query.bind(1, attrBuf.data(), attrBuf.length());
+        query.bindBlob(1, cerealf::serialize(item.extAttrList));
         query.exec();
     };
 

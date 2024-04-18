@@ -657,7 +657,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                                   dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_CREATEGROUP].page)->canvas.foreachChild([&dbidList](const Widget *widget, bool)
                                   {
                                       if(const auto friendItem = dynamic_cast<const FriendItem *>(widget)){
-                                          if(const auto checkBox = dynamic_cast<const CheckBox *>(friendItem->hasChild(friendItem->widgetID)); checkBox->checkedValue()){
+                                          if(const auto checkBox = dynamic_cast<const CheckBox *>(friendItem->hasChild(friendItem->funcWidgetID)); checkBox->checkedValue()){
                                               dbidList.push_back(friendItem->dbid);
                                           }
                                       }
@@ -717,7 +717,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                                   dynamic_cast<FriendListPage *>(m_uiPageList[UIPage_CREATEGROUP].page)->canvas.foreachChild([](Widget *widget, bool)
                                   {
                                       if(auto friendItem = dynamic_cast<FriendItem *>(widget)){
-                                          if(auto checkBox = dynamic_cast<CheckBox *>(friendItem->hasChild(friendItem->widgetID)); checkBox->checkedValue()){
+                                          if(auto checkBox = dynamic_cast<CheckBox *>(friendItem->hasChild(friendItem->funcWidgetID)); checkBox->checkedValue()){
                                               checkBox->toggle();
                                           }
                                       }
@@ -777,7 +777,15 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                           return dynamic_cast<const FriendItem *>(widget)->dbid == peer.dbid;
 
                       })){
-                          listPage->append(peer, nullptr,
+                          listPage->append(peer, [](FriendChatBoard::FriendItem *item)
+                          {
+                              if(auto friendItem = dynamic_cast<FriendChatBoard::FriendItem *>(item)){
+                                  if(auto checkBox = dynamic_cast<CheckBox *>(friendItem->hasChild(friendItem->funcWidgetID))){
+                                      checkBox->toggle();
+                                  }
+                              }
+                          },
+
                           {
                               new CheckBox
                               {

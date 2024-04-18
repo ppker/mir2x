@@ -12,6 +12,28 @@
 
 class DBPod final
 {
+    public:
+        class Statement: public SQLite::Statement
+        {
+            public:
+                using SQLite::Statement::Statement;
+
+            public:
+                void bindBlob(const int  index, const void *data, size_t size) { bindBlob(index, as_sv(data, size)); }
+                void bindBlob(const char *name, const void *data, size_t size) { bindBlob( name, as_sv(data, size)); }
+
+            public:
+                void bindBlob(const int  index, const std::string_view &data) { SQLite::Statement::bind(index, to_cvptr(data.data()), data.size()); }
+                void bindBlob(const char *name, const std::string_view &data) { SQLite::Statement::bind( name, to_cvptr(data.data()), data.size()); }
+
+            public:
+                void bindBlob(const char *name, const std::string &data) { SQLite::Statement::bind(name, to_cvptr(data.data()), data.size()); }
+                void bindBlob(const int  index, const std::string &data) { SQLite::Statement::bind(index, to_cvptr(data.data()), data.size()); }
+        };
+
+    public:
+        static_assert(sizeof(DBPod::Statement) == sizeof(SQLite::Statement));
+
     private:
         std::unique_ptr<SQLite::Database> m_dbPtr;
 
@@ -19,20 +41,20 @@ class DBPod final
         DBPod() = default;
 
     public:
-        SQLite::Statement createQuery(const char *format, ...)
+        DBPod::Statement createQuery(const char *format, ...)
         {
             checkDBEx();
             std::string s;
             str_format(format, s);
-            return SQLite::Statement(*m_dbPtr, s);
+            return DBPod::Statement(*m_dbPtr, s);
         }
 
-        SQLite::Statement createQuery(const char8_t *format, ...)
+        DBPod::Statement createQuery(const char8_t *format, ...)
         {
             checkDBEx();
             std::u8string s;
             str_format(format, s);
-            return SQLite::Statement(*m_dbPtr, to_cstr(s));
+            return DBPod::Statement(*m_dbPtr, to_cstr(s));
         }
 
     public:

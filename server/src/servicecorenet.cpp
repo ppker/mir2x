@@ -351,7 +351,7 @@ void ServiceCore::net_CM_DELETECHAR(uint32_t channID, uint8_t, const uint8_t *bu
         insertQueryBeltString += u8";";
         auto insertQuery = g_dbPod->createQuery(insertQueryBeltString.c_str());
         for(size_t i = 1; i <= insertedBeltItemCount; ++i){
-            insertQuery.bind(i, emptyAttrBuf.data(), emptyAttrBuf.length());
+            insertQuery.bindBlob(i, emptyAttrBuf);
         }
         insertQuery.exec();
     }
@@ -391,7 +391,7 @@ void ServiceCore::net_CM_DELETECHAR(uint32_t channID, uint8_t, const uint8_t *bu
                 to_llu(item.duration[0]),
                 to_llu(item.duration[1]));
 
-        insertQuery.bind(1, extAttrBuf.data(), extAttrBuf.length());
+        insertQuery.bindBlob(1, extAttrBuf.data(), extAttrBuf.length());
         insertQuery.exec();
     }
 
