@@ -138,3 +138,20 @@ mir2x uses a number of open source projects to work properly, and of course itse
 * [libpng](https://github.com/etorth/libpng-apng-support) - The official PNG reference library patched with APNG support.
 * [ThreadPool](https://github.com/progschj/ThreadPool) - A simple C++11 Thread Pool implementation.
 * [SQLiteCpp](https://github.com/SRombauts/SQLiteCpp) - SQLiteC++ (SQLiteCpp) is a smart and easy to use C++ SQLite3 wrapper.
+
+### running WSL2
+
+wsl2 sucks! if in WSL2 you can ping 8.8.8.8 but can not ping google.com, that means you DNS is wrong.
+1. in windows run
+   ```shell
+   ipconfig
+   ```
+  you will see line as ``Ethernet adapter vEthernet (WSL (Hyper-V firewall))``, the ``IPv4 Address`` of this section is used as your DNS in WSL2 ``/etc/resolv.conf``, everytime when WSL2 reboots, it automatically create this ``/etc/resolv.conf``, you need to disable the automagicall overwrite, there is comment in file ``/etc/resolv.conf`` explaining how to do it.
+
+2. in windows run
+   ```shell
+   ipconfig /all
+   ```
+   You will find the section ``Wireless LAN adapter Wi-Fi``, inside the section find ``DNS Server`` and copy all IPs to ``/etc/resolv.conf``, reboot WSL2.
+
+
