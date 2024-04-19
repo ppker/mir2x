@@ -146,12 +146,12 @@ wsl2 sucks! if in WSL2 you can ping 8.8.8.8 but can not ping google.com, that me
    ```shell
    ipconfig
    ```
-  you will see line as ``Ethernet adapter vEthernet (WSL (Hyper-V firewall))``, the ``IPv4 Address`` of this section is used as your DNS in WSL2 ``/etc/resolv.conf``, everytime when WSL2 reboots, it automatically create this ``/etc/resolv.conf``, you need to disable the automagicall overwrite, there is comment in file ``/etc/resolv.conf`` explaining how to do it.
+   You will see line as ``Ethernet adapter vEthernet (WSL (Hyper-V firewall))``, the ``IPv4 Address`` of this section is used as your DNS in WSL2 ``/etc/resolv.conf``, everytime when WSL2 reboots, it automatically create this ``/etc/resolv.conf``, you need to disable the automagicall overwrite, there is comment in file ``/etc/resolv.conf`` explaining how to do it.
 
 2. in windows run
    ```shell
    ipconfig /all
    ```
-   You will find the section ``Wireless LAN adapter Wi-Fi``, inside the section find ``DNS Server`` and copy all IPs to ``/etc/resolv.conf``, reboot WSL2.
+   You will find the section ``Wireless LAN adapter Wi-Fi``, inside the section find ``DNS Server`` and copy all IPs to ``/etc/resolv.conf``, reboot WSL2, it should be good now.
 
 
