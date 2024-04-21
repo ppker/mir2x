@@ -4,7 +4,7 @@ ExternalProject_Add(
     libzstd
 
     GIT_REPOSITORY "https://github.com/facebook/zstd.git"
-    GIT_TAG        "master"
+    GIT_TAG        "dev"
 
     SOURCE_DIR "${MIR2X_3RD_PARTY_DIR}/libzstd"
     SOURCE_SUBDIR "build/cmake"
