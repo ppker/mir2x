@@ -85,7 +85,7 @@ void FriendChatBoard::ChatItemContainer::append(const SDChatMessage &sdCM, std::
             to_u8cstr(peer->name),
             to_u8cstr(cerealf::deserialize<std::string>(sdCM.message)),
 
-            [from = sdCM.from, gender = peer->getPlayer().gender, job = peer->getPlayer().job](const ImageBoard *)
+            [from = sdCM.from, gender = peer->player() ? peer->player()->gender : false, job = peer->player() ? peer->player()->job : 0](const ImageBoard *)
             {
                 if     (from == SYS_CHATDBID_SYSTEM) return g_progUseDB->retrieve(0X00001100);
                 else if(from == SYS_CHATDBID_GROUP ) return g_progUseDB->retrieve(0X00001300);

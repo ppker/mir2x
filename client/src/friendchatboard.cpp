@@ -1003,7 +1003,7 @@ const SDChatPeer *FriendChatBoard::findChatPeer(bool argGroup, uint32_t argDBID,
 {
     const auto fnOp = [argGroup, argDBID](const SDChatPeer &peer)
     {
-        return peer.group() == argGroup && peer.id == argDBID;
+        return (bool)(peer.group()) == argGroup && peer.id == argDBID;
     };
 
     if(auto p = std::find_if(m_sdFriendList.begin(), m_sdFriendList.end(), fnOp); p != m_sdFriendList.end()){
@@ -1047,7 +1047,7 @@ void FriendChatBoard::queryChatPeer(bool argGroup, uint32_t argDBID, std::functi
                       }
                       else{
                           for(const auto &peer: sdPCL){
-                              if(peer.group() == argGroup && peer.id == argDBID){
+                              if((bool)(peer.group()) == argGroup && peer.id == argDBID){
                                   if(argOp){
                                       argOp(&peer);
                                   }
@@ -1209,7 +1209,7 @@ void FriendChatBoard::loadChatPage()
     chatPage->chat.canvas.clearChild();
 
     for(const auto &elem: m_friendMessageList){
-        if(elem.group == chatPage->peer.group() && elem.dbid == chatPage->peer.id){
+        if(elem.group == (bool)(chatPage->peer.group()) && elem.dbid == chatPage->peer.id){
             for(const auto &msg: elem.list){
                 chatPage->chat.append(msg, nullptr);
             }
@@ -1218,7 +1218,7 @@ void FriendChatBoard::loadChatPage()
     }
 
     for(const auto &[localID, sdCM]: m_localMessageList){
-        if(sdCM.group == chatPage->peer.group() && sdCM.to == chatPage->peer.id){
+        if(sdCM.group == (bool)(chatPage->peer.group()) && sdCM.to == chatPage->peer.id){
             chatPage->chat.append(sdCM, nullptr);
         }
     }

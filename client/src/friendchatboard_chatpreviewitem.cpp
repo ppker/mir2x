@@ -152,7 +152,7 @@ FriendChatBoard::ChatPreviewItem::ChatPreviewItem(dir8_t argDir,
         }
 
         this->name.setText(to_u8cstr(peer->name));
-        this->avatar.setLoadFunc([dbid = peer->id, group = peer->group(), gender = peer->getPlayer().gender, job = peer->getPlayer().job](const ImageBoard *)
+        this->avatar.setLoadFunc([dbid = peer->id, group = peer->group(), gender = peer->player() ? peer->player()->gender : false, job = peer->player() ? peer->player()->job : 0](const ImageBoard *)
         {
             if     (group                      ) return g_progUseDB->retrieve(0X00001300);
             else if(dbid == SYS_CHATDBID_SYSTEM) return g_progUseDB->retrieve(0X00001100);

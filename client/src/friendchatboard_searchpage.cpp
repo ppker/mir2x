@@ -139,7 +139,7 @@ void FriendChatBoard::SearchPage::appendFriendItem(const SDChatPeer &candidate)
         candidate.id,
         to_u8cstr(candidate.name),
 
-        [gender = candidate.getPlayer().gender, job = candidate.getPlayer().job](const ImageBoard *)
+        [gender = candidate.player()->gender, job = candidate.player()->job](const ImageBoard *)
         {
             return g_progUseDB->retrieve(Hero::faceGfxID(gender, job));
         },
