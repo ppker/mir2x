@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <unordered_map>
 #include "msgf.hpp"
-#include "fixedbuf.hpp"
+#include "staticbuffer.hpp"
 #include "actionnode.hpp"
 
 enum SMType: uint8_t
@@ -109,7 +109,7 @@ struct SMChangePasswordError
 
 struct SMQueryCharOK
 {
-    FixedBuf<SYS_NAMESIZE> name;
+    StaticBuffer<SYS_NAMESIZE> name;
     uint8_t gender;
     uint8_t job;
     uint32_t exp;
@@ -270,7 +270,7 @@ struct SMStrikeGrid
 
 struct SMBuildVersion
 {
-    FixedBuf<128> version;
+    StaticBuffer<128> version;
 };
 
 struct SMRemoveItem

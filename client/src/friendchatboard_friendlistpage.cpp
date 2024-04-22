@@ -51,14 +51,14 @@ void FriendChatBoard::FriendListPage::append(const SDChatPeer &peer, std::functi
         0,
         0,
 
-        peer.dbid,
+        peer.id,
         to_u8cstr(peer.name),
 
         [peer](const ImageBoard *)
         {
-            if     (peer.group                      ) return g_progUseDB->retrieve(0X00001300);
-            else if(peer.dbid == SYS_CHATDBID_SYSTEM) return g_progUseDB->retrieve(0X00001100);
-            else                                      return g_progUseDB->retrieve(Hero::faceGfxID(peer.gender, peer.job));
+            if     (peer.group()                  ) return g_progUseDB->retrieve(0X00001300);
+            else if(peer.id == SYS_CHATDBID_SYSTEM) return g_progUseDB->retrieve(0X00001100);
+            else                                    return g_progUseDB->retrieve(Hero::faceGfxID(peer.getPlayer().gender, peer.getPlayer().job));
         },
 
         std::move(argOnClick),

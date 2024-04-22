@@ -1,11 +1,12 @@
 #pragma once
+#include <span>
 #include <cmath>
 #include <string>
 #include <cstdint>
 #include <cstring>
 #include <stdexcept>
 #include <string_view>
-#include "fixedbuf.hpp"
+#include "staticbuffer.hpp"
 #include "conceptf.hpp"
 
 inline auto to_d    (auto x){ return static_cast<               int>(x); }
@@ -79,6 +80,9 @@ inline uint16_t as_u16(const void *buf, size_t bufSize = 2) { return as_type<uin
 inline uint32_t as_u32(const void *buf, size_t bufSize = 4) { return as_type<uint32_t>(buf, bufSize); }
 inline uint64_t as_u64(const void *buf, size_t bufSize = 8) { return as_type<uint64_t>(buf, bufSize); }
 
+template<typename T> std::span<      T> as_span(      T *data, size_t size) { return std::span<      T>(data, size); }
+template<typename T> std::span<const T> as_span(const T *data, size_t size) { return std::span<const T>(data, size); }
+
 inline const char * to_cstr(const char *s)
 {
     if(s == nullptr){
@@ -122,7 +126,7 @@ inline const char *to_cstr(const std::u8string_view &s)
     return to_cstr(s.data());
 }
 
-template<size_t FixedBufSize> const char *to_cstr(const FixedBuf<FixedBufSize> &buf)
+template<size_t StaticBufferCapacity> const char *to_cstr(const StaticBuffer<StaticBufferCapacity> &buf)
 {
     return to_cstr((const char *)(buf.buf));
 }
@@ -163,7 +167,7 @@ inline const char8_t *to_u8cstr(const std::string &s)
     return to_u8cstr(s.c_str());
 }
 
-template<size_t FixedBufSize> const char8_t *to_u8cstr(const FixedBuf<FixedBufSize> &buf)
+template<size_t StaticBufferCapacity> const char8_t *to_u8cstr(const StaticBuffer<StaticBufferCapacity> &buf)
 {
     return to_u8cstr((const char8_t *)(buf.buf));
 }

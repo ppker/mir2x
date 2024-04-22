@@ -457,7 +457,7 @@ class FriendChatBoard: public Widget
                     Widget * = nullptr,
                     bool     = false);
 
-            void updateChatPreview(uint32_t, const std::string &);
+            void updateChatPreview(bool, uint32_t, const std::string &);
         };
 
     private:
@@ -583,5 +583,5 @@ class FriendChatBoard: public Widget
 
     public:
         void addGroup(const SDChatPeer &);
-        void addFriendListChatPeer(const SDChatPeer &);
+        void addFriendListChatPeer(bool, uint32_t);
 };

@@ -152,48 +152,48 @@ struct SDChatGroupMember
     }
 };
 
+struct SDChatPeerGroupVar
+{
+    uint32_t creator = 0;
+    uint64_t createtime = 0;
+    std::vector<SDChatGroupMember> memberList {};
+
+    template<typename Archive> void serialize(Archive & ar)
+    {
+        ar(creator, createtime, memberList);
+    }
+};
+
+struct SDChatPeerPlayerVar
+{
+    bool gender = false;
+    int job = 0;
+
+    template<typename Archive> void serialize(Archive & ar)
+    {
+        ar(gender, job);
+    }
+};
+
 struct SDChatPeer
 {
-    struct Player
-    {
-        bool gender = false;
-        int job = 0;
-
-        template<typename Archive> void serialize(Archive & ar)
-        {
-            ar(gender, job);
-        }
-    };
-
-    struct ChatGroup
-    {
-        uint32_t creator = 0;
-        uint32_t createtime = 0;
-
-        std::vector<SDChatGroupMember> memberList;
-        template<typename Archive> void serialize(Archive & ar)
-        {
-            ar(memberList);
-        }
-    };
-
     uint32_t id = 0;
     std::string name {};
     std::optional<uint64_t> avatar {};
 
-    std::variant<Player, ChatGroup> vardesp;
+    std::variant<SDChatPeerGroupVar, SDChatPeerPlayerVar> despvar {};
 
     bool group() const
     {
-        return std::get_if<ChatGroup>(&vardesp);
+        return std::get_if<SDChatPeerGroupVar>(&despvar);
     }
 
-    const Player    &getPlayer   () const { return std::get<Player   >(vardesp); }
-    const ChatGroup &getChatGroup() const { return std::get<ChatGroup>(vardesp); }
+    const SDChatPeerPlayerVar &getPlayer   () const { return std::get<SDChatPeerPlayerVar>(despvar); }
+    const SDChatPeerGroupVar  &getChatGroup() const { return std::get<SDChatPeerGroupVar >(despvar); }
 
     template<typename Archive> void serialize(Archive & ar)
     {
-        ar(group, id, name, avatar, vardesp);
+        ar(id, name, avatar, despvar);
     }
 };
 

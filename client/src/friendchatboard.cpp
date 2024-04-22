@@ -279,7 +279,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
               {
                   uiPage->title->setText(to_u8cstr([chatPage = dynamic_cast<ChatPage *>(uiPage->page), this]()
                   {
-                      if(chatPage->peer.group || findChatPeer(chatPage->peer.dbid)){
+                      if(chatPage->peer.group() || findChatPeer(false, chatPage->peer.id, true)){
                           return chatPage->peer.name;
                       }
                       else{
@@ -777,7 +777,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                   {
                       return std::find_if(m_sdFriendList.begin(), m_sdFriendList.end(), [widget](const auto &x)
                       {
-                          return dynamic_cast<const FriendItem *>(widget)->dbid == x.dbid;
+                          return dynamic_cast<const FriendItem *>(widget)->dbid == x.id;
 
                       }) == m_sdFriendList.end();
                   });
@@ -785,7 +785,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                   for(const auto &peer: m_sdFriendList){
                       if(!listPage->canvas.hasChild([&peer](const Widget *widget, bool)
                       {
-                          return dynamic_cast<const FriendItem *>(widget)->dbid == peer.dbid;
+                          return dynamic_cast<const FriendItem *>(widget)->dbid == peer.id;
 
                       })){
                           listPage->append(peer, [](FriendChatBoard::FriendItem *item)
@@ -825,25 +825,27 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
       {
           SDChatPeer
           {
-                .dbid = SYS_CHATDBID_SYSTEM,
-                .name = "系统助手",
-                .group = false,
+              .id = SYS_CHATDBID_SYSTEM,
+              .name = "系统助手",
+              .despvar = SDChatPeerPlayerVar {},
           },
 
           SDChatPeer
           {
-              .dbid = SYS_CHATDBID_GROUP,
+              .id = SYS_CHATDBID_GROUP,
               .name = "群管理助手",
-              .group = false,
+              .despvar = SDChatPeerPlayerVar {},
           },
 
           SDChatPeer
           {
-              .dbid   = m_processRun->getMyHero()->dbid(),
+              .id     = m_processRun->getMyHero()->dbid(),
               .name   = m_processRun->getMyHero()->getName(),
-              .group  = false,
-              .gender = m_processRun->getMyHero()->gender(),
-              .job    = m_processRun->getMyHero()->job(),
+              .despvar = SDChatPeerPlayerVar
+              {
+                  .gender = m_processRun->getMyHero()->gender(),
+                  .job    = m_processRun->getMyHero()->job(),
+              },
           },
       }
 {
@@ -972,7 +974,7 @@ void FriendChatBoard::addFriendListChatPeer(bool argGroup, uint32_t argDBID)
             setChatPeer(peerInst, true);
             setUIPage(FriendChatBoard::UIPage_CHAT);
             m_processRun->requestLatestChatMessage({item->dbid}, 50, true, true);
-        };
+        });
     });
 }
 
@@ -988,12 +990,12 @@ void FriendChatBoard::setFriendList(const SDFriendList &sdFL)
     addFriendListChatPeer(false, m_processRun->getMyHero()->dbid());
 
     for(const auto &sdPC: sdFL){
-        if(seenDBIDList.contains(sdPC.dbid)){
+        if(seenDBIDList.contains(sdPC.id)){
             continue;
         }
 
-        seenDBIDList.insert(sdPC.dbid);
-        addFriendListChatPeer(sdPC.group, sdPC.dbid);
+        seenDBIDList.insert(sdPC.id);
+        addFriendListChatPeer(sdPC.group(), sdPC.id);
     }
 }
 
@@ -1001,10 +1003,10 @@ const SDChatPeer *FriendChatBoard::findChatPeer(bool argGroup, uint32_t argDBID,
 {
     const auto fnOp = [argGroup, argDBID](const SDChatPeer &peer)
     {
-        return peer.group == argGroup && peer.dbid == argDBID;
+        return peer.group() == argGroup && peer.id == argDBID;
     };
 
-    if(auto p = std::find_if(m_sdFriendList.begin(), m_sdFriendList.end(), fnOp) != m_sdFriendList.end()){
+    if(auto p = std::find_if(m_sdFriendList.begin(), m_sdFriendList.end(), fnOp); p != m_sdFriendList.end()){
         return std::addressof(*p);
     }
 
@@ -1012,7 +1014,7 @@ const SDChatPeer *FriendChatBoard::findChatPeer(bool argGroup, uint32_t argDBID,
         return nullptr;
     }
 
-    if(auto p = std::find_if(m_cachedChatPeerList.begin(), m_cachedChatPeerList.end(), fnOp) != m_cachedChatPeerList.end()){
+    if(auto p = std::find_if(m_cachedChatPeerList.begin(), m_cachedChatPeerList.end(), fnOp); p != m_cachedChatPeerList.end()){
         return std::addressof(*p);
     }
 
@@ -1045,7 +1047,7 @@ void FriendChatBoard::queryChatPeer(bool argGroup, uint32_t argDBID, std::functi
                       }
                       else{
                           for(const auto &peer: sdPCL){
-                              if(peer.group == argGroup && peer.dbid == argDBID){
+                              if(peer.group() == argGroup && peer.id == argDBID){
                                   if(argOp){
                                       argOp(&peer);
                                   }
@@ -1115,12 +1117,12 @@ void FriendChatBoard::addMessage(std::optional<uint64_t> localPendingID, const S
                 }
             });
 
-            if(chatPage->peer.dbid == peerIter->dbid){
+            if(chatPage->peer.id == peerIter->dbid){
                 loadChatPage();
             }
         }
         else{
-            if(chatPage->peer.dbid == peerIter->dbid){
+            if(chatPage->peer.id == peerIter->dbid){
                 if(localPendingID.has_value()){
                     if(auto p = chatPage->chat.canvas.hasChild(localPendingID.value())){
                         dynamic_cast<FriendChatBoard::ChatItem *>(p)->pending = false;
@@ -1132,7 +1134,7 @@ void FriendChatBoard::addMessage(std::optional<uint64_t> localPendingID, const S
             }
         }
 
-        if(chatPage->peer.dbid == peerIter->dbid){
+        if(chatPage->peer.id == peerIter->dbid){
             if(chatPage->chat.h() >= chatPage->chat.canvas.h()){
                 m_uiPageList[UIPage_CHAT].slider->setShow(false);
             }
@@ -1142,7 +1144,7 @@ void FriendChatBoard::addMessage(std::optional<uint64_t> localPendingID, const S
             }
         }
 
-        chatPreviewPage->updateChatPreview(peerDBID, cerealf::deserialize<std::string>(peerIter->list.back().message));
+        chatPreviewPage->updateChatPreview(false, peerDBID, cerealf::deserialize<std::string>(peerIter->list.back().message));
     }
 }
 
@@ -1170,7 +1172,7 @@ void FriendChatBoard::finishMessagePending(size_t localPendingID, const SDChatMe
 
 void FriendChatBoard::setChatPeer(const SDChatPeer &sdCP, bool forceReload)
 {
-    if(auto chatPage = dynamic_cast<ChatPage *>(m_uiPageList[UIPage_CHAT].page); (chatPage->peer.dbid != sdCP.dbid) || forceReload){
+    if(auto chatPage = dynamic_cast<ChatPage *>(m_uiPageList[UIPage_CHAT].page); (chatPage->peer.id != sdCP.id) || forceReload){
         chatPage->peer = sdCP;
         loadChatPage();
     }
@@ -1207,7 +1209,7 @@ void FriendChatBoard::loadChatPage()
     chatPage->chat.canvas.clearChild();
 
     for(const auto &elem: m_friendMessageList){
-        if(elem.group == chatPage->peer.group && elem.dbid == chatPage->peer.dbid){
+        if(elem.group == chatPage->peer.group() && elem.dbid == chatPage->peer.id){
             for(const auto &msg: elem.list){
                 chatPage->chat.append(msg, nullptr);
             }
@@ -1216,7 +1218,7 @@ void FriendChatBoard::loadChatPage()
     }
 
     for(const auto &[localID, sdCM]: m_localMessageList){
-        if(sdCM.group == chatPage->peer.group && sdCM.to == chatPage->peer.dbid){
+        if(sdCM.group == chatPage->peer.group() && sdCM.to == chatPage->peer.id){
             chatPage->chat.append(sdCM, nullptr);
         }
     }
@@ -1224,15 +1226,15 @@ void FriendChatBoard::loadChatPage()
     chatPage->placeholder.setShow(!chatPage->chat.canvas.hasChild());
 }
 
-void FriendChatBoard::addGroup(SDChatPeer sdCP)
+void FriendChatBoard::addGroup(const SDChatPeer &sdCP)
 {
-    if(findChatPeer(true, sdCP.dbid)){
+    if(findChatPeer(true, sdCP.id)){
         return;
     }
 
     m_sdFriendList.push_back(sdCP);
-    addFriendListChatPeer(true, sdCP.dbid);
-    updateChatPreview(true, sdCP.dbid, "你已经加入了群聊，现在就可以聊天了。");
+    addFriendListChatPeer(true, sdCP.id);
+    dynamic_cast<ChatPreviewPage *>(m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(true, sdCP.id, "你已经加入了群聊，现在就可以聊天了。");
 }
 
 FriendChatBoard *FriendChatBoard::getParentBoard(Widget *widget)

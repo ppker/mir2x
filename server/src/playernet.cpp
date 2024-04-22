@@ -281,7 +281,7 @@ void Player::net_CM_QUERYCHATPEERLIST(uint8_t, const uint8_t *buf, size_t, uint6
         postNetMessage(SM_ERROR, respID);
     }
     else{
-        postNetMessage(SM_OK, cerealf::serialize(dbQueryChatPeerList(input)), respID);
+        postNetMessage(SM_OK, cerealf::serialize(dbQueryChatPeerList(input, true, true)), respID);
     }
 }
 
@@ -334,7 +334,7 @@ void Player::net_CM_ADDFRIEND(uint8_t, const uint8_t *buf, size_t, uint64_t resp
         postNetMessage(SM_OK, cerealf::serialize(sdAFN), respID);
 
         if(sdAFN.notif == AF_ACCEPTED){
-            m_sdFriendList.push_back(dbLoadChatPeer(cmAF.dbid).value());
+            m_sdFriendList.push_back(dbLoadChatPeer(false, cmAF.dbid).value());
         }
     }
 }
@@ -834,26 +834,26 @@ void Player::net_CM_SETRUNTIMECONFIG(uint8_t, const uint8_t *buf, size_t, uint64
 void Player::net_CM_REQUESTLATESTCHATMESSAGE(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmRLCM = ClientMsg::conv<CMRequestLatestChatMessage>(buf);
-    const size_t dbidCount = std::count_if(std::begin(cmRLCM.dbidList), std::end(cmRLCM.dbidList), [](const auto &x)
-    {
-        return x > 0;
-    });
-
-    if(dbidCount > 0){
-        postNetMessage(SM_CHATMESSAGELIST, cerealf::serialize(dbRetrieveLatestChatMessage(cmRLCM.dbidList, dbidCount, cmRLCM.limitCount, cmRLCM.includeSend, cmRLCM.includeRecv)));
+    if(cmRLCM.dbidList.size > 0){
+        std::vector<std::pair<bool, uint32_t>> dbidList;
+        for(size_t i = 0; i < cmRLCM.dbidList.size; ++i){
+            dbidList.emplace_back(cmRLCM.dbidList.data[i].group, cmRLCM.dbidList.data[i].id);
+        }
+        postNetMessage(SM_CHATMESSAGELIST, cerealf::serialize(dbRetrieveLatestChatMessage(dbidList, cmRLCM.limitCount, cmRLCM.includeSend, cmRLCM.includeRecv)));
     }
 }
 
 void Player::net_CM_CREATECHATGROUP(uint8_t, const uint8_t *buf, size_t, uint64_t respID)
 {
     const auto cmCCG = ClientMsg::conv<CMCreateChatGroup>(buf);
-    const auto sdCCG = dbCreateChatGroup(cmCCG.name.as_sv().data(), cmCCG.list.data, cmCCG.list.size);
+    const auto sdCCG = dbCreateChatGroup(cmCCG.name.as_sv().data(), as_span(cmCCG.list.data, cmCCG.list.size));
 
-    for(const auto sdBuf = cerealf::serialize(sdCCG); const auto memberDBID: sdCCG.list){
-        if(memberDBID != dbid()){
+    for(const auto sdBuf = cerealf::serialize(sdCCG); const auto memberDBID: as_span<uint32_t>(cmCCG.list.data, cmCCG.list.size)){
+        if(memberDBID == dbid()){
+            postNetMessage(SM_OK, sdBuf, respID);
+        }
+        else{
             forwardNetPackage(uidf::getPlayerUID(memberDBID), SM_CREATECHATGROUP, sdBuf);
         }
     }
-
-    postNetMessage(SM_OK, sdBuf, respID);
 }

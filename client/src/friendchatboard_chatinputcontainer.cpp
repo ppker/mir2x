@@ -79,9 +79,9 @@ FriendChatBoard::ChatInputContainer::ChatInputContainer(dir8_t argDir,
 
               const SDChatMessage chatMessage
               {
-                  .group = chatPage->peer.group,
+                  .group = chatPage->peer.group(),
                   .from  = chatBoard->m_processRun->getMyHero()->dbid(),
-                  .to    = chatPage->peer.dbid,
+                  .to    = chatPage->peer.id,
                   .message = cerealf::serialize(message),
               };
 

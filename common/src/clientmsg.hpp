@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include "msgf.hpp"
 #include "conceptf.hpp"
-#include "fixedbuf.hpp"
+#include "staticbuffer.hpp"
 #include "actionnode.hpp"
 #include "staticvector.hpp"
 
@@ -67,8 +67,8 @@ struct CMPing
 
 struct CMLogin
 {
-    FixedBuf<SYS_IDSIZE> id;
-    FixedBuf<SYS_PWDSIZE> password;
+    StaticBuffer<SYS_IDSIZE> id;
+    StaticBuffer<SYS_PWDSIZE> password;
 };
 
 struct CMSetMagicKey
@@ -79,14 +79,14 @@ struct CMSetMagicKey
 
 struct CMCreateChar
 {
-    FixedBuf<SYS_NAMESIZE> name;
+    StaticBuffer<SYS_NAMESIZE> name;
     uint8_t job;
     uint8_t gender;
 };
 
 struct CMDeleteChar
 {
-    FixedBuf<SYS_PWDSIZE> password;
+    StaticBuffer<SYS_PWDSIZE> password;
 };
 
 struct CMAction
@@ -149,32 +149,32 @@ struct CMQueryPlayerWLDesp
 
 struct CMQueryChatPeerList
 {
-    FixedBuf<128> input;
+    StaticBuffer<128> input;
 };
 
 struct CMCreateChatGroup
 {
-    FixedBuf<128> name;
+    StaticBuffer<128> name;
     StaticVector<uint32_t, 512> list;
 };
 
 struct CMCreateAccount
 {
-    FixedBuf<SYS_IDSIZE> id;
-    FixedBuf<SYS_PWDSIZE> password;
+    StaticBuffer<SYS_IDSIZE> id;
+    StaticBuffer<SYS_PWDSIZE> password;
 };
 
 struct CMChangePassword
 {
-    FixedBuf<SYS_IDSIZE> id;
-    FixedBuf<SYS_PWDSIZE> password;
-    FixedBuf<SYS_PWDSIZE> passwordNew;
+    StaticBuffer<SYS_IDSIZE> id;
+    StaticBuffer<SYS_PWDSIZE> password;
+    StaticBuffer<SYS_PWDSIZE> passwordNew;
 };
 
 struct CMSetRuntimeConfig
 {
     uint16_t type;
-    FixedBuf<256> buf;
+    StaticBuffer<256> buf;
 };
 
 struct CMNPCEvent
@@ -263,7 +263,13 @@ struct CMRequestLeaveTeam
 
 struct CMRequestLatestChatMessage
 {
-    uint32_t dbidList[32];
+    struct QueryDBIDEntry
+    {
+        uint64_t group : 1;
+        uint64_t    id : 1;
+    };
+
+    StaticVector<QueryDBIDEntry, 128> dbidList;
 
     uint32_t limitCount  : 30;
     uint32_t includeSend :  1;

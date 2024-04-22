@@ -64,10 +64,10 @@ void FriendChatBoard::ChatItemContainer::append(const SDChatMessage &sdCM, std::
         const auto chatPage = dynamic_cast<ChatPage *>(parent());
         const auto self = FriendChatBoard::getParentBoard(this)->m_processRun->getMyHero();
 
-        if(sdCM.group && chatPage->peer.group && sdCM.to == chatPage->peer.dbid){
+        if(sdCM.group && chatPage->peer.group() && sdCM.to == chatPage->peer.id){
             // group chat
         }
-        else if(!sdCM.group && !chatPage->peer.group && (sdCM.from == chatPage->peer.dbid || sdCM.to == chatPage->peer.dbid)){
+        else if(!sdCM.group && !chatPage->peer.group() && (sdCM.from == chatPage->peer.id || sdCM.to == chatPage->peer.id)){
             // personal chat
         }
         else{
@@ -85,15 +85,15 @@ void FriendChatBoard::ChatItemContainer::append(const SDChatMessage &sdCM, std::
             to_u8cstr(peer->name),
             to_u8cstr(cerealf::deserialize<std::string>(sdCM.message)),
 
-            [from = sdCM.from, gender = peer->gender, job = peer->job](const ImageBoard *)
+            [from = sdCM.from, gender = peer->getPlayer().gender, job = peer->getPlayer().job](const ImageBoard *)
             {
                 if     (from == SYS_CHATDBID_SYSTEM) return g_progUseDB->retrieve(0X00001100);
                 else if(from == SYS_CHATDBID_GROUP ) return g_progUseDB->retrieve(0X00001300);
                 else                                 return g_progUseDB->retrieve(Hero::faceGfxID(gender, job));
             },
 
-            peer->dbid != self->dbid(),
-            peer->dbid != self->dbid(),
+            peer->id != self->dbid(),
+            peer->id != self->dbid(),
 
             {},
         };

@@ -251,56 +251,94 @@ void Player::dbLoadPlayerConfig()
     }
 }
 
-std::optional<SDChatPeer> Player::dbLoadChatPeer(uint32_t argDBID)
+std::optional<SDChatPeer> Player::dbLoadChatPeer(bool argGroup, uint32_t argDBID)
 {
-    auto query = g_dbPod->createQuery("select * from tbl_char where fld_dbid = %llu", to_llu(argDBID));
+    auto query = argGroup ? g_dbPod->createQuery("select * from tbl_chatgroup where fld_id   = %llu", to_llu(argDBID))
+                          : g_dbPod->createQuery("select * from tbl_char      where fld_dbid = %llu", to_llu(argDBID));
+
     if(query.executeStep()){
-        return SDChatPeer
-        {
-            .dbid = query.getColumn("fld_dbid"),
-            .name = query.getColumn("fld_name").getString(),
+        if(argGroup){
+            return SDChatPeer
+            {
+                .id = query.getColumn(argGroup ? "fld_id" : "fld_dbid"),
+                .name = query.getColumn("fld_name").getString(),
+                .avatar = std::nullopt,
 
-            .group = false,
+                .despvar = SDChatPeerGroupVar
+                {
+                    .creator = query.getColumn("fld_creator"),
+                    .createtime = check_cast<uint64_t>(query.getColumn("fld_createtime").getInt64()),
+                },
+            };
+        }
+        else{
+            return SDChatPeer
+            {
+                .id = query.getColumn(argGroup ? "fld_id" : "fld_dbid"),
+                .name = query.getColumn("fld_name").getString(),
+                .avatar = std::nullopt,
 
-            .gender = query.getColumn("fld_gender").getUInt() > 0,
-            .job = query.getColumn("fld_job"),
-
-            .avatar = std::nullopt,
-        };
+                .despvar = SDChatPeerPlayerVar
+                {
+                    .gender = query.getColumn("fld_gender").getUInt() > 0,
+                    .job = query.getColumn("fld_job"),
+                },
+            };
+        }
     }
     else{
         return {};
     }
 }
 
-SDChatPeerList Player::dbQueryChatPeerList(const std::string &query)
+SDChatPeerList Player::dbQueryChatPeerList(const std::string &query, bool includePlayer, bool includeGroup)
 {
     fflassert(str_haschar(query));
-    auto queryCmd = [&query]
-    {
-        if(query.find_first_not_of("0123456789") == std::string_view::npos){
-            return g_dbPod->createQuery("select * from tbl_char where fld_dbid = %s or instr(fld_name, '%s') > 0", query.c_str(), query.c_str());
-        }
-        else{
-            return g_dbPod->createQuery("select * from tbl_char where instr(fld_name, '%s') > 0", query.c_str());
-        }
-    }();
+    fflassert(includePlayer || includeGroup);
 
     SDChatPeerList sdPCL;
-    while(queryCmd.executeStep()){
-        sdPCL.push_back(SDChatPeer
-        {
-            .dbid = queryCmd.getColumn("fld_dbid"),
-            .name = queryCmd.getColumn("fld_name").getString(),
+    const bool onlyDigits = (query.find_first_not_of("0123456789") == std::string_view::npos);
 
-            .group = false,
+    if(includePlayer){
+        auto queryChar = onlyDigits ? g_dbPod->createQuery("select * from tbl_char where fld_dbid = %s or instr(fld_name, '%s') > 0", query.c_str(), query.c_str())
+                                    : g_dbPod->createQuery("select * from tbl_char where                  instr(fld_name, '%s') > 0", query.c_str());
 
-            .gender = queryCmd.getColumn("fld_gender").getUInt() > 0,
-            .job = queryCmd.getColumn("fld_job"),
+        while(queryChar.executeStep()){
+            sdPCL.push_back(SDChatPeer
+            {
+                .id = queryChar.getColumn("fld_dbid"),
+                .name = queryChar.getColumn("fld_name").getString(),
 
-            .avatar = std::nullopt,
-        });
+                .avatar = std::nullopt,
+                .despvar = SDChatPeerPlayerVar
+                {
+                    .gender = queryChar.getColumn("fld_gender").getUInt() > 0,
+                    .job = queryChar.getColumn("fld_job"),
+                },
+            });
+        }
     }
+
+    if(includeGroup){
+        auto queryGroup = onlyDigits ? g_dbPod->createQuery("select * from tbl_chatgroup where fld_id = %s or instr(fld_name, '%s') > 0", query.c_str(), query.c_str())
+                                     : g_dbPod->createQuery("select * from tbl_chatgroup where                instr(fld_name, '%s') > 0", query.c_str());
+
+        while(queryGroup.executeStep()){
+            sdPCL.push_back(SDChatPeer
+            {
+                .id = queryGroup.getColumn("fld_id"),
+                .name = queryGroup.getColumn("fld_name").getString(),
+
+                .avatar = std::nullopt,
+                .despvar = SDChatPeerGroupVar
+                {
+                    .creator = queryGroup.getColumn("fld_creator"),
+                    .createtime = check_cast<uint64_t>(queryGroup.getColumn("fld_createtime").getInt64()),
+                },
+            });
+        }
+    }
+
     return sdPCL;
 }
 
@@ -549,15 +587,15 @@ void Player::dbLoadFriendList()
     while(query.executeStep()){
         m_sdFriendList.push_back(SDChatPeer
         {
-            .dbid = query.getColumn("fld_dbid"),
+            .id = query.getColumn("fld_dbid"),
             .name = query.getColumn("fld_name").getString(),
 
-            .group = false,
-
-            .gender = query.getColumn("fld_gender").getUInt() > 0,
-            .job = query.getColumn("fld_job"),
-
             .avatar = std::nullopt,
+            .despvar = SDChatPeerPlayerVar
+            {
+                .gender = query.getColumn("fld_gender").getUInt() > 0,
+                .job = query.getColumn("fld_job"),
+            },
         });
     }
 }
@@ -586,14 +624,14 @@ std::tuple<uint64_t, uint64_t> Player::dbSaveChatMessage(bool argGroup, uint32_t
     }
 }
 
-SDChatMessageList Player::dbRetrieveLatestChatMessage(const uint32_t *dbidList, size_t dbidCount, size_t limitPerDBID, bool includeSend, bool includeRecv)
+SDChatMessageList Player::dbRetrieveLatestChatMessage(const std::vector<std::pair<bool, uint32_t>> &idList, size_t limitPerID, bool includeSend, bool includeRecv)
 {
-    fflassert(dbidList);
-    fflassert(dbidCount);
-    fflassert(includeSend || includeRecv);
+    if(idList.empty() || !(includeSend || includeRecv)){
+        return {};
+    }
 
     std::vector<std::string> queries;
-    for(const auto other: std::span(dbidList, dbidCount)){
+    for(const auto &[isGroup, other]: idList){
         queries.push_back("select * from ( select * from tbl_chatmessage where ");
         if(includeSend){
             queries.back().append(str_printf("(fld_from = %llu and fld_to = %llu) ", to_llu(dbid()), to_llu(other)));
@@ -608,8 +646,8 @@ SDChatMessageList Player::dbRetrieveLatestChatMessage(const uint32_t *dbidList, 
 
         queries.back().append("order by fld_timestamp desc ");
 
-        if(limitPerDBID > 0){
-            queries.back().append(str_printf("limit %zu ", limitPerDBID));
+        if(limitPerID > 0){
+            queries.back().append(str_printf("limit %zu ", limitPerID));
         }
 
         queries.back().append(" )");
@@ -664,11 +702,10 @@ SDAddFriendNotif Player::dbAddFriend(uint32_t argDBID)
     }
 }
 
-SDCreateChatGroup Player::dbCreateChatGroup(const char *name, const uint32_t *dbidList, size_t size)
+SDChatPeer Player::dbCreateChatGroup(const char *name, const std::span<const uint32_t> &dbidList)
 {
     fflassert(str_haschar(name));
-    fflassert(dbidList);
-    fflassert(size > 0);
+    fflassert(!dbidList.empty());
 
     const auto tstamp = hres_tstamp::localtime();
     auto query = g_dbPod->createQuery(
@@ -684,10 +721,15 @@ SDCreateChatGroup Player::dbCreateChatGroup(const char *name, const uint32_t *db
             name);
 
     if(query.executeStep()){
-        return SDCreateChatGroup
+        return SDChatPeer
         {
             .id = query.getColumn("fld_id"),
-            .list = SDUIDList(dbidList, dbidList + size),
+            .name = name,
+            .despvar = SDChatPeerGroupVar
+            {
+                .creator = dbid(),
+                .createtime = tstamp,
+            },
         };
     }
     else{

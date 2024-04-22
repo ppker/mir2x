@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-#include "fixedbuf.hpp"
+#include "staticbuffer.hpp"
 #include "actionnode.hpp"
 #include "damagenode.hpp"
 #include "actordatapackage.hpp"
@@ -195,7 +195,7 @@ struct AMAddCharObject
         _monsterType monster;
     };
 
-    FixedBuf<256> buf;
+    StaticBuffer<256> buf;
 };
 
 struct AMLogin

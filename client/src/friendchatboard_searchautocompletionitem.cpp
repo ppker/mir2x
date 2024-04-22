@@ -103,7 +103,7 @@ FriendChatBoard::SearchAutoCompletionItem::SearchAutoCompletionItem(Widget::VarD
         label.loadXML(argLabelXMLStr);
     }
     else{
-        label.loadXML(str_printf(R"###(<par>%s（%llu）</par>)###", candidate.name.c_str(), to_llu(candidate.dbid)).c_str());
+        label.loadXML(str_printf(R"###(<par>%s（%llu）</par>)###", candidate.name.c_str(), to_llu(candidate.id)).c_str());
     }
 }
 
@@ -123,7 +123,7 @@ bool FriendChatBoard::SearchAutoCompletionItem::processEvent(const SDL_Event &ev
                 if(in(event.button.x, event.button.y)){
                     dynamic_cast<SearchPage *>(this->parent(2))->candidates.setShow(true);
                     dynamic_cast<SearchPage *>(this->parent(2))->autocompletes.setShow(false);
-                    dynamic_cast<SearchPage *>(this->parent(2))->input.input.setInput(byID ? std::to_string(candidate.dbid).c_str() : candidate.name.c_str());
+                    dynamic_cast<SearchPage *>(this->parent(2))->input.input.setInput(byID ? std::to_string(candidate.id).c_str() : candidate.name.c_str());
                     return consumeFocus(true);
                 }
                 return false;

@@ -26,13 +26,13 @@ void ServiceCore::net_CM_LOGIN(uint32_t channID, uint8_t, const uint8_t *buf, si
 
         smLE.error = error;
         g_netDriver->post(channID, SM_LOGINERROR, &smLE, sizeof(smLE), respID);
-        g_monoServer->addLog(LOGTYPE_WARNING, "Login account failed: id = %s, ec = %d", to_cstr(cmL.id), error);
+        g_monoServer->addLog(LOGTYPE_WARNING, "Login account failed: id = %s, ec = %d", cmL.id.as_cstr(), error);
     };
 
     // don't check id/password by idstrf here
     // this allows some test account to be simple, like (test, 123456)
 
-    auto queryAccount = g_dbPod->createQuery("select fld_dbid from tbl_account where fld_account = '%s' and fld_password = '%s'", to_cstr(cmL.id), to_cstr(cmL.password));
+    auto queryAccount = g_dbPod->createQuery("select fld_dbid from tbl_account where fld_account = '%s' and fld_password = '%s'", cmL.id.as_cstr(), cmL.password.as_cstr());
     if(!queryAccount.executeStep()){
         fnLoginError(LOGINERR_NOACCOUNT);
         return;
@@ -270,7 +270,7 @@ void ServiceCore::net_CM_DELETECHAR(uint32_t channID, uint8_t, const uint8_t *bu
         return;
     }
 
-    auto queryPassword = g_dbPod->createQuery(u8R"###( select * from tbl_account where fld_dbid = %llu and fld_password = '%s' )###", to_llu(dbidOpt.value().first), to_cstr(cmDC.password));
+    auto queryPassword = g_dbPod->createQuery(u8R"###( select * from tbl_account where fld_dbid = %llu and fld_password = '%s' )###", to_llu(dbidOpt.value().first), cmDC.password.as_cstr());
     if(!queryPassword.executeStep()){
         fnDeleteCharError(DELCHARERR_BADPASSWORD);
         return;
@@ -444,7 +444,7 @@ void ServiceCore::net_CM_CREATECHAR(uint32_t channID, uint8_t, const uint8_t *bu
             u8R"###(     (%llu, '%s', %d, %d, %d, %d, %d);                                                      )###",
 
             to_llu(dbidOpt.value().first),
-            to_cstr(cmCC.name),
+            cmCC.name.as_rawcstr(),
             to_d(cmCC.gender),
             to_d(cmCC.job),
             to_d(DBCOM_MAPID(u8"道馆_1")),

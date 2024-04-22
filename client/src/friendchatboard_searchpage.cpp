@@ -136,10 +136,10 @@ void FriendChatBoard::SearchPage::appendFriendItem(const SDChatPeer &candidate)
         0,
         maxY,
 
-        candidate.dbid,
+        candidate.id,
         to_u8cstr(candidate.name),
 
-        [gender = candidate.gender, job = candidate.job](const ImageBoard *)
+        [gender = candidate.getPlayer().gender, job = candidate.getPlayer().job](const ImageBoard *)
         {
             return g_progUseDB->retrieve(Hero::faceGfxID(gender, job));
         },
@@ -147,7 +147,7 @@ void FriendChatBoard::SearchPage::appendFriendItem(const SDChatPeer &candidate)
         nullptr,
 
         {
-            (candidate.dbid == FriendChatBoard::getParentBoard(this)->m_processRun->getMyHero()->dbid()) ? nullptr : new LayoutBoard
+            (candidate.id == FriendChatBoard::getParentBoard(this)->m_processRun->getMyHero()->dbid()) ? nullptr : new LayoutBoard
             {
                 DIR_UPLEFT,
                 0,
@@ -186,7 +186,7 @@ void FriendChatBoard::SearchPage::appendFriendItem(const SDChatPeer &candidate)
                             CMAddFriend cmAF;
                             std::memset(&cmAF, 0, sizeof(cmAF));
 
-                            cmAF.dbid = candidate.dbid;
+                            cmAF.dbid = candidate.id;
                             g_client->send({CM_ADDFRIEND, cmAF}, [candidate, this](uint8_t headCode, const uint8_t *buf, size_t bufSize)
                             {
                                 switch(headCode){
@@ -199,7 +199,7 @@ void FriendChatBoard::SearchPage::appendFriendItem(const SDChatPeer &candidate)
                                                         boardPtr->m_sdFriendList.push_back(candidate);
 
                                                         dynamic_cast<FriendListPage  *>(boardPtr->m_uiPageList[UIPage_FRIENDLIST ].page)->append(candidate);
-                                                        dynamic_cast<ChatPreviewPage *>(boardPtr->m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(candidate.dbid, str_printf(R"###(<layout><par><t color="red">%s</t>已经通过你的好友申请，现在可以开始聊天了。</par></layout>)###", to_cstr(candidate.name)));
+                                                        dynamic_cast<ChatPreviewPage *>(boardPtr->m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(false, candidate.id, str_printf(R"###(<layout><par><t color="red">%s</t>已经通过你的好友申请，现在可以开始聊天了。</par></layout>)###", to_cstr(candidate.name)));
 
                                                         boardPtr->setUIPage(UIPage_CHATPREVIEW);
                                                         break;

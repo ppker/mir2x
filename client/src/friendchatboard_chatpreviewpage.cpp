@@ -38,7 +38,7 @@ FriendChatBoard::ChatPreviewPage::ChatPreviewPage(Widget::VarDir argDir,
       }
 {}
 
-void FriendChatBoard::ChatPreviewPage::updateChatPreview(uint32_t argDBID, const std::string &argMsg)
+void FriendChatBoard::ChatPreviewPage::updateChatPreview(bool, uint32_t argDBID, const std::string &argMsg)
 {
     ChatPreviewItem *child = dynamic_cast<ChatPreviewItem *>(canvas.hasChild([argDBID](const Widget *widgetPtr, bool)
     {

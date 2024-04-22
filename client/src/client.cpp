@@ -195,7 +195,7 @@ void Client::onServerMessage(uint8_t headCode, const uint8_t *buf, size_t bufSiz
             {
                 if(!g_clientArgParser->disableVersionCheck){
                     if(const auto smBV = ServerMsg::conv<SMBuildVersion>(buf); smBV.version.as_sv() != getBuildSignature()){
-                        throw fflerror("client/server version mismatches, client: %s, server: %s", getBuildSignature(), to_cstr(smBV.version));
+                        throw fflerror("client/server version mismatches, client: %s, server: %s", getBuildSignature(), smBV.version.as_sv().data());
                     }
                 }
                 break;

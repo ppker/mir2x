@@ -1851,19 +1851,19 @@ void Player::postOnlineOK()
     postNetMessage(SM_PLAYERCONFIG,     cerealf::serialize(m_sdPlayerConfig));
     postNetMessage(SM_FRIENDLIST,       cerealf::serialize(m_sdFriendList));
 
-    std::vector<uint32_t> friendDBIDList
+    std::vector<std::pair<bool, uint32_t>> friendIDList
     {
-        SYS_CHATDBID_SYSTEM,
-        dbid(),
+        {false, SYS_CHATDBID_SYSTEM},
+        {false, dbid()             },
     };
 
-    std::for_each(m_sdFriendList.begin(), m_sdFriendList.end(), [&friendDBIDList](const auto &candidate)
+    std::for_each(m_sdFriendList.begin(), m_sdFriendList.end(), [&friendIDList](const auto &peer)
     {
-        friendDBIDList.push_back(candidate.dbid);
+        friendIDList.push_back({peer.group(), peer.id});
     });
 
-    if(!friendDBIDList.empty()){
-        postNetMessage(SM_CHATMESSAGELIST, cerealf::serialize(dbRetrieveLatestChatMessage(friendDBIDList.data(), friendDBIDList.size(), 1, true, true)));
+    if(!friendIDList.empty()){
+        postNetMessage(SM_CHATMESSAGELIST, cerealf::serialize(dbRetrieveLatestChatMessage(friendIDList, 1, true, true)));
     }
 
     for(int wltype = WLG_BEGIN; wltype < WLG_END; ++wltype){

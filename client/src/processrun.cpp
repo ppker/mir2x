@@ -1694,7 +1694,11 @@ void ProcessRun::requestLatestChatMessage(const std::vector<uint32_t> &dbids, si
         throw fflerror("query of %zu dbids exceeds capacity %zu", dbids.size(), std::extent_v<decltype(cmRLCM.dbidList)>);
     }
 
-    std::copy(dbids.begin(), dbids.end(), cmRLCM.dbidList);
+    for(const auto &dbid: dbids){
+        cmRLCM.dbidList.push({});
+        cmRLCM.dbidList.back().group = false;
+        cmRLCM.dbidList.back().id    = dbid;
+    }
 
     cmRLCM.limitCount  = limitCount;
     cmRLCM.includeSend = sendIncluded;

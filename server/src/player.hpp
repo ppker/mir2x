@@ -335,7 +335,7 @@ class Player final: public BattleObject
 
     private:
         std::tuple<uint64_t, uint64_t> dbSaveChatMessage(bool, uint32_t, const std::string_view &);
-        SDChatMessageList dbRetrieveLatestChatMessage(const uint32_t *, size_t, size_t, bool, bool);
+        SDChatMessageList dbRetrieveLatestChatMessage(const std::vector<std::pair<bool, uint32_t>> &, size_t, bool, bool);
 
     private:
         void dbSecureItem(uint32_t, uint32_t);
@@ -354,8 +354,8 @@ class Player final: public BattleObject
 
     private:
         void dbLoadPlayerConfig();
-        std::optional<SDChatPeer> dbLoadChatPeer(uint32_t);
-        SDChatPeerList dbQueryChatPeerList(const std::string &);
+        std::optional<SDChatPeer> dbLoadChatPeer(bool, uint32_t);
+        SDChatPeerList dbQueryChatPeerList(const std::string &, bool, bool);
 
     private:
         void dbLoadLearnedMagic();
@@ -372,7 +372,7 @@ class Player final: public BattleObject
         SDAddFriendNotif dbAddFriend(uint32_t);
 
     private:
-        SDChatPeer dbCreateChatGroup(const std::string_view &, const uint32_t *, size_t);
+        SDChatPeer dbCreateChatGroup(const char *, const std::span<const uint32_t> &);
 
     protected:
         void checkFriend(uint64_t, std::function<void(int)>) override;

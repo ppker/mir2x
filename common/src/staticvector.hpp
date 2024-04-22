@@ -10,8 +10,8 @@
 
 template<conceptf::TriviallyCopyable T, size_t Capacity> struct StaticVector
 {
+    uint16_t size;
     T data[Capacity];
-    uint32_t size;
 
     bool empty() const
     {

@@ -133,16 +133,16 @@ FriendChatBoard::SearchInputLine::SearchInputLine(Widget::VarDir argDir,
 
                                 for(const auto &candidate: cerealf::deserialize<SDChatPeerList>(data, size)){
                                     dynamic_cast<SearchPage *>(parent())->appendFriendItem(candidate);
-                                    dynamic_cast<SearchPage *>(parent())->appendAutoCompletionItem(query == std::to_string(candidate.dbid), candidate, [&candidate, &query]
+                                    dynamic_cast<SearchPage *>(parent())->appendAutoCompletionItem(query == std::to_string(candidate.id), candidate, [&candidate, &query]
                                     {
                                         if(const auto pos = candidate.name.find(query); pos != std::string::npos){
-                                            return str_printf(R"###(<par>%s<t color="red">%s</t>%s（%llu）</par>)###", candidate.name.substr(0, pos).c_str(), query.c_str(), candidate.name.substr(pos + query.size()).c_str(), to_llu(candidate.dbid));
+                                            return str_printf(R"###(<par>%s<t color="red">%s</t>%s（%llu）</par>)###", candidate.name.substr(0, pos).c_str(), query.c_str(), candidate.name.substr(pos + query.size()).c_str(), to_llu(candidate.id));
                                         }
-                                        else if(std::to_string(candidate.dbid) == query){
-                                            return str_printf(R"###(<par>%s（<t color="red">%llu</t>）</par>)###", candidate.name.c_str(), to_llu(candidate.dbid));
+                                        else if(std::to_string(candidate.id) == query){
+                                            return str_printf(R"###(<par>%s（<t color="red">%llu</t>）</par>)###", candidate.name.c_str(), to_llu(candidate.id));
                                         }
                                         else{
-                                            return str_printf(R"###(<par>%s（%llu）</par>)###", candidate.name.c_str(), to_llu(candidate.dbid));
+                                            return str_printf(R"###(<par>%s（%llu）</par>)###", candidate.name.c_str(), to_llu(candidate.id));
                                         }
                                     }());
                                 }
