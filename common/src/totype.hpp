@@ -236,10 +236,10 @@ inline bool to_parsedbool(const std::string_view &s)
     return to_parsedbool(s.data());
 }
 
-// inline bool to_bool(const void *val)
-// {
-//     return val != nullptr;
-// }
+inline bool to_bool(const void *val)
+{
+    return val != nullptr;
+}
 
 inline bool to_bool(std::integral auto val)
 {
