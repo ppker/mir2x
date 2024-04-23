@@ -197,7 +197,7 @@ template<typename T> int to_boolint(T t)
     return (bool)(t) ? 1 : 0;
 }
 
-inline bool to_bool(const char *s)
+inline bool to_parsedbool(const char *s)
 {
     if(!s){
         throw std::runtime_error("to_bool: null string");
@@ -226,15 +226,20 @@ inline bool to_bool(const char *s)
     throw std::runtime_error(std::string("to_bool: invalid boolean string: ") + s);
 }
 
-inline bool to_bool(const std::string &s)
+inline bool to_parsedbool(const std::string &s)
 {
-    return to_bool(s.c_str());
+    return to_parsedbool(s.c_str());
 }
 
-inline bool to_bool(const std::string_view &s)
+inline bool to_parsedbool(const std::string_view &s)
 {
-    return to_bool(s.data());
+    return to_parsedbool(s.data());
 }
+
+// inline bool to_bool(const void *val)
+// {
+//     return val != nullptr;
+// }
 
 inline bool to_bool(std::integral auto val)
 {

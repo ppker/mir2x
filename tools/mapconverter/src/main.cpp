@@ -476,7 +476,7 @@ int main(int argc, char *argv[])
             if(!dbList[threadId]){
                 dbList[threadId] = std::make_unique<ImageMapDB>(argv[3]);
             }
-            convertMap(argv[4], mapName, argv[1], mapInfoParser.get(), to_bool(argv[7]), to_bool(argv[8]), to_bool(argv[9]), *dbList[threadId]);
+            convertMap(argv[4], mapName, argv[1], mapInfoParser.get(), to_parsedbool(argv[7]), to_parsedbool(argv[8]), to_parsedbool(argv[9]), *dbList[threadId]);
         });
     }
 

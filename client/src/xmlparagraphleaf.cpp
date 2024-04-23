@@ -195,7 +195,7 @@ std::optional<uint8_t> XMLParagraphLeaf::fontStyle() const
 std::optional<bool> XMLParagraphLeaf::wrap() const
 {
     if(const auto wrapStr = xmlf::findAttribute(xmlNode(), "wrap", true)){
-        return to_bool(wrapStr);
+        return to_parsedbool(wrapStr);
     }
     return {};
 }
