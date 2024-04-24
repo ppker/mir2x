@@ -12,7 +12,7 @@ bool Pack2D::occupied(int x, int y) const
     if(y >= to_d(m_packMap.size())){
         return false;
     }
-    return (bool)(m_packMap[y] & (1 << x));
+    return to_bool(m_packMap[y] & (1 << x));
 }
 
 bool Pack2D::occupied(int x, int y, int argW, int argH, bool occupiedAny) const

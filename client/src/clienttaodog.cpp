@@ -121,7 +121,7 @@ bool ClientTaoDog::onActionSpawn(const ActionNode &action)
 
 bool ClientTaoDog::onActionTransf(const ActionNode &action)
 {
-    const auto standReq = (bool)(action.extParam.transf.dog.standModeReq);
+    const auto standReq = to_bool(action.extParam.transf.dog.standModeReq);
     if(finalStandMode() != standReq){
         addActionTransf();
     }

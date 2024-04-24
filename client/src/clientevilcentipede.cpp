@@ -30,7 +30,7 @@ ClientEvilCentipede::ClientEvilCentipede(uint64_t uid, ProcessRun *proc, const A
                     .y = action.y,
                 });
 
-                m_standMode = (bool)(action.extParam.stand.evilCentipede.standMode);
+                m_standMode = to_bool(action.extParam.stand.evilCentipede.standMode);
                 break;
             }
         case ACTION_ATTACK:
@@ -56,7 +56,7 @@ ClientEvilCentipede::ClientEvilCentipede(uint64_t uid, ProcessRun *proc, const A
                     .y = action.y,
                 });
 
-                m_standMode = (bool)(action.extParam.transf.evilCentipede.standModeReq);
+                m_standMode = to_bool(action.extParam.transf.evilCentipede.standModeReq);
                 break;
             }
         case ACTION_HITTED:
@@ -96,7 +96,7 @@ bool ClientEvilCentipede::onActionSpawn(const ActionNode &)
 
 bool ClientEvilCentipede::onActionStand(const ActionNode &action)
 {
-    if(finalStandMode() != (bool)(action.extParam.stand.evilCentipede.standMode)){
+    if(finalStandMode() != to_bool(action.extParam.stand.evilCentipede.standMode)){
         addActionTransf();
     }
     return true;
@@ -104,7 +104,7 @@ bool ClientEvilCentipede::onActionStand(const ActionNode &action)
 
 bool ClientEvilCentipede::onActionTransf(const ActionNode &action)
 {
-    const auto standReq = (bool)(action.extParam.transf.evilCentipede.standModeReq);
+    const auto standReq = to_bool(action.extParam.transf.evilCentipede.standModeReq);
     if(finalStandMode() != standReq){
         addActionTransf();
     }

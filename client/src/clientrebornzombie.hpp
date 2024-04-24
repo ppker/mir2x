@@ -35,7 +35,7 @@ class ClientRebornZombie: public ClientStandMonster
                             .y = action.y,
                         });
 
-                        m_standMode = (bool)(action.extParam.stand.sandGhost.standMode);
+                        m_standMode = to_bool(action.extParam.stand.sandGhost.standMode);
                         break;
                     }
                 case ACTION_ATTACK:
@@ -61,7 +61,7 @@ class ClientRebornZombie: public ClientStandMonster
                             .y = action.y,
                         });
 
-                        m_standMode = (bool)(action.extParam.transf.sandGhost.standModeReq);
+                        m_standMode = to_bool(action.extParam.transf.sandGhost.standModeReq);
                         break;
                     }
                 case ACTION_MOVE:

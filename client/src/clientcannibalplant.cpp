@@ -28,7 +28,7 @@ bool ClientCannibalPlant::onActionStand(const ActionNode &action)
 
 bool ClientCannibalPlant::onActionTransf(const ActionNode &action)
 {
-    const auto standReq = (bool)(action.extParam.transf.cannibalPlant.standModeReq);
+    const auto standReq = to_bool(action.extParam.transf.cannibalPlant.standModeReq);
     if(finalStandMode() != standReq){
         addActionTransf();
     }

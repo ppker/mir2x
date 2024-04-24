@@ -35,7 +35,7 @@ class ClientCannibalPlant: public ClientStandMonster
                             .y = action.y,
                         });
 
-                        m_standMode = (bool)(action.extParam.stand.cannibalPlant.standMode);
+                        m_standMode = to_bool(action.extParam.stand.cannibalPlant.standMode);
                         break;
                     }
                 case ACTION_ATTACK:
@@ -61,7 +61,7 @@ class ClientCannibalPlant: public ClientStandMonster
                             .y = action.y,
                         });
 
-                        m_standMode = (bool)(action.extParam.transf.cannibalPlant.standModeReq);
+                        m_standMode = to_bool(action.extParam.transf.cannibalPlant.standModeReq);
                         break;
                     }
                 case ACTION_HITTED:

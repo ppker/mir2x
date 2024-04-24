@@ -20,7 +20,7 @@ bool ClientRebornZombie::onActionSpawn(const ActionNode &action)
 
 bool ClientRebornZombie::onActionStand(const ActionNode &action)
 {
-    if(finalStandMode() != (bool)(action.extParam.stand.sandGhost.standMode)){
+    if(finalStandMode() != to_bool(action.extParam.stand.sandGhost.standMode)){
         addActionTransf();
     }
     return true;
@@ -28,7 +28,7 @@ bool ClientRebornZombie::onActionStand(const ActionNode &action)
 
 bool ClientRebornZombie::onActionTransf(const ActionNode &action)
 {
-    const auto standReq = (bool)(action.extParam.transf.sandGhost.standModeReq);
+    const auto standReq = to_bool(action.extParam.transf.sandGhost.standModeReq);
     if(finalStandMode() != standReq){
         addActionTransf();
     }

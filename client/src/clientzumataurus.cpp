@@ -145,7 +145,7 @@ bool ClientZumaTaurus::onActionSpawn(const ActionNode &action)
 
 bool ClientZumaTaurus::onActionStand(const ActionNode &action)
 {
-    if(finalStandMode() != (bool)(action.extParam.stand.zumaTaurus.standMode)){
+    if(finalStandMode() != to_bool(action.extParam.stand.zumaTaurus.standMode)){
         addActionTransf();
     }
     return true;
@@ -153,7 +153,7 @@ bool ClientZumaTaurus::onActionStand(const ActionNode &action)
 
 bool ClientZumaTaurus::onActionTransf(const ActionNode &action)
 {
-    const auto standReq = (bool)(action.extParam.transf.zumaTaurus.standModeReq);
+    const auto standReq = to_bool(action.extParam.transf.zumaTaurus.standModeReq);
     if(finalStandMode() != standReq){
         addActionTransf();
     }

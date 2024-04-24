@@ -31,7 +31,7 @@ ClientZumaMonster::ClientZumaMonster(uint64_t uid, ProcessRun *proc, const Actio
                     .y = action.y,
                 });
 
-                m_standMode = (bool)(action.extParam.stand.zumaMonster.standMode);
+                m_standMode = to_bool(action.extParam.stand.zumaMonster.standMode);
                 break;
             }
         case ACTION_ATTACK:
@@ -73,7 +73,7 @@ ClientZumaMonster::ClientZumaMonster(uint64_t uid, ProcessRun *proc, const Actio
                     .y = action.y,
                 });
 
-                m_standMode = (bool)(action.extParam.transf.zumaMonster.standModeReq);
+                m_standMode = to_bool(action.extParam.transf.zumaMonster.standModeReq);
                 break;
             }
         case ACTION_HITTED:
@@ -113,7 +113,7 @@ bool ClientZumaMonster::onActionSpawn(const ActionNode &action)
 
 bool ClientZumaMonster::onActionStand(const ActionNode &action)
 {
-    if(finalStandMode() != (bool)(action.extParam.stand.zumaMonster.standMode)){
+    if(finalStandMode() != to_bool(action.extParam.stand.zumaMonster.standMode)){
         addActionTransf();
     }
     return true;
@@ -121,7 +121,7 @@ bool ClientZumaMonster::onActionStand(const ActionNode &action)
 
 bool ClientZumaMonster::onActionTransf(const ActionNode &action)
 {
-    const auto standReq = (bool)(action.extParam.transf.zumaMonster.standModeReq);
+    const auto standReq = to_bool(action.extParam.transf.zumaMonster.standModeReq);
     if(finalStandMode() != standReq){
         addActionTransf();
     }

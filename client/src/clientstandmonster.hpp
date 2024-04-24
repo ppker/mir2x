@@ -54,6 +54,6 @@ class ClientStandMonster: public ClientMonster
                     countTransf++;
                 }
             }
-            return (bool)(countTransf % 2) ? !m_standMode : m_standMode;
+            return to_bool(countTransf % 2) ? !m_standMode : m_standMode;
         }
 };
