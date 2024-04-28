@@ -1817,6 +1817,7 @@ void Player::postOnlineOK()
     std::memset(&smOOK, 0, sizeof(smOOK));
 
     smOOK.uid = UID();
+    smOOK.name.assign(m_name);
     smOOK.gender = gender();
     smOOK.job = job();
     smOOK.mapID = mapID();

@@ -827,26 +827,15 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
           {
               .id = SYS_CHATDBID_SYSTEM,
               .name = "系统助手",
-              .despvar = SDChatPeerPlayerVar {},
           },
 
           SDChatPeer
           {
               .id = SYS_CHATDBID_GROUP,
               .name = "群管理助手",
-              .despvar = SDChatPeerPlayerVar {},
           },
 
-          SDChatPeer
-          {
-              .id     = m_processRun->getMyHero()->dbid(),
-              .name   = m_processRun->getMyHero()->getName(),
-              .despvar = SDChatPeerPlayerVar
-              {
-                  .gender = m_processRun->getMyHero()->gender(),
-                  .job    = m_processRun->getMyHero()->job(),
-              },
-          },
+          m_processRun->getMyHeroChatPeer(),
       }
 {
     setShow(false);

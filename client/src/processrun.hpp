@@ -109,7 +109,10 @@ class ProcessRun: public Process
         ClientLuaModule m_luaModule;
 
     private:
-        std::unique_ptr<GUIManager> m_guiManager;
+        SDChatPeer m_defaultChatPeer;
+
+    private:
+        GUIManager m_guiManager;
 
     private:
         std::list<std::unique_ptr<FixedLocMagic>> m_fixedLocMagicList;
@@ -312,6 +315,25 @@ class ProcessRun: public Process
             throw fflerror("failed to get MyHero pointer: uid = %llu", to_llu(getMyHeroUID()));
         }
 
+        SDChatPeer getMyHeroChatPeer() const
+        {
+            if(auto myHeroPtr = dynamic_cast<MyHero *>(findUID(getMyHeroUID()))){
+                return SDChatPeer
+                {
+                    .id     = myHeroPtr->dbid(),
+                    .name   = myHeroPtr->getName(),
+                    .despvar = SDChatPeerPlayerVar
+                    {
+                        .gender = myHeroPtr->gender(),
+                        .job    = myHeroPtr->job(),
+                    },
+                };
+            }
+            else{
+                return m_defaultChatPeer;
+            }
+        }
+
     public:
         const auto &getGroundItemIDList(int x, int y) const
         {
@@ -389,7 +411,7 @@ class ProcessRun: public Process
     public:
         GUIManager *getGUIManager()
         {
-            return m_guiManager.get();
+            return std::addressof(m_guiManager);
         }
 
     public:

@@ -133,6 +133,7 @@ struct SMDeleteCharError
 struct SMOnlineOK
 {
     uint64_t uid;
+    StaticBuffer<128> name;
     uint8_t gender : 1;
     uint8_t job    : 3;
     uint32_t mapID;

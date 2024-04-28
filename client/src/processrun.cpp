@@ -46,6 +46,17 @@ ProcessRun::ProcessRun(const SMOnlineOK &smOOK)
     : Process()
     , m_myHeroUID(smOOK.uid)
     , m_luaModule(this)
+    , m_defaultChatPeer
+      {
+          .id = uidf::getPlayerDBID(smOOK.uid),
+          .name = smOOK.name.as_rawcstr(),
+          .despvar = SDChatPeerPlayerVar
+          {
+              .gender = to_bool(smOOK.gender),
+              .job = smOOK.job,
+          },
+      }
+    , m_guiManager(this)
     , m_mousePixlLoc(DIR_UPLEFT, 0, 0, u8"", 0, 15, 0, colorf::RGBA(0XFF, 0X00, 0X00, 0X00))
     , m_mouseGridLoc(DIR_UPLEFT, 0, 0, u8"", 0, 15, 0, colorf::RGBA(0XFF, 0X00, 0X00, 0X00))
     , m_teamFlag(5)
@@ -64,8 +75,6 @@ ProcessRun::ProcessRun(const SMOnlineOK &smOOK)
             .y = smOOK.action.y,
         },
     }));
-
-    m_guiManager = std::make_unique<GUIManager>(this); // has dependency of myHero
     RegisterUserCommand();
 }
 
@@ -109,7 +118,7 @@ void ProcessRun::update(double fUpdateTime)
     m_aniTimer.update(std::lround(fUpdateTime));
 
     scrollMap();
-    m_guiManager->update(fUpdateTime);
+    m_guiManager.update(fUpdateTime);
     m_delayCmdQ.exec();
 
     for(auto p = m_strikeGridList.begin(); p != m_strikeGridList.end();){
@@ -427,7 +436,7 @@ void ProcessRun::draw() const
 
     if(m_drawMagicKey){
         int magicKeyOffX = 0;
-        for(const auto &[magicID, magicKey]: dynamic_cast<const SkillBoard *>(m_guiManager->getWidget("SkillBoard"))->getConfig().getMagicKeyList()){
+        for(const auto &[magicID, magicKey]: dynamic_cast<const SkillBoard *>(m_guiManager.getWidget("SkillBoard"))->getConfig().getMagicKeyList()){
             if(const auto &iconGfx = SkillBoard::getMagicIconGfx(magicID); iconGfx && iconGfx.magicIcon != SYS_U32NIL){
                 if(auto texPtr = g_progUseDB->retrieve(iconGfx.magicIcon + to_u32(0X00001000))){
                     g_sdlDevice->drawTexture(texPtr, magicKeyOffX, 0);
@@ -483,7 +492,7 @@ void ProcessRun::draw() const
         p->draw(m_viewX, m_viewY);
     }
 
-    m_guiManager->draw();
+    m_guiManager.draw();
     if(const auto selectedItemID = getMyHero()->getInvPack().getGrabbedItem().itemID){
         if(const auto &ir = DBCOM_ITEMRECORD(selectedItemID)){
             if(auto texPtr = g_itemDB->retrieve(ir.pkgGfxID | 0X01000000)){
@@ -533,8 +542,8 @@ void ProcessRun::draw() const
 
 void ProcessRun::processEvent(const SDL_Event &event)
 {
-    const bool tookEvent = m_guiManager->processEvent(event, true);
-    m_guiManager->purge();
+    const bool tookEvent = m_guiManager.processEvent(event, true);
+    m_guiManager.purge();
 
     if(tookEvent){
         return;
@@ -2075,7 +2084,7 @@ void ProcessRun::checkMagicSpell(const SDL_Event &event)
         return;
     }
 
-    const auto magicID = dynamic_cast<SkillBoard *>(m_guiManager->getWidget("SkillBoard"))->getConfig().key2MagicID(key);
+    const auto magicID = dynamic_cast<SkillBoard *>(m_guiManager.getWidget("SkillBoard"))->getConfig().key2MagicID(key);
     if(!magicID){
         return;
     }
