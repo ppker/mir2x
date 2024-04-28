@@ -1700,8 +1700,8 @@ void ProcessRun::requestLatestChatMessage(const std::vector<uint32_t> &dbids, si
     CMRequestLatestChatMessage cmRLCM;
     std::memset(&cmRLCM, 0, sizeof(cmRLCM));
 
-    if(dbids.size() > std::extent_v<decltype(cmRLCM.dbidList)>){
-        throw fflerror("query of %zu dbids exceeds capacity %zu", dbids.size(), std::extent_v<decltype(cmRLCM.dbidList)>);
+    if(dbids.size() > cmRLCM.dbidList.capacity()){
+        throw fflerror("query of %zu dbids exceeds capacity %zu", dbids.size(), cmRLCM.dbidList.capacity());
     }
 
     for(const auto &dbid: dbids){
