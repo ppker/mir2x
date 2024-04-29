@@ -846,9 +846,9 @@ void Player::net_CM_REQUESTLATESTCHATMESSAGE(uint8_t, const uint8_t *buf, size_t
 void Player::net_CM_CREATECHATGROUP(uint8_t, const uint8_t *buf, size_t, uint64_t respID)
 {
     const auto cmCCG = ClientMsg::conv<CMCreateChatGroup>(buf);
-    const auto sdCCG = dbCreateChatGroup(cmCCG.name.as_sv().data(), as_span(cmCCG.list.data, cmCCG.list.size));
+    const auto sdCP = dbCreateChatGroup(cmCCG.name.as_sv().data(), as_span(cmCCG.list.data, cmCCG.list.size));
 
-    for(const auto sdBuf = cerealf::serialize(sdCCG); const auto memberDBID: as_span<uint32_t>(cmCCG.list.data, cmCCG.list.size)){
+    for(const auto sdBuf = cerealf::serialize(sdCP); const auto memberDBID: as_span<uint32_t>(cmCCG.list.data, cmCCG.list.size)){
         if(memberDBID == dbid()){
             postNetMessage(SM_OK, sdBuf, respID);
         }
