@@ -55,7 +55,7 @@ FriendChatBoard::ChatItemContainer::ChatItemContainer(dir8_t argDir,
 
 void FriendChatBoard::ChatItemContainer::append(const SDChatMessage &sdCM, std::function<void(const FriendChatBoard::ChatItem *)> fnOp)
 {
-    FriendChatBoard::getParentBoard(this)->queryChatPeer(sdCM.group, sdCM.from, [sdCM, fnOp = std::move(fnOp), this](const SDChatPeer *peer)
+    FriendChatBoard::getParentBoard(this)->queryChatPeer(sdCM.group, sdCM.from, [sdCM, fnOp = std::move(fnOp), this](const SDChatPeer *peer, bool)
     {
         if(!peer){
             return;

@@ -558,7 +558,7 @@ class FriendChatBoard: public Widget
         const SDChatPeer *findChatPeer(bool, uint32_t, bool /* friendListOnly */ = true) const;
 
     private:
-        void queryChatPeer(bool, uint32_t, std::function<void(const SDChatPeer *)>);
+        void queryChatPeer(bool, uint32_t, std::function<void(const SDChatPeer *, bool /* async */)>);
 
     public:
         void addMessage(std::optional<uint64_t>, const SDChatMessage &);

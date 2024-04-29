@@ -282,6 +282,9 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                       if(chatPage->peer.group() || findChatPeer(false, chatPage->peer.id, true)){
                           return chatPage->peer.name;
                       }
+                      else if(chatPage->peer.special()){
+                          return chatPage->peer.name;
+                      }
                       else{
                           return str_printf("陌生人 %s", chatPage->peer.name.c_str());
                       }
@@ -952,7 +955,7 @@ bool FriendChatBoard::processEvent(const SDL_Event &event, bool valid)
 
 void FriendChatBoard::addFriendListChatPeer(bool argGroup, uint32_t argDBID)
 {
-    queryChatPeer(argGroup, argDBID, [this](const SDChatPeer *peer)
+    queryChatPeer(argGroup, argDBID, [this](const SDChatPeer *peer, bool)
     {
         if(!peer){
             return;
@@ -1010,11 +1013,11 @@ const SDChatPeer *FriendChatBoard::findChatPeer(bool argGroup, uint32_t argDBID,
     return nullptr;
 }
 
-void FriendChatBoard::queryChatPeer(bool argGroup, uint32_t argDBID, std::function<void(const SDChatPeer *)> argOp)
+void FriendChatBoard::queryChatPeer(bool argGroup, uint32_t argDBID, std::function<void(const SDChatPeer *, bool)> argOp)
 {
     if(auto p = argGroup ? nullptr : findChatPeer(argGroup, argDBID, false)){
         if(argOp){
-            argOp(p);
+            argOp(p, false);
         }
     }
 
@@ -1030,7 +1033,7 @@ void FriendChatBoard::queryChatPeer(bool argGroup, uint32_t argDBID, std::functi
                   {
                       if(const auto sdPCL = cerealf::deserialize<SDChatPeerList>(data, size); sdPCL.empty()){
                           if(argOp){
-                              argOp(nullptr);
+                              argOp(nullptr, true);
                           }
                           return;
                       }
@@ -1038,14 +1041,14 @@ void FriendChatBoard::queryChatPeer(bool argGroup, uint32_t argDBID, std::functi
                           for(const auto &peer: sdPCL){
                               if(to_bool(peer.group()) == argGroup && peer.id == argDBID){
                                   if(argOp){
-                                      argOp(&peer);
+                                      argOp(&peer, true);
                                   }
                                   return;
                               }
                           }
 
                           if(argOp){
-                              argOp(nullptr);
+                              argOp(nullptr, true);
                           }
                           return;
                       }

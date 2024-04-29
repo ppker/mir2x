@@ -141,7 +141,7 @@ FriendChatBoard::ChatPreviewItem::ChatPreviewItem(dir8_t argDir,
           false,
       }
 {
-    FriendChatBoard::getParentBoard(this)->queryChatPeer(this->group, this->dbid, [canvas = parent(), widgetID = id(), this](const SDChatPeer *peer)
+    FriendChatBoard::getParentBoard(this)->queryChatPeer(this->group, this->dbid, [canvas = parent(), widgetID = id(), this](const SDChatPeer *peer, bool)
     {
         if(!canvas->hasChild(widgetID)){
             return;
@@ -176,7 +176,7 @@ bool FriendChatBoard::ChatPreviewItem::processEvent(const SDL_Event &event, bool
             {
                 if(in(event.button.x, event.button.y)){
                     FriendChatBoard::getParentBoard(this)->m_processRun->requestLatestChatMessage({this->dbid}, 50, true, true);
-                    FriendChatBoard::getParentBoard(this)->queryChatPeer(this->group, this->dbid, [canvas = this->parent(), widgetID = this->id(), this](const SDChatPeer *peer)
+                    FriendChatBoard::getParentBoard(this)->queryChatPeer(this->group, this->dbid, [canvas = this->parent(), widgetID = this->id(), this](const SDChatPeer *peer, bool)
                     {
                         if(!peer){
                             return;
