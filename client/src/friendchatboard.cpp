@@ -690,11 +690,12 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                                       cmCCG.name.assign(inputString);
                                       cmCCG.list.assign(dbidList.begin(), dbidList.end());
 
-                                      g_client->send({CM_CREATECHATGROUP, cmCCG}, [](uint8_t headCode, const uint8_t *, size_t)
+                                      g_client->send({CM_CREATECHATGROUP, cmCCG}, [this](uint8_t headCode, const uint8_t *buf, size_t size)
                                       {
                                           switch(headCode){
                                               case SM_OK:
                                                   {
+                                                      addGroup(cerealf::deserialize<SDChatPeer>(buf, size));
                                                       break;
                                                   }
                                               default:
@@ -1226,7 +1227,7 @@ void FriendChatBoard::addGroup(const SDChatPeer &sdCP)
 
     m_sdFriendList.push_back(sdCP);
     addFriendListChatPeer(true, sdCP.id);
-    dynamic_cast<ChatPreviewPage *>(m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(true, sdCP.id, "你已经加入了群聊，现在就可以聊天了。");
+    dynamic_cast<ChatPreviewPage *>(m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(true, sdCP.id, R"###(<layout><par>你已经加入了群聊，现在就可以聊天了。</par></layout>)###");
 }
 
 FriendChatBoard *FriendChatBoard::getParentBoard(Widget *widget)
