@@ -307,6 +307,11 @@ class ProcessRun: public Process
             return m_myHeroUID;
         }
 
+        uint64_t getMyHeroDBID() const
+        {
+            return uidf::getPlayerDBID(m_myHeroUID);
+        }
+
         MyHero *getMyHero() const
         {
             if(auto myHeroPtr = dynamic_cast<MyHero *>(findUID(getMyHeroUID()))){

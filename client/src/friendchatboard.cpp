@@ -279,11 +279,11 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
               {
                   uiPage->title->setText(to_u8cstr([chatPage = dynamic_cast<ChatPage *>(uiPage->page), this]()
                   {
-                      if(chatPage->peer.group() || findChatPeer(false, chatPage->peer.id, true)){
+                      if(chatPage->peer.group() || chatPage->peer.special() || findChatPeer(false, chatPage->peer.id, true)){
                           return chatPage->peer.name;
                       }
-                      else if(chatPage->peer.special()){
-                          return chatPage->peer.name;
+                      else if(chatPage->peer.id == m_processRun->getMyHeroDBID()){
+                          return str_printf("自己 %s", chatPage->peer.name.c_str());
                       }
                       else{
                           return str_printf("陌生人 %s", chatPage->peer.name.c_str());
