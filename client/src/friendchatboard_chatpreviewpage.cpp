@@ -38,11 +38,11 @@ FriendChatBoard::ChatPreviewPage::ChatPreviewPage(Widget::VarDir argDir,
       }
 {}
 
-void FriendChatBoard::ChatPreviewPage::updateChatPreview(bool, uint32_t argDBID, const std::string &argMsg)
+void FriendChatBoard::ChatPreviewPage::updateChatPreview(bool argGroup, uint32_t argDBID, const std::string &argMsg)
 {
-    ChatPreviewItem *child = dynamic_cast<ChatPreviewItem *>(canvas.hasChild([argDBID](const Widget *widgetPtr, bool)
+    ChatPreviewItem *child = dynamic_cast<ChatPreviewItem *>(canvas.hasChild([argGroup, argDBID](const Widget *widgetPtr, bool)
     {
-        if(auto preview = dynamic_cast<const ChatPreviewItem *>(widgetPtr); preview && preview->dbid == argDBID){
+        if(auto preview = dynamic_cast<const ChatPreviewItem *>(widgetPtr); preview && preview->group == argGroup && preview->dbid == argDBID){
             return true;
         }
         return false;
@@ -58,7 +58,7 @@ void FriendChatBoard::ChatPreviewPage::updateChatPreview(bool, uint32_t argDBID,
             0,
             0,
 
-            false,
+            argGroup,
             argDBID,
             to_u8cstr(argMsg),
 
