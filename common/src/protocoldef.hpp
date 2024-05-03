@@ -377,6 +377,16 @@ enum AddFriendResultType: int
     AF_END,
 };
 
+enum ChatPeerType: int
+{
+    CP_NONE    = 0,
+    CP_BEGIN   = 1,
+    CP_SPECIAL = 1,
+    CP_PLAYER,
+    CP_GROUP,
+    CP_END,
+};
+
 template<typename... Ts> struct VarDispatcher: Ts...
 {
     using Ts::operator()...;

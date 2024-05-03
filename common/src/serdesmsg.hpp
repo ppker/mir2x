@@ -175,6 +175,8 @@ struct SDChatPeerGroupVar
     }
 };
 
+using SDChatPeerID = std::pair<ChatPeerType, uint32_t>;
+
 struct SDChatPeer
 {
     uint32_t id = 0;
@@ -201,6 +203,13 @@ struct SDChatPeer
     template<typename Archive> void serialize(Archive & ar)
     {
         ar(id, name, avatar, despvar);
+    }
+
+    SDChatPeerID cpid() const
+    {
+        /**/ if(player()){ return {CP_PLAYER , id}; }
+        else if(group ()){ return {CP_GROUP  , id}; }
+        else             { return {CP_SPECIAL, id}; }
     }
 };
 
