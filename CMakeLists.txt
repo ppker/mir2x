@@ -14,8 +14,8 @@
 #
 #=======================================================================================
 
-PROJECT(mir2x)
 CMAKE_MINIMUM_REQUIRED(VERSION 3.12)
+PROJECT(mir2x)
 
 SET(CMAKE_CXX_STANDARD 23)
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
