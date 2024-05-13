@@ -168,10 +168,10 @@ ServerLuaCoroutineRunner::ServerLuaCoroutineRunner(ActorPod *podPtr)
                         // TODO shall we check if s still valid ?
                         // coroutine can be closed when the remote call is still in progress, tried looks still fine to access s
 
-                        const auto sdRCR = mpk.deserialize<SDRemoteCallResult>();
+                        auto sdRCR = mpk.deserialize<SDRemoteCallResult>();
                         if(sdRCR.error.empty()){
                             std::vector<sol::object> resList;
-                            for(auto && var: sdRCR.varList){
+                            for(auto & var: sdRCR.varList){
                                 resList.emplace_back(luaf::buildLuaObj(s.getView(), std::move(var)));
                             }
 

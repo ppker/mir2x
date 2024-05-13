@@ -8,6 +8,9 @@ decl {\#include <cmath>} {public global
 decl {\#include <mutex>} {public global
 }
 
+decl {\#include <string>} {public global
+}
+
 decl {\#include <algorithm>} {public global
 }
 

@@ -41,10 +41,10 @@ CommandLuaModule::CommandLuaModule(uint32_t cwid)
                 case AM_SDBUFFER:
                     {
                         sol::state_view sv(s);
-                        const auto sdRCR = rmpk.deserialize<SDRemoteCallResult>();
+			auto sdRCR = rmpk.deserialize<SDRemoteCallResult>();
 
                         if(sdRCR.error.empty()){
-                            for(auto && var: sdRCR.varList){
+                            for(auto & var: sdRCR.varList){
                                 resList.emplace_back(luaf::buildLuaObj(sv, std::move(var)));
                             }
                         }

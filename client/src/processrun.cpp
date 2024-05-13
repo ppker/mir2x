@@ -1602,7 +1602,7 @@ std::tuple<int, int> ProcessRun::getRandLoc(uint32_t reqMapID)
             return &m_mir2xMapData;
         }
 
-        if(newPtr = g_mapBinDB->retrieve(reqMapID)){
+        if((newPtr = g_mapBinDB->retrieve(reqMapID))){
             return newPtr.get();
         }
         return nullptr;

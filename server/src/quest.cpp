@@ -105,7 +105,7 @@ Quest::LuaThreadRunner::LuaThreadRunner(Quest *quest)
         if(!queryStatement.executeStep()){
             return sol::make_object(sv, sol::nil);
         }
-        return luaf::buildLuaObj(sol::state_view(s), std::move(cerealf::deserialize<luaf::luaVar>(queryStatement.getColumn(0))));
+        return luaf::buildLuaObj(sol::state_view(s), cerealf::deserialize<luaf::luaVar>(queryStatement.getColumn(0)));
     });
 
     bindFunction("dbSetQuestField", [this](uint64_t uid, std::string fieldName, sol::object obj)

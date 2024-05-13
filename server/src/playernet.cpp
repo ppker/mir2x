@@ -136,7 +136,7 @@ void Player::net_CM_PICKUP(uint8_t, const uint8_t *buf, size_t, uint64_t)
         switch(mpk.type()){
             case AM_PICKUPITEMLIST:
                 {
-                    const auto sdPUIL = cerealf::deserialize<SDPickUpItemList>(mpk.data(), mpk.size());
+                    auto sdPUIL = cerealf::deserialize<SDPickUpItemList>(mpk.data(), mpk.size());
                     for(auto &item: sdPUIL.itemList){
                         fflassert(item);
                         const auto &ir = DBCOM_ITEMRECORD(item.itemID);
