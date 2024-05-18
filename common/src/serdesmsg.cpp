@@ -3,6 +3,18 @@
 #include "fflerror.hpp"
 #include "serdesmsg.hpp"
 
+SDChatPeerID::SDChatPeerID(uint64_t argData)
+    : m_data(argData)
+{
+    fflassert(id());
+    fflassert(type() >= CP_BEGIN, type());
+    fflassert(type() <  CP_END  , type());
+}
+
+SDChatPeerID::SDChatPeerID(ChatPeerType argType, uint32_t argID)
+    : SDChatPeerID((to_u64(argType) << 32) | argID)
+{}
+
 std::u8string SDItem::getXMLLayout(const std::unordered_map<int, std::string> & params) const
 {
     fflassert(*this);

@@ -175,7 +175,38 @@ struct SDChatPeerGroupVar
     }
 };
 
-using SDChatPeerID = std::pair<ChatPeerType, uint32_t>;
+class SDChatPeerID
+{
+    private:
+        uint64_t m_data;
+
+    public:
+        SDChatPeerID(uint64_t);
+        SDChatPeerID(ChatPeerType, uint32_t);
+
+    public:
+        template<typename Archive> void serialize(Archive & ar)
+        {
+            ar(m_data);
+        }
+
+    public:
+        ChatPeerType type() const
+        {
+            return (ChatPeerType)(m_data >> 32);
+        }
+
+        uint32_t id() const
+        {
+            return to_u32(m_data);
+        }
+
+    public:
+        uint64_t asU64() const
+        {
+            return m_data;
+        }
+};
 
 struct SDChatPeer
 {
