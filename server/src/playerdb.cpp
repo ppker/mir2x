@@ -611,12 +611,12 @@ std::tuple<uint64_t, uint64_t> Player::dbSaveChatMessage(const SDChatPeerID &toC
         u8R"###(     fld_id;                                                               )###",
 
         to_llu(tstamp),
-        to_llu(SDChatPeerID(CP_PLAYER, dbid()).asU64()),
+        to_llu(cpid().asU64()),
         to_llu(toCPID.asU64()));
 
     query.bindBlob(1, sv.data(), sv.size());
     if(query.executeStep()){
-        return {query.getColumn("fld_id").getInt64(), tstamp};
+        return {to_u64(query.getColumn("fld_id").getInt64()), tstamp};
     }
     else{
         throw fflerror("failed to insert chat message to database");
@@ -633,14 +633,14 @@ SDChatMessageList Player::dbRetrieveLatestChatMessage(const std::span<const uint
     for(const auto cpid: idList){
         queries.push_back("select * from ( select * from tbl_chatmessage where ");
         if(includeSend){
-            queries.back().append(str_printf("(fld_from = %llu and fld_to = %llu) ", to_llu(SDChatPeerID(CP_PLAYER, dbid()).asU64()), to_llu(cpid)));
+            queries.back().append(str_printf("(fld_from = %llu and fld_to = %llu) ", to_llu(cpid().asU64()), to_llu(cpid)));
         }
 
         if(includeRecv){
             if(includeSend){
                 queries.back().append("or ");
             }
-            queries.back().append(str_printf("(fld_from = %llu and fld_to = %llu) ", to_llu(cpid), to_llu(SDChatPeerID(CP_PLAYER, dbid()).asU64())));
+            queries.back().append(str_printf("(fld_from = %llu and fld_to = %llu) ", to_llu(cpid), to_llu(cpid().asU64())));
         }
 
         queries.back().append("order by fld_timestamp desc ");
