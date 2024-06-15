@@ -623,24 +623,24 @@ std::tuple<uint64_t, uint64_t> Player::dbSaveChatMessage(const SDChatPeerID &toC
     }
 }
 
-SDChatMessageList Player::dbRetrieveLatestChatMessage(const std::span<const uint64_t> &idList, size_t limitPerID, bool includeSend, bool includeRecv)
+SDChatMessageList Player::dbRetrieveLatestChatMessage(const std::span<const uint64_t> &cpidList, size_t limitPerID, bool includeSend, bool includeRecv)
 {
-    if(idList.empty() || !(includeSend || includeRecv)){
+    if(cpidList.empty() || !(includeSend || includeRecv)){
         return {};
     }
 
     std::vector<std::string> queries;
-    for(const auto cpid: idList){
+    for(const auto other: cpidList){
         queries.push_back("select * from ( select * from tbl_chatmessage where ");
         if(includeSend){
-            queries.back().append(str_printf("(fld_from = %llu and fld_to = %llu) ", to_llu(cpid().asU64()), to_llu(cpid)));
+            queries.back().append(str_printf("(fld_from = %llu and fld_to = %llu) ", to_llu(cpid().asU64()), to_llu(other)));
         }
 
         if(includeRecv){
             if(includeSend){
                 queries.back().append("or ");
             }
-            queries.back().append(str_printf("(fld_from = %llu and fld_to = %llu) ", to_llu(cpid), to_llu(cpid().asU64())));
+            queries.back().append(str_printf("(fld_from = %llu and fld_to = %llu) ", to_llu(other), to_llu(cpid().asU64())));
         }
 
         queries.back().append("order by fld_timestamp desc ");
