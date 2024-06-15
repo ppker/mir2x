@@ -164,9 +164,9 @@ bool MonoServer::createAccountCharacter(const char *id, const char *charName, bo
     );
 
     auto query = g_dbPod->createQuery(
-        u8R"###( insert into tbl_chatmessage(fld_timestamp, fld_from, fld_to, fld_groupchat, fld_message) )###"
-        u8R"###( values                                                                                   )###"
-        u8R"###(     (%llu, %llu, %llu, 0, ?);                                                            )###",
+        u8R"###( insert into tbl_chatmessage(fld_timestamp, fld_from, fld_to, fld_message) )###"
+        u8R"###( values                                                                    )###"
+        u8R"###(     (%llu, %llu, %llu, ?);                                                )###",
 
         to_llu(hres_tstamp::localtime()),
         to_llu(SYS_CHATDBID_SYSTEM),
@@ -371,7 +371,6 @@ void MonoServer::createDefaultDatabase()
         u8R"###(     fld_timestamp      integer not null,                                )###"
         u8R"###(     fld_from           integer not null,                                )###"
         u8R"###(     fld_to             integer not null,                                )###"
-        u8R"###(     fld_groupchat      integer not null check(fld_groupchat in (0, 1)), )###"
         u8R"###(     fld_message        blob        null default (x'')                   )###"
         u8R"###( ) strict;                                                               )###",
     };

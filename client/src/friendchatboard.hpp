@@ -422,8 +422,7 @@ class FriendChatBoard: public Widget
             // |<--------------------->|
             //           WIDTH
 
-            const bool group;
-            const uint32_t dbid;
+            const SDChatPeerID cpid;
 
             ImageBoard  avatar;
             LabelBoard  name;
@@ -436,8 +435,7 @@ class FriendChatBoard: public Widget
                     int,
                     int,
 
-                    bool,
-                    uint32_t,
+                    const SDChatPeerID &,
                     const char8_t *,
 
                     Widget * = nullptr,
@@ -457,7 +455,7 @@ class FriendChatBoard: public Widget
                     Widget * = nullptr,
                     bool     = false);
 
-            void updateChatPreview(bool, uint32_t, const std::string &);
+            void updateChatPreview(const SDChatPeerID &, const std::string &);
         };
 
     private:
@@ -511,9 +509,7 @@ class FriendChatBoard: public Widget
     private:
         struct FriendMessage
         {
-            bool group = false;
-            uint32_t dbid = 0;
-
+            SDChatPeerID cpid;
             size_t unread = 0;
             std::vector<SDChatMessage> list;
         };
@@ -555,10 +551,11 @@ class FriendChatBoard: public Widget
         bool processEvent(const SDL_Event &, bool) override;
 
     public:
-        const SDChatPeer *findChatPeer(bool, uint32_t, bool /* friendListOnly */ = true) const;
+        const SDChatPeer *findChatPeer      (const SDChatPeerID &) const;
+        const SDChatPeer *findFriendChatPeer(const SDChatPeerID &) const;
 
     private:
-        void queryChatPeer(bool, uint32_t, std::function<void(const SDChatPeer *, bool /* async */)>);
+        void queryChatPeer(const SDChatPeerID &, std::function<void(const SDChatPeer *, bool /* async */)>);
 
     public:
         void addMessage(std::optional<uint64_t>, const SDChatMessage &);
@@ -583,5 +580,5 @@ class FriendChatBoard: public Widget
 
     public:
         void addGroup(const SDChatPeer &);
-        void addFriendListChatPeer(bool, uint32_t);
+        void addFriendListChatPeer(const SDChatPeerID &);
 };

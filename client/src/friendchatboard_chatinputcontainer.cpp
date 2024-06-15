@@ -79,18 +79,19 @@ FriendChatBoard::ChatInputContainer::ChatInputContainer(dir8_t argDir,
 
               const SDChatMessage chatMessage
               {
-                  .group = to_bool(chatPage->peer.group()),
-                  .from  = chatBoard->m_processRun->getMyHero()->dbid(),
-                  .to    = chatPage->peer.id,
+                  .from  = chatBoard->m_processRun->getMyHero()->cpid(),
+                  .to    = chatPage->peer.cpid(),
                   .message = cerealf::serialize(message),
               };
 
               chatPage->chat.append(chatMessage, [chatMessage, this](const FriendChatBoard::ChatItem *chatItem)
               {
-                  auto dbidsv = as_sv(chatMessage.to);
-                  auto msgbuf = std::string();
+                  const uint64_t cpidu64 = chatMessage.to.asU64();
 
-                  msgbuf.append(dbidsv.begin(), dbidsv.end());
+                  auto cpidsv  = as_sv(cpidu64);
+                  auto msgbuf  = std::string();
+
+                  msgbuf.append(cpidsv.begin(), cpidsv.end());
                   msgbuf.append(chatMessage.message.begin(), chatMessage.message.end());
 
                   const auto widgetID = chatItem->id();

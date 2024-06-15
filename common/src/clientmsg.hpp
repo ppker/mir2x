@@ -263,13 +263,7 @@ struct CMRequestLeaveTeam
 
 struct CMRequestLatestChatMessage
 {
-    struct QueryDBIDEntry
-    {
-        uint64_t group : 1;
-        uint64_t    id : 1;
-    };
-
-    StaticVector<QueryDBIDEntry, 128> dbidList;
+    StaticVector<uint64_t, 128> cpidList;
 
     uint32_t limitCount  : 30;
     uint32_t includeSend :  1;

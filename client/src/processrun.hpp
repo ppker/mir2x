@@ -466,7 +466,7 @@ class ProcessRun: public Process
         void requestRemoveSecuredItem(uint32_t, uint32_t);
         void requestJoinTeam(uint64_t);
         void requestLeaveTeam(uint64_t);
-        void requestLatestChatMessage(const std::vector<uint32_t> &, size_t, bool, bool);
+        void requestLatestChatMessage(const std::vector<uint64_t> &, size_t, bool, bool);
 
     public:
         std::tuple<uint32_t, int, int> getMap() const

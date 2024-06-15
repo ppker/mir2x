@@ -287,16 +287,16 @@ void Player::net_CM_QUERYCHATPEERLIST(uint8_t, const uint8_t *buf, size_t, uint6
 
 void Player::net_CM_CHATMESSAGE(uint8_t, const uint8_t *buf, size_t bufSize, uint64_t respID)
 {
-    fflassert(bufSize >= 4, bufSize);
+    fflassert(bufSize >= 8, bufSize);
 
-    const auto toDBID = as_u32(buf, 4);
+    const SDChatPeerID toCPID(as_u64(buf, 8));
     std::string msgBuf;
 
-    msgBuf = as_sv(buf + 4, bufSize - 4);
+    msgBuf = as_sv(buf + 8, bufSize - 8);
 
-    const auto [msgId, tstamp] = dbSaveChatMessage(false, toDBID, msgBuf);
-    if(toDBID != dbid()){
-        forwardNetPackage(uidf::getPlayerUID(toDBID), SM_CHATMESSAGELIST, cerealf::serialize(SDChatMessageList
+    const auto [msgId, tstamp] = dbSaveChatMessage(toCPID, msgBuf);
+    if(toCPID != cpid()){
+        forwardNetPackage(uidf::getPlayerUID(toCPID.id()), SM_CHATMESSAGELIST, cerealf::serialize(SDChatMessageList
         {
             SDChatMessage
             {
@@ -308,10 +308,8 @@ void Player::net_CM_CHATMESSAGE(uint8_t, const uint8_t *buf, size_t bufSize, uin
 
                 .refer = std::nullopt,
 
-                .group = false,
-
-                .from = dbid(),
-                .to   = toDBID,
+                .from = cpid(),
+                .to   = toCPID,
 
                 .message = std::move(msgBuf), // keep serialized
             },
@@ -834,12 +832,8 @@ void Player::net_CM_SETRUNTIMECONFIG(uint8_t, const uint8_t *buf, size_t, uint64
 void Player::net_CM_REQUESTLATESTCHATMESSAGE(uint8_t, const uint8_t *buf, size_t, uint64_t)
 {
     const auto cmRLCM = ClientMsg::conv<CMRequestLatestChatMessage>(buf);
-    if(cmRLCM.dbidList.size > 0){
-        std::vector<std::pair<bool, uint32_t>> dbidList;
-        for(size_t i = 0; i < cmRLCM.dbidList.size; ++i){
-            dbidList.emplace_back(cmRLCM.dbidList.data[i].group, cmRLCM.dbidList.data[i].id);
-        }
-        postNetMessage(SM_CHATMESSAGELIST, cerealf::serialize(dbRetrieveLatestChatMessage(dbidList, cmRLCM.limitCount, cmRLCM.includeSend, cmRLCM.includeRecv)));
+    if(!cmRLCM.cpidList.empty()){
+        postNetMessage(SM_CHATMESSAGELIST, cerealf::serialize(dbRetrieveLatestChatMessage(as_span(cmRLCM.cpidList.data, cmRLCM.cpidList.size), cmRLCM.limitCount, cmRLCM.includeSend, cmRLCM.includeRecv)));
     }
 }
 

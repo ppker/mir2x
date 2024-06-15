@@ -2,6 +2,7 @@
 #include <span>
 #include <cmath>
 #include <string>
+#include <vector>
 #include <cstdint>
 #include <cstring>
 #include <stdexcept>
@@ -82,6 +83,9 @@ inline uint64_t as_u64(const void *buf, size_t bufSize = 8) { return as_type<uin
 
 template<typename T> std::span<      T> as_span(      T *data, size_t size) { return std::span<      T>(data, size); }
 template<typename T> std::span<const T> as_span(const T *data, size_t size) { return std::span<const T>(data, size); }
+
+template<typename T, typename... Args> std::span<      T> as_span(      std::vector<T, Args...> &v){ return std::span<      T>(v.data(), v.size()); }
+template<typename T, typename... Args> std::span<const T> as_span(const std::vector<T, Args...> &v){ return std::span<const T>(v.data(), v.size()); }
 
 inline const char * to_cstr(const char *s)
 {

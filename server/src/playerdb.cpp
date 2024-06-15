@@ -600,20 +600,19 @@ void Player::dbLoadFriendList()
     }
 }
 
-std::tuple<uint64_t, uint64_t> Player::dbSaveChatMessage(bool argGroup, uint32_t toDBID, const std::string_view &sv)
+std::tuple<uint64_t, uint64_t> Player::dbSaveChatMessage(const SDChatPeerID &toCPID, const std::string_view &sv)
 {
     auto tstamp= hres_tstamp::localtime();
     auto query = g_dbPod->createQuery(
-        u8R"###( insert into tbl_chatmessage(fld_timestamp, fld_from, fld_to, fld_groupchat, fld_message) )###"
-        u8R"###( values                                                                                   )###"
-        u8R"###(     (%llu, %llu, %llu, %d, ?)                                                            )###"
-        u8R"###( returning                                                                                )###"
-        u8R"###(     fld_id;                                                                              )###",
+        u8R"###( insert into tbl_chatmessage(fld_timestamp, fld_from, fld_to, fld_message) )###"
+        u8R"###( values                                                                    )###"
+        u8R"###(     (%llu, %llu, %llu, ?)                                                 )###"
+        u8R"###( returning                                                                 )###"
+        u8R"###(     fld_id;                                                               )###",
 
         to_llu(tstamp),
-        to_llu(dbid()),
-        to_llu(toDBID),
-        to_boolint(argGroup));
+        to_llu(SDChatPeerID(CP_PLAYER, dbid()).asU64()),
+        to_llu(toCPID.asU64()));
 
     query.bindBlob(1, sv.data(), sv.size());
     if(query.executeStep()){
@@ -624,24 +623,24 @@ std::tuple<uint64_t, uint64_t> Player::dbSaveChatMessage(bool argGroup, uint32_t
     }
 }
 
-SDChatMessageList Player::dbRetrieveLatestChatMessage(const std::vector<std::pair<bool, uint32_t>> &idList, size_t limitPerID, bool includeSend, bool includeRecv)
+SDChatMessageList Player::dbRetrieveLatestChatMessage(const std::span<const uint64_t> &idList, size_t limitPerID, bool includeSend, bool includeRecv)
 {
     if(idList.empty() || !(includeSend || includeRecv)){
         return {};
     }
 
     std::vector<std::string> queries;
-    for(const auto &[isGroup, other]: idList){
+    for(const auto cpid: idList){
         queries.push_back("select * from ( select * from tbl_chatmessage where ");
         if(includeSend){
-            queries.back().append(str_printf("(fld_from = %llu and fld_to = %llu) ", to_llu(dbid()), to_llu(other)));
+            queries.back().append(str_printf("(fld_from = %llu and fld_to = %llu) ", to_llu(SDChatPeerID(CP_PLAYER, dbid()).asU64()), to_llu(cpid)));
         }
 
         if(includeRecv){
             if(includeSend){
                 queries.back().append("or ");
             }
-            queries.back().append(str_printf("(fld_from = %llu and fld_to = %llu) ", to_llu(other), to_llu(dbid())));
+            queries.back().append(str_printf("(fld_from = %llu and fld_to = %llu) ", to_llu(cpid), to_llu(SDChatPeerID(CP_PLAYER, dbid()).asU64())));
         }
 
         queries.back().append("order by fld_timestamp desc ");
@@ -665,10 +664,8 @@ SDChatMessageList Player::dbRetrieveLatestChatMessage(const std::vector<std::pai
                 .timestamp = to_u64(query.getColumn("fld_timestamp").getInt64()),
             },
 
-            .group = query.getColumn("fld_groupchat").getUInt() > 0,
-
-            .from = to_u32(query.getColumn("fld_from")),
-            .to   = to_u32(query.getColumn("fld_to")),
+            .from = SDChatPeerID(to_u64(query.getColumn("fld_from").getInt64())),
+            .to   = SDChatPeerID(to_u64(query.getColumn("fld_to"  ).getInt64())),
 
             .message = query.getColumn("fld_message").getString(),
         });

@@ -72,6 +72,16 @@ template<conceptf::TriviallyCopyable T, size_t Capacity> struct StaticVector
             std::copy(first, last, data);
         }
     }
+
+    std::span<T> as_span()
+    {
+        return std::span<T>(data, size);
+    }
+
+    std::span<const T> as_span() const
+    {
+        return std::span<T>(data, size);
+    }
 };
 
 static_assert(std::is_trivially_copyable_v<StaticVector<char, 128>>);

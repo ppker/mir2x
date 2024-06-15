@@ -199,7 +199,7 @@ void FriendChatBoard::SearchPage::appendFriendItem(const SDChatPeer &candidate)
                                                         boardPtr->m_sdFriendList.push_back(candidate);
 
                                                         dynamic_cast<FriendListPage  *>(boardPtr->m_uiPageList[UIPage_FRIENDLIST ].page)->append(candidate);
-                                                        dynamic_cast<ChatPreviewPage *>(boardPtr->m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(false, candidate.id, str_printf(R"###(<layout><par><t color="red">%s</t>已经通过你的好友申请，现在可以开始聊天了。</par></layout>)###", to_cstr(candidate.name)));
+                                                        dynamic_cast<ChatPreviewPage *>(boardPtr->m_uiPageList[UIPage_CHATPREVIEW].page)->updateChatPreview(candidate.cpid(), str_printf(R"###(<layout><par><t color="red">%s</t>已经通过你的好友申请，现在可以开始聊天了。</par></layout>)###", to_cstr(candidate.name)));
 
                                                         boardPtr->setUIPage(UIPage_CHATPREVIEW);
                                                         break;

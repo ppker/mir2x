@@ -80,6 +80,11 @@ class Hero: public CreatureMovable
             return uidf::getPlayerDBID(UID());
         }
 
+        SDChatPeerID cpid() const
+        {
+            return SDChatPeerID(CP_PLAYER, dbid());
+        }
+
         int job() const
         {
             return m_job;

@@ -181,8 +181,29 @@ class SDChatPeerID
         uint64_t m_data;
 
     public:
-        SDChatPeerID(uint64_t);
+        SDChatPeerID()
+            : m_data(0)
+        {}
+
+    public:
+        explicit SDChatPeerID(uint64_t);
+
+    public:
         SDChatPeerID(ChatPeerType, uint32_t);
+
+    public:
+        SDChatPeerID(const SDChatPeerID &other)
+            : m_data(other.m_data)
+        {}
+
+        SDChatPeerID & operator = (const SDChatPeerID &other) noexcept
+        {
+            m_data = other.m_data;
+            return *this;
+        }
+
+    public:
+        auto operator <=> (const SDChatPeerID &) const = default;
 
     public:
         template<typename Archive> void serialize(Archive & ar)
@@ -200,6 +221,11 @@ class SDChatPeerID
         {
             return to_u32(m_data);
         }
+
+    public:
+        bool group  () const { return type() == CP_GROUP  ; }
+        bool player () const { return type() == CP_PLAYER ; }
+        bool special() const { return type() == CP_SPECIAL; }
 
     public:
         uint64_t asU64() const
@@ -752,22 +778,14 @@ struct SDChatMessage
     std::optional<SDChatMessageDBSeq> seq {};
     std::optional<uint64_t> refer {};
 
-    // group chat support
-    // if in a group chat, this->from is always player dbid or SYS_CHATDBID_GROUP, this->to is a group id
-
-    // group may broadcast messages
-    // in this case this->from is SYS_CHATDBID_GROUP
-
-    bool group = false;
-
-    uint32_t from = 0;
-    uint32_t to   = 0;
+    SDChatPeerID from {};
+    SDChatPeerID to   {};
 
     std::string message; // always serialized
 
     template<typename Archive> void serialize(Archive & ar)
     {
-        ar(seq, refer, group, from, to, message);
+        ar(seq, refer, from, to, message);
     }
 };
 

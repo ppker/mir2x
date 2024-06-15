@@ -11,8 +11,7 @@ FriendChatBoard::ChatPreviewItem::ChatPreviewItem(dir8_t argDir,
         int argX,
         int argY,
 
-        bool argGroup,
-        uint32_t argDBID,
+        const SDChatPeerID &argCPID,
         const char8_t *argChatXMLStr,
 
         Widget *argParent,
@@ -33,8 +32,7 @@ FriendChatBoard::ChatPreviewItem::ChatPreviewItem(dir8_t argDir,
           argAutoDelete,
       }
 
-    , group(argGroup)
-    , dbid(argDBID)
+    , cpid(argCPID)
 
     , avatar
       {
@@ -45,7 +43,7 @@ FriendChatBoard::ChatPreviewItem::ChatPreviewItem(dir8_t argDir,
           ChatPreviewItem::AVATAR_WIDTH,
           ChatPreviewItem::HEIGHT,
 
-          [argDBID, this](const ImageBoard *) -> SDL_Texture *
+          [this](const ImageBoard *) -> SDL_Texture *
           {
               return g_progUseDB->retrieve(0X010007CF);
           },
@@ -141,7 +139,7 @@ FriendChatBoard::ChatPreviewItem::ChatPreviewItem(dir8_t argDir,
           false,
       }
 {
-    FriendChatBoard::getParentBoard(this)->queryChatPeer(this->group, this->dbid, [canvas = parent(), widgetID = id(), this](const SDChatPeer *peer, bool)
+    FriendChatBoard::getParentBoard(this)->queryChatPeer(this->cpid, [canvas = parent(), widgetID = id(), this](const SDChatPeer *peer, bool)
     {
         if(!canvas->hasChild(widgetID)){
             return;
@@ -175,8 +173,8 @@ bool FriendChatBoard::ChatPreviewItem::processEvent(const SDL_Event &event, bool
         case SDL_MOUSEBUTTONDOWN:
             {
                 if(in(event.button.x, event.button.y)){
-                    FriendChatBoard::getParentBoard(this)->m_processRun->requestLatestChatMessage({this->dbid}, 50, true, true);
-                    FriendChatBoard::getParentBoard(this)->queryChatPeer(this->group, this->dbid, [canvas = this->parent(), widgetID = this->id(), this](const SDChatPeer *peer, bool)
+                    FriendChatBoard::getParentBoard(this)->m_processRun->requestLatestChatMessage({this->cpid.asU64()}, 50, true, true);
+                    FriendChatBoard::getParentBoard(this)->queryChatPeer(this->cpid, [canvas = this->parent(), widgetID = this->id(), this](const SDChatPeer *peer, bool)
                     {
                         if(!peer){
                             return;

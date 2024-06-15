@@ -55,7 +55,7 @@ FriendChatBoard::ChatItemContainer::ChatItemContainer(dir8_t argDir,
 
 void FriendChatBoard::ChatItemContainer::append(const SDChatMessage &sdCM, std::function<void(const FriendChatBoard::ChatItem *)> fnOp)
 {
-    FriendChatBoard::getParentBoard(this)->queryChatPeer(sdCM.group, sdCM.from, [sdCM, fnOp = std::move(fnOp), this](const SDChatPeer *peer, bool)
+    FriendChatBoard::getParentBoard(this)->queryChatPeer(sdCM.from, [sdCM, fnOp = std::move(fnOp), this](const SDChatPeer *peer, bool)
     {
         if(!peer){
             return;
@@ -64,10 +64,10 @@ void FriendChatBoard::ChatItemContainer::append(const SDChatMessage &sdCM, std::
         const auto chatPage = dynamic_cast<ChatPage *>(parent());
         const auto self = FriendChatBoard::getParentBoard(this)->m_processRun->getMyHero();
 
-        if(sdCM.group && chatPage->peer.group() && sdCM.to == chatPage->peer.id){
+        if(sdCM.from.group() && chatPage->peer.group() && sdCM.to == chatPage->peer.cpid()){
             // group chat
         }
-        else if(!sdCM.group && !chatPage->peer.group() && (sdCM.from == chatPage->peer.id || sdCM.to == chatPage->peer.id)){
+        else if(!sdCM.from.group() && !chatPage->peer.group() && (sdCM.from == chatPage->peer.cpid() || sdCM.to == chatPage->peer.cpid())){
             // personal chat
         }
         else{
@@ -87,9 +87,9 @@ void FriendChatBoard::ChatItemContainer::append(const SDChatMessage &sdCM, std::
 
             [from = sdCM.from, gender = peer->player() ? peer->player()->gender : false, job = peer->player() ? peer->player()->job : 0](const ImageBoard *)
             {
-                if     (from == SYS_CHATDBID_SYSTEM) return g_progUseDB->retrieve(0X00001100);
-                else if(from == SYS_CHATDBID_GROUP ) return g_progUseDB->retrieve(0X00001300);
-                else                                 return g_progUseDB->retrieve(Hero::faceGfxID(gender, job));
+                if     (from == SDChatPeerID(CP_SPECIAL, SYS_CHATDBID_SYSTEM)) return g_progUseDB->retrieve(0X00001100);
+                else if(from == SDChatPeerID(CP_SPECIAL, SYS_CHATDBID_GROUP )) return g_progUseDB->retrieve(0X00001300);
+                else                                                           return g_progUseDB->retrieve(Hero::faceGfxID(gender, job));
             },
 
             peer->id != self->dbid(),

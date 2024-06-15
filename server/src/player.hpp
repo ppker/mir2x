@@ -334,8 +334,8 @@ class Player final: public BattleObject
         void dbRemoveInventoryItem(uint32_t, uint32_t);
 
     private:
-        std::tuple<uint64_t, uint64_t> dbSaveChatMessage(bool, uint32_t, const std::string_view &);
-        SDChatMessageList dbRetrieveLatestChatMessage(const std::vector<std::pair<bool, uint32_t>> &, size_t, bool, bool);
+        std::tuple<uint64_t, uint64_t> dbSaveChatMessage(const SDChatPeerID &, const std::string_view &);
+        SDChatMessageList dbRetrieveLatestChatMessage(const std::span<const uint64_t> &, size_t, bool, bool);
 
     private:
         void dbSecureItem(uint32_t, uint32_t);
@@ -420,6 +420,11 @@ class Player final: public BattleObject
         uint32_t dbid() const
         {
             return uidf::getPlayerDBID(UID());
+        }
+
+        SDChatPeerID cpid() const
+        {
+            return SDChatPeerID(CP_PLAYER, dbid());
         }
 
         bool gender() const

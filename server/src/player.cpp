@@ -1852,15 +1852,15 @@ void Player::postOnlineOK()
     postNetMessage(SM_PLAYERCONFIG,     cerealf::serialize(m_sdPlayerConfig));
     postNetMessage(SM_FRIENDLIST,       cerealf::serialize(m_sdFriendList));
 
-    std::vector<std::pair<bool, uint32_t>> friendIDList
+    std::vector<uint64_t> friendIDList
     {
-        {false, SYS_CHATDBID_SYSTEM},
-        {false, dbid()             },
+        SDChatPeerID(CP_SPECIAL, SYS_CHATDBID_SYSTEM).asU64(),
+        SDChatPeerID(CP_PLAYER , dbid()             ).asU64(),
     };
 
     std::for_each(m_sdFriendList.begin(), m_sdFriendList.end(), [&friendIDList](const auto &peer)
     {
-        friendIDList.push_back({peer.group(), peer.id});
+        friendIDList.push_back(peer.cpid().asU64());
     });
 
     if(!friendIDList.empty()){
