@@ -232,6 +232,12 @@ class SDChatPeerID
         {
             return m_data;
         }
+
+    public:
+        bool empty() const
+        {
+            return m_data == 0;
+        }
 };
 
 struct SDChatPeer
@@ -262,8 +268,17 @@ struct SDChatPeer
         ar(id, name, avatar, despvar);
     }
 
+    bool empty() const
+    {
+        return id == 0;
+    }
+
     SDChatPeerID cpid() const
     {
+        if(empty()){
+            return {};
+        }
+
         /**/ if(player()){ return {CP_PLAYER , id}; }
         else if(group ()){ return {CP_GROUP  , id}; }
         else             { return {CP_SPECIAL, id}; }
