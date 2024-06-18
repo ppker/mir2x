@@ -238,6 +238,12 @@ class SDChatPeerID
         {
             return m_data == 0;
         }
+
+    public:
+        operator bool () const
+        {
+            return !empty();
+        }
 };
 
 struct SDChatPeer
