@@ -51,7 +51,7 @@ void FriendChatBoard::FriendListPage::append(const SDChatPeer &peer, std::functi
         0,
         0,
 
-        peer.id,
+        SDChatPeerID(CP_PLAYER, peer.id),
         to_u8cstr(peer.name),
 
         [peer](const ImageBoard *)

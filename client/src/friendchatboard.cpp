@@ -661,7 +661,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                                   {
                                       if(const auto friendItem = dynamic_cast<const FriendItem *>(widget)){
                                           if(const auto checkBox = dynamic_cast<const CheckBox *>(friendItem->hasChild(friendItem->funcWidgetID)); checkBox->checkedValue()){
-                                              dbidList.push_back(friendItem->dbid);
+                                              dbidList.push_back(friendItem->cpid.id());
                                           }
                                       }
                                   });
@@ -781,7 +781,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                   {
                       return std::find_if(m_sdFriendList.begin(), m_sdFriendList.end(), [widget](const auto &x)
                       {
-                          return dynamic_cast<const FriendItem *>(widget)->dbid == x.id;
+                          return dynamic_cast<const FriendItem *>(widget)->cpid.id() == x.id;
 
                       }) == m_sdFriendList.end();
                   });
@@ -789,7 +789,7 @@ FriendChatBoard::FriendChatBoard(int argX, int argY, ProcessRun *runPtr, Widget 
                   for(const auto &peer: m_sdFriendList){
                       if(!listPage->canvas.hasChild([&peer](const Widget *widget, bool)
                       {
-                          return dynamic_cast<const FriendItem *>(widget)->dbid == peer.id;
+                          return dynamic_cast<const FriendItem *>(widget)->cpid.id() == peer.id;
 
                       })){
                           listPage->append(peer, [](FriendChatBoard::FriendItem *item)
@@ -966,7 +966,7 @@ void FriendChatBoard::addFriendListChatPeer(const SDChatPeerID &sdCPID)
         {
             setChatPeer(peerInst, true);
             setUIPage(FriendChatBoard::UIPage_CHAT);
-            m_processRun->requestLatestChatMessage({item->dbid}, 50, true, true);
+            m_processRun->requestLatestChatMessage({item->cpid.asU64()}, 50, true, true);
         });
     });
 }

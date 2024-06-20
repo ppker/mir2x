@@ -136,7 +136,7 @@ void FriendChatBoard::SearchPage::appendFriendItem(const SDChatPeer &candidate)
         0,
         maxY,
 
-        candidate.id,
+        SDChatPeerID(CP_PLAYER, candidate.id),
         to_u8cstr(candidate.name),
 
         [gender = candidate.player()->gender, job = candidate.player()->job](const ImageBoard *)

@@ -42,7 +42,8 @@ class FriendChatBoard: public Widget
             constexpr static int GAP = 5;
             constexpr static int FUNC_MARGIN = 5;
 
-            uint32_t dbid;
+            SDChatPeerID cpid;
+
             uint64_t funcWidgetID;
             std::function<void(FriendItem *)> onClick;
 
@@ -55,7 +56,8 @@ class FriendChatBoard: public Widget
                     int,
                     int,
 
-                    uint32_t,
+                    const SDChatPeerID &,
+
                     const char8_t *,
                     std::function<SDL_Texture *(const ImageBoard *)>,
 

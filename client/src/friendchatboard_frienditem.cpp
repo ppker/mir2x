@@ -8,9 +8,9 @@ FriendChatBoard::FriendItem::FriendItem(dir8_t argDir,
         int argX,
         int argY,
 
-        uint32_t argDBID,
-        const char8_t *argNameStr,
+        const SDChatPeerID &argCPID,
 
+        const char8_t *argNameStr,
         std::function<SDL_Texture *(const ImageBoard *)> argLoadImageFunc,
 
         std::function<void(FriendChatBoard::FriendItem *)> argOnClick,
@@ -42,7 +42,7 @@ FriendChatBoard::FriendItem::FriendItem(dir8_t argDir,
           argAutoDelete,
       }
 
-    , dbid(argDBID)
+    , cpid(argCPID)
     , funcWidgetID(argFuncWidget.first ? argFuncWidget.first->id() : 0)
     , onClick(std::move(argOnClick))
 

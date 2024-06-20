@@ -713,7 +713,7 @@ SDChatPeer Player::dbCreateChatGroup(const char *name, const std::span<const uin
             u8R"###(     fld_id;                                                      )###",
 
 
-            to_llu(dbid()),
+            to_llu(dbid()), // not cpid, for cross-table-reference
             to_llu(tstamp),
             name);
 
