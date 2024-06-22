@@ -295,8 +295,9 @@ void Player::net_CM_CHATMESSAGE(uint8_t, const uint8_t *buf, size_t bufSize, uin
     msgBuf = as_sv(buf + 8, bufSize - 8);
 
     const auto [msgId, tstamp] = dbSaveChatMessage(toCPID, msgBuf);
-    if(toCPID != cpid()){
-        forwardNetPackage(uidf::getPlayerUID(toCPID.id()), SM_CHATMESSAGELIST, cerealf::serialize(SDChatMessageList
+    const auto fnForwardChatMessage = [toCPID, msgBuf, msgId, tstamp, this](uint32_t playerDBID)
+    {
+        forwardNetPackage(uidf::getPlayerUID(playerDBID), SM_CHATMESSAGELIST, cerealf::serialize(SDChatMessageList
         {
             SDChatMessage
             {
@@ -311,9 +312,36 @@ void Player::net_CM_CHATMESSAGE(uint8_t, const uint8_t *buf, size_t bufSize, uin
                 .from = cpid(),
                 .to   = toCPID,
 
-                .message = std::move(msgBuf), // keep serialized
+                .message = msgBuf, // keep serialized
             },
         }));
+    };
+
+    switch(toCPID.type()){
+        case CP_SPECIAL:
+            {
+                break;
+            }
+        case CP_PLAYER:
+            {
+                if(toCPID != cpid()){
+                    fnForwardChatMessage(toCPID.id());
+                }
+                break;
+            }
+        case CP_GROUP:
+            {
+                for(const auto memberDBID: dbLoadChatGroupMemberList(toCPID.id())){
+                    if(memberDBID != dbid()){
+                        fnForwardChatMessage(memberDBID);
+                    }
+                }
+                break;
+            }
+        default:
+            {
+                throw fflvalue(toCPID.asU64());
+            }
     }
 
     postNetMessage(SM_OK, cerealf::serialize(SDChatMessageDBSeq

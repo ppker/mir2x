@@ -291,6 +291,17 @@ std::optional<SDChatPeer> Player::dbLoadChatPeer(bool argGroup, uint32_t argDBID
     }
 }
 
+std::vector<uint32_t> Player::dbLoadChatGroupMemberList(uint32_t chatGroup)
+{
+    std::vector<uint32_t> result;
+    auto query = g_dbPod->createQuery("select * from tbl_chatgroupmember where fld_group = %llu", to_llu(chatGroup));
+
+    while(query.executeStep()){
+        result.push_back(to_u32(query.getColumn("fld_member").getInt64())); // self may not be in this group
+    }
+    return result;
+}
+
 SDChatPeerList Player::dbQueryChatPeerList(const std::string &query, bool includePlayer, bool includeGroup)
 {
     fflassert(str_haschar(query));
@@ -718,7 +729,7 @@ SDChatPeer Player::dbCreateChatGroup(const char *name, const std::span<const uin
             name);
 
     if(query.executeStep()){
-        return SDChatPeer
+        SDChatPeer groupCP
         {
             .id = query.getColumn("fld_id"),
             .name = name,
@@ -728,6 +739,29 @@ SDChatPeer Player::dbCreateChatGroup(const char *name, const std::span<const uin
                 .createtime = tstamp,
             },
         };
+
+        std::string valStr;
+        for(const auto memberDBID: dbidList){
+            if(!valStr.empty()){
+                valStr.append(",");
+            }
+
+            valStr.append(str_printf("(%llu, %llu, %llu, %llu)",
+                to_llu(groupCP.id),
+                to_llu(memberDBID),
+                to_llu(0), // TODO - define group permission
+                to_llu(tstamp)));
+        }
+
+        auto addMemberQuery = g_dbPod->createQuery(
+                u8R"###( insert into tbl_chatgroupmember(fld_group, fld_member, fld_permission, fld_jointime) )###"
+                u8R"###( values                                                                               )###"
+                u8R"###(     %s;                                                                              )###",
+
+                valStr.c_str());
+
+        addMemberQuery.executeStep();
+        return groupCP;
     }
     else{
         throw fflerror("failed to create a group");
