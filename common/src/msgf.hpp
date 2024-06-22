@@ -92,7 +92,6 @@ namespace msgf
 
             bool useXor64() const
             {
-                return true; // TODO debug only
                 return type() == 1 && dataLen() >= 256;
             }
 
