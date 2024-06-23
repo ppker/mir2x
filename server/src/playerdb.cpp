@@ -584,7 +584,7 @@ void Player::dbLoadLearnedMagic()
 
 void Player::dbLoadFriendList()
 {
-    // tbl_learnedmagiclist:
+    // tbl_friend:
     // +----------+------------+
     // | fld_dbid | fld_friend |
     // +----------+------------+
@@ -593,19 +593,36 @@ void Player::dbLoadFriendList()
     // |<--primary key-->|
 
     m_sdFriendList.clear();
-    auto query = g_dbPod->createQuery("select * from tbl_char where fld_dbid in (select fld_friend from tbl_friend where fld_dbid = %llu)", to_llu(dbid()));
+    auto queryPlayer = g_dbPod->createQuery("select * from tbl_char where fld_dbid in (select fld_friend from tbl_friend where fld_dbid = %llu)", to_llu(dbid()));
 
-    while(query.executeStep()){
+    while(queryPlayer.executeStep()){
         m_sdFriendList.push_back(SDChatPeer
         {
-            .id = query.getColumn("fld_dbid"),
-            .name = query.getColumn("fld_name").getString(),
+            .id = queryPlayer.getColumn("fld_dbid"),
+            .name = queryPlayer.getColumn("fld_name").getString(),
 
             .avatar = std::nullopt,
             .despvar = SDChatPeerPlayerVar
             {
-                .gender = query.getColumn("fld_gender").getUInt() > 0,
-                .job = query.getColumn("fld_job"),
+                .gender = queryPlayer.getColumn("fld_gender").getUInt() > 0,
+                .job = queryPlayer.getColumn("fld_job"),
+            },
+        });
+    }
+
+    auto queryChatGroup = g_dbPod->createQuery("select * from tbl_chatgroup where fld_id in (select fld_group from tbl_chatgroupmember where fld_member = %llu)", to_llu(dbid()));
+
+    while(queryChatGroup.executeStep()){
+        m_sdFriendList.push_back(SDChatPeer
+        {
+            .id = queryChatGroup.getColumn("fld_id"),
+            .name = queryChatGroup.getColumn("fld_name").getString(),
+
+            .avatar = std::nullopt,
+            .despvar = SDChatPeerGroupVar
+            {
+                .creator = queryChatGroup.getColumn("fld_creator"),
+                .createtime = to_u64(queryChatGroup.getColumn("fld_createtime").getInt64()),
             },
         });
     }

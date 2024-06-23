@@ -976,19 +976,19 @@ void FriendChatBoard::setFriendList(const SDFriendList &sdFL)
     m_sdFriendList = sdFL;
     std::unordered_set<uint64_t> seenCPIDList;
 
-    seenCPIDList.insert(SDChatPeerID(CP_SPECIAL, SYS_CHATDBID_SYSTEM).asU64());
-    addFriendListChatPeer(SDChatPeerID(CP_SPECIAL, SYS_CHATDBID_SYSTEM));
+    const auto fnAddFriend = [&seenCPIDList, this](const SDChatPeerID &sdCPID)
+    {
+        if(!seenCPIDList.contains(sdCPID.asU64())){
+            seenCPIDList.insert(sdCPID.asU64());
+            addFriendListChatPeer(sdCPID);
+        }
+    };
 
-    seenCPIDList.insert(m_processRun->getMyHero()->cpid().asU64());
-    addFriendListChatPeer(m_processRun->getMyHero()->cpid());
+    fnAddFriend(SDChatPeerID(CP_SPECIAL, SYS_CHATDBID_SYSTEM));
+    fnAddFriend(m_processRun->getMyHero()->cpid());
 
     for(const auto &sdCP: sdFL){
-        if(seenCPIDList.contains(sdCP.cpid().asU64())){
-            continue;
-        }
-
-        seenCPIDList.insert(sdCP.cpid().asU64());
-        addFriendListChatPeer(sdCP.cpid());
+        fnAddFriend(sdCP.cpid());
     }
 }
 
