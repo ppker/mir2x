@@ -64,13 +64,8 @@ void FriendChatBoard::ChatItemContainer::append(const SDChatMessage &sdCM, std::
         const auto chatPage = dynamic_cast<ChatPage *>(parent());
         const auto self = FriendChatBoard::getParentBoard(this)->m_processRun->getMyHero();
 
-        if(sdCM.from.group() && chatPage->peer.group() && sdCM.to == chatPage->peer.cpid()){
-            // group chat
-        }
-        else if(!sdCM.from.group() && !chatPage->peer.group() && (sdCM.from == chatPage->peer.cpid() || sdCM.to == chatPage->peer.cpid())){
-            // personal chat
-        }
-        else{
+        if(sdCM.from != chatPage->peer.cpid() && sdCM.to != chatPage->peer.cpid()){
+            fnOp(nullptr);
             return;
         }
 
